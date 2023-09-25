@@ -231,7 +231,7 @@ var Villagers = [
 			death: "My monocle...",
         },
 		canBeShown: function () {
-			return Player.quests.completedQuestArray.includes("Overdraft");
+			return Player.quests.completedQuestArray.includes("Overdraft") && !Player.quests.possibleQuestArray.includes("Underwater") && !Player.quests.activeQuestArray.includes("Underwater");
 		}
     },
     {

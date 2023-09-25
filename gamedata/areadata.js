@@ -3852,11 +3852,6 @@ var Areas = {
 		gargoyleWaterRight2: {normal: "assets/objects/waterShoot2.png", flip: "vertical"},
 		gargoyleWaterRight3: {normal: "assets/objects/waterShoot3.png", flip: "vertical"},
 
-
-
-
-
-
 		mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
 		fountain1: {normal: "assets/objects/fountainFlowing1.png", christmas: "assets/objects/fountainChristmas.png"},
 		fountain2: {normal: "assets/objects/fountainFlowing2.png", christmas: "assets/objects/fountainChristmas.png"},
@@ -3878,22 +3873,79 @@ var Areas = {
 		catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 		catBowlFull: {normal: "assets/objects/catBowlFull.png"},
 		eagleStatue: {normal: "assets/objects/eagleStatue.png"},
-		eaglecrestBanner: {normal: "assets/objects/eagleStatue.png"}
+		eaglecrestBanner: {normal: "assets/objects/eagleStatue.png"},
+
+		eaglecrestGhost: {samhain: "assets/enemies/eaglecrestGhost.png"},
+		eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
+		crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
+		melee: {samhain: "assets/projectiles/melee.png"},
 	},
 
 	callAreaJoinOnInit: true,
 	onAreaJoin: function () {
 		// samhain snakes and lights
 		if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
-			let no = Random(10,30); // num of snakes
+			let no = Random(60,90); // num of snakes
 			for (let i = 0; i < no; i++) {
 				Game.villagers.push(new Villager(Game.prepareNPC({
 					template: EnemyTemplates.eaglecrest.snake,
 				}, "villagers")));
 			}
 
-			if (Player.quests.questProgress.eaglecrestSamhainLights) {
-				map.eaglecrestSamhainLights();
+			if (Player.quests.questProgress.westSamhainLights) {
+				Areas.eaglecrest.samhainLights("west");
+			}
+			if (Player.quests.questProgress.mainSamhainLights) {
+				Areas.eaglecrest.samhainLights("main");
+			}
+			if (Player.quests.questProgress.eastSamhainLights) {
+				Areas.eaglecrest.samhainLights("east");
+			}
+			if (Player.quests.questProgress.graveyardSamhainLights) {
+				Areas.eaglecrest.samhainLights("graveyard");
+			}
+		}
+	},
+
+	// turn eaglecrest lights green!
+	samhainLights: function (location) {
+		let minX, maxX;
+		if (location === "west") {
+			minX = 0;
+			maxX = 2200;
+		}
+		else if (location === "main") {
+			minX = 2200;
+			maxX = 5560;
+		}
+		else if (location === "east") {
+			minX = 5560;
+			maxX = 7810;
+		}
+		else if (location === "graveyard") {
+			minX = 7810;
+			maxX = 99999;
+		}
+		let tileFunction = function (layer, tileNum) {
+			let tileCol = tileNum % map.cols;
+			let tileX = map.getX(tileCol);
+			return tileX >= minX && tileX < maxX;
+		}
+		map.replaceTiles(3, 145, tileFunction);
+		map.replaceTiles(11, 145, tileFunction);
+		map.replaceTiles(2, 146, tileFunction);
+		map.replaceTiles(34, 146, tileFunction);
+		map.replaceTiles(18, 153, tileFunction);
+		map.replaceTiles(42, 153, tileFunction);
+		map.replaceTiles(27, 154, tileFunction);
+		map.replaceTiles(19, 154, tileFunction);
+		map.replaceTiles(35, 156, tileFunction);
+		// also replace image of any light objects
+		for (let i = 0; i < Game.things.length; i++) {
+			if (Game.things[i].name === "Eaglecrest Lamp" && Game.things[i].x >= minX && Game.things[i].x < maxX) {
+				Game.things[i].setImage("eaglecrestLampSamhain");
+				Game.things[i].imageNight = "eaglecrestLampSamhain";
+				Game.things[i].imageDay = "eaglecrestLampSamhain";
 			}
 		}
 	},
@@ -4644,29 +4696,27 @@ onPlayerTouch: function () {
 
 		{x: 7126.9, y: 2021.4, image: 'cauldronEaglecrest', name: ''},
 		{x: 6539.9, y: 2039.2, image: 'anvil', name: ''},
-{x: 3747.5, y: 2561.9, z: -2, image: 'eaglecrestStatue', name: 'Eaglecrest Statue'},
-{x: 3747.5, y: 2104.9, z: 2, image: 'eaglecrestStatueHead', name: 'Eaglecrest Statue'},
-{x: 8306.1, y: 1658.7, image: 'gargoyleLeft', name: 'Monastery Gargoyle', orderOffsetY: 100,},
-{x: 10474.3, y: 1581.6, image: 'gargoyleRight', name: 'Monastery Gargoyle', orderOffsetY: 100,},
-{x: [8941.2, 9427.7, 9842, 10055.4], y: [2755.6, 3060.4, 2800, 2315.6], image: 'gravestone1', name: 'Gravestone'},
-{x: [9394.4, 10325.8, 10324.7], y: [2735.1, 2167.8, 3069.1], image: 'gravestone2', name: 'Gravestone'},
-{x: [9854.3, 10177.2, 9997, 10304.1, 9093.2], y: [3114.7, 2768, 2592.6, 2531.2, 3021.7], image: 'gravestone3', name: 'Gravestone'},
-{
-// id: 2,
-// if this id is changed, change the onRainStart function as well
-x: 8203.8,
-y: 1769.8,
-image: "gargoyleWaterLeft1",
-name: "Gargoyle Water",
-animation: {
-	type: "carousel",
-	frameTime: 200,
-	images: ["gargoyleWaterLeft1", "gargoyleWaterLeft2", "gargoyleWaterLeft3"],
-},
-canBeShown: function () {
-	return Weather.weatherType === "rain";
-},
-},
+		{x: 3747.5, y: 2561.9, z: -2, image: 'eaglecrestStatue', name: 'Eaglecrest Statue'},
+		{x: 3747.5, y: 2104.9, z: 2, image: 'eaglecrestStatueHead', name: 'Eaglecrest Statue'},
+		{x: 8306.1, y: 1658.7, image: 'gargoyleLeft', name: 'Monastery Gargoyle', orderOffsetY: 100,},
+		{x: 10474.3, y: 1581.6, image: 'gargoyleRight', name: 'Monastery Gargoyle', orderOffsetY: 100,},
+		{x: [8941.2, 9427.7, 9842, 10055.4, 9689.7], y: [2755.6, 3060.4, 2800, 2315.6, 2514.1,], image: 'gravestone1', name: 'Gravestone'},
+		{x: [9394.4, 10325.8, 10324.7, 9238,], y: [2735.1, 2167.8, 3069.1, 2045.4,], image: 'gravestone2', name: 'Gravestone'},
+		{x: [9854.3, 10177.2, 9997, 10304.1, 9093.2, 9913.1, 8576.9, ], y: [3114.7, 2768, 2592.6, 2531.2, 3021.7, 2068, 2556.7,], image: 'gravestone3', name: 'Gravestone'},
+		{
+			x: 8203.8,
+			y: 1769.8,
+			image: "gargoyleWaterLeft1",
+			name: "Gargoyle Water",
+			animation: {
+				type: "carousel",
+				frameTime: 200,
+				images: ["gargoyleWaterLeft1", "gargoyleWaterLeft2", "gargoyleWaterLeft3"],
+			},
+			canBeShown: function () {
+				return Weather.weatherType === "rain";
+			},
+		},
 
 
 
@@ -4718,8 +4768,8 @@ canBeShown: function () {
 		},
 		// border lampposts
 		{
-			x: [3142.6, 4360.4, 5079.2, 2414.6, 2444, 5069.6, 5052.5, 2439.2, 2983.9, 4457.9, 3523.3, 3979.3],
-			y: [1565.3, 1565.3, 1857.6, 1857.6, 2368.2, 2368.2, 2911.4, 2911.4, 1897.3, 1897.3, 1526.3, 1526.3],
+			x: [3142.6, 4360.4, 5079.2, 2414.6, 2444, 5069.6, 5052.5, 2439.2, 2983.9, 4457.9, 3523.3, 3979.3, 7976.9, 8753.7, 9182.4, 9656.9],
+			y: [1565.3, 1565.3, 1857.6, 1857.6, 2368.2, 2368.2, 2911.4, 2911.4, 1897.3, 1897.3, 1526.3, 1526.3, 2202.9, 2380.3, 2155.6, 2364.5],
 			imageDay: "eaglecrestLampDay",
 			imageNight: "eaglecrestLampNight",
 			name: "Eaglecrest Lamp",
@@ -4735,7 +4785,107 @@ canBeShown: function () {
 			},
 		},
 		{x: 2123, y: 1833, image: 'marketStall', name: 'Billie the Beetroot Merchant', showNameTag: true},
+
+		// samhain quest
+		{
+			// wrong crates
+			x: [8499.3, 9290.7, 9889.1, 10471.7, 10328.9, 10295.9, 9742.2, 8617.5, 8922.4, 9414.7, 9656.4],
+			y: [1929.1, 2060.4, 2065.8, 1687.1, 2525.7, 3070.9, 3239.3, 2552.8, 2753.3, 3023.7, 2473.1],
+			orderOffsetY: -10,
+			image: "crateSamhain",
+			onInteract: function () {
+				Game.hero.channel(function () {
+					let ghostShown = Random(0,1);
+					if (ghostShown === 1) {
+						let imageNumber = Random(1,2);
+						Game.enemies.push(new Enemy(Game.prepareNPC({
+							x: Game.hero.x + Random(-250, 250),
+							y: Game.hero.y + Random(-250, 250),
+							template: EnemyTemplates.eaglecrest["phantom"+imageNumber],
+						}, "enemies")));
+						let lineNumber = Random(0,3);
+						let textLines = ["Why do you awaken me?", "What do you want..", "Leave me alone!", "Ugh."];
+						Game.enemies[Game.enemies.length-1].say(textLines[lineNumber]);
+					}
+					Dom.chat.insert("That crate is empty!");
+				}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
+			},
+			canBeShown: function () {
+				return Player.quests.completedQuestArray.includes("Snakes and the City") && Event.event === "Samhain";
+			}
+		},
+		{
+			// correct crate
+			x: 10161.3,
+			y: 2759.5,
+			orderOffsetY: -10,
+			image: "crateSamhain",
+			onInteract: function () {
+				if (!Player.quests.questProgress.graveyardCrateGhosts) { // reset each time the area is left
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 10301.3,
+						y: 2759.5,
+						template: EnemyTemplates.eaglecrest.phantom2,
+					}, "enemies")));
+					Game.enemies.push(new Enemy(Game.prepareNPC({
+						x: 10001.3,
+						y: 2759.5,
+						template: EnemyTemplates.eaglecrest.phantom1,
+					}, "enemies")));
+					Game.enemies[Game.enemies.length-1].say("Please.. don't do this...");
+					Player.quests.questProgress.graveyardCrateGhosts = true;
+				}
+				Game.hero.channel(function () {
+					if (!Player.quests.questProgress.graveyardCrate) {
+						if (Dom.inventory.give(Items.item[38]) === false) {
+							Dom.chat.insert("Your inventory is full! Try again when you have space.");
+						}
+						else {
+							Player.quests.questProgress.graveyardCrate = true;
+							Dom.chat.insert("You found a <b>Blood-Red Crystal</b> in the crate.");
+							Dom.quests.active()
+						}
+					}
+					else {
+						Dom.chat.insert("You have already looted that crate!");
+					}
+				}, [], 1666, "Rummaging through crate", {cancelChannelOnDamage: true});
+			},
+			canBeShown: function () {
+				return Player.quests.completedQuestArray.includes("Snakes and the City") && Event.event === "Samhain";
+			}
+		},
 	],
+
+	onRainStart: function () {
+		// add water from gargoyle in 10 seconds
+		Game.setTimeout(function () {
+			// check area is still the same
+			if (Game.areaName === "eaglecrest") {
+				// add them
+				let npcToPrepare = Areas.eaglecrest.things.find(thing => thing.name === "Gargoyle Water");
+				let preparedNPC = Game.prepareNPC(npcToPrepare, "things");
+				if (preparedNPC) {
+					Game.things.push(new Thing(preparedNPC));
+				}
+			}
+		}, 10000);
+	},
+
+	onRainStop: function () {
+		// remove water from gargoyles in 10 seconds
+		Game.setTimeout(function () {
+			// check area is still the same
+			if (Game.areaName === "eaglecrest") {
+				// find all water to be removed
+				let waterToRemove = Game.things.filter(thing => thing.name === "Gargoyle Water");
+				for (let i = 0; i < waterToRemove.length; i++) {
+					// remove them
+					Game.removeObject(waterToRemove[i].id, "things");
+				}
+			}
+		}, 10000);
+	},
 },
 
 	eaglecrestWest: {
@@ -5880,7 +6030,7 @@ canBeShown: function () {
 				height: 2,
 				teleportTo: "samhainLair",
 				destinationX: 300,
-				destinationY: 1740,
+				destinationY: 1730,
 				teleportCondition: function () {
 					return Dom.inventory.check(36, "item"); // if they're holding skeleton key
 				},
@@ -7231,28 +7381,28 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			{
 				x: 60,
 				y: 225,
-				orderOffsetY: -50,
+				orderOffsetY: -10,
 				image: "crate",
 				name: "Crate"
 			},
 			{
 				x: 320,
 				y: 220,
-				orderOffsetY: -50,
+				orderOffsetY: -10,
 				image: "crate",
 				name: "Crate"
 			},
 			{
 				x: 670,
 				y: 220,
-				orderOffsetY: -50,
+				orderOffsetY: -10,
 				image: "crate",
 				name: "Crate"
 			},
 			{
 				x: 740,
 				y: 224,
-				orderOffsetY: -50,
+				orderOffsetY: -10,
 				image: "crate",
 				name: "Crate"
 			},
@@ -7308,7 +7458,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			{
 				x: 490,
 				y: 224,
-				orderOffsetY: -50,
+				orderOffsetY: -10,
 				image: "crateSamhain",
 				onInteract: function () {
 					if (!Player.quests.questProgress.bazaarCrateGhosts) { // reset when area is left
@@ -8844,7 +8994,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		onAreaJoin: function () {
 			// samhain snakes and lights
 			if (Event.event === "Samhain" && Player.quests.completedQuestArray.includes("Overdraft")) {
-				let no = Random(10,20); // num of snakes
+				let no = Random(20,35); // num of snakes
 				for (let i = 0; i < no; i++) {
 					Game.villagers.push(new Villager(Game.prepareNPC({
 						template: EnemyTemplates.eaglecrest.snake,
@@ -10460,235 +10610,6 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 		],
 	},
 
-
-
-	samhainLair: {
-		id: 21,
-
-		data: {
-			name: "Lair",
-			displayOnEnter: false,
-		},
-
-		tagGameAllowed: true,
-
-		song_day: "assets/music/Eaglecrest.mp3",
-		song_night: "assets/music/Eaglecrest.mp3",
-
-		checkpoint: false,
-
-		lootArea: "eaglecrest",
-		lootTier: 1,
-
-		indoors: true,
-
-		mapData: {
-			cols: 10,
-			rows: 30,
-			tsize: 60,
-			tilesPerRow: 8,
-			solidTiles: [1, 2, 3, 6, 7, 9, 10, 11, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 53, 55, 61, 65, 69, 70, 73, 77, 82, 83, 89, 90, 97, 98, 123, 131, 155],
-			dayTiles: [11, 27, 34, 42, 7], // windows and lights
-			nightTiles: [3, 19, 2, 18, 15],
-			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 86, 87, 88, 91, 92, 93, 99, 107, 108, 109, 110, 111, 113, 115, 117, 118, 119, 121, 125, 126, 127, 129, 133, 134, 135, 137, 138, 139, 140, 141, 147, 148, 149],
-			waterTiles: [32, 40, 48, 112, 120, 128],
-			iceTiles: [32, 40, 48],
-			layers: [[131, 123, 6, 6, 6, 123, 6, 6, 123, 6,
-            6, 6, 6, 131, 6, 6, 131, 123, 6, 6,
-            123, 131, 6, 131, 123, 131, 6, 6, 6, 123,
-            131, 6, 123, 6, 6, 6, 6, 123, 131, 123,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            100, 100, 100, 100, 100, 100, 100, 100, 100, 100,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155,
-            155, 155, 155, 100, 100, 100, 100, 155, 155, 155],]
-		},
-
-		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
-			yellowSnakeRight: {normal: "assets/enemies/yellowSnake.png"},
-			yellowSnakeLeft: {normal: "assets/enemies/yellowSnake.png", flip: "vertical"},
-			snakeMan: {normal: "assets/npcs/soothsssayer.png"},
-			eaglecrestGhost: {normal: "assets/enemies/eaglecrestGhost.png"},
-			eaglecrestGhost2: {normal: "assets/enemies/eaglecrestGhost2.png"},
-			melee: {normal: "assets/projectiles/melee.png"},
-			crateSamhain: {normal: "assets/objects/crateSamhain.png"}, // tbd add a crate
-			cauldron: {normal: "assets/objects/cauldronSamhain.png"},
-		},
-
-		callAreaJoinOnInit: true,
-		onAreaJoin: function () {
-			if (Event.event === "Samhain") {
-				// samhain snakes
-				let no = Random(10,30); // num of snakes
-				for (let i = 0; i < no; i++) {
-					Game.villagers.push(new Villager(Game.prepareNPC({
-						template: EnemyTemplates.eaglecrest.snake,
-					}, "villagers")));
-				}
-
-				if (Player.quests.questProgress.bloodMoonUnlocked) {
-					Areas.samhainLair.indoors = false;
-					Areas.samhainLair.weather = "bloodRain";
-					Event.updateTime("samhainLair");
-					Weather.updateVariables();
-				}
-			}
-			else {
-				Game.loadArea("eaglecrestTavern", {x: 1158, y: 169});
-			}
-		},
-
-		callAreaLeaveOnLogout: true,
-		onAreaLeave: function (logout) {
-			// in case they died on the blood moon is coming quest
-			if (Event.time !== "bloodMoon") {
-				Areas.samhainLair.weather = undefined;
-				Areas.samhainLair.indoors = true;
-			}
-
-			// abandon blood moon is coming quest
-			if (Player.quests.activeQuestArray.includes("The Blood Moon is Coming...")) {
-				let chat = "<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.";
-				if (logout) {
-					Player.chatOnJoin.push(chat);
-				}
-				else {
-					Dom.chat.insert(chat);
-				}
-				Dom.quest.abandon(Quests.eaglecrest[6]);
-			}
-		},
-
-		areaTeleports: [
-			{
-				// teleport to eaglecrest tavern
-				x: 300,
-				y: 1800,
-				width: 240,
-				height: 2,
-				teleportTo: "eaglecrestTavern",
-				destinationX: 1230,
-				destinationY: 160,
-			},
-		],
-
-		villagerData: {
-			minPeople: 0,
-			maxPeople: 0,
-			locations: [
-				{
-					x: 25,
-					y: 260,
-					width: 550,
-					height: 570,
-				},
-				{
-					x: 205,
-					y: 830,
-					width: 190,
-					height: 900,
-				},
-			],
-		},
-
-		npcs: [
-			{
-				x: 300,
-				y: 280,
-				image: "snakeMan",
-				name: "The Soothsssayer",
-				nameHidden: function () {
-					return !Player.quests.completedQuestArray.includes("Snaking Bad");
-				},
-				hostility: "neutral",
-				level: 100,
-				stats: {
-					maxHealth: 550,
-					defence: 50,
-					dodgeChance: 100,
-					healthRegen: 666,
-				},
-				roles: [
-					{
-						sold: [
-							{item: Items.consumable[9], cost: 1, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain pot o' gloop
-							{item: Items.consumable[10], cost: 2, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // bunch of blood bats
-							{item: Items.chest[7], cost: 10, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // ghost sheet
-							Player.class === "a" ? {item: Items.bow[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain spiderbow
-							: Player.class === "k" ? {item: Items.sword[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain scythe
-							: {item: Items.staff[8], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain broomstick
-						],
-						role: "merchant",
-						chooseText: "I'd like to turn in some Samhain Marks for items.",
-						shopGreeting: "Now there'ssss the Blood Moon, I need <b>Sssssamhain Marksssss</b> for the next ssstage of my plan. There'ssss itemss in it for you of coursssse...",
-						roleRequirement: function () {
-							return Event.time === "bloodMoon";
-						},
-					},
-					{
-						quest: Quests.eaglecrest[3],
-						role: "questFinish",
-					},
-					{
-						quest: Quests.eaglecrest[4],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.eaglecrest[5],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.eaglecrest[6],
-						role: "questStart",
-					},
-				],
-				chat: {
-					shopLeave: "I still need more markssssss. You'll be back.",
-					inventoryFull: "You cannot hold that.",
-					tooPoor: "You cannot afford that. Kill more enemiesssss.",
-					questProgress: "I have rewardssssss waiting.",
-				},
-			},
-		],
-
-		characters: [
-			{
-				template: NPCTemplates.soothsssayerCauldron
-			}
-		],
-
-		collisions: [
-			{
-				x: 300, // cauldron
-				y: 566,
-				width: 110,
-				height: 60,
-			},
-		],
-	},
-
 	catLife: {
 		id: 22,
 
@@ -11084,168 +11005,6 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			layers: [[204],]
 		},
 
-		images: {
-			tiles: {normal: "assets/tilemap/eaglecrest.png", christmas: "assets/tilemap/eaglecrestChristmas.png"},
-			yellowSnakeRight: {normal: "assets/enemies/yellowSnake.png"},
-			yellowSnakeLeft: {normal: "assets/enemies/yellowSnake.png", flip: "vertical"},
-			snakeMan: {normal: "assets/npcs/soothsssayer.png"},
-			eaglecrestGhost: {normal: "assets/enemies/eaglecrestGhost.png"},
-			eaglecrestGhost2: {normal: "assets/enemies/eaglecrestGhost2.png"},
-			melee: {normal: "assets/projectiles/melee.png"},
-			crateSamhain: {normal: "assets/objects/crateSamhain.png"}, // tbd add a crate
-			cauldron: {normal: "assets/objects/cauldronSamhain.png"},
-		},
-
-		callAreaJoinOnInit: true,
-		onAreaJoin: function () {
-			if (Event.event === "Samhain") {
-				// samhain snakes
-				let no = Random(10,30); // num of snakes
-				for (let i = 0; i < no; i++) {
-					Game.villagers.push(new Villager(Game.prepareNPC({
-						template: EnemyTemplates.eaglecrest.snake,
-					}, "villagers")));
-				}
-
-				if (Player.quests.questProgress.bloodMoonUnlocked) {
-					Areas.samhainLair.indoors = false;
-					Areas.samhainLair.weather = "bloodRain";
-					Event.updateTime("samhainLair");
-					Weather.updateVariables();
-				}
-			}
-			else {
-				Game.loadArea("eaglecrestTavern", {x: 1158, y: 169});
-			}
-		},
-
-		callAreaLeaveOnLogout: true,
-		onAreaLeave: function (logout) {
-			// in case they died on the blood moon is coming quest
-			if (Event.time !== "bloodMoon") {
-				Areas.samhainLair.weather = undefined;
-				Areas.samhainLair.indoors = true;
-			}
-
-			// abandon blood moon is coming quest
-			if (Player.quests.activeQuestArray.includes("The Blood Moon is Coming...")) {
-				let chat = "<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.";
-				if (logout) {
-					Player.chatOnJoin.push(chat);
-				}
-				else {
-					Dom.chat.insert(chat);
-				}
-				Dom.quest.abandon(Quests.eaglecrest[6]);
-			}
-		},
-
-		areaTeleports: [
-			{
-				// teleport to eaglecrest tavern
-				x: 300,
-				y: 1800,
-				width: 240,
-				height: 2,
-				teleportTo: "eaglecrestTavern",
-				destinationX: 1230,
-				destinationY: 160,
-			},
-		],
-
-		villagerData: {
-			minPeople: 0,
-			maxPeople: 0,
-			locations: [
-				{
-					x: 25,
-					y: 260,
-					width: 550,
-					height: 570,
-				},
-				{
-					x: 205,
-					y: 830,
-					width: 190,
-					height: 900,
-				},
-			],
-		},
-
-		npcs: [
-			{
-				x: 300,
-				y: 280,
-				image: "snakeMan",
-				name: "The Soothsssayer",
-				nameHidden: function () {
-					return !Player.quests.completedQuestArray.includes("Snaking Bad");
-				},
-				hostility: "neutral",
-				level: 100,
-				stats: {
-					maxHealth: 550,
-					defence: 50,
-					dodgeChance: 100,
-					healthRegen: 666,
-				},
-				roles: [
-					{
-						sold: [
-							{item: Items.consumable[9], cost: 1, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain pot o' gloop
-							{item: Items.consumable[10], cost: 2, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // bunch of blood bats
-							{item: Items.chest[7], cost: 10, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // ghost sheet
-							Player.class === "a" ? {item: Items.bow[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain spiderbow
-							: Player.class === "k" ? {item: Items.sword[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain scythe
-							: {item: Items.staff[8], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain broomstick
-						],
-						role: "merchant",
-						chooseText: "I'd like to turn in some Samhain Marks for items.",
-						shopGreeting: "Now there'ssss the Blood Moon, I need <b>Sssssamhain Marksssss</b> for the next ssstage of my plan. There'ssss itemss in it for you of coursssse...",
-						roleRequirement: function () {
-							return Event.time === "bloodMoon";
-						},
-					},
-					{
-						quest: Quests.eaglecrest[3],
-						role: "questFinish",
-					},
-					{
-						quest: Quests.eaglecrest[4],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.eaglecrest[5],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.eaglecrest[6],
-						role: "questStart",
-					},
-				],
-				chat: {
-					shopLeave: "I still need more markssssss. You'll be back.",
-					inventoryFull: "You cannot hold that.",
-					tooPoor: "You cannot afford that. Kill more enemiesssss.",
-					questProgress: "I have rewardssssss waiting.",
-				},
-			},
-		],
-
-		characters: [
-			{
-				template: NPCTemplates.soothsssayerCauldron
-			}
-		],
-
-		collisions: [
-			{
-				x: 300, // cauldron
-				y: 566,
-				width: 110,
-				height: 60,
-			},
-		],
 	},
 pawPeaksTower: {
         id: 23,
@@ -12247,7 +12006,7 @@ eaglecrestWell: {
 				// pan to boss
 				Game.camera.pan({x: 800, y: 900}, 250, "accelerate", function () {
 					Areas.eaglecrestWell.initNewPhase();
-					let num = Game.setInterval(Areas.eaglecrestWell.initNewPhase, 30000);
+					let num = Game.setInterval(Areas.eaglecrestWell.initNewPhase, 35000);
 					Game.clearedIntervalsOnAreaChange.push(num);
 					Areas.eaglecrestWell.intervalToClear = num;
 
@@ -12359,7 +12118,7 @@ eaglecrestWell: {
 					User.progress.gnomesFound = [];
 				}
 				if (!User.progress.gnomesFound.includes("green")) {
-					Dom.chat.insert("<i>You found a green gnome﹏")
+					Dom.chat.insert("<i>You found a green gnome﹏</i>")
 					User.progress.gnomesFound.push("green");
 				}
 			}

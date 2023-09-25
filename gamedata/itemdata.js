@@ -2470,7 +2470,7 @@ unidentifiedArea: ["caves"],
 			projectile: "slashBlood",
 		},
 		{
-			id: 16,
+			id: 16, // NO LONGER IN USE (moved to tools)
 			name: "Net",
 			type: "sword",
 			image: "assets/items/sword/16.png",
@@ -4607,13 +4607,28 @@ unidentifiedArea: ["caves"],
 			image: "assets/items/item/35.png",
 			functionText: "Sssiphons the light esssssence of any nearby light sssources",
 			onClickFunction: function () {
-				let questProgressKeyName = Game.areaName+"SamhainLights";
-				if (!Player.quests.questProgress[questProgressKeyName] && (Game.areaName === "eaglecrestGraveyard" || Game.areaName === "eaglecrestEast" || Game.areaName === "eaglecrest" || Game.areaName === "eaglecrestWest")) {
+				let locName = "";
+				if (Game.areaName === "eaglecrest") {
+					if (Game.hero.x < 2200) {
+						locName = "west";
+					}
+					else if (Game.hero.x < 5560 && Game.hero.x >= 2200) {
+						locName = "main";
+					}
+					else if (Game.hero.x < 7810 && Game.hero.x >= 5560) {
+						locName = "east";
+					}
+					else if (Game.hero.x >= 7810) {
+						locName = "graveyard";
+					}
+				}
+				let questProgressKeyName = locName+"SamhainLights";
+				if (!Player.quests.questProgress[questProgressKeyName]) {
 					Game.hero.channel(function () {
 						Player.quests.questProgress[questProgressKeyName] = true;
 						Dom.checkProgress();
 
-						map.eaglecrestSamhainLights();
+						Areas.eaglecrest.samhainLights(locName);
 
 						// flickering!
 						/*Game.clearedIntervalsOnAreaChange.push(Game.setTimeout(function() {
@@ -4654,6 +4669,7 @@ unidentifiedArea: ["caves"],
 					Dom.quest.abandon(Quests.eaglecrest[4]);
 					Dom.quest.abandon(Quests.eaglecrest[5]);
 					Dom.quest.abandon(Quests.eaglecrest[6]);
+					Player.quests.questProgress.hasSkeletonKey = false;
 					return true;
 				}
 				return false;
@@ -5396,11 +5412,10 @@ unidentifiedArea: ["caves"],
 			type: "consumable",
 			sellPrice: 2,
 			image: "assets/items/consumable/10.png",
-			functionText: "Sends a bat out to seek out the nearest enemy, dealing 5 damage and stunning them for 1s",
+			functionText: "Sends a bat to seek out the nearest enemy, dealing 5 damage and stunning them for 1.5s",
             cooldown: 5, // 5 seconds
 			maxCharges: 3,
 			onClickFunction: function (inventoryPosition, hotbar) {
-
 				// find closest enemy
 				let moveTowards = Game.closest(Game.enemies, Game.hero);
 
@@ -5417,7 +5432,7 @@ unidentifiedArea: ["caves"],
 						y: Game.hero.y,
 						stats: {
 							damage: 5,
-							stun: 1,
+							stun: 1.5,
 						},
 						attacker: Game.hero,
 						targets: [[moveTowards]],
@@ -6389,6 +6404,23 @@ unidentifiedArea: ["caves"],
 			//range: melee??, // tbd
 			//functionText: "",
 		},
+		{
+			id: 6,
+			name: "Net",
+			type: "tool",
+			toolType: "meleeTool", // acts like how old swords used to
+			image: "assets/items/sword/16.png",
+			projectile: "melee",
+			uncollectable: true,
+			tier: 1,
+			rarity: "common",
+			quest: true,
+			removeOnAbandon: "Snakes and the City",
+			stats: {
+				damage: 1,
+			},
+			functionText: "Can be used at a melee range to catch some small creatures",
+		},
 	],
 	mount: [
 		{
@@ -6453,9 +6485,9 @@ unidentifiedArea: ["caves"],
 				}
 			}
 		},
+		// test mount tbd
 	],
 	// when adding new area remember to add fishing skill to top of area data
-
 	fish: [
 		{
 			id: 0,

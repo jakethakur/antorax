@@ -234,6 +234,10 @@ const NPCTemplates = { // tbd combine with villagers
 				Game.clearTimeout(Game.clearedTimeoutsOnAreaChange[0]);
 				Game.clearedTimeoutsOnAreaChange.splice(0, 1);
 			}
+			// set back weather etc
+			Areas.samhainLair.weather = "clear";
+			Areas.samhainLair.indoors = true;
+			Weather.updateVariables();
 		},
 	}
 }
@@ -584,10 +588,10 @@ const EnemyTemplates = {
 			level: 15,
 			expand: 0.8, // default size (changes with wood consumption)
 			stats: {
-				damage: Player.class === "k" ? 1 : 3, // doubled during blood moon
+				damage: 3, // doubled during blood moon
 				walkSpeed: 70,
 				swimSpeed: 70,
-				maxHealth: Player.class === "k" ? 90 : 140, // doubled during blood moon
+				maxHealth: 140, // doubled during blood moon
 				defence: 10,
 				range: 90,
 				healthRegen: 0, // no regen in the blood moon
@@ -694,17 +698,18 @@ const EnemyTemplates = {
 			bossKilledVariable: "barebonesNkkja",
 			level: 15,
 			stats: {
-				damage: 1.5, // damage and health are doubled in blood moon
+				damage: 2, // damage and health are doubled in blood moon
 				walkSpeed: 110,
 				swimSpeed: 50,
 				iceSpeed: 160,
 				maxHealth: 200,
 				defence: 4,
-				range: 200,
+				range: 360,
 				reloadTime: 850,
 				healthRegen: 0, // no regen in the blood moon
 				lootTime: 20000,
 				windShield: true,
+				projectileSpeed: 300,
 			},
 			attackBehaviour: {
 				baseAggro: 1000, // always aggroed on player
@@ -889,6 +894,19 @@ const EnemyTemplates = {
 			onDeath: function () {
 				Player.quests.questProgress.snakesCaptured = Increment(Player.quests.questProgress.snakesCaptured);
 				Dom.inventory.give(Items.item[34]);
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 43,
+				imagesPerRow: 2,
+				totalImages: 2,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 87,
+				height: 16,
 			},
 		},
 		toad: {

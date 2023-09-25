@@ -69,15 +69,22 @@ Game.loadPlayer = function () {
 		// load existing class
         let savedPlayer = JSON.parse(localStorage.getItem(Player.class));
 
-        // add anything new that has been added in savedata to Player
+        // add anything new that has been added in savedata to Player (fixees out of date properties)
         savedPlayer.bossesKilled = Object.assign(Player.bossesKilled, savedPlayer.bossesKilled);
         savedPlayer.stats = Object.assign(Player.stats, savedPlayer.stats);
         savedPlayer.quests = Object.assign(Player.quests, savedPlayer.quests);
         savedPlayer.reputation = Object.assign(Player.reputation, savedPlayer.reputation);
+		// update inventory:
+        savedPlayer.inventory = Object.assign(Player.inventory, savedPlayer.inventory);
+		if (Player.inventory.items[5].type === "bag" && typeof Player.inventory.bag.type === "undefined") { // put bag in bag slot
+			Player.inventory.bag = Player.inventory.items[5];
+			Player.inventory.items[5] = {};
+		}
+
         Player = Object.assign(Player, savedPlayer);
 
         Player.name = playerName;
-        Player.skin = playerSkin;
+        Player.skin = playerSkin;//kkkkkkkkkkkkkkkkkkkkkk
     }
 }
 
@@ -115,7 +122,9 @@ Game.initWebSocket = function () {
 				name:  Player.name,
 				class: Player.class,
 				level: Player.level,
-				skin: Player.skin,
+				skinTone: Player.skinTone,
+				clothing: Player.clothing,
+				hair: Player.hair,
 				area: Player.areaName,
 				displayArea: Player.displayAreaName,
 				x: Player.x,
@@ -560,14 +569,28 @@ Game.addPlayer = function (player) {
 					copiedPlayer.hostility = "friendly";
 				}
 
+				copiedPlayer.animation = {
+					type: "spritesheet",
+					frameTime: 15,
+					imagesPerRow: 4,
+					totalImages: 4,
+					animateBasis: "walk"
+				},
+
 				// add the player
 				this.players.push(new UserControllable(copiedPlayer));
 				let addedPlayer = this.players[this.players.length-1];
 
 				// load its image
-				addedPlayer.init().then(function () {
+				Promise.all(addedPlayer.init()).then(function () {
 					// set the image
-					addedPlayer.setImage("player"+addedPlayer.class+addedPlayer.skin, {x:0,y:0}, 57, 120);
+					addedPlayer.setImage("player_"+addedPlayer.skinTone, {
+						x: 0,
+						y: 0,
+						width: 52,
+						height: 127
+					});
+					addedPlayer.setAdditionalImages([{imageName: "player_"+addedPlayer.clothing}, {imageName: "player_"+addedPlayer.hair}]);
 
 					addedPlayer.updateRotation();
 
@@ -942,40 +965,16 @@ var map = {
 	},
 
 	// replace all tiles in the area (any layer) of id "from" to id "to"
-	replaceTiles: function (from, to) {
+	// requirement is an optional function which is passed in layer, tileIndex
+	replaceTiles: function (from, to, requirement) {
 		// iterate through layers
 		for (let layer = 0; layer < this.layers.length; layer++) {
 			// iterate through tiles to find those that need replacing
 			for (let tileIndex = 0; tileIndex < this.layers[layer].length; tileIndex++) {
-				if (this.layers[layer][tileIndex] === from) {
+				if (this.layers[layer][tileIndex] === from && (typeof requirement === "undefined" || requirement(layer, tileIndex))) {
 					// tile needs replacing
 					this.layers[layer][tileIndex] = to;
 				}
-			}
-		}
-	},
-
-	//
-	// 'hard-coded' functions to do specific things
-	//
-
-	// turn eaglecrest lights green!
-	eaglecrestSamhainLights: function () {
-		this.replaceTiles(3, 145);
-		this.replaceTiles(11, 145);
-		this.replaceTiles(2, 146);
-		this.replaceTiles(34, 146);
-		this.replaceTiles(18, 153);
-		this.replaceTiles(42, 153);
-		this.replaceTiles(27, 154);
-		this.replaceTiles(19, 154);
-		this.replaceTiles(35, 156);
-		// also replace image of any light objects
-		for (let i = 0; i < Game.things.length; i++) {
-			if (Game.things[i].name === "Eaglecrest Lamp") {
-				Game.things[i].setImage("eaglecrestLampSamhain");
-				Game.things[i].imageNight = "eaglecrestLampSamhain";
-				Game.things[i].imageDay = "eaglecrestLampSamhain";
 			}
 		}
 	},
@@ -1009,7 +1008,7 @@ Game.searchFor = function (id, array, mightNotBeInArray) {
 		}
 	}
 	if (index === null && !mightNotBeInArray) {
-		console.error("The requested item of id " + id + " could not be found in the following array: ", array);
+		console.warn("The requested item of id " + id + " could not be found in the following array: ", array);
 	} // some places this is used, it doesn't matter if the search fails
 	return index;
 }
@@ -1028,6 +1027,16 @@ Game.removeObject = function (id, type, index) {
 	if (i !== null) {
 		let obj = this.allEntities[i];
 		obj.removed = true; // used to stop further code in the object from being run after it is removed
+
+		// remove its channelling (timeout) if it has one
+		if (typeof obj.removeChannelling !== "undefined") {
+			obj.removeChannelling("removeObject");
+		}
+
+		// remove any status effect timeouts
+		if (typeof obj.removeAllStatusEffects !== "undefined") {
+			obj.removeAllStatusEffects();
+		}
 
 		// every object is an entity
 		// remove from allEntities
@@ -1063,6 +1072,9 @@ Game.removeObject = function (id, type, index) {
 		// remove from specific array of its type
 		if (index === undefined) {
 			index = this.searchFor(id, this[type]);
+			if (index === null) {
+				console.error("Could not remove object of id", id, "and type", type, "from Game."+type)
+			}
 		}
 		this[type].splice(index, 1);
 	}
@@ -2038,7 +2050,7 @@ class Character extends Thing {
 		// foot collision (for tile speeds/collisions)
 		// x and y positions are in centre
 		let footHeight = properties.footHeight || 20; // distance from bottom boundary of player of foot hitbox
-		this.footHitbox = new Entity({
+		this.footHitbox = Game.entities[Game.entities.push(new Entity({
 			map: map,
 			x: this.x,
 			y: this.y + this.height/2 - footHeight/2,
@@ -2046,7 +2058,7 @@ class Character extends Thing {
 			height: footHeight,
 			hitboxColour: "#FF00FF",
 			type: "entities",
-		});
+		})) -1];
 
 		// channelling
 		this.channelling = false;
@@ -2626,7 +2638,7 @@ class Character extends Thing {
 		if (this !== Game.hero) {
 			// not player (assumed it is killed by player - TBD)
 			// TBD use hostility to check if it is killed by player
-			if (this.health <= 0 && !this.isCorpse) { // check it is dead and not already a corpse
+			if (this.health <= 0 && !this.isCorpse && !this.removed) { // check it is dead and not already a corpse
 
 				// death ! !
 
@@ -3560,12 +3572,21 @@ class UserControllable extends Attacker {
 
 		this.userID = properties.userID;
 
-		this.skin = properties.skin;
+		this.skinTone = properties.skinTone;
+		this.clothing = properties.clothing;
+		this.hair = properties.hair;
 	}
 
 	// call to load image after constructor
 	init () {
-		return Loader.loadImage("player"+this.class+this.skin, "./assets/player/" + this.class + this.skin + ".png");
+		let skinKeyName = "player_"+this.skinTone;
+		let clothingKeyName = "player_"+this.clothing;
+		let hairKeyName = "player_"+this.hair;
+		let loadObj = {};
+		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
+		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.clothing + ".png"};
+		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
+		return Loader.loadMultipleImages(loadObj, false);
 	}
 
 	// called after this.direction is updated
@@ -8366,7 +8387,14 @@ Game.loadArea = function (areaName, destination) {
 
 	this.loadingArea = true; // set to false at the end of this function, once the promise is dealt with (because of asynchronocity with animationframe)
 
-	this.areaTeleports = []; // stop player from teleporting again during promise
+	// stop player from teleporting again during promise
+	if (typeof this.areaTeleports !== "undefined") {
+		for (let i = 0; i < this.areaTeleports.length; i++) {
+			this.removeObject(this.areaTeleports[i].id, this.areaTeleports[i].type, i);
+			i--;
+		}
+	}
+	this.areaTeleports = [];
 
 	// clear all timeouts and intervals that should be cleared upon changing area
 	while (this.clearedTimeoutsOnAreaChange.length > 0) {
@@ -8539,6 +8567,16 @@ Game.loadArea = function (areaName, destination) {
 		// init
 		//
 
+		// remove all existing entities from previous area
+		// note areateleports have already been done above
+		if (typeof this.allEntities !== "undefined") {
+			for (let i = 0; i < this.allEntities.length; i++) {
+				if (this.allEntities[i].constructor.name !== "Hero") {
+					this.removeObject(this.allEntities[i].id, this.allEntities[i].type);
+				}
+			}
+		}
+
 		// class arrays
 		this.allEntities = [];
 		this.allVisibles = [];
@@ -8552,6 +8590,9 @@ Game.loadArea = function (areaName, destination) {
 
 		// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
 		this.animationList = [];
+
+		// array made now (instead of later with typeClasses) for hero foothitbox
+		this.entities = [];
 
 		// init game (if it hasn't been done so already)
 		let init = false; // set to if this is the first areaTeleport of the game
@@ -8584,12 +8625,30 @@ Game.loadArea = function (areaName, destination) {
 
 			this.allEntities.push(Game.hero.footHitbox);
 
+			// they also need to be added to their class arrays (i.e. "Game.characters")
+			this.readdToClassArray = [Game.hero.footHitbox];
+
 			Game.hero.summonsActive = 0;
 		}
 
 		//
 		// interactable objects
 		//
+
+		// particles and projectiles don't persist between areas - cancel their remove timeouts
+		if (this.objectRemoveTimeouts !== undefined) {
+			for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
+				Game.clearTimeout(this.objectRemoveTimeouts[i]);
+			}
+		}
+		this.objectRemoveTimeouts = [];
+
+		// reset any channelling projectile (if the player has existed before)
+		if (!init) {
+			this.hero.channellingProjectileId = null;
+			this.hero.removeChannelling("loadArea")
+			this.hero.canAttack = true;
+		}
 
 		// object containing the class associated to each type (must be hard-coded)
 		this.typeClasses = {
@@ -8616,39 +8675,25 @@ Game.loadArea = function (areaName, destination) {
 			entities: Entity,
 		};
 
-		// remove all status effect timeouts for previous area's characters
-		if (!init) {
-			for (let i = 0; i < this.allCharacters.length; i++) {
-				if (this.allCharacters[i].constructor.name !== "Hero") {
-					this.allCharacters[0].removeAllStatusEffects();
-				}
-			}
-		}
-
-		// particles and projectiles don't persist between areas - cancel their remove timeouts
-		if (this.objectRemoveTimeouts !== undefined) {
-			for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
-				Game.clearTimeout(this.objectRemoveTimeouts[i]);
-			}
-		}
-		this.objectRemoveTimeouts = [];
-
-		// reset any channelling projectile (if the player has existed before)
-		if (!init) {
-			this.hero.channellingProjectileId = null;
-			this.hero.removeChannelling("loadArea")
-			this.hero.canAttack = true;
-		}
-
 		let typeArray = Object.keys(this.typeClasses);
 		let classArray = Object.values(this.typeClasses);
 		// initiate object arrays from areadata
 		for (let i = 0; i < typeArray.length; i++) {
 			let type = typeArray[i]; // name of array the object is in
-			let className = classArray[i];
 
 			// init array in Game
 			this[type] = [];
+		}
+		// re-add objects from old area to their arrays
+		if (typeof this.readdToClassArray !== "undefined") {
+			for (let i = 0; i < this.readdToClassArray.length; i++) {
+				this[this.readdToClassArray[i].type].push(this.readdToClassArray[i]);
+			}
+		}
+		// populate object arrays from game
+		for (let i = 0; i < typeArray.length; i++) {
+			let type = typeArray[i]; // name of array the object is in
+			let className = classArray[i];
 
 			if (Areas[areaName][type] !== undefined) {
 				// exists in areadata
@@ -8695,6 +8740,9 @@ Game.loadArea = function (areaName, destination) {
 				}
 			}
 		}
+
+		// re-add removed
+		this.entities.push(Game.hero.footHitbox);
 
 		// villagers (added from generateVillagers before promise)
 		if (villagersToAdd !== undefined) {
@@ -13252,7 +13300,7 @@ Game.renderDayNight = function () {
 
 			// fog
 			this.ctxDayNight.fillStyle = "#999999";
-			this.ctxDayNight.globalAlpha = Event.fog; // max 0.6 - darkness / 2 probs
+			this.ctxDayNight.globalAlpha = Event.fog;
 			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 		}
 	}

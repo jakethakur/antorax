@@ -81,7 +81,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.name = parsedMessage.name;
 				ws.class = parsedMessage.class;
 				ws.level = parsedMessage.level;
-				ws.skin = parsedMessage.skin;
+				ws.skinTone = parsedMessage.skinTone;
+				ws.clothing = parsedMessage.clothing;
+				ws.hair = parsedMessage.hair;
 				ws.area = parsedMessage.area;
 				ws.displayArea = parsedMessage.displayArea;
 				ws.x = parsedMessage.x;
@@ -119,7 +121,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					name: parsedMessage.name,
 					class: parsedMessage.class,
 					level: parsedMessage.level,
-					skin: parsedMessage.skin,
+					skinTone: parsedMessage.skinTone,
+					clothing: parsedMessage.clothing,
+					hair: parsedMessage.hair,
 					area: parsedMessage.area,
 					displayArea: parsedMessage.displayArea,
 					x: parsedMessage.x,
@@ -142,7 +146,9 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							name: client.name,
 							class: client.class,
 							level: client.level,
-							skin: client.skin,
+							skinTone: client.skinTone,
+							clothing: client.clothing,
+							hair: client.hair,
 							area: client.area,
 							displayArea: client.displayArea,
 							x: client.x,

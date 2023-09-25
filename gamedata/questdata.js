@@ -671,6 +671,7 @@ var Quests = {
 			finishChat: [{
 				text: `Thank you. That was the. Best time of my life.`,
 			}],
+			finishNpcSrc: "assets/objects/torchNight1.png",
 
 			objectives: [
 				"Kill 20 goblins with the help of the goblin torch.",
@@ -1212,6 +1213,7 @@ var Quests = {
 
 			finishName: "You saved Christmas!",
 			finishChat: `The last present is for you!<br>Merry Christmas, ${Player.name}!`,
+			finishNpcSrc: "assets/items/fish/21.png",
 
 			objectives: [
 				"Fish up 3 presents from the river at Fishers' Valley.",
@@ -1357,6 +1359,8 @@ var Quests = {
 			quest: "The Legend of the Tattered Knight",
 			questArea: "eaglecrestLoggingCamp",
 
+			mailStart: true,
+
 			startName: "There once was a knight sent into exile, from the magical realm of Azuras,",
 			startChat: `He invaded towers, looted innocents, and stole from the vulnerable and young.<br>
 						He was defeated by the great Wizard Andrews, near his tower in the Nilbog,<br>
@@ -1482,6 +1486,7 @@ var Quests = {
 			},{
 				text: `Oh. What is your name?`
 			}],
+			finishNpcSrc: "assets/objects/torchNight1.png",
 
 			objectives: [
 				"Obtain 1 scrap of cloth.",
@@ -1744,10 +1749,24 @@ var Quests = {
 			questArea: "eaglecrest",
 
 			startName: "Recruiter Sylvie",
-			startChat: `<b>Eaglecrest needs you!</b><br>${Player.name}! I suppose you can see what I'm going to ask of you... There's snakes... Everywhere! Not in our <b>Eaglecrest</b>, I say! There's no room for anyone here to slack off - let's all work together to eliminate these snakes for good.<br>How, you say? A <b>net</b> of course! Bring me ten snakes.`,
+			startChat: [{
+				text: `<b>Eaglecrest needs you!</b>`,
+			},{
+				text: `${Player.name}! I suppose you can see what I'm going to ask of you... There's snakes... Everywhere! Not in our <b>Eaglecrest</b>, I say!`,
+			},{
+				text: `There's no room for anyone here to slack off - let's all work together to eliminate these snakes for good.`,
+			},{
+				text: `How, you say? A <b>net</b> of course! Bring me ten snakes.`,
+			},],
 
 			finishName: "Recruiter Sylvie",
-			finishChat: `Great! <b>Eaglecrest</b> awards your efforts with <b>1 Gold</b>.<br>If we keep working together every day, these snakes will be gone in no time. <i>Now if only we knew where the snakes were coming from...</i>`,
+			finishChat: [{
+				text: `Great! <b>Eaglecrest</b> awards your efforts with <b>1 Gold</b>.`,
+			},{
+				text: `If we keep working together every day, these snakes will be gone in no time.`,
+			},{
+				text: `<i>Now if only we knew where the snakes were coming from...</i>`,
+			}],
 
 			objectives: [
 				"Round up <b>10 snakes</b> using the <b>net</b>.",
@@ -1784,12 +1803,12 @@ var Quests = {
 
 			startRewards: {
 				items: [
-					{item: Items.sword[16],}, // the net
+					{item: Items.tool[6],}, // the net
 				],
 			},
 
 			removeItems: [
-				{item: Items.sword[16],}, // remove the net
+				{item: Items.tool[6],}, // remove the net
 				{item: Items.item[34], quantity: 10}, // remove the snakes
 			],
 		},
@@ -1896,6 +1915,8 @@ var Quests = {
 			quest: "The Slithering Truth",
 			questArea: "eaglecrest",
 
+			mailStart: true,
+
 			startName: "???",
 			startChat: `Greetingssssss ${Player.name},<br><br>
 			I have ssseen your effortssss. How about we make a deal?<br><br>
@@ -1942,9 +1963,15 @@ var Quests = {
 			questArea: "eaglecrest",
 
 			startName: "???",
-			startChat: `I know who you are. I don't appreciate you capturing my offsssspring. But I notice the ssskill you posessssssss.<br><br>
-			There is ssome work I need asssssisssstance with. And I have plenty of rare rewardsssss. But first I need to know I can trussst you won't betray me for the City.<br><br>
-			Use thiss <b>Ssssceptre of Sssorrows</b> to capture the light from the main areas of the City. They'll never know it was you. Sssee it as you undoing your wrongssssss of capturing my innocent children.`,
+			startChat: [{
+				text: `I know who you are. I don't appreciate you capturing my offsssspring. But I notice the ssskill you posessssssss.`,
+			},{
+				text: `There is ssome work I need asssssisssstance with. And I have plenty of rare rewardsssss. But first I need to know I can trussst you won't betray me for the City.`,
+				long: true,
+			},{
+				text: `Use thiss <b>Ssssceptre of Sssorrows</b> to capture the light from the main areas of the City. They'll never know it was you. Sssee it as you undoing your wrongssssss of capturing my innocent children.`,
+				long: true,
+			},],
 
 			finishName: "The Soothsssayer",
 			finishChat: `Excellent. I am <b>The Soothsssayer</b>. Let'ssss get sstarted with the real work ssshall we?`,
@@ -1961,10 +1988,10 @@ var Quests = {
 				let completed = [];
 
 				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.eaglecrestSamhainLights);
-				completed.push(Player.quests.questProgress.eaglecrestWestSamhainLights);
-				completed.push(Player.quests.questProgress.eaglecrestEastSamhainLights);
-				completed.push(Player.quests.questProgress.eaglecrestGraveyardSamhainLights);
+				completed.push(Player.quests.questProgress.mainSamhainLights);
+				completed.push(Player.quests.questProgress.westSamhainLights);
+				completed.push(Player.quests.questProgress.eastSamhainLights);
+				completed.push(Player.quests.questProgress.graveyardSamhainLights);
 
 				completed = checkFinished(completed);
 
@@ -2000,6 +2027,10 @@ var Quests = {
 				let npc = Game.npcs.find(npc => npc.name === "???");
 				npc.name = "The Soothsssayer";
 			},
+
+			onQuestStart: function () {
+				Player.quests.questProgress.hasSkeletonKey = true;
+			},
 		},
 
 		{
@@ -2008,8 +2039,12 @@ var Quests = {
 			questArea: "eaglecrest",
 
 			startName: "The Soothsssayer",
-			startChat: `My offsssspring have been ssscouting out the City these passt dayssss. And they found <b>four cratessss</b> around the City with ingredientsss that I need.<br><br>
-			They are not sssstrong enough to open the boxesss. But you are. Go find them for me. I have rewardsssssss.`,
+			startChat: [{
+				text: `My offsssspring have been ssscouting out the City these passt dayssss. And they found <b>four cratessss</b> around the City with ingredientsss that I need.`,
+				long: true,
+			},{
+				text: `They are not sssstrong enough to open the boxesss. But you are. Go find them for me. I have rewardsssssss.`,
+			},],
 
 			finishName: "The Soothsssayer",
 			finishChat: `Good. You have my Crystalsssss. Now let'ssss ssstart the fun.`,
@@ -2078,13 +2113,24 @@ var Quests = {
 			questArea: "eaglecrest",
 
 			startName: "The Soothsssayer",
-			startChat: `How about I explain to you sssome of what'sss going on. I'm sssure you would love that.<br><br>
-			These Crystalsss can bring about the ssssummoning of a Blood Moon over all of Antorax, harbouring the return of dead ssssoulss to the mortal realm. And lotsss of sssspecial rewardssssssssss for you.<br><br>
-			Ssssupervise my cauldron whilst the Blood Moon is ssssummoned, and the Blood Moon will be ourssss!`,
+			startChat: [{
+				text: `How about I explain to you sssome of what'sss going on. I'm sssure you would love that.`,
+			},{
+				text: `These Crystalsss can bring about the ssssummoning of a Blood Moon over all of Antorax, harbouring the return of dead ssssoulss to the mortal realm.`,
+				long: true,
+			},{
+				text: `... and lotsss of sssspecial rewardssssssssss for you.`,
+			},{
+				text: `Ssssupervise my cauldron whilst the Blood Moon is ssssummoned, and the Blood Moon will be ourssss!`,
+			},],
 
 			finishName: "The Soothsssayer",
-			finishChat: `The Blood Moon hassss rissssen. The ssssoulsss of old are near.<br><br>
-			You will find <b>Ssssamhain Marksssss</b> on some enemiessss during the Blood Moon. Bring them to me. I have more rewardsssss for you.`,
+			finishChat: [{
+				text: `The Blood Moon hassss rissssen. The ssssoulsss of old are near.`,
+			},{
+				text: `You will find <b>Ssssamhain Marksssss</b> on some enemiessss during the Blood Moon. Bring them to me. I have more rewardsssss for you.`,
+			},],
+			finishNpcSrc: "assets/npcs/soothsssayer.png",
 
 			objectives: [
 				"Protect the cauldron whilst the Blood Moon is sssummoned.",
@@ -2252,7 +2298,7 @@ var Quests = {
 				}, 70666));
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Dom.chat.insert(Dom.chat.say("The Soothsssayer", `I've got lotssss more rewardsss ${Player.name}, don't worry.`));
-				}, 72666));
+				}, 73666));
 
 				Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(function () {
 					Weather.commenceLightningStrike();
@@ -2323,7 +2369,7 @@ var Quests = {
 			rewards: {
 				xp: 50,
 				items: [
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 6,},
 					{item: Items.consumable[9],},
 				],
 				reputation: {
@@ -3055,53 +3101,6 @@ var Quests = {
 		},
 		/*{
 			id: 17,
-			quest: "WANTED: Baron Foxglove!!",
-			questArea: "eaglecrest",
-
-			startName: "Recruiter Sylvie",
-			startChat: [{
-				text: `Greetings, ${Player.name}. Another Party has come to the City's attention - tbd.`,
-			},],
-
-			finishName: "Recruiter Sylvie",
-			finishChat: [{
-				text: `tbd`,
-			},],
-
-			objectives: [
-				"Challenge <b>Baron Foxglove</b> to combat and win, in the Plains' flower forest.",
-				"Speak to <strong>Recruiter Sylvie</strong>.",
-			],
-
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.bossesKilled.baronFoxglove === GetFullDate());
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
-			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
-			levelRequirement: 10,
-			questRequirements: [],
-
-			repeatTime: "daily",
-
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 4,},
-				],
-				reputation: {
-					eaglecrestCity: 60,
-				},
-			},
-		},
-		{
-			id: 18,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 
@@ -3229,6 +3228,53 @@ var Quests = {
 				{item: Items.item[68], quantity: 6},
 				{item: Items.item[31], quantity: 6},
 			],
+		},*/
+		/*{
+			id: 17,
+			quest: "WANTED: Baron Foxglove!!",
+			questArea: "eaglecrest",
+
+			startName: "Recruiter Sylvie",
+			startChat: [{
+				text: `Greetings, ${Player.name}. Another Party has come to the City's attention - tbd.`,
+			},],
+
+			finishName: "Recruiter Sylvie",
+			finishChat: [{
+				text: `tbd`,
+			},],
+
+			objectives: [
+				"Challenge <b>Baron Foxglove</b> to combat and win, in the Plains' flower forest.",
+				"Speak to <strong>Recruiter Sylvie</strong>.",
+			],
+
+			isCompleted: function() {
+				let completed = [];
+
+				// true or falses for each objective (apart from the turn-in objective)
+				completed.push(Player.bossesKilled.baronFoxglove === GetFullDate());
+
+				completed = checkFinished(completed);
+
+				return completed;
+			},
+
+			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
+			levelRequirement: 10,
+			questRequirements: [],
+
+			repeatTime: "daily",
+
+			rewards: {
+				xp: 50,
+				items: [
+					{item: Items.currency[2], quantity: 4,},
+				],
+				reputation: {
+					eaglecrestCity: 60,
+				},
+			},
 		},*/
 	],
 
