@@ -613,9 +613,18 @@ let Event = {
 
 	// update amount of foggg (called automatically by updateTime)
 	updateFog: function (d) {
-		// max 0.5 - darkness / 2
-		Event.fog = 0;
-		// tbd
+		// see if it's a foggy day, or near a foggy day
+		let fogSeed = GenerateSeed(79, 33, 10, 0, 0, 0);
+		if (fogSeed % 200 < 11) {
+			// foggy day !!
+			// about 1 in 20 days are foggy...
+			// max 0.5 - darkness / 2
+			let maxFog = 0.5;
+			Event.fog = (maxFog-(Event.darkness/2));
+		}
+		else {
+			Event.fog = 0;
+		}
 	},
 
 	// update event (called on loadArea)
@@ -665,6 +674,10 @@ let Event = {
 		// New Year's
 		else if (d.day === 1 && d.month === 1) {
 			this.event = "New Year";
+		}
+		// Samme day
+		if (d.day === 11 && d.month === 10) {
+			this.event = "Samme";
 		}
 	},
 

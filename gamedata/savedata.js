@@ -162,6 +162,9 @@ var Player = {
 		greaves: {},
 		boots: {},
 		weapon: {},
+		bag: {},
+		mount: {},
+		trinkets: [{},{},{}],
 		items: [{},{},{},{},{},{}],
 	},
 

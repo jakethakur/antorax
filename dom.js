@@ -25,6 +25,7 @@ let Dom = {
 		activeQuestBox: document.getElementById("activeQuestBox"),
 		adventurePage: document.getElementById("adventurePage"),
 		aggroOn: document.getElementById("aggroOn"),
+		bag: document.getElementById("bag"),
 		bagText: document.getElementById("bagText"),
 		bankPage: document.getElementById("bankPage"),
 		bankPageInventory: document.getElementById("bankPageInventory"),
@@ -125,6 +126,8 @@ let Dom = {
 		merchantPageTitle: document.getElementById("merchantPageTitle"),
 		infoBar: document.getElementById("infoBar"),
 		minigamesOn: document.getElementById("minigamesOn"),
+		mountSlotLocked: document.getElementById("mountSlotLocked"),
+		mountSlotUnlocked: document.getElementById("mountSlotUnlocked"),
 		musicOn: document.getElementById("musicOn"),
 		name: document.getElementById("name"),
 		notifsOn: document.getElementById("notifsOn"),
@@ -152,7 +155,10 @@ let Dom = {
 		questFinishXP: document.getElementById("questFinishXP"),
 		questsPage: document.getElementById("questsPage"),
 		questStart: document.getElementById("questStart"),
+		questStartChat: document.getElementById("questStartChat"),
+		questStartChatWrapper: document.getElementById("questStartChatWrapper"),
 		questStartItems: document.getElementById("questStartItems"),
+		questStartName: document.getElementById("questStartName"),
 		questStartObjectives: document.getElementById("questStartObjectives"),
 		questStartQuest: document.getElementById("questStartQuest"),
 		questStartRewardsTitle: document.getElementById("questStartRewardsTitle"),
@@ -179,6 +185,9 @@ let Dom = {
 		tradePageOther: document.getElementById("tradePageOther"),
 		transparencyOn: document.getElementById("transparencyOn"),
 		triangle: document.getElementById("triangle"),
+		trinketSlot1: document.getElementById("trinketSlot1"),
+		trinketSlot2: document.getElementById("trinketSlot2"),
+		trinketSlot3: document.getElementById("trinketSlot3"),
 		tutorialOff: document.getElementById("tutorialOff"),
 		tutorialOn: document.getElementById("tutorialOn"),
 		weapon: document.getElementById("weapon"),
@@ -523,12 +532,13 @@ Dom.quests.active = function (quest) {
 
 			}
 			if (currentQuest.autofinish && completedObjectives >= objectives.length) {
-				// quest should finish once all objectives are done (wothout needing to speak to npc), and all objectives are done
+				// quest should finish once all objectives are done (wothout needing to speak directly to npc), and all objectives are done
+				let npcName = currentQuest.finishName || currentQuest[Player.quests.questProgress[currentQuest.quest]].finishName;
 				Dom.choose.page([{
-					npc:currentQuest.finishName || currentQuest[Player.quests.questProgress[currentQuest.quest]].finishName,
+					npc:npcName,
 					buttons: ["Quest Finish: " + currentQuest.quest],
-					functions: [Dom.quest.finish],
-					parameters: [[currentQuest]],
+					functions: [Dom.quest.finishFromNpc],
+					parameters: [[currentQuest, {name: npcName, imageSrc: currentQuest.finishNpcSrc}]], // finishNpcSrc is optional src to image of npc to be shown
 				}]);
 			}
 			else if (completedObjectives >= objectives.length-1 && !Player.quests.canBeFinishedArray.includes(currentQuest.quest)) {
@@ -1771,7 +1781,7 @@ Dom.inventory.stats = function (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}
-	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro") {
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro" || stat === "Channelling Move Speed") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
 	else if (stat === "Focus Speed") {
@@ -1794,6 +1804,9 @@ Dom.inventory.stats = function (stat, value, array) {
 	}
 	else if (stat === "Slow Amount") {
 		return "Slow: -" + value + "% for " + array.slowTime + "s<br>";
+	}
+	else if (stat === "Slow Time" && typeof array.slowAmount === "undefined") {
+		return "Slow Time: +" + array.slowTime + "s<br>";
 	}
 	else if (stat === "Damage") {
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
@@ -1823,12 +1836,17 @@ Dom.inventory.stats = function (stat, value, array) {
 
 // display the information of an item, shown on hoverover
 // array is the array of equipment in chooseDOM
-Dom.inventory.displayInformation = function (item, stacked, element, position, hide, array) {
+// emptySlotMessage is the message to be shown if the slot is empty but being hovered over - doesn't yet work !
+Dom.inventory.displayInformation = function (item, stacked, element, position, hide, array, emptySlotMessage) {
+	if (item === undefined) {
+		item = {};
+	}
 	if (hide !== "cooldown" || Dom.inventory.displayedInformation === item.name) {
 		if (hide === undefined) {
 			Dom.elements.information.hidden = true;
 		}
 		if (item.image !== undefined) {
+			// slot not empty
 			if (hide === undefined) {
 				Dom.elements.information.style.opacity = 0;
 				Dom.elements.information.hidden = false;
@@ -2187,6 +2205,10 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 31 + "px";
 			Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 31 + "px";
 		}
+		else if (emptySlotMessage !== undefined) {
+			// slot empty
+			// tbd !!!!
+		}
 	}
 }
 
@@ -2263,16 +2285,25 @@ Dom.quest.start = function (quest, npc) {
 				timesCompleted = 0;
 			}
 
-			// following is now no longer displayed on quest start
-			/*let startName = quest.startName || quest[ToObjectKey(npc.name)].startName;
-			if (Array.isArray(startName)) {
-				startName = startName[timesCompleted];
-			}
+			// display text if it's started frpm player's mail
+			if (quest.mailStart) {
+				let startName = quest.startName || quest[ToObjectKey(npc.name)].startName;
+				if (Array.isArray(startName)) {
+					startName = startName[timesCompleted];
+				}
+				Dom.elements.questStartName.innerHTML = startName;
 
-			let startChat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
-			if (Array.isArray(startChat)) {
-				startChat = startChat[timesCompleted];
-			}*/
+				let startChat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
+				if (Array.isArray(startChat)) {
+					startChat = startChat[timesCompleted];
+				}
+				Dom.elements.questStartChat.innerHTML = startChat;
+
+				Dom.elements.questStartChatWrapper.hidden = false;
+			}
+			else {
+				Dom.elements.questStartChatWrapper.hidden = true;
+			}
 
 			let objectives = quest.objectives || quest[ToObjectKey(npc.name)].objectives;
 			if (Array.isArray(objectives[0]) &&
@@ -3289,9 +3320,9 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 					if (Player.inventory.items[i].image === undefined) {
 
 						// if it is the bag slot then remove the background
-						if (i === 5) {
+						/*if (i === 5) {
 							Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "none";
-						}
+						}*/
 
 						added = true;
 						position = i;
@@ -3329,7 +3360,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 						Dom.inventory.prepare(Player.inventory.items, i, Dom.elements.itemInventory.getElementsByTagName("td")[i]);
 
 						// if a bag is being given to the bag slot
-						if (i === 5 && item.type === "bag") {
+						/*if (i === 5 && item.type === "bag") {
 							for (let x = 0; x < Math.floor(item.size/6); x++) {
 								let str = "<tr>";
 								for (let inv = Player.inventory.items.length; inv < Player.inventory.items.length+6; inv++) {
@@ -3339,10 +3370,10 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 								Player.inventory.items.push({},{},{},{},{},{});
 							}
 							Dom.inventory.update();
-						}
+						}*/
 
 						// if the item has not been obtained before and is in archaeology, add it to archaeology progress
-						if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
+						if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow" || item.type === "rod" || item.type === "trinket") && !User.archaeology.includes(item.name) && item.name !== undefined) {
 							User.archaeology.push(item.name);
 						}
 
@@ -3388,7 +3419,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 		Dom.inventory.prepare(Player.inventory.items, position, Dom.elements.itemInventory.getElementsByTagName("td")[position]);
 
 		// if a bag is being given to the bag slot
-		if (position === 5 && item.type === "bag") {
+		/*if (position === 5 && item.type === "bag") {
 			for (let x = 0; x < Math.floor(item.size/6); x++) {
 				let str = "<tr>";
 				for (let inv = Player.inventory.items.length; inv < Player.inventory.items.length+6; inv++) {
@@ -3398,7 +3429,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 				Player.inventory.items.push({},{},{},{},{},{});
 			}
 			Dom.inventory.update();
-		}
+		}*/
 		if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
 			User.archaeology.push(item.name);
 		}
@@ -3599,36 +3630,8 @@ Dom.cutscene = function (duration) {
 
 Dom.inventory.disposeConfirm = function (all) {
 
-	// item inventory or bank
 	if (Dom.inventory.fromArray !== Player.inventory) {
-
-		// if you dispose of the INVENTORY bag then reset the inventory
-		if (Dom.inventory.fromId === 5 && Dom.inventory.fromArray === Player.inventory.items) {
-			if (Player.inventory.items[5].type === "bag") {
-				let str = "<tr>";
-				for (let inv = 0; inv < 6; inv++) {
-					str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
-				}
-				Dom.elements.itemInventory.innerHTML = str+"</tr>";
-				Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-				for (let x = 0; x < 6; x++) {
-					if (Player.inventory.items[x].image !== undefined) {
-						Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
-						if (Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1) {
-							Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
-						}
-					}
-				}
-				Player.inventory.items.splice(6);
-			}
-
-			// if non-bag is disposed from bag slot replace bag background image
-			else {
-				Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-			}
-
-			Dom.inventory.update();
-		}
+		// item inventory or bank
 
 		// if you dispose of a BANK bag then reset the bank
 		if (Dom.inventory.fromId <= 5 && Dom.inventory.fromArray === Player.bank.items) {
@@ -3639,8 +3642,29 @@ Dom.inventory.disposeConfirm = function (all) {
 
 		Dom.inventory.remove(Dom.inventory.fromId, all, Dom.inventory.fromArray);
 	}
-	// equipment slots
 	else {
+		// equipment slots
+
+		// if you dispose of the INVENTORY bag then reset the inventory
+		if (Dom.inventory.fromId === "bag") {//aaaaaaaaaa check fromId works like this :)
+			let str = "<tr>";
+			for (let inv = 0; inv < 6; inv++) {
+				str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+			}
+			Dom.elements.itemInventory.innerHTML = str+"</tr>";
+			for (let x = 0; x < 6; x++) {
+				if (Player.inventory.items[x].image !== undefined) {
+					Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML = '<img src="'+Player.inventory.items[x].image+'" draggable="true" ondragstart="Dom.inventory.drag(event, Player.inventory.items, '+x+')"></img>';
+					if (Player.inventory.items[x].stacked !== undefined && Player.inventory.items[x].stacked !== 1) {
+						Dom.elements.itemInventory.getElementsByTagName("td")[x].innerHTML += "<div class='stackNum' id='stackNum"+x+"'>"+Player.inventory.items[x].stacked+"</div>";
+					}
+				}
+			}
+			Player.inventory.items.splice(6);//aaaaaaaaaaaaaaaaaaaaaa needs changing?
+
+			Dom.inventory.update();
+		}
+
 		Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
 		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
 		Dom.inventory.fromElement.innerHTML = "";
@@ -3656,7 +3680,7 @@ Dom.inventory.dispose = function (ev) {
 		page = "bankPage";
 	}
 
-	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon" && !ev.target.classList.contains("stackNum")) {
+	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon" && ev.target.id !== "mount" && ev.target.id !== "bag" && !ev.target.classList.contains("stackNum")) {//aaaaaaaaa also check they're not dropping onto acccessory slot
 
 		let quest = false;
 		if (Dom.inventory.fromArray[Dom.inventory.fromId].quest !== undefined && (Dom.inventory.fromArray[Dom.inventory.fromId].quest === true || Dom.inventory.fromArray[Dom.inventory.fromId].quest())) {
@@ -3721,12 +3745,12 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 	// if the item has not yet been removed check the equipped slots
 	if (!remove && equip) {
 		for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) {
-			if (Player.inventory[Object.keys(Player.inventory)[i]].type === type && Player.inventory[Object.keys(Player.inventory)[i]].id === ID) {
-				let equipment = ["helm","chest","greaves","boots","weapon"]
-				Dom.inventory.removeEquipment(Player.inventory[equipment[i]]);
-				Player.inventory[equipment[i]] = {};
+			let equipmentKey = Object.keys(Player.inventory)[i];
+			if (Player.inventory[equipmentKey].type === type && Player.inventory[equipmentKey].id === ID) {
+				Dom.inventory.removeEquipment(Player.inventory[equipmentKey]);
+				Player.inventory[equipmentKey] = {};
 				Game.equipmentUpdate();
-				document.getElementById(equipment[i]).innerHTML = "";
+				document.getElementById(equipmentKey).innerHTML = "";
 				remove = true;
 				break; // stops multiple items being removed
 			}
@@ -3876,6 +3900,12 @@ Dom.canvas.moveDom = function (object, page, scroll, scrollObject) {
 // updates the position of the "buy bags to get more inventory space" text
 Dom.inventory.update = function () {
 	Dom.elements.bagText.style.top = 300+(26*(Dom.elements.itemInventory.rows.length))+"px";
+	if (Dom.elements.itemInventory.rows.length > 7) {
+		Dom.elements.bagText.hidden = true;
+	}
+	else {
+		Dom.elements.bagText.hidden = false;
+	}
 }
 
 // when an item is held over a place that it can be dropped in
@@ -3913,7 +3943,7 @@ Dom.inventory.bagSwaps = function (to, from, array) {
 	}
 }
 
-Dom.bank.bagCases = function () {
+Dom.bank.bagCases = function () {//aaaaaaaaaaaaaaa tbd?
 	// slot backgrounds
 	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].image === undefined) {
 		Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('./assets/items/bag/1.png')";
@@ -3949,30 +3979,30 @@ Dom.bank.bagCases = function () {
 
 Dom.inventory.bagCases = function () {
 	// slot backgrounds
-	if (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5 && Dom.inventory.fromArray[Dom.inventory.fromId].image === undefined) {
+	/*if (Dom.inventory.fromId === "bag" && Dom.inventory.fromArray[Dom.inventory.fromId].image === undefined) {
 		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('./assets/items/bag/1.png')";
 	}
-	if (Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) {
+	if (Dom.inventory.toId === "bag") {
 		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "none";
-	}
+	}*/
 
 	let changed = true;
 	// going from the bag slot from a bag
-	if (this.fromArray === Player.inventory.items && this.fromId === 5 && this.toArray[this.toId].type === "bag") {
+	if (Dom.inventory.fromId === "bag" && this.toArray[this.toId].type === "bag") {
 		Dom.inventory.bagSwaps(this.fromArray[this.fromId], this.toArray[this.toId], Player.inventory.items);
 	}
 	// going to the bag slot to a bag
-	else if (this.toArray === Player.inventory.items && this.toId === 5 && this.fromArray[this.fromId].type === "bag") {
+	else if (Dom.inventory.toId === "bag" && this.fromArray[this.fromId].type === "bag") {
 		Dom.inventory.bagSwaps(this.toArray[this.toId], this.fromArray[this.fromId], Player.inventory.items);
 	}
 	// going to the bag slot from a bag and not swapping
-	else if (this.toArray === Player.inventory.items && this.toId === 5 && this.toArray[this.toId].type === "bag") {
+	else if (Dom.inventory.toId === "bag" && this.toArray[this.toId].type === "bag") {
 		for (let y = 0; y < this.toArray[this.toId].size; y++) {
 			Player.inventory.items.push({});
 		}
 	}
 	// going from the bag slot to a bag and not swapping
-	else if (this.fromArray === Player.inventory.items && this.fromId === 5 && this.fromArray[this.fromId].type === "bag") {
+	else if (Dom.inventory.fromId === "bag" && this.fromArray[this.fromId].type === "bag") {
 		for (let y = 0; y < this.fromArray[this.fromId].size; y++) {
 			Player.inventory.items.push({});
 		}
@@ -4000,9 +4030,9 @@ Dom.inventory.bagCases = function () {
 				}
 			}
 		}
-		if (Player.inventory.items[5].image === undefined) {
+		/*if (Player.inventory.items[5].image === undefined) {
 			Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
-		}
+		}*/
 	}
 }
 
@@ -4073,7 +4103,7 @@ Dom.inventory.validateBags = function () {
 
 	if (highest > 0) {
 		// two bags are being swapped at the bag slot
-		if (Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5 && Dom.inventory.toArray[Dom.inventory.toId].type === "bag" && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
+		if (Dom.inventory.toId === "bag" && Dom.inventory.toArray[Dom.inventory.toId].type === "bag" && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag") {
 			// if the new bag is smaller than the old bag
 			if (Dom.inventory.toArray[Dom.inventory.toId].size > Dom.inventory.fromArray[Dom.inventory.fromId].size) {
 				// if the item is outside the new bag size
@@ -4084,7 +4114,7 @@ Dom.inventory.validateBags = function () {
 			}
 		}
 		// two bags are being swapped
-		else if (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5 && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag" && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
+		else if (Dom.inventory.fromId === "bag" && Dom.inventory.fromArray[Dom.inventory.fromId].type === "bag" && Dom.inventory.toArray[Dom.inventory.toId].type === "bag") {
 			// if the new bag is smaller than the old bag
 			if (Dom.inventory.fromArray[Dom.inventory.fromId].size > Dom.inventory.toArray[Dom.inventory.toId].size) {
 				// if the item is outside the new bag size
@@ -4161,7 +4191,7 @@ Dom.inventory.validateSwap = function () {
 	}
 
 	// inventory bag slot
-	if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
+	if ((Dom.inventory.toId === "bag") || (Dom.inventory.fromId === "bag")) {
 		if (!Dom.inventory.validateBags()) {
 			Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, "inventoryPage");
 			return false;
@@ -4305,7 +4335,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
 
 				// inventory bag cases
-				if ((Dom.inventory.toArray === Player.inventory.items && Dom.inventory.toId === 5) || (Dom.inventory.fromArray === Player.inventory.items && Dom.inventory.fromId === 5)) {
+				if ((Dom.inventory.toId === "bag") || (Dom.inventory.fromId === "bag")) {
 					Dom.inventory.bagCases();
 				}
 
@@ -4672,6 +4702,22 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 			index.push("boots");
 			completed++;
 		}
+		else if ((Player.inventory.mount.type === type && Player.inventory.mount.id === ID) || (Player.inventory.mount.name === name && name !== undefined)) {
+			index.push("mount");
+			completed++;
+		}
+		else if ((Player.inventory.bag.type === type && Player.inventory.bag.id === ID) || (Player.inventory.bag.name === name && name !== undefined)) {
+			index.push("bag");
+			completed++;
+		}
+		else {
+			for (let i = 0; i < Player.inventory.trinkets.length; i++) {
+				if (((Player.inventory.trinkets[i].type === type && Player.inventory.trinkets[i].id === ID) || (Player.inventory.trinkets[i].name === name && name !== undefined)) && (!quest || Player.inventory.trinkets[i].quest === true || (Player.inventory.trinkets[i].quest !== undefined && Player.inventory.trinkets[i].quest()))) {
+					index.push("trinkets"+i);
+					completed++;
+				}
+			}
+		}
 	}
 	if (calledByCheck) {
 		return completed;
@@ -4960,7 +5006,7 @@ Dom.text.page = function (name, text, close, buttons, functions, give) {
 
 Dom.buyer.remove = function (i, all) {
 	// if the bag was removed
-	if (i === 5 && Player.inventory.items[5].type === "bag") {
+	/*if (i === 5 && Player.inventory.items[5].type === "bag") {
 		// rebuild the hotbar
 		let str = "<tr>";
 		for (let inv = 0; inv < 6; inv++) {
@@ -4980,7 +5026,7 @@ Dom.buyer.remove = function (i, all) {
 		}
 		Player.inventory.items.splice(6,Player.inventory.items.length-6);
 		Dom.inventory.update();
-	}
+	}*/
 	if (Player.inventory.items[i].sellCurrency === undefined) {
 		Player.inventory.items[i].sellCurrency = 2;
 	}
@@ -5003,7 +5049,7 @@ Dom.buyer.page = function (npc) {
 	for (let i = 6; i < Player.inventory.items.length; i++) {
 		if (Player.inventory.items[i].image !== undefined) {
 			// if the bag is unsafe to remove
-			remove = false;
+			remove = false;//aaaaaaaa???????
 		}
 	}
 	for (let i = 0; i < Player.inventory.items.length; i++) {
@@ -5129,8 +5175,8 @@ Dom.choose.page = function (npcs) {
 
 						// equipment slots
 
-						let array = ["helm", "chest", "greaves", "boots", "weapon"];
-						for (let i = 0; i < 5; i++) {
+						let array = ["helm", "chest", "greaves", "boots", "weapon", "mount", "bag"];//aaaaaaaaaaaaaa trinkets
+						for (let i = 0; i < array.length; i++) {
 							let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
 							if (npc.equipment[array[i]].image !== undefined) {
 								element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
@@ -5146,7 +5192,7 @@ Dom.choose.page = function (npcs) {
 							else {
 								element.innerHTML = "";
 								// armour slot
-								if (i < 4) {
+								if (array[i] !== "weapon") {
 									element.style.backgroundImage = "url('assets/items/"+array[i]+"/1.png')";
 								}
 								// weapon slot
@@ -5850,7 +5896,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	if (array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod" || array[i].type === "tool") {
 		type = "weapon";
 	}
-	else if (array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots") {
+	else if (array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots" || array[i].type === "mount" || array[i].type === "bag") { // aaaaaaaa trinkets
 		type = array[i].type;
 	}
 
@@ -6321,10 +6367,10 @@ Dom.chat.playersInfo = function () {
 
 		Dom.elements.playersInfo.innerHTML += "<div id='players"+i+"' class='players'></div>";
 
-		document.getElementById("players"+i).style.backgroundImage = 'url("./selection/assets/'+Dom.players[i].class+Dom.players[i].skin+'/f.png")';
+		/*document.getElementById("players"+i).style.backgroundImage = 'url("./selection/assets/'+Dom.players[i].class+Dom.players[i].skin+'/f.png")';
 		document.getElementById("players"+i).style.right = 20 - Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.x + "px";
 		document.getElementById("players"+i).style.height = "60px";// + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
-		document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";
+		document.getElementById("players"+i).style.bottom = 3 + Skins[Dom.players[i].class][Dom.players[i].skin].headAdjust.y + "px";*/
 
 		Dom.elements.playersInfo.innerHTML += "<div class='playersText'><strong>" + Dom.players[i].name + "</strong> (Level " + Dom.players[i].level + " " + clss + ")<br>" + Dom.players[i].displayArea + "</div>";
 	}
@@ -6566,7 +6612,7 @@ Dom.chat.notification = function (title, body) {
     }
 }
 
-// players is an array of objects with score, class, skin
+// players is an array of objects with score, class, skinTone etc.
 // unit is the unit for the score (e.g. seconds)
 Dom.leaderboard.page = function (title, description, players, unit) {
 	if (Dom.changeBook("leaderboardPage")) {
@@ -6898,10 +6944,42 @@ Dom.init = function () {
 		}
 	}
 
-	// bag slot
-	if (Player.inventory.items[5].image === undefined) {
-		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+	// equipment slots being locked
+	if (!Player.quests.completedQuestArray.includes("Equinophobia")) { // quest name tbc
+		// horses not yet unlocked
+		Dom.elements.mountSlotUnlocked.hidden = true;
+		Dom.elements.mountSlotLocked.hidden = false;
 	}
+	// locked trinket slots
+	// these locked slots work slightly differently because they're in a table
+	if (Player.level < 10000) {
+		Dom.elements.trinketSlot1.classList.add("trinketSlotLocked");
+		Dom.elements.trinketSlot1.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot1.removeAttribute("ondrag");
+		Dom.elements.trinketSlot1.removeAttribute("onclick");
+		Dom.elements.trinketSlot1.removeAttribute("ondrop");
+		Dom.elements.trinketSlot1.removeAttribute("ondragover");
+	}
+	if (Player.level < 10000) {
+		Dom.elements.trinketSlot2.classList.add("trinketSlotLocked");
+		Dom.elements.trinketSlot2.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot2.removeAttribute("ondrag");
+		Dom.elements.trinketSlot2.removeAttribute("onclick");
+		Dom.elements.trinketSlot2.removeAttribute("ondrop");
+		Dom.elements.trinketSlot2.removeAttribute("ondragover");
+	}
+	if (Player.level < 10000) {
+		Dom.elements.trinketSlot3.classList.add("trinketSlotLocked");
+		Dom.elements.trinketSlot3.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot3.removeAttribute("ondrag");
+		Dom.elements.trinketSlot3.removeAttribute("onclick");
+		Dom.elements.trinketSlot3.removeAttribute("ondrop");
+		Dom.elements.trinketSlot3.removeAttribute("ondragover");
+	}
+	
+	/*if (Player.inventory.items[5].image === undefined) {
+		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
+	}*/
 
 	// prepare the equipment slots (armour and weapons)
 	for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) { // repeats for each equipment slot (all keys but items)
@@ -7186,14 +7264,31 @@ Dom.init = function () {
 			    [{item: Items.helm[23]}]], [{item: Items.helm[23]}], true // noRepeat
 			);
 
-			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.activeQuestArray.includes("The Slithering Truth") && Player.quests.timesCompleted.eaglecrest[1] >= 2) {
-				// they haven't completed the quest this mail starts before, and they have completed "snakes and the city" at least twice
+			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.activeQuestArray.includes("The Slithering Truth") && Player.quests.timesCompleted.eaglecrest[1] >= 1) {
+				// they haven't completed the quest this mail starts before, and they have completed "snakes and the city" at least once
 				Dom.mail.give(
 					"The Slithering Truth",
 					"unknown sender",
 					"./assets/items/item/36",
 					"quest.start",
 					["eaglecrest", 3], true // noRepeat
+				);
+			}
+
+			else if (Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.questProgress.hasSkeletonKey) {
+				let name = "???";
+				if (Player.quests.completedQuestArray.includes("Snaking Bad")) {
+					name = "The Soothsssayer";
+				}
+				Player.quests.questProgress.hasSkeletonKey = true;
+				Dom.mail.give(
+				    "Sssssurprise Return",
+				    name,
+	                "./assets/items/item/36",
+				    "text.page",
+				    ["BOO!",
+				    `I'm back.<br><br>How about you sssslither back to my lair?<br><br>Ssssee you ssssoon.<br>xx`, true, [], [],
+				    [{item: Items.item[36]}]], [{item: Items.item[36]}],
 				);
 			}
 		}
@@ -7210,6 +7305,19 @@ Dom.init = function () {
 				<p>You may not know me, but I have been watching your deeds and have been very impressed. It may seem like your doings are unrewarded, but know that there are always those who appreciate your every move.</p>
 				<p>On this day of giving and feasting, please celebrate with a token of my undying appreciation.</p>`, true, [], [],
 			    [{item: Items.boots[12]}]], [{item: Items.boots[12]}],
+			);
+		}
+
+		// Samme Day mail
+		else if (Event.event === "Samme") {
+			Dom.mail.give(
+			    "Happy Samme Day!",
+			    "Fish Tank",
+			    "fishTank",
+			    "text.page",
+			    ["Happy Samme Day!",
+			    "Happy Samme Day!", true, [], [],
+			    [{item: Items.chest[21]}]], [{item: Items.chest[21]}],
 			);
 		}
 

@@ -140,7 +140,7 @@ thead:after { /* space after bags in bank */
 	overflow-y: auto;
 }
 
-#questStartQuest, #questFinishQuest, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
+#questStartQuest, #questFinishQuest, #questStartName, #questStartChat, #questStartObjectives, #questStartRewards, #questStartStartRewards, #questStartRewardsTitle, #questStartStartRewardsTitle, #questFinishRewardsTitle, #questFinishRewards, #merchantPageTitle, #merchantPageChat, #merchantPageOptions, #identifierPageTitle, #identifierPageChat, #leftArrow, #identifierPageOption, #rightArrow, #identifiedPageTitle, #identifiedPageChat, #identifiedPageOptions{
 	display: inline;
 }
 
@@ -162,7 +162,7 @@ thead:after { /* space after bags in bank */
 	padding-top: 10px;
 }
 
-#choosePageHelm, #choosePageChest, #choosePageGreaves, #choosePageBoots, #choosePageWeapon, #helm, #chest, #greaves, #boots, #weapon, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, #settingCredits, .mailImage, .driverImage, .theseOptions {
+#choosePageHelm, #choosePageChest, #choosePageGreaves, #choosePageBoots, #choosePageWeapon, #helm, #chest, #greaves, #boots, #weapon, #bag, #mountSlotLocked, #mountSlotUnlocked, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, #settingCredits, .mailImage, .driverImage, .theseOptions {
 	background-color: var(--bottom);
 	margin-top: 10px;
 	border: 5px solid var(--border);
@@ -1145,7 +1145,17 @@ thead:after { /* space after bags in bank */
 /*		TABLES		*/
 /*					*/
 
+/* positioning */
 #itemInventory, #hotbar, #loot{
+	position: absolute;
+	top: 121px;
+	left: 139px;
+	margin-top: 10px;
+	font-size: 0px;
+}
+
+/* positioning */
+#trinketsInventory {
 	position: absolute;
 	top: 31px;
 	left: 139px;
@@ -1153,7 +1163,33 @@ thead:after { /* space after bags in bank */
 	font-size: 0px;
 }
 
-#itemInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #tradePageInventory, #tradePageOther, #loot {
+/* positioning */
+#bag, #mountSlotLocked, #mountSlotUnlocked {
+	position: absolute;
+	top: 31px;
+	margin-top: 10px;
+	font-size: 0px;
+}
+
+#bag {
+	left: 414px;
+	background-image: url("assets/items/bag/1.png");
+}
+
+#mountSlotLocked, #mountSlotUnlocked {
+	left: 331px;
+}
+
+#mountSlotUnlocked {
+	background-image: url("assets/items/mount/1.png");
+}
+
+#mountSlotLocked, .trinketSlotLocked {
+	background-image: url("assets/items/bag/0.png");
+}
+
+/* appearance */
+#itemInventory, #trinketsInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #tradePageInventory, #tradePageOther, #loot {
 	border-spacing: 0px;
 	border-bottom: 5px solid var(--border);
 	border-right: 5px solid var(--border);

@@ -274,4 +274,5 @@ var Offsets = {
 	alfonsoMurbry: {image: "assets/npcs/alfonsoMurbry", x: 290, y: -6},
 	archbishopLynch: {image: "assets/npcs/archbishop", x: 95, y: 9},
 	shopkeeperBarda: {image: "assets/npcs/barda", x: 60, y: -7},
+	fishTank: {image: "assets/npcs/fishTankFront", x: 50, y: 30},
 };

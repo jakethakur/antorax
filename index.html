@@ -72,6 +72,20 @@
 		<div id="chest" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		<div id="greaves" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		<div id="boots" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+
+		<table id="trinketsInventory">
+			<tr>
+				<td id="trinketSlot1" ondrop="Dom.inventory.drop(event, Player.inventory.trinkets, 0);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.trinkets[0], undefined, 'inventoryPage', undefined, undefined, undefined, 'Trinket slot empty')" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+				<td id="trinketSlot2" ondrop="Dom.inventory.drop(event, Player.inventory.trinkets, 1);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.trinkets[1], undefined, 'inventoryPage', undefined, undefined, undefined, 'Trinket slot empty')" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+				<td id="trinketSlot3" ondrop="Dom.inventory.drop(event, Player.inventory.trinkets, 2);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.trinkets[2], undefined, 'inventoryPage', undefined, undefined, undefined, 'Trinket slot empty')" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
+			</tr>
+
+			<div hidden id="mountSlotLocked" onmouseover="Dom.inventory.displayInformation({name: 'Mount slot locked', image:''}, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"></div>
+			<div id="mountSlotUnlocked" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.mount, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Mount slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'mount');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+
+			<div id="bag" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.bag, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'bag');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		</table>
+
 		<span id="itemInventoryWrapper">
 			<table id="itemInventory">
 				<tr>
@@ -84,6 +98,7 @@
 				</tr>
 			</table>
 		</span>
+
 		<p id="bagText">Buy bags to get more inventory space</p>
 	</div>
 	<table id="hotbar">
@@ -262,6 +277,10 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 
 	<div id="questStart" hidden class="DOM shortDOM">
 		<br><h1 id="questStartQuest"></h1><br><br>
+		<span id="questStartChatWrapper">
+			<b id="questStartName"></b><br>
+			<p id="questStartChat"></p><br><br>
+		</span>
 		<b>Quest Objectives</b>
 		<p id="questStartObjectives"></p>
 		<p id="questStartStartRewardsTitle"></p>
