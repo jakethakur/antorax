@@ -51,7 +51,7 @@ var Adventure = {
 			<span class="adventureContent">Get to the bottom of Eaglecrest City's snake infestation.</span>
 		</div>`,
 		condition: function () {
-			return Event.event === "Samhain" && !Player.quests.questProgress.bloodMoonUnlocked;
+			return Player.quests.completedQuestArray.includes("Overdraft") && Event.event === "Samhain" && !Player.quests.questProgress.bloodMoonUnlocked;
 		},
 	},
 	samhainII: {

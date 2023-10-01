@@ -164,7 +164,7 @@ var Player = {
 		weapon: {},
 		bag: {},
 		mount: {},
-		accessories: [{},{},{}],
+		trinkets: [{},{},{}],
 		items: [{},{},{},{},{},{}],
 	},
 

@@ -1258,4 +1258,61 @@ Spells = [
 	},
 
 
+	// testing spell !!
+	{
+		name: "OP Arrowspeed (dev spell)",
+		id: 27,
+		img: "assets/runes/6.png",
+		imgIconNum: 6,
+		class: "a",
+		description: ["", "Increase your movement speed by 150% and attack damage by 500% for 10 seconds."],
+		difficulty: "Easy",
+
+		// properties should contain tier (as int value), caster
+		func: function (properties) {
+			Game.statusEffects.walkSpeed({
+				target: Game.hero,
+				effectTitle: "Arrowspeed!",
+				speedIncrease: Spells[27].movementMultiplier[properties.tier],
+				time: Spells[27].length[properties.tier],
+			});
+			Game.statusEffects.attackDamage({
+				target: Game.hero,
+				effectTitle: "Arrowspeed! (attack damage)",
+				damageIncrease: Spells[27].damageMultiplier[properties.tier],
+				time: Spells[27].length[properties.tier],
+				hidden: true,
+			});
+		},
+
+		channelTime: [
+			0,
+			0,	// tier 1
+		],
+
+		movementMultiplier: [
+			0,
+			150,		// tier 1
+		],
+
+		damageMultiplier: [
+			0,
+			500,		// tier 1
+		],
+
+		length: [
+			0,
+			10,		// tier 1
+		],
+
+		manaCost: [
+			0,
+			1,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			5000,	// tier 1
+		],
+	},
 ];

@@ -163,6 +163,11 @@ Game.initWebSocket = function () {
 
 					// if user is undefined, either the user is not in the player's area or there has been an error
 					if (user !== undefined) {
+						let distanceTravelled = 0;
+						if (typeof user.x !== "undefined" && typeof user.y !== "undefined" && typeof message.x !== "undefined" && typeof message.y !== "undefined") {
+							distanceTravelled = Game.distance(user, message);
+						}
+						user.totalDistanceWalked += distanceTravelled; // for anim
 						user.x = message.x;
 						user.y = message.y;
 						if (message.direction !== user.direction) {
@@ -571,7 +576,7 @@ Game.addPlayer = function (player) {
 
 				copiedPlayer.animation = {
 					type: "spritesheet",
-					frameTime: 15,
+					frameTime: 18,
 					imagesPerRow: 4,
 					totalImages: 4,
 					animateBasis: "walk"
@@ -590,7 +595,7 @@ Game.addPlayer = function (player) {
 						width: 52,
 						height: 127
 					});
-					addedPlayer.setAdditionalImages([{imageName: "player_"+addedPlayer.clothing}, {imageName: "player_"+addedPlayer.hair}]);
+					addedPlayer.setAdditionalImages([{imageName: "player_"+addedPlayer.clothing}, {imageName: "player_"+addedPlayer.hair, doNotAnimate: true}]);
 
 					addedPlayer.updateRotation();
 
@@ -1928,6 +1933,10 @@ class Thing extends Visible {
 		// used as reference for expand
 		this.baseWidth = this.width;
 		this.baseHeight = this.height;
+
+		if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop === "undefined") { // maybe doesn't need to set this 2nd condition ?
+			this.animation.baseCrop = crop;
+		}
 	}
 
 	// temporary change of image (used with resetImage)
@@ -3592,40 +3601,24 @@ class UserControllable extends Attacker {
 	// called after this.direction is updated
 	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
 	updateRotation () {
-		if (this.direction === 1) {
-			this.crop = {
-				x: 1,
-				y: this.baseHeight+3,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		if (this.direction === 1) { // facing up
+			this.crop.y = this.baseHeight*2;
+			this.animation.baseCrop.y = this.baseHeight*2;
 		}
 
-		else if (this.direction === 2) {
-			this.crop = {
-				x: this.baseWidth+3,
-				y: this.baseHeight+3,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 2) { // facing left
+			this.crop.y = this.baseHeight*3;
+			this.animation.baseCrop.y = this.baseHeight*3;
 		}
 
-		else if (this.direction === 3) {
-			this.crop = {
-				x: 1,
-				y: 1,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 3) { // facing down
+			this.crop.y = 0;
+			this.animation.baseCrop.y = 0;
 		}
 
-		else if (this.direction === 4) {
-			this.crop = {
-				x: this.baseWidth+3,
-				y: 1,
-				width: this.baseWidth,
-				height: this.baseHeight
-			};
+		else if (this.direction === 4) { // facing right
+			this.crop.y = this.baseHeight;
+			this.animation.baseCrop.y = this.baseHeight;
 		}
 	}
 }
@@ -6242,7 +6235,7 @@ class NonPlayerAttacker extends Attacker {
 							}
 							// I think target should always be in attack targets... but just in case...
 							if (!attackTarget) {
-								console.error("A target was found that's not in attackTargets or attackTargetTypes! Please tell Jake. ", target)
+								console.warn("A target was found that's not in attackTargets or attackTargetTypes! Please tell Jake. ", target)
 							}
 
 							// enemy should attack target
@@ -9181,7 +9174,7 @@ Game.init = function () {
 		},
 		animation: {
 			type: "spritesheet",
-			frameTime: 15,
+			frameTime: 18,
 			imagesPerRow: 4,
 			totalImages: 4,
 			animateBasis: "walk"
@@ -11672,7 +11665,7 @@ Game.projectileImageUpdate = function () {
 	}
 
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
-	/*else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
+	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
 		// needs to reload default projectile image
 		if (nameAddress === "heroProjectileName") {
 			// weapon projectile - saved in skindata by default
@@ -11689,7 +11682,7 @@ Game.projectileImageUpdate = function () {
 
 		// load image and stop player attacking until it has loaded
 		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal: "./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
-	}*/ // disabled for now, can be brought back whenevs :)
+	}
 }
 
 // called whenever the "hex" stat has been changed from 0 to something else

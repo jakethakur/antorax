@@ -10559,6 +10559,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 							Player.class === "a" ? {item: Items.bow[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain spiderbow
 							: Player.class === "k" ? {item: Items.sword[7], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy} // samhain scythe
 							: {item: Items.staff[8], cost: 15, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // samhain broomstick
+							{item: Items.trinket[6], cost: 35, costCurrency: 4, buyFunction: BuyFunctions.samhainItemBuy}, // coffin trinket
 						],
 						role: "merchant",
 						chooseText: "I'd like to turn in some Samhain Marks for items.",
@@ -12311,6 +12312,10 @@ areaTeleports: [
 		teleportTo: "caves",
 		destinationX: 3144,
 		destinationY: 6721,
+		teleportCondition: function () {
+			return false;
+		},
+		teleportFailText: "Archaeological exploration of <i>the Caves</i> has not yet commenced!",
 	},
 ],
 

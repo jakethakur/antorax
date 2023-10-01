@@ -679,7 +679,6 @@ let Event = {
 		if (d.day === 11 && d.month === 10) {
 			this.event = "Samme";
 		}
-			this.event = "Samhain";
 	},
 
 	updateSeason: function (d) {

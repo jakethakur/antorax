@@ -1155,7 +1155,7 @@ thead:after { /* space after bags in bank */
 }
 
 /* positioning */
-#accessoriesInventory {
+#trinketsInventory {
 	position: absolute;
 	top: 31px;
 	left: 139px;
@@ -1184,12 +1184,12 @@ thead:after { /* space after bags in bank */
 	background-image: url("assets/items/mount/1.png");
 }
 
-#mountSlotLocked {
+#mountSlotLocked, .trinketSlotLocked {
 	background-image: url("assets/items/bag/0.png");
 }
 
 /* appearance */
-#itemInventory, #accessoriesInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #tradePageInventory, #tradePageOther, #loot {
+#itemInventory, #trinketsInventory, #hotbar, #buyerPageInventory, #bankPageInventory, #tradePageInventory, #tradePageOther, #loot {
 	border-spacing: 0px;
 	border-bottom: 5px solid var(--border);
 	border-right: 5px solid var(--border);

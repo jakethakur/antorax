@@ -185,6 +185,9 @@ let Dom = {
 		tradePageOther: document.getElementById("tradePageOther"),
 		transparencyOn: document.getElementById("transparencyOn"),
 		triangle: document.getElementById("triangle"),
+		trinketSlot1: document.getElementById("trinketSlot1"),
+		trinketSlot2: document.getElementById("trinketSlot2"),
+		trinketSlot3: document.getElementById("trinketSlot3"),
 		tutorialOff: document.getElementById("tutorialOff"),
 		tutorialOn: document.getElementById("tutorialOn"),
 		weapon: document.getElementById("weapon"),
@@ -1778,7 +1781,7 @@ Dom.inventory.stats = function (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}
-	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro") {
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro" || stat === "Channelling Move Speed") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
 	else if (stat === "Focus Speed") {
@@ -1801,6 +1804,9 @@ Dom.inventory.stats = function (stat, value, array) {
 	}
 	else if (stat === "Slow Amount") {
 		return "Slow: -" + value + "% for " + array.slowTime + "s<br>";
+	}
+	else if (stat === "Slow Time" && typeof array.slowAmount === "undefined") {
+		return "Slow Time: +" + array.slowTime + "s<br>";
 	}
 	else if (stat === "Damage") {
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
@@ -1830,7 +1836,7 @@ Dom.inventory.stats = function (stat, value, array) {
 
 // display the information of an item, shown on hoverover
 // array is the array of equipment in chooseDOM
-// emptySlotMessage is the message to be shown if the slot is empty but being hovered over
+// emptySlotMessage is the message to be shown if the slot is empty but being hovered over - doesn't yet work !
 Dom.inventory.displayInformation = function (item, stacked, element, position, hide, array, emptySlotMessage) {
 	if (item === undefined) {
 		item = {};
@@ -2201,6 +2207,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 		}
 		else if (emptySlotMessage !== undefined) {
 			// slot empty
+			// tbd !!!!
 		}
 	}
 }
@@ -3366,7 +3373,7 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 						}*/
 
 						// if the item has not been obtained before and is in archaeology, add it to archaeology progress
-						if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
+						if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow" || item.type === "rod" || item.type === "trinket") && !User.archaeology.includes(item.name) && item.name !== undefined) {
 							User.archaeology.push(item.name);
 						}
 
@@ -4704,9 +4711,9 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 			completed++;
 		}
 		else {
-			for (let i = 0; i < Player.inventory.accessories.length; i++) {
-				if (((Player.inventory.accessories[i].type === type && Player.inventory.accessories[i].id === ID) || (Player.inventory.accessories[i].name === name && name !== undefined)) && (!quest || Player.inventory.accessories[i].quest === true || (Player.inventory.accessories[i].quest !== undefined && Player.inventory.accessories[i].quest()))) {
-					index.push("accessories"+i);
+			for (let i = 0; i < Player.inventory.trinkets.length; i++) {
+				if (((Player.inventory.trinkets[i].type === type && Player.inventory.trinkets[i].id === ID) || (Player.inventory.trinkets[i].name === name && name !== undefined)) && (!quest || Player.inventory.trinkets[i].quest === true || (Player.inventory.trinkets[i].quest !== undefined && Player.inventory.trinkets[i].quest()))) {
+					index.push("trinkets"+i);
 					completed++;
 				}
 			}
@@ -5168,7 +5175,7 @@ Dom.choose.page = function (npcs) {
 
 						// equipment slots
 
-						let array = ["helm", "chest", "greaves", "boots", "weapon", "mount", "bag"];//aaaaaaaaaaaaaa accessories
+						let array = ["helm", "chest", "greaves", "boots", "weapon", "mount", "bag"];//aaaaaaaaaaaaaa trinkets
 						for (let i = 0; i < array.length; i++) {
 							let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
 							if (npc.equipment[array[i]].image !== undefined) {
@@ -5889,7 +5896,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	if (array[i].type === "sword" || array[i].type === "staff" || array[i].type === "bow" || array[i].type === "rod" || array[i].type === "tool") {
 		type = "weapon";
 	}
-	else if (array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots" || array[i].type === "mount" || array[i].type === "bag") { // aaaaaaaa accessories
+	else if (array[i].type === "helm" || array[i].type === "chest" || array[i].type === "greaves" || array[i].type === "boots" || array[i].type === "mount" || array[i].type === "bag") { // aaaaaaaa trinkets
 		type = array[i].type;
 	}
 
@@ -6943,6 +6950,33 @@ Dom.init = function () {
 		Dom.elements.mountSlotUnlocked.hidden = true;
 		Dom.elements.mountSlotLocked.hidden = false;
 	}
+	// locked trinket slots
+	// these locked slots work slightly differently because they're in a table
+	if (Player.level < 10000) {
+		Dom.elements.trinketSlot1.classList.add("trinketSlotLocked");
+		Dom.elements.trinketSlot1.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot1.removeAttribute("ondrag");
+		Dom.elements.trinketSlot1.removeAttribute("onclick");
+		Dom.elements.trinketSlot1.removeAttribute("ondrop");
+		Dom.elements.trinketSlot1.removeAttribute("ondragover");
+	}
+	if (Player.level < 10000) {
+		Dom.elements.trinketSlot2.classList.add("trinketSlotLocked");
+		Dom.elements.trinketSlot2.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot2.removeAttribute("ondrag");
+		Dom.elements.trinketSlot2.removeAttribute("onclick");
+		Dom.elements.trinketSlot2.removeAttribute("ondrop");
+		Dom.elements.trinketSlot2.removeAttribute("ondragover");
+	}
+	if (Player.level < 10000) {
+		Dom.elements.trinketSlot3.classList.add("trinketSlotLocked");
+		Dom.elements.trinketSlot3.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot3.removeAttribute("ondrag");
+		Dom.elements.trinketSlot3.removeAttribute("onclick");
+		Dom.elements.trinketSlot3.removeAttribute("ondrop");
+		Dom.elements.trinketSlot3.removeAttribute("ondragover");
+	}
+	
 	/*if (Player.inventory.items[5].image === undefined) {
 		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 	}*/

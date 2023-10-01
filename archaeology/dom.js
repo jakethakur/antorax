@@ -113,7 +113,7 @@ function Stats (stat, value, array) {
 	if (stat === "Defence" || stat === "Block Defence" || stat === "Fishing Skill" || stat === "Max Health") {
 		return stat+": "+NumberSign(value)+"<br>";
 	}
-	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro") {
+	else if (stat === "Critical Chance" || stat === "Dodge Chance" || stat === "Looting" || stat === "Reflection" || stat === "Lifesteal" || stat === "Xp Bonus" || stat === "Hex" || stat === "Damage Percentage" || stat === "Stealing" || stat === "Range Multiplier" || stat === "Healing Power" || stat === "Interact Range" || stat === "Poison Strength" || stat === "Enemy Aggro" || stat === "Channelling Move Speed") {
 		return stat+": "+NumberSign(value)+"%<br>";
 	}
 	else if (stat === "Focus Speed") {
@@ -136,6 +136,9 @@ function Stats (stat, value, array) {
 	}
 	else if (stat === "Slow Amount") {
 		return "Slow: -" + value + "% for " + array.slowTime + "s<br>";
+	}
+	else if (stat === "Slow Time" && typeof array.slowAmount === "undefined") {
+		return "Slow Time: +" + array.slowTime + "s<br>";
 	}
 	else if (stat === "Damage") {
 		return stat+": "+value + (array.maxDamage > value ? "-" + array.maxDamage : "")+"<br>";
@@ -816,7 +819,7 @@ var StatsInfo = {
 	durability: "The number of attacks that can be dealt by the weapon before it breaks.",
 	splashDamage: "Damages all enemies at the location, rather than just one.",
 	windShield: "Prevents player movement caused by wind.",
-	slowAmount: "Slows hit enemies for a certain period of time. This effect can stack to slow them for longer.",
+	slowTime: "Slows hit enemies for a certain period of time. This effect can stack to slow them for longer.",
 	moveDuringFocus: "Allows player movement whilst focussing shots.",
 	stealing: "Increases chance of looting gold and rare items from corpses.",
 	healingPower: "Changes the amount of healing you receieve (not including health regen).",

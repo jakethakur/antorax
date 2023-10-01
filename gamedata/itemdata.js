@@ -727,8 +727,11 @@ unidentifiedArea: ["caves"],
 			stats: {
 				defence: 6,
 			},
-			onIdentify: function () {
-
+			functionText: "Gets 2 random enhancements on identification. Can be tinkered for more enhancements.",
+			// possible enhancements can be found at Items.item[76]
+			onIdentify: function (item) {
+				let statToGive =
+				item.stats
 			}
 		},
 		{
@@ -746,7 +749,7 @@ unidentifiedArea: ["caves"],
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
 				defence: 6,
-				criticalChance: 10,
+				damagePercentage: 5,
 			},
 		},
 		{
@@ -1155,6 +1158,7 @@ unidentifiedArea: ["caves"],
 			sellPrice: 4,
 			lore: "",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			functionText: "Gets 2 random enhancements on identification. Can be tinkered for more enhancements.",
 			stats: {
 				defence: 7,
 			},
@@ -1177,7 +1181,7 @@ unidentifiedArea: ["caves"],
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
 				defence: 7,
-				criticalChance: 10,
+				damagePercentage: 5,
 			},
 		},
 		{
@@ -1539,6 +1543,7 @@ unidentifiedArea: ["caves"],
 			sellPrice: 4,
 			lore: "",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			functionText: "Gets 2 random enhancements on identification. Can be tinkered for more enhancements.",
 			stats: {
 				defence: 7,
 			},
@@ -1561,7 +1566,7 @@ unidentifiedArea: ["caves"],
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
 				defence: 7,
-				criticalChance: 10,
+				damagePercentage: 5,
 			},
 		},
 		{
@@ -2021,6 +2026,7 @@ unidentifiedArea: ["caves"],
 			sellPrice: 4,
 			lore: "",
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
+			functionText: "Gets 2 random enhancements on identification. Can be tinkered for more enhancements.",
 			stats: {
 				defence: 6,
 			},
@@ -2043,7 +2049,7 @@ unidentifiedArea: ["caves"],
 			obtainText: "Can be uncovered as an unidentified item in areas around Eaglecrest Caves.",
 			stats: {
 				defence: 6,
-				criticalChance: 10,
+				damagePercentage: 5,
 			},
 		},
 		{
@@ -2076,10 +2082,10 @@ unidentifiedArea: ["caves"],
 			sellPrice: 4,
 			obtainText: "Can be looted from the Lake Lurker.",
 			stats: {
-				defence: 1,
-				healthRegen: 0.2,
-				swimSpeed: 90,
+				defence: 2,
+				swimSpeed: 30,
 				walkSpeed: -30,
+				slowTime: 1,
 			},
 		},
 	],
@@ -2989,9 +2995,9 @@ unidentifiedArea: ["caves"],
 			tier: 1,
 			obtain: ["boss"],
 			area: ["loggingCamp"],
-			//event: "Samhain",
+			event: "Samhain",
 			rarity: "mythic",
-			lore: "tbd",
+			lore: "",
 			obtainText: "Can be looted from 'Barebones' Nkkja, a boss in The Nilbog during Blood Moons.",
 			limitedEdition: true, // temp
 			sellPrice: 5,
@@ -3088,7 +3094,7 @@ unidentifiedArea: ["caves"],
 			},
 			functionText: "You take 5 damage every time you attack with this staff.",
 			onAttack: function () {
-				Game.hero.takeDamage(Player.weapon.functionStats.damageTaken);
+				Game.hero.takeDamage(Player.inventory.weapon.functionStats.damageTaken);
 			},
 			projectile: "pinkBall",
 			projectileAdjust: {x: 0, y: 0},
@@ -4042,6 +4048,100 @@ unidentifiedArea: ["caves"],
 				looting: 40, // tbd make this and stealing conditional stats?
 				stealing: 40,
 			},
+		},
+	],
+	trinket: [ //  new sept 2023
+		{
+			id: 0,
+			name: "Test Trinket 1",
+			type: "trinket",
+			image: "assets/items/trinkets/0.png", // doesn't yet exist
+			stats: {},
+		},
+		{
+			id: 1,
+			name: "Test Trinket 1",
+			type: "trinket",
+			image: "assets/items/trinkets/1.png",
+			stats: {},
+		},
+		{
+			id: 2,
+			name: "Eaglecrestian Forged Ring",
+			type: "trinket",
+			image: "assets/items/trinkets/1.png",
+			stats: {
+				defencePercentage: 10, // needs adding ..
+				xpBonus: 10,
+			}, // tbc
+			rarity: "unique",
+			sellPrice: 5, // tbd
+			lore: "",
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			obtainText: "tbd",
+		},
+		{
+			id: 3,
+			name: "Frog Tongue Ring", // tbd
+			type: "trinket",
+			image: "assets/items/trinkets/3.png",
+			stats: {
+				// tbd
+			},
+			rarity: "unique",
+			sellPrice: 5, // tbd
+			lore: "tbd",
+			obtain: ["unidentified"], // ??
+			area: ["eaglecrest"],
+			obtainText: "tbd",
+		},
+		{
+			id: 4,
+			name: "Bee Ring", // tbd
+			type: "trinket",
+			image: "assets/items/trinkets/4.png",
+			stats: {
+				// tbd
+			},
+			rarity: "unique",
+			sellPrice: 5, // tbd
+			lore: "tbd",
+			obtain: ["dungeon"], // ?? add this maybs ?
+			area: ["eaglecrest"],
+			obtainText: "tbd",
+		},
+		{
+			id: 5,
+			name: "Christmas Tree Pendant", // tbd
+			type: "trinket",
+			image: "assets/items/trinkets/5.png",
+			stats: {
+				// tbd
+			},
+			rarity: "unique",
+			sellPrice: 5, // tbd
+			lore: "tbd",
+			event: "Christmas",
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			obtainText: "tbd",
+		},
+		{
+			id: 6,
+			name: "Coffin Pendant", // tbd
+			type: "trinket",
+			image: "assets/items/trinkets/6.png",
+			stats: {
+				lifesteal: 5,
+			},
+			rarity: "unique",
+			sellPrice: 4,
+			lore: "",
+			event: "Samhain",
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			obtainText: "Can be bought from a merchant during the Samhain event.",
 		},
 	],
 	currency: [
@@ -5378,9 +5478,9 @@ unidentifiedArea: ["caves"],
 							target: Game.hero,
 							effectTitle: "Vampiric Touch",
 							lifestealIncrease: 100,
-							time: 10,
+							time: 5,
 						});
-						Dom.chat.insert("<i>The thirst of a vampire washes through you, granting +100% lifesteal for 10 seconds.</i>");
+						Dom.chat.insert("<i>The thirst of a vampire washes through you, granting +100% lifesteal for 5 seconds.</i>");
 						break;
 					case 1:
 						// give stealth to the player
@@ -7710,6 +7810,36 @@ const ItemFunctions = {
 
 		// letter text
 		Player.inventory.items[inventoryPosition].letterText = LostLetterMessages[messageKey];
+	},
+
+	// for i.e. tinkered headpiece
+	randomTinkerStat: function () {
+		let enhancements = [ // all are irrespective of tier (for now)
+			{stat: "criticalChance", amount: 5,},
+			{stat: "dodgeChance", amount: 5,},
+			{stat: "reflection", amount: 15,},
+			{stat: "damagePercentage", amount: 5,},
+			{stat: "damagePercentage", amount: -5,},
+			{stat: "walkSpeed", amount: 20,},
+			{stat: "looting", amount: 10,},
+
+			{stat: "lifesteal", amount: 5, rare: true,},
+			{stat: "xpBonus", amount: 30, rare: true,},
+			{stat: "stealing", amount: 30, rare: true,},
+			{stat: "swimSpeed", amount: 30, rare: true,},
+			{stat: "healingPower", amount: 25, rare: true,},
+		];
+		let nonRareEnhancements = enhancements.filter(enhancement => enhancement.rare !== true);
+
+		let rareMultiplier = 13; // rare stats are 13 times as rare as non-rare ones
+
+		let enhancement = enhancements[Random(0, enhancements.length-1)];
+		if (enhancement.rare) {
+			if (Random(0, rareMultiplier-1) !== 0) {
+				// not allowed this random stat
+				enhancement = nonRareEnhancements[Random(0, nonRareEnhancements.length-1)];
+			}
+		}
 	}
 }
 
