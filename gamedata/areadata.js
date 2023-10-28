@@ -3868,7 +3868,6 @@ var Areas = {
 		archaeologistBag: {normal: "assets/objects/archaeologistBag.png"},
 		archaeologistBrush1: {normal: "assets/objects/archaeologistBrush1.png"},
 		archaeologistBrush2: {normal: "assets/objects/archaeologistBrush2.png"},
-		tent1Light: {normal: "assets/objects/tent1Light.png"},
 		anvil: {normal: "assets/objects/anvil.png"},
 		eaglecrestStatue: {normal: "assets/objects/eaglecrestStatue.png"},
 		eaglecrestStatueHead: {normal: "assets/objects/eaglecrestStatueHead.png"},
