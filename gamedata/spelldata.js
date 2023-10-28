@@ -1256,6 +1256,87 @@ Spells = [
 			30000
 		]
 	},
+//vomer attack
+	{
+				name: "Vomer Bite",
+				id: 27,
+				class: "k",
+				description: "Jaws",
+				enemyOnly: true, // coyote hiyote
+
+				// properties should contain caster, target
+		func: function (properties) {
+			let projectileSpeed = 250; // default
+
+			Game.projectiles.push(new Projectile({
+				map: map,
+				x: properties.caster.x,
+				y: properties.caster.y,
+				attacker: properties.caster,
+				stats: {
+					damage: 8,
+					stun: 1.5,
+				},
+				onHit: function (target, caster) {
+					// reduce enemy's defence
+					Game.statusEffects.defence({
+						target: target,
+						effectTitle: "Target Acquired",
+						defenceIncrease: -100,
+						time: 8,
+						effectStack: "multiply",
+						// end blood effect when this effect expires
+						onExpire: "removeTrail",
+						callExpireOnRemove: true,
+						onExpireParams: ["coyoteBlood"]
+					});
+
+					// caster should charge towrards location
+					let dist = Game.distance(caster, target);
+					let velocity = 600;
+					let time = dist / velocity;
+					let bear = Game.bearing(caster, target);
+					caster.displace(0, velocity, time, bear); // start displacement
+
+					// blood on target
+					target.addTrail("coyoteBlood", {
+						width: 3,
+						height: 3,
+						colour: ["#880808", "#8a0303"], // class Particle chooses random colour from array
+						removeIn: 1500,
+						rotation: 0,
+						variance: 50, // variance in position (in x/y axis in one direction from player)
+						intensity: 1, // no. of particles every 100ms
+					});
+				},
+				targets: [[properties.target]],
+				image: "jaws",
+				crop: {
+					x: 47,
+					y: 42,
+					width: 61,
+					height: 66,
+				},
+				moveTowards: properties.target,
+				moveSpeed: projectileSpeed,
+				type: "projectiles",
+				animation: {
+					type: "spritesheet",
+					imagesPerRow: 3,
+					frameTime: 50,
+					totalImages: 7,
+				},
+				transparency: 0.7,
+				stopMovingOnDamage: true,
+			}));
+				},
+
+				channelTime: [
+						0,
+						1000,    // tier 1
+				],
+		},
+
 
 
 	// testing spell !!
