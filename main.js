@@ -8308,18 +8308,22 @@ Game.loadDefaultImages = function () {
 // temp:
 	let clothingName;
 	let clothingColours = [];
+	let className = "";
 	switch (Player.class) {
 		case "m":
+			className = "mage";
 			clothingName = "mageCloak";
 			clothingColours = ["Amethyst", "Aquamarine", "Emerald", "Lapis", "Onyx", "Pearl", "Quartz", "Ruby"];
 			break;
 
 		case "a":
+		className = "archer";
 			clothingName = "archerCoat";
 			clothingColours = ["Crow", "Falcon", "Flamingo", "Hibiscus", "Ivy", "Lavender", "Lily", "Rose"];
 			break;
 
 		case "k":
+			className = "knight";
 			clothingName = "knightArmour";
 			clothingColours = ["Cobalt", "Copper", "Listerine", "Obsidian", "Pink", "Platinum", "Titanium", "Verdigris"];
 			break;
@@ -8330,7 +8334,7 @@ Game.loadDefaultImages = function () {
 
 	// load image based on class
 	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
-	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.clothing + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + className + "/" + Player.clothing + ".png", false));
 	toLoad.push(Loader.loadImage("player_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
 
 	// load class' default projectile
