@@ -125,6 +125,7 @@ Game.initWebSocket = function () {
 				skinTone: Player.skinTone,
 				clothing: Player.clothing,
 				hair: Player.hair,
+				hat: Player.hat,
 				area: Player.areaName,
 				displayArea: Player.displayAreaName,
 				x: Player.x,
@@ -3426,6 +3427,8 @@ class Attacker extends Character {
 			this.projectile.height = properties.projectile.height;
 			// not necessary (defaults to x: 0 and y: 0 later on if it is undefined)
 			this.projectile.adjust = properties.projectile.adjust || {};
+			this.projectile.animation = properties.projectile.animation;
+			this.projectile.crop = properties.projectile.crop;
 		}
 
 
@@ -3883,12 +3886,21 @@ class Hero extends Attacker {
 						let hitboxSize = 0;
 						let projectileName = "";
 						let imageName = "";
+						let trail = {};
 						if (weaponType === "staff") {
 							hitboxSize = 23;
 							projectileName = "Fireball Attack";
 							imageName = Game.heroProjectileName;
 						}
 						else if (weaponType === "bow") {
+							trail = {
+                width: 1.5,
+                height: 1.5,
+                colour: ["#CECDCC", "#D7D8D2"], // class Particle chooses random colour from array
+                removeIn: 1500,
+                variance: 5, // variance in position (in x/y axis in one direction from player)
+								intensity: 5,
+							};
 							hitboxSize = 10;
 							projectileName = "Arrow Attack";
 							imageName = Game.heroProjectileName;
@@ -3900,6 +3912,7 @@ class Hero extends Attacker {
 							y: Game.hero.y,
 							attacker: this,
 							projectileStats: this,
+							trails: [trail],
 							targets: [Game.damageableByPlayer],
 							adjust: {
 								// manually adjust position (programmed for each projectile in skindata/itemdata)
@@ -3956,22 +3969,34 @@ class Hero extends Attacker {
 							hitbox: {
 								x: mouseX,
 								y: mouseY,
-								width: 60,
-								height: 60,
+								width: 80,
+								height: 80,
 							},
 							image: Game.heroProjectileName,
 							name: "Hero Slash Projectile",
 							beingChannelled: true,
 							type: "projectiles",
 
-							rotate: projectileDirection + Math.PI/2,
+							rotate: projectileDirection,
 
 							// optional stuff:
 							// aaaaaaaaaaaaa look at ; might need to fix some of these
-							crop: Game.heroProjectileInfo.crop,
-							animation: Game.heroProjectileInfo.animation,
-							frameTime: Game.heroProjectileInfo.frameTime,
-							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
+
+							crop: {
+								x: 0,
+								y: 0,
+								width: 80,
+								height: 80,
+							},
+							animation: {
+								type: "spritesheet",
+								frameTime: 50,
+								imagesPerRow: 3,
+								totalImages: 9,
+								startState: 0,
+								stopAnimationOnState: 8,
+							},
+							stayOnScreen: 900, // set to the time it stays on the screen for (default 1500) or true if never removed
 							//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
 							onInteract: Game.heroProjectileInfo.onInteract,
 							z: Game.heroProjectileInfo.z,
@@ -4041,6 +4066,19 @@ class Hero extends Attacker {
 								attackTargetTypes: ["enemies"],
 								projectile: {
 									image: Game.heroProjectileName,
+									crop: {
+										x: 0,
+										y: 0,
+										width: 80,
+										height: 80,
+									},
+									animation: {
+										type: "spritesheet",
+										frameTime: 50,
+										imagesPerRow: 3,
+										totalImages: 9,
+										startState: 0,
+									},
 								},
 
 								onDeathAdditional: function () { // additional so that it doesn't require damage from hero
@@ -6399,6 +6437,8 @@ class NonPlayerAttacker extends Attacker {
 			targets: targets,
 			width: this.projectile.width,
 			height: this.projectile.height,
+			animation: this.projectile.animation,
+			crop: this.projectile.crop,
 			adjust: {
 				x: this.projectile.adjust.x || undefined,
 				y: this.projectile.adjust.y || undefined,
@@ -7993,7 +8033,7 @@ Game.drawTrail = function (entity, trail) {
 	trail.x = entity.x;
 	trail.y = entity.y;
 	// draw particles
-	for (let i = 0; i < trail.intensity; i++) {
+	for (let i = 0; i < trail.intensity/10; i++) {
 		this.createParticle(trail); // Game not this because it is called by setInterval
 	}
 }
@@ -8328,14 +8368,23 @@ Game.loadDefaultImages = function () {
 			clothingColours = ["Cobalt", "Copper", "Listerine", "Obsidian", "Pink", "Platinum", "Titanium", "Verdigris"];
 			break;
 	}
-	Player.skinTone = "humanLight1";
+		let skinTone = ["humanLight1", "orcGreen1", "orcOrange1", "humanDark1"];
+		let hair = ["longSpikyBrown", "mediumSpikyBrown"];
+		let hat = ["archaeologistHat", "null"];
+
+
+
+
+	Player.skinTone = skinTone[Random(0, skinTone.length-1)];
 	Player.clothing = clothingName + clothingColours[Random(0, clothingColours.length-1)];
-	Player.hair = "longSpikyBrown";
+	Player.hair = hair[Random(0, hair.length-1)];
+	Player.hat = null;
 
 	// load image based on class
 	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
 	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + className + "/" + Player.clothing + ".png", false));
 	toLoad.push(Loader.loadImage("player_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
+	toLoad.push(Loader.loadImage("player_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
 
 	// load class' default projectile
 	toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
@@ -9160,7 +9209,7 @@ Game.init = function () {
 		hostility: "hero",
 
 		// properties inheritied from Thing
-		images: [{imageName: "player_"+Player.skinTone}, {imageName: "player_"+Player.clothing}, {imageName: "player_"+Player.hair, doNotAnimate: true}],
+		images: [{imageName: "player_"+Player.skinTone}, {imageName: "player_"+Player.clothing}, {imageName: "player_"+Player.hair, doNotAnimate: true}, {imageName: "player_"+Player.hat, doNotAnimate: true}],
 
 		// properties inherited from Character
 		health: Player.health,
@@ -9274,7 +9323,7 @@ Game.init = function () {
 
 	// trail interval
 	// new particle(s) every 100ms (tbd make this called more often?)
-	Game.trailInterval = Game.setInterval(Game.addTrailParticles, 100);
+	Game.trailInterval = Game.setInterval(Game.addTrailParticles, 10);
 
 	// intervalEffects of items
 	this.equipmentKeys = ["helm", "chest", "greaves", "boots", "weapon"];

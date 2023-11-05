@@ -156,11 +156,12 @@ var Skins = {
 			position: {x: -6.7, y: -10},
 			name: "Red Knight",
 			series:	"Classic",
-			projectile:	"slash",
+			projectile:	"slashNew1",
 			projectile2: "melee",
 			projectileAdjust: {x: 0, y: 0},
 			cursor: "crosshair",
 			headAdjust: {x: 0, y: 0},
+
 		},
 		{
 			id: 1,

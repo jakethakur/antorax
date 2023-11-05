@@ -38,7 +38,7 @@ const AttackConstants = {
 		//iterationSpacing: 130, // (old snake projectile system)
 		//maxIterations: 10,
 
-		meleeRange: 100, // range at which melee damage is dealt
+		meleeRange: 200, // range at which melee damage is dealt
 		reloadTime: 500,
 
 		damageMultiplier: 1,
