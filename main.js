@@ -3977,7 +3977,7 @@ class Hero extends Attacker {
 							beingChannelled: true,
 							type: "projectiles",
 
-							rotate: projectileDirection,
+							rotate: projectileDirection + Math.PI/2,
 
 							// optional stuff:
 							// aaaaaaaaaaaaa look at ; might need to fix some of these
@@ -3995,8 +3995,10 @@ class Hero extends Attacker {
 								totalImages: 9,
 								startState: 0,
 								stopAnimationOnState: 8,
+
+
 							},
-							stayOnScreen: 900, // set to the time it stays on the screen for (default 1500) or true if never removed
+							stayOnScreen: 450, // set to the time it stays on the screen for (default 1500) or true if never removed
 							//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
 							onInteract: Game.heroProjectileInfo.onInteract,
 							z: Game.heroProjectileInfo.z,
@@ -4078,7 +4080,9 @@ class Hero extends Attacker {
 										imagesPerRow: 3,
 										totalImages: 9,
 										startState: 0,
+										stopAnimationOnState: 8,
 									},
+									stayOnScreen: 450,
 								},
 
 								onDeathAdditional: function () { // additional so that it doesn't require damage from hero
@@ -8368,8 +8372,8 @@ Game.loadDefaultImages = function () {
 			clothingColours = ["Cobalt", "Copper", "Listerine", "Obsidian", "Pink", "Platinum", "Titanium", "Verdigris"];
 			break;
 	}
-		let skinTone = ["humanLight1", "orcGreen1", "orcOrange1", "humanDark1"];
-		let hair = ["longSpikyBrown", "mediumSpikyBrown"];
+		let skinTone = ["humanLight1", "orcGreen1", "orcOrange1", "humanDark1", "orcGreen2", "orcOrange2", "humanDark2"];
+		let hair = ["CurlyBlonde", "CurlyBrown", "CurlyGinger", "CurlyWhite","CurlyBlack","LongMessyBlonde","LongMessyBrown","LongMessyGinger","LongMessyBlack","LongMessyWhite",];
 		let hat = ["archaeologistHat", "null"];
 
 
