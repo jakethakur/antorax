@@ -3886,7 +3886,14 @@ class Hero extends Attacker {
 						let hitboxSize = 0;
 						let projectileName = "";
 						let imageName = "";
-						let trail = {};
+						let trail = {
+							width: 2.5,
+							height: 2.5,
+							colour: ["FB6304", "#FFBF00", "#FFFF00", "#FFAC1C", "#FF4433"], // class Particle chooses random colour from array
+							removeIn: 750,
+							variance: 15, // variance in position (in x/y axis in one direction from player)
+							intensity: 30,
+						};
 						if (weaponType === "staff") {
 							hitboxSize = 23;
 							projectileName = "Fireball Attack";
