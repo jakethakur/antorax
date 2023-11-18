@@ -8392,7 +8392,7 @@ Game.loadDefaultImages = function () {
 			break;
 	}
 		let skinTone = ["humanLight1", "orcGreen1", "orcOrange1", "humanDark1", "humanLight2", "orcGreen2", "orcOrange2", "humanDark2", "elfLight1", "elfLight2", "elfDark2", "elfDark1",];
-		let hair = ["CurlyBlonde", "CurlyBrown", "CurlyGinger", "CurlyWhite","CurlyBlack","LongMessyBlonde","LongMessyBrown","LongMessyGinger","LongMessyBlack","LongMessyWhite", "gingerPonytail", "brownPonytail", "blackPonytail", "whitePonytail", "blondePonytail"];
+		let hair = ["CurlyBlonde", "CurlyBrown", "CurlyGinger", "CurlyWhite","CurlyBlack","LongMessyBlonde","LongMessyBrown","LongMessyGinger","LongMessyBlack","LongMessyWhite", "gingerPonytail", "brownPonytail", "blackPonytail", "whitePonytail", "blondePonytail", "shortBrown", "shortBlack", "shortBlonde", "shortWhite", "shortGinger"];
 		let hat = ["archaeologistHat", "null"];
 
 
