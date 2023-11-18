@@ -2089,6 +2089,18 @@ class Character extends Thing {
 		this.level = properties.level;
 
 		this.class = properties.class;
+		this.classFull = properties.classFull;
+		switch (this.class) {
+			case "m":
+				this.classFull = "mage";
+				break;
+			case "a":
+				this.classFull = "archer";
+				break;
+			case "k":
+				this.classFull = "knight";
+				break;
+		}
 
 		this.species = properties.species; // "human", "goblin", "orc", etc.
 		this.subSpecies = properties.subSpecies; // "nilbog goblin", "fire orc", etc.
@@ -3596,7 +3608,7 @@ class UserControllable extends Attacker {
 		let hairKeyName = "player_"+this.hair;
 		let loadObj = {};
 		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
-		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.clothing + ".png"};
+		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"};
 		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
 		return Loader.loadMultipleImages(loadObj, false);
 	}
