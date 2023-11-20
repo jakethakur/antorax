@@ -3916,6 +3916,7 @@ var Areas = {
 		eaglecrestLampNight: {normal: "assets/objects/eaglecrestLampNight.png", christmas: "assets/objects/eaglecrestLampNightChristmas.png"},
 		eaglecrestLampSamhain: {samhain: "assets/objects/eaglecrestLampSamhain.png"},
 		helpNotice: {normal: "assets/objects/helpNotice.png"},
+		buntingEaglecrest: {normal: "assets/objects/buntingEaglecrest.png"},
 		sylvie: {normal: "assets/npcs/sylvie.png"},
 		yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 		yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
@@ -4008,7 +4009,7 @@ var Areas = {
 
 	tripwires: [
 { // eagle statue speed buffs
-	x: [2620.3, 4878.4, 8213, 7904.8, 7943.3, 6807, 690.5, 3964.9, 3527.4], y: [1956.5, 1956.5, 1845, 3187.5, 4404.7, 2713.6, 2712.5, 3383.7, 3383.7],
+	x: [2620.3, 4878.4, 8213, 7904.8, 7943.3, 6807, 690.5, 2888, 4650], y: [1956.5, 1956.5, 1845, 3187.5, 4404.7, 2713.6, 2712.5, 3394, 3394],
 	width: 500, height: 500,
 	collisionType: "feet",
 	onPlayerTouch: function () {
@@ -4707,7 +4708,7 @@ onPlayerTouch: function () {
 
 	things: [
 		{
-			x: [2620.3, 4878.4, 8213, 7904.8, 7943.3, 6807, 690.5, 3964.9, 3527.4], y: [1956.5, 1956.5, 1845, 3187.5, 4404.7, 2713.6, 2712.5, 3383.7, 3383.7],
+			x: [2620.3, 4878.4, 8213, 7904.8, 7943.3, 6807, 690.5, 2888, 4650], y: [1956.5, 1956.5, 1845, 3187.5, 4404.7, 2713.6, 2712.5, 3394, 3394],
 			image: 'eagleStatue',
 			name: 'Eagle Statue',
 			crop: {
@@ -4738,6 +4739,7 @@ onPlayerTouch: function () {
 		{x: [8941.2, 9427.7, 9842, 10055.4, 9689.7], y: [2755.6, 3060.4, 2800, 2315.6, 2514.1,], image: 'gravestone1', name: 'Gravestone'},
 		{x: [9394.4, 10325.8, 10324.7, 9238,], y: [2735.1, 2167.8, 3069.1, 2045.4,], image: 'gravestone2', name: 'Gravestone'},
 		{x: [9854.3, 10177.2, 9997, 10304.1, 9093.2, 9913.1, 8576.9, ], y: [3114.7, 2768, 2592.6, 2531.2, 3021.7, 2068, 2556.7,], image: 'gravestone3', name: 'Gravestone'},
+		{x: [3061.8, 3022.1, 4494.7, 4440.1], y: [2743.4, 2847.8, 2856.2, 2773.6], z: 1, image: 'buntingEaglecrest', name: 'buntingEaglecrest'},
 		{
 			x: 8203.8,
 			y: 1769.8,
