@@ -2,6 +2,133 @@
 // therefore the whole spritesheet should have 1 padding around the edge, and 2 between each image
 
 var Skins = {
+	skinTone: [
+		{
+			id: 0,
+			name: "Human",
+			src: "skinTone/human", // colour is appended to the end of this
+			colours: [
+				{
+					name: "Light1", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#FEDDB4", // approx hex code
+				},
+			],
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 1,
+			name: "Orc",
+			src: "skinTone/orc", // colour is appended to the end of this
+			colours: [
+				{
+					name: "Green1", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#68823F", // approx hex code
+				},
+				{
+					name: "Orange1", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#E0AA4C", // approx hex code
+				},
+			],
+			series:	"Classic",
+		},
+		{
+			id: 2,
+			name: "Elf",
+			src: "skinTone/elf", // colour is appended to the end of this
+			colours: [
+				{
+					name: "tbd", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#tbd", // approx hex code
+				},
+			],
+			series:	"Classic",
+		},
+		{
+			id: 3,
+			name: "Penguin",
+			src: "skinTone/penguin", // colour is appended to the end of this
+			colours: [
+				{
+					name: "Blue", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#2C3286", // approx hex code
+				},
+			],
+			series:	"Dev",
+		},
+	],
+	mageClothing: [
+		{
+			id: 0,
+			name: "Cloak",
+			src: "clothing/mage/mageCloak", // colour is appended to the end of this
+			colours: [
+				{
+					name: "Lapis", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#111B5A", // approx hex code
+				},
+				{
+					name: "Amethyst",
+					hex: "#530093"
+				},
+			],
+			series:	"Classic",
+			base: true,
+		},
+	],
+	archerClothing: [
+		{
+			id: 0,
+			name: "Coat",
+			src: "clothing/archer/archerCoat", // colour is appended to the end of this
+			colours: [
+				{
+					name: "Ivy", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#2C3E1F", // approx hex code
+				},
+			],
+			series:	"Classic",
+			base: true,
+		},
+	],
+	knightClothing: [
+		{
+			id: 0,
+			name: "Armour",
+			src: "clothing/knight/knightArmour", // colour is appended to the end of this
+			colours: [
+				{
+					name: "Copper", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#6A1000", // approx hex code
+				},
+			],
+			series:	"Classic",
+			base: true,
+		},
+	],
+	hair: [
+		{
+			id: 0,
+			name: "Long Spiky",
+			src: "hair/longSpiky", // colour is appended to the end of this
+			colours: [
+				{
+					name: "Brown", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#432500", // approx hex code
+				}
+			],
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 1,
+			name: "No Hair",
+			src: "hair/null", // colour is appended to the end of this
+			colours: [], // i.e. just base option
+			series:	"Classic",
+		},
+	],
+	// old skins below:
 	a: [
 		{
 			id: 0,

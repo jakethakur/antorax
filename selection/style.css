@@ -110,12 +110,12 @@ body{
 }
 
 
-#name, #play, #random, #info, #skins, #logo, .news, .newsBanner {
+#name, #play, #random, #info, #logo, .news, .newsBanner, .customisationSelect, #customisationButton {
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
 }
 
-#name, #playerPreview, #logo, #play, #random, #left, #right, #info, #skins {
+#name, #playerPreview, #logo, #play, #random, #left, #right, #info {
 	/* position: absolute;*/
 }
 
@@ -151,7 +151,7 @@ body{
 
 
 
-#info, #skins {
+#info {
 	/* height: 50px; */
 	font-size: 20px;
 	display:inline-block;
@@ -164,22 +164,6 @@ body{
 
 #info {
 	margin-bottom: 5px;
-}
-
-#skins {
-	white-space: nowrap;
-	overflow-x: auto;
-	overflow-y: hidden;
-	height: 63px;
-}
-.skin {
-	position: relative;
-	width: 80px;
-	height: 100px;
-	background-size: 80px;
-	background-repeat: no-repeat;
-	display: inline-block;
-	cursor: pointer;
 }
 
 #name{
@@ -239,8 +223,70 @@ body{
 	display: inline-block;
 }
 
+#customisationButton{
+	font-size: 25px;
+	margin: 0px;
+	color: var(--text);
+	width: 290px;
+
+	padding: 10px;
+	margin: 20px;
+	cursor: pointer;
+
+	display: inline-block;
+}
+
 .title{
 	display: inline;
 	font-size: 25px;
 	font-weight: bold;
+}
+
+
+/*
+	Customisation
+*/
+
+#customisation {
+	background-image: url("./assets/selectionBackground.png");
+	/*background-size: cover;*/
+	/*background-position: center center;*/
+	height: 100vh;
+
+	margin-left: 500px;
+	margin-right: 350px;
+
+	border-left: 5px solid var(--border);
+	border-right: 5px solid var(--border);
+}
+
+
+
+
+
+.customisationSelect {
+	white-space: nowrap;
+	overflow-x: auto;
+	overflow-y: hidden;
+	height: 63px;
+
+	display:inline-block;
+
+	padding: 10px;
+	margin: 10px;
+	margin-left: 15px;
+}
+
+.customisationSelectTall {
+	height: 180px;
+}
+
+.customisationSelection {
+	position: relative;
+	width: 80px;
+	height: 100px;
+	background-size: 80px;
+	background-repeat: no-repeat;
+	display: inline-block;
+	cursor: pointer;
 }

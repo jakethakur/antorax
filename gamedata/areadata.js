@@ -10384,6 +10384,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 							}
 							else {
 								Player.quests.questProgress.plainsCrate = true;
+								Dom.quests.active();
 								Dom.chat.insert("You found a <b>Blood-Red Crystal</b> in the crate.");
 							}
 						}

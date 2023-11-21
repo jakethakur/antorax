@@ -84,7 +84,7 @@ for (let i = 0; i < array.length; i++) {
 		document.getElementById("option"+i).style.borderColor = "darkgreen";
 	}
 
-	// background colours
+	// background colours depending on series of the skin
 	if (array[i].series === "Tales of Another Realm") {
 		document.getElementById("option"+i).style.backgroundColor = "#aab5b3";
 	}

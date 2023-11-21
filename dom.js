@@ -22,6 +22,7 @@ let Dom = {
 		achievementImg: document.getElementById("achievementImg"),
 		achievementName: document.getElementById("achievementName"),
 		achievementPoints: document.getElementById("achievementPoints"),
+		activeAbility: document.getElementById("activeAbility"),
 		activeQuestBox: document.getElementById("activeQuestBox"),
 		adventurePage: document.getElementById("adventurePage"),
 		aggroOn: document.getElementById("aggroOn"),
@@ -2113,6 +2114,14 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			}
 			else {
 				Dom.elements.quest.hidden = true;
+			}
+
+			// active ability text
+			if (typeof item.activeAbility !== "undefined") {// && item.chooseStats === undefined) {
+				Dom.elements.activeAbility.innerHTML = "Active ability: " + Spells[item.activeAbility].name + " " + Romanize(item.activeAbilityTier);
+			}
+			else {
+				Dom.elements.activeAbility.innerHTML = "";
 			}
 
 			// function text (use of an item)
@@ -4774,10 +4783,11 @@ else {
 	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/sword/1.png')";
 }
 
-Dom.elements.inventoryGoldXP.style.backgroundImage = 'url("./selection/assets/'+Player.class+Player.skin+'/f.png")';
-Dom.elements.inventoryGoldXP.style.right = 20 - Skins[Player.class][Player.skin].headAdjust.x + "px";
-Dom.elements.inventoryGoldXP.style.height = 60 + Skins[Player.class][Player.skin].headAdjust.y + "px";
-Dom.elements.inventoryGoldXP.style.bottom = 3 + Skins[Player.class][Player.skin].headAdjust.y + "px";
+//Dom.elements.inventoryGoldXP.style.backgroundImage = 'url("./selection/assets/'+Player.class+Player.skin+'/f.png")';
+//Dom.elements.inventoryGoldXP.style.right = 20 - Skins[Player.class][Player.skin].headAdjust.x + "px";
+//Dom.elements.inventoryGoldXP.style.height = 60 + Skins[Player.class][Player.skin].headAdjust.y + "px";
+//Dom.elements.inventoryGoldXP.style.bottom = 3 + Skins[Player.class][Player.skin].headAdjust.y + "px";
+// aaaaaaaa tbd !!!!!
 
 Dom.elements.hotbar.onmouseover = function () {
 	Dom.elements.hotbar.style.opacity = 1;
@@ -6976,7 +6986,7 @@ Dom.init = function () {
 		Dom.elements.trinketSlot3.removeAttribute("ondrop");
 		Dom.elements.trinketSlot3.removeAttribute("ondragover");
 	}
-	
+
 	/*if (Player.inventory.items[5].image === undefined) {
 		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 	}*/
@@ -7264,7 +7274,7 @@ Dom.init = function () {
 			    [{item: Items.helm[23]}]], [{item: Items.helm[23]}], true // noRepeat
 			);
 
-			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.activeQuestArray.includes("The Slithering Truth") && Player.quests.timesCompleted.eaglecrest[1] >= 1) {
+			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.activeQuestArray.includes("The Slithering Truth") && Player.quests.timesCompleted.eaglecrest[1] >= 0) {
 				// they haven't completed the quest this mail starts before, and they have completed "snakes and the city" at least once
 				Dom.mail.give(
 					"The Slithering Truth",
@@ -7516,9 +7526,11 @@ Dom.init = function () {
 
 	Dom.elements.weatherOn.onclick = function () {
 		User.settings.weather = true;
+		Game.dayNightUpdate();
 	}
 	Dom.elements.weatherOff.onclick = function () {
 		User.settings.weather = false;
+		Game.dayNightUpdate();
 		//Weather.ctx.clearRect(0, 0, 600, 600);
 	}
 	if (!User.settings.weather) {
@@ -7576,9 +7588,21 @@ Dom.init = function () {
 	let array = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX"];
 	for (let i = 0; i < 6; i++) {
 		Keyboard.upFunctions[array[i]] = function () {
-			if (Player.inventory.items[i].onClick !== undefined) {
-				Player.inventory.items[i].onClick(i, true);
-				Game.inventoryUpdate();
+			if (Game.rightClickActive) {
+				// items
+				if (Player.inventory.items[i].onClick !== undefined) {
+					Player.inventory.items[i].onClick(i, true);
+					Game.inventoryUpdate();
+				}
+			}
+			else {
+				// spells
+				if (typeof Game.hero.spells[i] !== "undefined") {
+					// spell slot i isn't empty
+					if (typeof Game.hero.spells[i].onCooldown === "undefined" || Game.hero.spells[i].onCooldown === 0) {
+						Game.hero.channelSpell(Game.hero.spells[i].id, Game.hero.spells[i].tier, {target: {x: Game.previousMousePosition.x, y: Game.previousMousePosition.y}});
+					}
+				}
 			}
 		}
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);

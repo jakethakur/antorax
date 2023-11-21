@@ -3,6 +3,36 @@ let playerName = sessionStorage.getItem("name");
 let playerClass = sessionStorage.getItem("class");
 let playerSkin = sessionStorage.getItem("skin");
 
+let playerClassName;
+switch (playerClass) {
+	case "a":
+		playerClassName = "archer";
+		break;
+	case "m":
+		playerClassName = "mage";
+		break;
+	case "k":
+		playerClassName = "knight";
+		break;
+	default:
+		console.error("Unknown player class: " + playerClass);
+}
+
+let baseProjectile; // projectile used when not overwritten by a weapon
+let baseProjectileAdjust
+if (playerClass === "a") {
+	baseProjectile = "arrow";
+	baseProjectileAdjust = {x: 20, y: 20};
+}
+else if (playerClass === "m") {
+	baseProjectile = "fireball";
+	baseProjectileAdjust = {x: 20, y: 20};
+}
+else if (playerClass === "k") {
+	baseProjectile = "slash";
+	baseProjectileAdjust = {x: 0, y: 0};
+}
+
 // base values used in player attacks, for balancing purposes
 const AttackConstants = {
 	bow: {
@@ -72,7 +102,11 @@ const AttackConstants = {
 var Player = {
 	name: playerName,
 	class: playerClass,
+	classFull: playerClassName,
+
 	skin: playerSkin,
+	baseProjectile: baseProjectile,
+	baseProjectileAdjust: baseProjectileAdjust,
 
 	// updated by saved progress
 	x: 3838, // start coords

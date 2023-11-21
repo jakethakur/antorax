@@ -1,10 +1,23 @@
+
+// default unlocked items:
+// ids of unlocked customisation options in skindata
 let unlocked = {
-	a: [0, 1],
-	m: [0, 1],
-	k: [0, 1],
+	skinTone: [],
+	hair: [],
+	mageClothing: [],
+	archerClothing: [],
+	knightClothing: [],
 };
+for (const [type] of Object.entries(unlocked)) {
+	for (const option of Skins[type]) {
+		if (option.base) {
+			unlocked[type].push(option.id);
+		}
+	}
+}
+
 if (localStorage.getItem("user") !== null) {
-	unlocked = JSON.parse(localStorage.getItem("user")).skins;
+	//unlocked = JSON.parse(localStorage.getItem("user")).skins;
 }
 
 if (localStorage.getItem("user") !== null && JSON.parse(localStorage.getItem("user")).settings.dark) {
@@ -363,19 +376,67 @@ function display(){
 	else {
 		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
 	}
-	document.getElementById("skins").innerHTML = "";
-	for (let i = 0; i < unlocked[selected.class].length; i++) {
-		document.getElementById("skins").innerHTML += "<div class='skin' id='skin"+i+"'>";
-		document.getElementById("skin"+i).style.backgroundImage = 'url("assets/'+selected.class+unlocked[selected.class][i]+'/f.png")';
-		document.getElementById("skin"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
-		document.getElementById("skin"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";
+
+	//
+	// customisation screen population
+	// tbd shouldn't need to be called this often, I'm just lazy !
+	//
+	let types = ["skinTone", "hair"]; // id in skindata
+	let elementIds = ["skinToneSelect", "hairSelect", "clothingSelect"]; // html ids
+	let sisterIds = ["skinToneColourSelect", "hairColourSelect", "clothingColourSelect"]; // html ids
+	if (selected.class === "m") {
+		types.push("mageClothing");
 	}
-	document.getElementById("skins").innerHTML = "<center>"+document.getElementById("skins").innerHTML+"</center>";
-	for (let i = 0; i < unlocked[selected.class].length; i++) {
-		document.getElementById("skin"+i).onclick = function () {
-			selected[selected.class] = unlocked[selected.class][i];
-			save();
-			display();
+	else if (selected.class === "a") {
+		types.push("archerClothing");
+	}
+	else if (selected.class === "k") {
+		types.push("knightClothing");
+	}
+	for (let i = 0; i < types.length; i++) {
+		// type choices
+		let typeName = types[i];
+		let idName = elementIds[i];
+		document.getElementById(idName).innerHTML = "";
+
+		for (let j = 0; j < unlocked[typeName].length; j++) {
+			let skindataId = unlocked[typeName][j]; // id in skindata
+			let skin = Skins[typeName][skindataId];
+			let colour = skin.colours[0];
+			if (typeof colour === "undefined") {
+				colour = {name: ""};
+			}
+			document.getElementById(idName).innerHTML += "<div class='customisationSelection' id='"+typeName+j+"'>";
+			document.getElementById(typeName+j).style.backgroundImage = 'url("assets/playerPreview/'+skin.src+colour.name+'Front.png")';
+			//document.getElementById("outfit"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
+			//document.getElementById("outfit"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";
+
+			// now add onclicks
+			document.getElementById(typeName+j).onclick = function () {
+				selected[selected.class][typeName] = unlocked[typeName][j];
+				save();
+				display();
+			}
+		}
+
+		// now do the same for colour choices (of the currently selected one)
+		let sisterIdName = sisterIds[i];
+		// find the currently selected skin (probs an easier way - this is just temp for now)
+		let skindataId = unlocked[typeName][0]; // temp
+		let skin = Skins[typeName][skindataId];
+		document.getElementById(sisterIdName).innerHTML = "";
+		for (let j = 0; j < skin.colours.length; j++) {
+			let colourObj = skin.colours[j];
+
+			document.getElementById(sisterIdName).innerHTML += "<div class='customisationSelection' id='"+typeName+"Color"+j+"'>";
+			document.getElementById(typeName+"Color"+j).style.backgroundColor = colourObj.hex;
+
+			// now add onclicks
+			document.getElementById(typeName+"Color"+j).onclick = function () {
+				selected[selected.class][typeName] = unlocked[typeName][i];
+				save();
+				display();
+			}
 		}
 	}
 }
@@ -395,5 +456,6 @@ document.getElementById("right").onclick = function () {
 //startCustomisation();
 
 function startCustomisation () {
-	document.getElementById("playerView").classList.add("playerViewCustomisation");
+	document.getElementById("customisation").hidden = false;
+	document.getElementById("centralImage").hidden = true;
 }

@@ -513,6 +513,7 @@ function arrange(){
 			</p><p id="conditionalStats${i}" class="para">
 			</p><p id="chooseStats${i}" class="para">
 			</p><p id="conditionalChooseStats${i}" class="para">
+			</p><p id="activeAbility${i}" class="para">
 			</p><p id="functionText${i}" class="para">
 			</p><p id="durability${i}" class="para">
 			</p><p id="set${i}" class="para">
@@ -609,6 +610,12 @@ function arrange(){
 		}else if(array[i].functionText != undefined && array[i].functionText != ""){
 			document.getElementById("functionText"+i).innerHTML = "<br>"+array[i].functionText+"<br>";
 		}
+
+		// active ability text
+		if (array[i].activeAbility != undefined) {// && item.chooseStats === undefined) {
+			document.getElementById("activeAbility"+i).innerHTML = "Active ability: " + Spells[array[i].activeAbility].name + " " + Romanize(array[i].activeAbilityTier);
+		}
+
 		if(array[i].maxDurability != undefined){
 			document.getElementById("durability"+i).innerHTML = "<br>Durability: " + array[i].maxDurability;
 		}

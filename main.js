@@ -43,9 +43,11 @@ Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
 	this.initWebSocket(); // init the web socket if the user is on the Heroku version
 
 	// projectile name for hero (for use with projectile image loading)
-	this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
-	this.heroProjectile2Name = Skins[Player.class][Player.skin].projectile2; // currently just for knight's ranged attack
-	this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
+	//this.heroProjectileName = Skins[Player.class][Player.skin].projectile;
+	//this.heroProjectile2Name = Skins[Player.class][Player.skin].projectile2; // currently just for knight's ranged attack - now removed
+	//this.heroProjectileAdjust = Skins[Player.class][Player.skin].projectileAdjust;
+	this.heroProjectileName = Player.baseProjectile; // currently set in savedata
+	this.heroProjectileAdjust = Player.baseProjectileAdjust;
 	this.heroProjectileInfo = {}; // any additional info
 	this.heroBobberName = "bobber";
 
@@ -1377,6 +1379,20 @@ class Entity {
 		}*/
 		this.checkTouching = properties.checkTouching;
 
+		// objects that should be summoned relative to this. Note that they don't move with this.
+		this.nestedObjects = properties.nestedObjects; // should be an array
+		if (typeof this.nestedObjects !== "undefined") {
+			for (let i = 0; i < this.nestedObjects.length; i++) {
+				// this.nestedObjects[i] should have a type, relativeX, relativeY, and all the other usual properties
+				// relative position means from the centre of this, to the centre of the object
+				this.nestedObjects[i].x = this.x + this.nestedObjects[i].relativeX;
+				this.nestedObjects[i].y = this.y + this.nestedObjects[i].relativeY;
+				this.nestedObjects[i].source = "nestedObject";
+				Game[this.nestedObjects[i].type].push(new this.typeClasses[this.nestedObjects[i].type](this.nestedObjects[i]));
+			}
+		}
+
+		// special case of nestedObjects:
 		this.collision = properties.collision; // if the player should collide with this (i.e. it has a nested collision)
 		// this.collision is an object, with properties relativeX, relativeY, width, height
 		// relative position means from the centre of this, to the centre of the collision
@@ -1386,7 +1402,7 @@ class Entity {
 				y: this.y + this.collision.relativeY,
 				width: this.collision.width,
 				height: this.collision.height,
-				source: "childCollision",
+				source: "nestedCollision",
 				type: "collisions"
 			}
 			Game.collisions.push(new Collision(collisionData));
@@ -3608,7 +3624,7 @@ class UserControllable extends Attacker {
 		let hairKeyName = "player_"+this.hair;
 		let loadObj = {};
 		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
-		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"};
+		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"}; // tbd get from skindata
 		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
 		return Loader.loadMultipleImages(loadObj, false);
 	}
@@ -4573,13 +4589,8 @@ class Hero extends Attacker {
 			else {
 				// right click
 				// spell !
-				if (this.spells.length > 0) {
-					// the hero has a spell
-					// for now, just cast the first spell they have
-					if (typeof this.spells[0].onCooldown === "undefined" || this.spells[0].onCooldown === 0) {
-						this.channelSpell(this.spells[0].id, this.spells[0].tier, {target: {x: mouseX, y: mouseY}});
-					}
-				}
+				// activate spells on number keys !
+				Game.rightClickActive = true;
 			}
 		}
 	}
@@ -4671,8 +4682,8 @@ class Hero extends Attacker {
 					Game.secondary.updateCursor();
 				}.bind(this), this.stats.reloadTime);
 
-				// special animations
-				if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
+				// special animations (old!)
+				/*if (typeof Skins[Player.class][Player.skin].animations !== "undefined" && typeof Skins[Player.class][Player.skin].animations.onHit !== "undefined") {
 					// on attack animation
 					let animation = Skins[Player.class][Player.skin].animations.onHit;
 					if (animation.type === "beam") {
@@ -4684,7 +4695,7 @@ class Hero extends Attacker {
 							colour: animation.colour,
 						}
 					}
-				}
+				}*/
 
 				// update quest log
 				Dom.checkProgress();
@@ -9328,7 +9339,7 @@ Game.init = function () {
 	Keyboard.listenForKey(User.settings.keyboard.ENTER, Keyboard.downFunctions.ENTER);
 
 	// player attack on click
-	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero));
+	document.getElementById("click").addEventListener("mousedown", Game.hero.startAttack.bind(this.hero)); // also takes into account right click (setting Game.rightClickActive as true/false)
 	document.getElementById("click").addEventListener("mouseup", Game.hero.finishAttack.bind(this.hero));
 
 	// change between default cursor and crosshair based on player range
@@ -9592,6 +9603,7 @@ Game.setMailboxImage = function (npc) {
 //
 
 // called every 10s by weather when day and night is updated
+// also called by weather setting being changed
 Game.dayNightUpdate = function () {
 	Game.renderDayNight();
 	Game.setDayNightImages();
@@ -11741,18 +11753,18 @@ Game.projectileImageUpdate = function () {
 	}
 
 	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
-	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Skins[Player.class][Player.skin].projectile) {
+	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Player.baseProjectile) {
 		// needs to reload default projectile image
 		if (nameAddress === "heroProjectileName") {
 			// weapon projectile - saved in skindata by default
-			this[nameAddress] = Skins[Player.class][Player.skin].projectile;
+			this[nameAddress] = Player.baseProjectile;
 		}
 		else if (nameAddress === "heroBobberName") {
 			// bobber projectile - default is always "bobber"
 			this[nameAddress] = "bobber";
 		}
 		if (adjustAddress !== null) { // set adjust for projectiles only (not bobbers)
-			this[adjustAddress] = Skins[Player.class][Player.skin].projectileAdjust;
+			this[adjustAddress] = Player.baseProjectileAdjust;
 		}
 		this.heroProjectileInfo = Skins[Player.class][Player.skin].projectileInfo || {};
 
@@ -13241,7 +13253,8 @@ Game.secondary.updateCursor = function (event) {
 	// check the player's not reloading and that they have a weapon equipped (i.e. its id is defined)
 	if (typeof Player.inventory.weapon.id !== "undefined" > 0 && Game.hero.canAttack && rodInWater) {
 		// hero can attack (crosshair)
-		let cursor = Skins[Player.class][Player.skin].cursor;
+		//let cursor = Skins[Player.class][Player.skin].cursor;
+		let cursor = "crosshair";
 		if (cursor !== "crosshair") {
 			// cursor requires custom image
 			cursor = "url('assets/cursors/" + cursor + ".png') " + Skins[Player.class][Player.skin].cursorPosition.x + " " + Skins[Player.class][Player.skin].cursorPosition.y + ", auto;";
@@ -13368,9 +13381,11 @@ Game.renderDayNight = function () {
 			}
 
 			// fog
-			this.ctxDayNight.fillStyle = "#999999";
-			this.ctxDayNight.globalAlpha = Event.fog;
-			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+			if (document.getElementById("weatherOn").checked) {
+				this.ctxDayNight.fillStyle = "#999999";
+				this.ctxDayNight.globalAlpha = Event.fog;
+				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+			}
 		}
 	}
 

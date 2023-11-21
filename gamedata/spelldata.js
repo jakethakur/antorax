@@ -546,7 +546,13 @@ Spells = [
 				moveSpeed: 400,
 				doNotRotate: true,
 				damageAllHit: true,
-				type: "projectiles"
+				type: "projectiles",
+				/*animation: {
+					type: "spritesheet",
+					frameTime: 200,
+					imagesPerRow: 3,
+					totalImages: 3,
+				},*/ // tbd add new image
 			}));
 		},
 
@@ -1394,6 +1400,87 @@ Spells = [
 		cooldown: [
 			0,
 			5000,	// tier 1
+		],
+	},
+
+	// cave unidentified item active abilities
+	{
+		name: "Eternal Bell Ring", // thlock's helm
+		id: 28,
+		img: "assets/items/helm/32.png",
+		imgIconNum: 9,
+		class: "helm",
+		description: ["", "Stun all enemies within 2 tiles from you for 4 seconds."],
+
+		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
+		func: function (properties) {
+			for (let i = 0; i < Game.enemies.length; i++) {
+				if (Game.distance(Game.enemies[i], properties.caster) <= 120) {
+					Game.statusEffects.stun({
+						target: this,
+						time: Spells[28].stunLength[properties.tier],
+						effectTitle: "Eternal Bell Ring",
+						effectDescription: "Stunned",
+					});
+				}
+			}
+		},
+
+		channelTime: [
+			0,
+			500,	// tier 1
+		],
+
+		stunLength: [
+			0,
+			4,		// tier 1
+		],
+
+		manaCost: [
+			0,
+			0,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			20000,	// tier 1
+		],
+	},
+	{
+		name: "Seeking Eye", // soulcrusher's chestplate
+		id: 29,
+		img: "assets/items/chest/20.png",
+		imgIconNum: 10,
+		class: "chest",
+		description: ["", "In 3 seconds, fire a projectile dealing damage equal to 50% of your damage taken over that period."],
+
+		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
+		func: function (properties) {
+			for (let i = 0; i < Game.enemies.length; i++) {
+				if (Game.distance(Game.enemies[i], properties.caster) <= 120) {
+					Game.statusEffects.stun({
+						target: this,
+						time: Spells[28].stunLength[properties.tier],
+						effectTitle: "Eternal Bell Ring",
+						effectDescription: "Stunned",
+					});
+				}
+			}
+		},
+
+		channelTime: [
+			0,
+			0,		// tier 1
+		],
+
+		manaCost: [
+			0,
+			0,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			10000,	// tier 1
 		],
 	},
 ];

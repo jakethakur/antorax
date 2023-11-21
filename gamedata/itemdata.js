@@ -768,6 +768,8 @@ unidentifiedArea: ["caves"],
 			stats: {
 				defence: 2,
 			},
+			activeAbility: 29, // id of the spell
+			activeAbilityTier: 1, // tbd make it so that this tier is increased as item is tiered up
 		},
 		{
 			id: 43,
@@ -1192,7 +1194,7 @@ unidentifiedArea: ["caves"],
 			tier: 2,
 			obtain: ["unidentified"],
 			area: ["caves"],
-unidentifiedArea: ["caves"],
+			unidentifiedArea: ["caves"],
 			rarity: "mythic",
 			sellPrice: 7,
 			lore: "",
@@ -1200,6 +1202,8 @@ unidentifiedArea: ["caves"],
 			stats: {
 				defence: 10,
 			},
+			activeAbility: 30, // id of the spell
+			activeAbilityTier: 1, // tbd make it so that this tier is increased as item is tiered up
 		},
 		{
 			id: 21,
