@@ -3928,6 +3928,7 @@ var Areas = {
 		catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 		catBowlFull: {normal: "assets/objects/catBowlFull.png"},
 		eagleStatue: {normal: "assets/objects/eagleStatue.png"},
+		dowsingRod: {normal: "assets/objects/dowsingRod.png"},
 		eaglecrestBanner: {normal: "assets/objects/eagleStatue.png"},
 		bench: {normal: "assets/objects/bench.png"},
 		benchFlip: {normal: "assets/objects/benchFlip.png"},
@@ -4353,8 +4354,8 @@ onPlayerTouch: function () {
 		},
 		{
 			// id: 6,
-			x: 7581,
-			y: 2903,
+			x: 5668,
+			y: 1825,
 			image: "itemBuyer",
 			name: "Item Buyer Nhkghghh",
 			hostility: "friendly",
@@ -4444,8 +4445,8 @@ onPlayerTouch: function () {
 
 		{
 			// id: 8,
-			x: 7384,
-			y: 2903,
+			x: 1845,
+			y: 1825,
 			image: "identifier",
 			name: "Identifier Hranatha",
 			hostility: "friendly",
@@ -4719,7 +4720,25 @@ onPlayerTouch: function () {
 			}
 		},
 
-
+		{
+			x: [4015.6, 3483.1, 2586.4, 2036.5, 4924.5, 5463.1],
+			y: [2568.1, 2568.1, 2328.8, 2328.8, 2328.8, 2328.8],
+			orderOffsetY: -10,
+			name: "dowsingRod",
+			image: "dowsingRod",
+			crop: {
+				x: 0,
+				y: 0,
+				width: 80,
+				height: 80
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 100,
+				imagesPerRow: 3,
+				totalImages: 3,
+			},
+		},
 		{x: 5675.6, y: 2983.4, image: 'catBowlEmpty', name: ''},
 		{x: [4168.7, 2711.6, 2357.9, 4650.7, 3245.4], y: [2458.5, 3069.6, 1811.7, 1600.1, 1109.3], image: 'bench', name: ''},
 		{x: [ 4786.8, 3346, 2850.4, 4258.1], y: [ 3123.8, 2450.4, 1600.1, 1109.3], image: 'benchFlip', name: ''},
@@ -4740,6 +4759,8 @@ onPlayerTouch: function () {
 		{x: [9394.4, 10325.8, 10324.7, 9238,], y: [2735.1, 2167.8, 3069.1, 2045.4,], image: 'gravestone2', name: 'Gravestone'},
 		{x: [9854.3, 10177.2, 9997, 10304.1, 9093.2, 9913.1, 8576.9, ], y: [3114.7, 2768, 2592.6, 2531.2, 3021.7, 2068, 2556.7,], image: 'gravestone3', name: 'Gravestone'},
 		{x: [3061.8, 3022.1, 4494.7, 4440.1], y: [2743.4, 2847.8, 2856.2, 2773.6], z: 1, image: 'buntingEaglecrest', name: 'buntingEaglecrest'},
+
+		{x: [2763.1, 2606.7, 1318.9, 4898, 6131.9, 2304.2, 5191.5], y: [1242.4, 893, 1715.1, 883.7, 1725.9, 2558.5, 2560.4], z: 1, image: 'buntingEaglecrest', name: 'buntingEaglecrest'},
 		{
 			x: 8203.8,
 			y: 1769.8,
