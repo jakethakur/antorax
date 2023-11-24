@@ -4759,7 +4759,7 @@ onPlayerTouch: function () {
 		{x: [8941.2, 9427.7, 9842, 10055.4, 9689.7], y: [2755.6, 3060.4, 2800, 2315.6, 2514.1,], image: 'gravestone1', name: 'Gravestone'},
 		{x: [9394.4, 10325.8, 10324.7, 9238,], y: [2735.1, 2167.8, 3069.1, 2045.4,], image: 'gravestone2', name: 'Gravestone'},
 		{x: [9854.3, 10177.2, 9997, 10304.1, 9093.2, 9913.1, 8576.9, ], y: [3114.7, 2768, 2592.6, 2531.2, 3021.7, 2068, 2556.7,], image: 'gravestone3', name: 'Gravestone'},
-		{x: [3061.8, 3022.1, 4494.7, 4440.1], y: [2743.4, 2847.8, 2856.2, 2773.6], z: 1, image: 'buntingEaglecrest', name: 'buntingEaglecrest',
+		{x: [3061.8, 3022.1, 4494.7, 4443.1], y: [2743.4, 2847.8, 2856.2, 2730.6], z: 1, image: 'buntingEaglecrest', name: 'buntingEaglecrest',
 		crop: {
 			x: 0,
 			y: 0,
