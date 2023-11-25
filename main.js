@@ -8383,28 +8383,32 @@ Game.loadDefaultImages = function () {
 	let clothingName;
 	let clothingColours = [];
 	let className = "";
+	let hat = ["archaeologistHat", "null", "knightHat"];
 	switch (Player.class) {
 		case "m":
 			className = "mage";
 			clothingName = "mageCloak";
 			clothingColours = ["Amethyst", "Aquamarine", "Emerald", "Lapis", "Onyx", "Pearl", "Quartz", "Ruby"];
+			hat = "null";
 			break;
 
 		case "a":
 		className = "archer";
 			clothingName = "archerCoat";
 			clothingColours = ["Crow", "Falcon", "Flamingo", "Hibiscus", "Ivy", "Lavender", "Lily", "Rose"];
+			hat = "null";
 			break;
 
 		case "k":
 			className = "knight";
 			clothingName = "knightArmour";
 			clothingColours = ["Cobalt", "Copper", "Listerine", "Obsidian", "Pink", "Platinum", "Titanium", "Verdigris"];
+			hat = "knightHat";
 			break;
 	}
 		let skinTone = ["humanLight1", "orcGreen1", "orcOrange1", "humanDark1", "humanLight2", "orcGreen2", "orcOrange2", "humanDark2", "elfLight1", "elfLight2", "elfDark2", "elfDark1",];
 		let hair = ["CurlyBlonde", "CurlyBrown", "CurlyGinger", "CurlyWhite","CurlyBlack","LongMessyBlonde","LongMessyBrown","LongMessyGinger","LongMessyBlack","LongMessyWhite", "gingerPonytail", "brownPonytail", "blackPonytail", "whitePonytail", "blondePonytail", "shortBrown", "shortBlack", "shortBlonde", "shortWhite", "shortGinger", "longBrown", "longBlack", "longBlonde", "longWhite", "longGinger"];
-		let hat = ["archaeologistHat", "null"];
+
 
 
 
@@ -8412,7 +8416,7 @@ Game.loadDefaultImages = function () {
 	Player.skinTone = skinTone[Random(0, skinTone.length-1)];
 	Player.clothing = clothingName + clothingColours[Random(0, clothingColours.length-1)];
 	Player.hair = hair[Random(0, hair.length-1)];
-	Player.hat = null;
+	Player.hat = hat;
 
 	// load image based on class
 	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
