@@ -8383,20 +8383,20 @@ Game.loadDefaultImages = function () {
 	let clothingName;
 	let clothingColours = [];
 	let className = "";
-	let hat = ["archaeologistHat", "null", "knightHat"];
+	let hat = ["archaeologistHat", "null", "knightHat", "mageHat", "archerHat"];
 	switch (Player.class) {
 		case "m":
 			className = "mage";
 			clothingName = "mageCloak";
 			clothingColours = ["Amethyst", "Aquamarine", "Emerald", "Lapis", "Onyx", "Pearl", "Quartz", "Ruby"];
-			hat = "null";
+			hat = "mageHat";
 			break;
 
 		case "a":
 		className = "archer";
 			clothingName = "archerCoat";
 			clothingColours = ["Crow", "Falcon", "Flamingo", "Hibiscus", "Ivy", "Lavender", "Lily", "Rose"];
-			hat = "null";
+			hat = "archerHat";
 			break;
 
 		case "k":
