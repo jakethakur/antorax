@@ -8409,15 +8409,24 @@ Game.loadDefaultImages = function () {
 		let skinTone = ["humanLight1", "orcGreen1", "orcOrange1", "humanDark1", "humanLight2", "orcGreen2", "orcOrange2", "humanDark2", "elfLight1", "elfLight2", "elfDark2", "elfDark1",];
 		let hair = ["CurlyBlonde", "CurlyBrown", "CurlyGinger", "CurlyWhite","CurlyBlack","LongMessyBlonde","LongMessyBrown","LongMessyGinger","LongMessyBlack","LongMessyWhite", "gingerPonytail", "brownPonytail", "blackPonytail", "whitePonytail", "blondePonytail", "shortBrown", "shortBlack", "shortBlonde", "shortWhite", "shortGinger", "longBrown", "longBlack", "longBlonde", "longWhite", "longGinger"];
 
-
-
-
-
 	Player.skinTone = skinTone[Random(0, skinTone.length-1)];
 	Player.clothing = clothingName + clothingColours[Random(0, clothingColours.length-1)];
 	Player.hair = hair[Random(0, hair.length-1)];
 	Player.hat = hat;
+	if (Player.name === "Sammer") {
+		Player.skinTone = "fish"
+		Player.hair = "null";
+	}
 
+	if (Player.name === "Pingu") {
+		Player.skinTone = "penguin"
+		Player.hair = "null";
+	}
+
+	if (Player.name === "James") {
+		Player.skinTone = "slug"
+		Player.hair = "null";
+	}
 	// load image based on class
 	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
 	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + className + "/" + Player.clothing + ".png", false));
