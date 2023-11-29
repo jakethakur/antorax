@@ -8427,7 +8427,7 @@ Game.loadDefaultImages = function () {
 		Player.skinTone = "slug"
 		Player.hair = "null";
 	}
-	if (Player.name === "Axparagus", "Tangerine") {
+	if (Player.name === "Axparagus") {
 		Player.skinTone = "humanDark2"
 		Player.hair = "skinFade";
 		Player.hat = "null";
