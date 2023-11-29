@@ -8427,6 +8427,11 @@ Game.loadDefaultImages = function () {
 		Player.skinTone = "slug"
 		Player.hair = "null";
 	}
+	if (Player.name === "Axparagus", "Tangerine") {
+		Player.skinTone = "humanDark2"
+		Player.hair = "skinFade";
+		Player.hat = "null";
+	}
 	// load image based on class
 	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
 	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + className + "/" + Player.clothing + ".png", false));
