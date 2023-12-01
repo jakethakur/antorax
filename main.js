@@ -1312,6 +1312,10 @@ class Entity {
 		this.width = properties.width;
 		this.height = properties.height;
 
+		this.roundPosition = properties.roundPosition; // set to true if its coordinates should be rounded to the nearest integer on rendering
+		// by default this does not happen, however in some tilemap situations (i.e. tall grass and fences), due to limitations of canvas (in 2023), this can lead to white/black lines around the object
+		// if this is set to true, the above problem is avoided, but the item can appear juddery when the player is moving diagonally.
+
 		// optional function for when space is pressed when touching
 		this.onInteract = properties.onInteract;
 
@@ -1953,6 +1957,11 @@ class Thing extends Visible {
 
 		if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop === "undefined") { // maybe doesn't need to set this 2nd condition ?
 			this.animation.baseCrop = crop;
+		}
+
+		// validation (to make it easier to track down bugs !)
+		if (isNaN(this.width) || isNaN(this.height) || isNaN(this.crop.x) || isNaN(this.crop.y) || isNaN(this.crop.width) || isNaN(this.crop.height)) {
+			console.error("One or more positional properties of object are NaN (please tell Jake !)", this);
 		}
 	}
 
@@ -3602,7 +3611,7 @@ class InfoPoint extends Thing {
 	}
 }
 
-// useed for other players through websocket
+// useed for *other* players through websocket
 // TBD revise what this inherits from - uses same functions as other classes
 class UserControllable extends Attacker {
 	constructor (properties) {
@@ -3702,6 +3711,18 @@ class Hero extends Attacker {
 
 		// temporary teleport teleport positions
 		this.oldPosition = properties.oldPosition; // might be undefined
+
+		// display player weapon on player model
+		this.heldWeaponName = "";
+		this.heldWeaponObj = { // this is not stored as an actual thing because it should persist across areas and there's not a nice way to do that yet soz ! if this breaks, that's 100% why bc this is sooo hard coded
+			x: 0,
+			y: 0,
+			height: 50,
+			width: 50,
+			renderType: "image",
+			crop: {x: 0, y: 0, width: 50, height: 50},
+		};
+		this.weaponUpdate();
 	}
 
 	// move on a mount
@@ -4997,10 +5018,51 @@ class Hero extends Attacker {
 		if (this.stats.stealthed) {
 			Game.ctx.globalAlpha = 0.6;
 		}
+
+		if (!this.weaponImageLoading && (this.direction === 1 || this.direction === 4)) {
+			// held weapon should be rendered BEHIND hero
+			let offsetX = 0;
+			let offsetY = 0; // so it bobs up and down
+			if (this.direction === 1) {
+				offsetX = -22;
+			}
+			if (this.animation.state !== 3) {
+				offsetY = -this.animation.state;
+			}
+			else {
+				offsetY = -1;
+			}
+
+			this.heldWeaponObj.x = this.x + offsetX;
+			this.heldWeaponObj.y = this.y + offsetY;
+			Game.updateScreenPosition(this.heldWeaponObj);
+			Game.renderObject(this.heldWeaponObj);
+		}
+
 		return true;
 	}
 
 	postRenderFunction () {
+		if (!this.weaponImageLoading && (this.direction === 3 || this.direction === 2)) {
+			// held weapon should be rendered IN FRONT of hero
+			let offsetX = 0;
+			let offsetY = 0; // so it bobs up and down
+			if (this.direction === 3) {
+				offsetX = 22;
+			}
+			if (this.animation.state !== 3) {
+				offsetY = -this.animation.state;
+			}
+			else {
+				offsetY = -1;
+			}
+
+			this.heldWeaponObj.x = this.x + offsetX;
+			this.heldWeaponObj.y = this.y + offsetY;
+			Game.updateScreenPosition(this.heldWeaponObj);
+			Game.renderObject(this.heldWeaponObj);
+		}
+
 		// reset globalAlpha in case it was changed by preRenderFunction due to stealth
 		Game.ctx.globalAlpha = 1;
 
@@ -5030,6 +5092,42 @@ class Hero extends Attacker {
 		else if (this.direction === 4) { // facing right
 			this.crop.y = this.baseHeight;
 			this.animation.baseCrop.y = this.baseHeight;
+		}
+	}
+
+	// update weapon being held (called on weapon being changed)
+	weaponUpdate () {
+		// check weapon has acc been changed
+		if (this.heldWeaponName !== Player.inventory.weapon.name) {
+			this.heldWeaponName = Player.inventory.weapon.name;
+			this.weaponImageLoading = true; // don't display it yet
+
+			Loader.deleteImage("heroHeldWeapon", true);
+
+			let weaponSrc = Player.inventory.weapon.image;
+			if (typeof Player.inventory.weapon.imageArchaeology !== "undefined") {
+				weaponSrc = Player.inventory.weapon.imageArchaeology;
+			}
+
+			if (typeof weaponSrc !== "undefined") {
+				let p = Loader.loadImage("heroHeldWeapon", weaponSrc, false); // false = don't delete on area change
+
+				p.then(function () {
+					let img = Loader.getImageInfo("heroHeldWeapon").img;
+					// bascially just doing setImage :
+					this.heldWeaponObj.width = img.width; // set width and height !
+					this.heldWeaponObj.height = img.height;
+					this.heldWeaponObj.crop.width = img.width; // set width and height !
+					this.heldWeaponObj.crop.height = img.height;
+					this.heldWeaponObj.image = img; // and set img
+
+					this.weaponImageLoading = false; // can now be displayed !
+				}.bind(this));
+			}
+			else {
+				// not holding anything
+				// weaponImageLoading hangs as true until a weapon is equipped
+			}
 		}
 	}
 
@@ -8937,7 +9035,8 @@ Game.loadArea = function (areaName, destination) {
 							height: map.tsize,
 							image: "tiles",
 							crop: crop,
-							type: "things"
+							type: "things",
+							roundPosition: true, // stops black/white borders around it when rendered, due to canvas limitations
 						}));
 
 						map.setTile(layer, c, r, -tile); // negative so it's not drawn, but still remains there if you change areas then come back
@@ -8988,7 +9087,8 @@ Game.loadArea = function (areaName, destination) {
 								image: "tiles",
 								crop: crop,
 								type: "things",
-								name: map.repeatTiles[i].name
+								name: map.repeatTiles[i].name,
+								roundPosition: true, // stops black/white borders around it when rendered, due to canvas limitations
 							};
 
 							// assign any additional properties from areadata
@@ -11648,6 +11748,10 @@ Game.equipmentUpdate = function () {
     // set player projectile
     this.projectileImageUpdate();
 
+	// set displayed player weapon
+	// tbd make this called only if the player has changed *weapon*
+	this.hero.weaponUpdate();
+
     // if the player is no longer holding a fishing rod, remove their bobber
     if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
         this.removeObject(this.hero.channellingProjectileId, "projectiles"); // remove bobber
@@ -12876,7 +12980,7 @@ Game.render = function (delta) {
 		this.ctx.stroke();
 	}
 
-	// draw player skin animations
+	// draw player skin animations (deprecated)
 	if (this.hero.beam !== undefined) {
 		// set formatting
 		this.ctx.lineWidth = this.hero.beam.width;
@@ -13022,6 +13126,14 @@ Game.renderObject = function (objectToRender) {
 		this.ctx.globalAlpha = objectToRender.transparency;
 	}
 
+	let drawX = objectToRender.screenX - objectToRender.width / 2;
+	let drawY = objectToRender.screenY - objectToRender.height / 2;
+	if (objectToRender.roundPosition) { // see entity class for explanation
+		drawX = Round(drawX, 0);
+		drawY = Round(drawY, 0);
+	}
+
+
 	if (objectToRender.renderType === "image") {
 		// rendering an image!
 		if (objectToRender.rotate !== undefined && objectToRender.rotate !== 0) {
@@ -13032,8 +13144,8 @@ Game.renderObject = function (objectToRender) {
 				objectToRender.image,
 				objectToRender.crop.x, objectToRender.crop.y,
 				objectToRender.crop.width, objectToRender.crop.height,
-				objectToRender.screenX - objectToRender.width / 2,
-				objectToRender.screenY - objectToRender.height / 2,
+				drawX,
+				drawY,
 				objectToRender.width,
 				objectToRender.height,
 				objectToRender.rotate
@@ -13045,8 +13157,8 @@ Game.renderObject = function (objectToRender) {
 				objectToRender.image,
 				objectToRender.crop.x, objectToRender.crop.y,
 				objectToRender.crop.width, objectToRender.crop.height,
-				objectToRender.screenX - objectToRender.width / 2,
-				objectToRender.screenY - objectToRender.height / 2,
+				drawX,
+				drawY,
 				objectToRender.width,
 				objectToRender.height
 			);
@@ -13063,8 +13175,8 @@ Game.renderObject = function (objectToRender) {
 					objectToRender.additionalImages[i].image,
 					crop.x, crop.y,
 					crop.width, crop.height,
-					objectToRender.screenX - objectToRender.width / 2,
-					objectToRender.screenY - objectToRender.height / 2,
+					drawX,
+					drawY,
 					objectToRender.width,
 					objectToRender.height
 				);

@@ -1563,7 +1563,7 @@ var Areas = {
 					},
 				],
 				chat: {
-					questProgress: "Girls! Make some room by the hearth, won't ya!",
+					questProgress: "You lot! Make some room by the hearth, won't ya!",
 					chooseChat: "Oh ho ho! It's good to see ya again!",
 					notUnlockedRoles: "I've never seen ya 'round 'ere before!",
 					shopLeave: "See ya soon!",

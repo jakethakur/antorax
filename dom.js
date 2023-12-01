@@ -576,12 +576,14 @@ Dom.quests.active = function (quest) {
 	}
 }
 
+// called to update all player quest etc. progress
 Dom.checkProgress = function () {
 	Dom.achievements.update();
 	Dom.quests.active();
 	Dom.quests.possible();
 }
 
+// called when the player has walked further than its domRange away from the npc that it is talking to (saved in Dom.currentNPC)
 Dom.closeNPCPages = function () {
 	if (this.elements.bankPage.hidden === false) {
 		Dom.closePage("inventoryPage");
@@ -624,6 +626,10 @@ Dom.closeNPCPages = function () {
 	this.elements.leaderboardPage.hidden = true;
 	this.elements.choosePage.hidden = true;
 	this.elements.textPage.hidden = true;
+
+	this.elements.npcChatBanner1.hidden = true;
+	Dom.elements.npcChatOptions.hidden = true;
+
 	Dom.currentlyDisplayed = "";
 	Dom.currentNPC = {};
 }
@@ -1369,7 +1375,16 @@ Dom.chat.chooseOption = function (choice) {
 
 	let choiceObj = Dom.chat.npcBannerParams.options[choice];
 
-	Dom.chat.npcChatProgress(true, choiceObj.jumpToId); // currently choice does nothing, tbd
+	if (choiceObj.action === "progress") { // progress on in chat (like a choose your own path book)
+		Dom.chat.npcChatProgress(true, choiceObj.jumpToId); // currently choice does nothing, tbd
+	}
+	else if (choiceObj.action === "function") { // function specified in choiceObj.function, with params at choiceObj.params
+		// set onFinishChoice and onFinishChoiceParams so this fn gets called
+		Dom.chat.npcBannerParams.onFinishChoice = choiceObj.function;
+		Dom.chat.npcBannerParams.onFinishChoiceParams = choiceObj.params;
+		// progress (/end) npc chat banner (where this fn will be called, and potentially more chat will be shown)
+		Dom.chat.npcChatProgress(true);
+	}
 }
 
 // called on enter key press, or an answer being picked
@@ -1384,6 +1399,12 @@ Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
 	if (Dom.chat.npcBannerReadyToProgress || forceProgress === true) { // current chat has showed
 		Dom.chat.npcBannerReadyToProgress = false;
 
+		if (typeof Dom.chat.upcomingBannerText === "undefined") {
+			// nothing more to be shown - clear dom currently displayed and remove banner from the screen
+			Dom.chat.npcChatFinished();
+			// case of more to be shown is done at bottom of function
+		}
+
 		// onFinish fn
 		if (typeof Dom.chat.npcBannerParams.onFinish !== "undefined") {
 			if (typeof Dom.chat.npcBannerParams.onFinishParams === "undefined") {
@@ -1393,13 +1414,22 @@ Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
 			Dom.chat.npcBannerParams.onFinish = undefined;
 		}
 
-		// onFinishDom fn
+		// onFinishDom fn (same as above, but just set by dom functions)
 		if (typeof Dom.chat.npcBannerParams.onFinishDom !== "undefined") {
 			if (typeof Dom.chat.npcBannerParams.onFinishDomParams === "undefined") {
 				Dom.chat.npcBannerParams.onFinishDomParams = [];
 			}
 			Dom.chat.npcBannerParams.onFinishDom(...Dom.chat.npcBannerParams.onFinishDomParams);
 			Dom.chat.npcBannerParams.onFinishDom = undefined;
+		}
+
+		// onFinishChoice fn (choice with "function" action)
+		if (typeof Dom.chat.npcBannerParams.onFinishChoice !== "undefined") {
+			if (typeof Dom.chat.npcBannerParams.onFinishChoiceParams === "undefined") {
+				Dom.chat.npcBannerParams.onFinishChoiceParams = [];
+			}
+			Dom.chat.npcBannerParams.onFinishChoice(...Dom.chat.npcBannerParams.onFinishChoiceParams);
+			Dom.chat.npcBannerParams.onFinishChoice = undefined;
 		}
 
 		// jumpToId
@@ -1422,12 +1452,21 @@ Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
 			// new stuff to be shown
 			Dom.chat.npcBanner(Dom.chat.upcomingBannerNpc, Dom.chat.upcomingBannerText);
 		}
-		else {
-			// nothing more to be shown
-			Dom.elements.npcChatBanner1.hidden = true;
-		}
+		// the case of nothing more to be shown was done at the top of this func
 	}
 }
+
+// called by progress fn above, when there is nothing more to be shown
+// note that this is also hidden in Dom.closeNPCPages, but this function is not called.
+Dom.chat.npcChatFinished = function() {
+	Dom.currentlyDisplayed = "";
+	Dom.currentNPC = {};
+
+	Dom.elements.npcChatBanner1.hidden = true;
+}
+
+
+
 
 
 
@@ -2246,12 +2285,15 @@ Dom.currentNPC = {};
 //
 
 // just spoken to an npc to start the quest - display chat then call dom.quest.start
+// this is always called through choose dom, which deals with currentlyDisplayed etc
 Dom.quest.startFromNpc = function (quest, npc) {
-	// tbd needs to take into account currentlyDisplayed
-	let chat = quest.startChat;
+	let chat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
+	/*if (Array.isArray(startChat)) {
+		startChat = startChat[timesCompleted];
+	}*/ // need to resolve for twintops quest
 
 	// format chat so the onFinishDom property can be given to it
-	chat = Dom.quest.formatChatForQuest(chat);
+	chat = Dom.quest.formatBannerChat(chat);
 
 	chat[chat.length-1].onFinishDom = Dom.quest.start;
 	chat[chat.length-1].onFinishDomParams = [quest, npc];
@@ -2259,8 +2301,8 @@ Dom.quest.startFromNpc = function (quest, npc) {
 	Dom.chat.npcBanner(npc, chat);
 }
 
-// format chat so the onFinishDom property can be given to it
-Dom.quest.formatChatForQuest = function (chat) {
+// format chat for npc chat banner, so the onFinishDom property can be given to it
+Dom.quest.formatBannerChat = function (chat) {
 	if (Array.isArray(chat)) {
 		if (typeof chat[chat.length-1] === "string") {
 			chat[chat.length-1] = {text: chat[chat.length-1]};
@@ -2566,7 +2608,7 @@ Dom.quest.finishFromNpc = function (quest, npc) {
 	let chat = quest.finishChat;
 
 	// format chat so the onFinishDom property can be given to it
-	chat = Dom.quest.formatChatForQuest(chat);
+	chat = Dom.quest.formatBannerChat(chat);
 
 	chat[chat.length-1].onFinishDom = Dom.quest.finish;
 	chat[chat.length-1].onFinishDomParams = [quest, npc];
@@ -5134,13 +5176,18 @@ Dom.buyer.page = function (npc) {
 	}
 }
 
+// the hub for opening a dom page from the game !
+// deals with currentlyDisplayed etc.
+// if there are multiple pages that the player can choose between, they get given the option
+// otherwise it goes directly to the single page option.
+// the "force" property can be set to true to open the choose dialogue even if there is only one option
 Dom.choose.page = function (npcs) {
-
+	// (for now) we just open the first npc that is passed in
 	let npc = npcs[0].npc;
-	let buttons = npcs[0].buttons;
+	let buttons = npcs[0].buttons; // function descriptions
 	let functions = npcs[0].functions;
-	let parameters = npcs[0].parameters;
-	let force = npcs[0].force;
+	let parameters = npcs[0].parameters; // array of arrays
+	let force = npcs[0].force; // choose page should be forced even if there is only one func to be chosen from
 
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 
@@ -5148,7 +5195,7 @@ Dom.choose.page = function (npcs) {
 		Dom.currentlyDisplayed = name;
 
 		if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name) && npc.meetable && name !== "???") {
-			Player.metNPCs.push(name);
+			Player.metNPCs.push(name); // for achivements etc
 		}
 
 		if (name !== npc) {
@@ -5156,7 +5203,46 @@ Dom.choose.page = function (npcs) {
 			Dom.currentNPC.id = npc.id;
 		}
 		if (buttons.length > 1 || npcs.length > 1 || force) {
-			if (Dom.changeBook("choosePage")) {
+			// show choose dialogue !
+
+			let chat;
+			if (typeof npc.chat !== "undefined" && typeof npc.chat.chooseChat !== "undefined") {
+				chat = npc.chat.chooseChat; // christmas chat messages etc are done in main, on creation of the npc
+			}
+			else {
+				chat = ". . ." // temp
+				console.warn("No choose chat for npc, please tell Jake", npc);
+			}
+
+			// format chat (so we can add properties to it)
+			chat = Dom.quest.formatBannerChat(chat);
+
+			chat[chat.length-1].options = [];
+			// populate the options:
+			for (let i = 0; i < buttons.length; i++) {
+				let func = function () {
+					if (typeof npcs[0].additionalOnClicks !== "undefined" && typeof npcs[0].additionalOnClicks[i] !== "undefined") {
+						npcs[0].additionalOnClicks[i](); // additional function to be called as well as opening the page
+					}
+					functions[i](...parameters[i]);
+					Dom.checkProgress();
+				};
+				chat[chat.length-1].options.push({
+					text: buttons[i],
+					action: "function",
+					function: functions[i],
+					params: parameters[i],
+				});
+			}
+			chat[chat.length-1].options.push({
+				text: "Goodbye",
+				action: "progress",
+			});
+
+			Dom.chat.npcBanner(npc, chat);
+
+
+			/*if (Dom.changeBook("choosePage")) {
 				Dom.elements.choosePageContent.innerHTML = "";
 				let total = 0;
 				for (let i = 0; i < npcs.length; i++) {
@@ -5270,9 +5356,7 @@ Dom.choose.page = function (npcs) {
 						else if (functions[i] === Dom.text.page) {
 							if (parameters[i][0] === "Soul Healer") {
 								imagenum = 8;
-							}/*else {
-								imagenum = 1;
-							}*/
+							}
 						}
 						if (imagenum === 6 || imagenum === 7) {
 							if (parameters[i][0].important === true) {
@@ -5312,7 +5396,7 @@ Dom.choose.page = function (npcs) {
 					}
 				}
 
-			}
+			}*/
 		}
 		else {
 			functions[0](...parameters[0]);

@@ -90,12 +90,21 @@ Loader.getImageInfo = function (key) {
 	}
 };
 
+// deletes all images
 Loader.wipeImages = function () {
 	// wipe all images from images object (apart from exceptions)
 	// exceptions are documented in .deleteIf as a function (true = can delete)
 	for (let key in this.images) {
+		this.deleteImage(key, false);
+	}
+};
+
+// deletes one image
+// override is if it overrides deleteif
+Loader.deleteImage = function (key, override) {
+	if (key in this.images) {
 		if (this.images.hasOwnProperty(key) &&
-		(this.images[key].deleteIf === undefined || this.images[key].deleteIf())) {
+		(this.images[key].deleteIf === undefined || this.images[key].deleteIf() || override)) {
 			// image can de deleted
 			delete this.images[key];
 		}

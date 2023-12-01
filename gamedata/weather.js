@@ -652,6 +652,9 @@ let Event = {
 			else {
 				this.christmasDay = false;
 			}
+
+			// disabled for now bc tilemap needs updating >:(
+			this.event = undefined;
 		}
 		// Antorax Day
 		else if (d.month === 1 && d.day === 20) {
