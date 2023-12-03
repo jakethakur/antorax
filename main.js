@@ -5024,7 +5024,7 @@ class Hero extends Attacker {
 			let offsetX = -18;
 			let offsetY = 0; // so it bobs up and down
 			if (this.direction === 1) {
-				offsetX = 11;
+				offsetX = 21;
 			}
 			if (this.animation.state !== 3) {
 				offsetY = -this.animation.state;
