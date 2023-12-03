@@ -5947,7 +5947,7 @@ class Mount extends Character {
 		this.setRotationImage(this.speedX, this.speedY);
 
 		// appears in front of / behind player depending on its rotation image
-		if (this.direction === 3) {
+		if (this.direction === 3 || this.direction === 1) {
 			// player appears behind
 			this.orderOffsetY = 0;
 		}

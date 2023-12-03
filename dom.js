@@ -7093,7 +7093,7 @@ Dom.init = function () {
 		Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "url('assets/items/bag/1.png')";
 	}*/
 
-	// prepare the equipment slots (armour and weapons)
+	// prepare the equipment slots (armour, weapons, mount, etc.)
 	for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) { // repeats for each equipment slot (all keys but items)
 		let item = Player.inventory[Object.keys(Player.inventory)[i]];
 
@@ -7109,8 +7109,8 @@ Dom.init = function () {
 
 		// if there is an item
 		else if (item.image !== undefined) {
-			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], document.getElementById(Object.keys(Player.inventory)[i]));
-			document.getElementById(Object.keys(Player.inventory)[i]).style.backgroundImage = "none";
+			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], Dom.elements[Dom.inventory.slotKeys[Object.keys(Player.inventory)[i]]]);
+			document.getElementById(Dom.inventory.slotKeys[Object.keys(Player.inventory)[i]]).style.backgroundImage = "none";
 		}
 	}
 
