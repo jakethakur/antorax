@@ -5119,6 +5119,7 @@ class Hero extends Attacker {
 			this.weaponImageLoading = true; // don't display it yet
 
 			Loader.deleteImage("heroHeldWeapon", true);
+			Loader.deleteImage("heroHeldWeaponFlipped", true);
 
 			let weaponSrc = Player.inventory.weapon.image;
 			if (typeof Player.inventory.weapon.imageArchaeology !== "undefined") {
