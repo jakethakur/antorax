@@ -199,7 +199,18 @@ let Dom = {
 	},
 	canvas: {},
 	chat: {},
-	inventory: {},
+	inventory: {
+		slotKeys: { // lookup for inventory slot keyname in Dom.elements based on item type
+			weapon: "weapon",
+			helm: "helm",
+			chest: "chest",
+			greaves: "greaves",
+			boots: "boots",
+			mount: "mountSlotUnlocked",
+			bag: "bag",
+			// aaaaaaaaaaaaa tbd trinkets
+		},
+	},
 	hotbar: {},
 	quests: {},
 	adventure: {},
@@ -4286,6 +4297,7 @@ Dom.inventory.validateSwap = function () {
 
 // from is not required for drag-n-drop cases
 // tableElement and stackNums are only for right click
+// element refers to the DOM element object; array refers to the itemdata item object (misnomer); Id refers to the id in Player.inventory
 Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, toTableElement, fromTableElement, fromStackNum, toStackNum) {
 
 	if (fromId !== undefined) {
@@ -4489,12 +4501,12 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 	}
 }
 
+// player wants to remove equipment from a slot
 Dom.inventory.removeEquipment = function (array) {
 	// draw slot background
-	let element = "weapon";
-	let type = "sword";
+	let element = Dom.inventory.slotKeys[array.type];
+	let type; // for setting back the background image
 	if (array.type !== "rod" && array.type !== "tool" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
-		element = array.type;
 		type = array.type;
 	}
 	else if (Player.class === "a") {
@@ -4614,10 +4626,7 @@ Dom.inventory.removeEquipment = function (array) {
 // (tbd rename variable 'array'!)
 Dom.inventory.addEquipment = function (array, noSet) {
 	// remove slot background
-	let element = "weapon";
-	if (array.type !== "rod" && array.type !== "tool" && array.type !== "sword" && array.type !== "staff" && array.type !== "bow") {
-		element = array.type;
-	}
+	let element = Dom.inventory.slotKeys[array.type];
 	document.getElementById(element).style.backgroundImage = "none";
 
 	Dom.inventory.beforeChangedStats();
@@ -5950,10 +5959,10 @@ Dom.inventory.channel = function (array, i, hotbar) {
 
 }
 
+// called whenever the inventory is altered
 // array = array item is contained in
-// i = item's index in the array
+// i = item's index in the array / its key in the object
 // element = element that the item is being prepared for
-// NEEDS COMMENTING
 Dom.inventory.prepare = function (array, i, element) {
 
 	// conditional choose stats init
@@ -6010,12 +6019,19 @@ Dom.inventory.prepare = function (array, i, element) {
 
 			// if not equipped then equip
 			else if (!isNaN(i)) {
-				Dom.inventory.drop(Dom.elements[type], Player.inventory, type, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
+				if (type === "mount" && !Player.overallProgress.mountSlotUnlocked) {
+					Dom.alert.page("You have not unlocked mounts yet!");
+				}
+				else {
+					// allowed to equip
+					Dom.inventory.drop(Dom.elements[Dom.inventory.slotKeys[type]], Player.inventory, type, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
+				}
 			}
 
-			// equipped item so chooseStats or unequip
+			// equipped item so chooseStats, onClickFunction, or unequip
 			else {
 				let chooseStats = false;
+				let onClick = false;
 
 				// chooseStats onClick if necessary
 				if (Player.inventory[i].chooseStats !== undefined && !Player.inventory[i].allChooseStats) {
@@ -6027,6 +6043,8 @@ Dom.inventory.prepare = function (array, i, element) {
 
 				// true onClick exists and is allowed
 				else if (Player.inventory[i].onClickFunction !== undefined && !Player.inventory[i].imageLoading && (Player.inventory[i].onClickEventRequirement === undefined || Player.inventory[i].onClickEventRequirement === Event.event) && (Player.inventory[i].onClickAreaRequirement === undefined || Player.inventory[i].onClickAreaRequirement.includes(Game.areaName))) {
+
+					onClick = true; // overrides unequipping item on click
 
 					// cooldown exists
 					if (Player.inventory[i].cooldown !== undefined) {
@@ -6080,14 +6098,14 @@ Dom.inventory.prepare = function (array, i, element) {
 					}
 				}
 
-				// unequip
-				if (!chooseStats) {
+				// unequip the item
+				if (!chooseStats && !onClick) {
 					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND on in inventory
 						Dom.inventory.deEquip = true;
 						Dom.inventory.removeEquipment(Player.inventory[i]);
 						Player.inventory[i] = {};
 						Game.equipmentUpdate();
-						document.getElementById(i).innerHTML = "";
+						document.getElementById(Dom.inventory.slotKeys[i]).innerHTML = "";
 						Game.inventoryUpdate();
 					}
 				}
@@ -6206,7 +6224,7 @@ Dom.inventory.prepare = function (array, i, element) {
 	}*/
 
 	// update the element
-	if (element !== undefined) {
+	if (element !== undefined && element !== null) {
 		element.innerHTML = "<img src='"+array[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event,"+(array === Player.inventory.items ? "Player.inventory.items,"+i : 'Player.inventory, "'+i+'"')+")' "+(array[i].onClick !== undefined ? "onclick='Player.inventory"+(array === Player.inventory.items?".items["+i+"].onClick("+i+")'":"."+i+".onClick(\""+i+"\")'") : "")+"></img>";
 		if (array[i].stacked !== undefined && array[i].stacked !== 1) {
 			element.innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+array[i].stacked+"</div>";
@@ -6647,7 +6665,7 @@ Dom.trade.confirm = function () {
 		}
 	}
 	else {
-		Dom.alert.page("You do not have enough inventory space to complete this trade.")
+		Dom.alert.page("You do not have enough inventory space to complete this trade.");
 	}
 }
 
@@ -7039,7 +7057,7 @@ Dom.init = function () {
 	}
 
 	// equipment slots being locked
-	if (!Player.quests.completedQuestArray.includes("Equinophobia")) { // quest name tbc
+	if (!Player.overallProgress.mountSlotUnlocked) {
 		// horses not yet unlocked
 		Dom.elements.mountSlotUnlocked.hidden = true;
 		Dom.elements.mountSlotLocked.hidden = false;

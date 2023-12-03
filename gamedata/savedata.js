@@ -190,6 +190,11 @@ var Player = {
 		randomDailyQuests: {}, // the random daily quest of the day (for NPCs with a random daily quest)
 	},
 
+	// overall progress, checked by DOM etc
+	overallProgress: {
+		mountSlotUnlocked: false,
+	},
+
 	inventory: {
 		helm: {},
 		chest: {},

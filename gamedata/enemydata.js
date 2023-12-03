@@ -505,6 +505,14 @@ const EnemyTemplates = {
 					this.stats.damage = 7;
 					this.stats.flaming = undefined;
 					this.projectile.image = "slash";
+					this.projectile.animation = {
+						type: "spritesheet",
+						frameTime: 50,
+						imagesPerRow: 3,
+						totalImages: 9,
+						startState: 0,
+						stopAnimationOnState: 8,
+					};
 					this.projectileType = "instant";
 					this.stats.projectileSpeed = 0;
 				}
@@ -530,6 +538,14 @@ const EnemyTemplates = {
 			xpGiven: 250,
 			projectile: {
 				image: "slash",
+				animation: {
+					type: "spritesheet",
+					frameTime: 50,
+					imagesPerRow: 3,
+					totalImages: 9,
+					startState: 0,
+					stopAnimationOnState: 8,
+				},
 			},
 			lootTableTemplate: [EnemyLootTables.nilbogGoblin, EnemyLootTables.nilbogTowerGoblin, ChestLootTables.nilbog, BossLootTables.goblinKing],
 			inventorySpace: 16,
