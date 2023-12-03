@@ -5035,7 +5035,14 @@ class Hero extends Attacker {
 
 			this.heldWeaponObj.x = this.x + offsetX;
 			this.heldWeaponObj.y = this.y + offsetY;
-			this.heldWeaponObj.image = this.heldWeaponObj.imageNormal; // no need to change dimensions bc just flipped
+
+			if (this.direction === 1) {
+				this.heldWeaponObj.image = this.heldWeaponObj.imageFlipped; // no need to change dimensions bc just flipped
+			}
+			else {
+				this.heldWeaponObj.image = this.heldWeaponObj.imageNormal;
+			}
+
 			Game.updateScreenPosition(this.heldWeaponObj);
 			Game.renderObject(this.heldWeaponObj);
 		}
@@ -5046,7 +5053,7 @@ class Hero extends Attacker {
 	postRenderFunction () {
 		if (!this.weaponImageLoading && (this.direction === 3 || this.direction === 4)) {
 			// held weapon should be rendered IN FRONT of hero and not flipped
-			let offsetX = -3;
+			let offsetX = 2;
 			let offsetY = 0; // so it bobs up and down
 			if (this.direction === 3) {
 				offsetX = -21;
@@ -5060,7 +5067,14 @@ class Hero extends Attacker {
 
 			this.heldWeaponObj.x = this.x + offsetX;
 			this.heldWeaponObj.y = this.y + offsetY;
-			this.heldWeaponObj.image = this.heldWeaponObj.imageFlipped;
+
+			if (this.direction === 4) {
+				this.heldWeaponObj.image = this.heldWeaponObj.imageFlipped; // no need to change dimensions bc just flipped
+			}
+			else {
+				this.heldWeaponObj.image = this.heldWeaponObj.imageNormal;
+			}
+
 			Game.updateScreenPosition(this.heldWeaponObj);
 			Game.renderObject(this.heldWeaponObj);
 		}
