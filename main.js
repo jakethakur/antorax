@@ -3964,7 +3964,7 @@ class Hero extends Attacker {
 
 						Game.projectiles.push(new Projectile({ // HERO projectile
 							map: map,
-							x: Game.hero.x+30,
+							x: Game.hero.x-30,
 							y: Game.hero.y,
 							attacker: this,
 							projectileStats: this,
