@@ -310,6 +310,10 @@ var Items = {
 			stats: {
 				looting: 50,
 			},
+			screenTint: {
+				colour: "#FF0000",
+				amount: 0.15,
+			},
 		},
 		{
 			id: 18,
@@ -787,6 +791,46 @@ unidentifiedArea: ["caves"],
 				defence: 1,
 				healthRegen: 1, // ? idk abt effect
 				enemyAggro: 40,
+			},
+		},
+		{
+			id: 44,
+			name: "Breathing Helmet",
+			type: "helm",
+			image: "assets/items/helm/44.png",
+			tier: 1,
+			obtain: ["quest"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			quest: true,
+			lore: "",
+			obtainText: "Not yet available!",
+			stats: {
+				defence: 2,
+				swimSpeed: 60,
+				breathing: 1,
+			},
+		},
+		{
+			id: 45,
+			name: "PawPerceptors~1450α",
+			type: "helm",
+			image: "assets/items/helm/45.png",
+			tier: 1,
+			obtain: ["quest"],
+			area: ["eaglecrest"],
+			rarity: "unique",
+			quest: true,
+			removeOnAbandon: "Help! Lost Cat",
+			functionText: "Detects some paw prints.",
+			lore: "αlfa version! May cause unexpected ley interference!",
+			obtainText: "???",
+			stats: {
+				walkSpeed: 10,
+			},
+			screenTint: {
+				colour: "#F089DD",
+				amount: 0.3,
 			},
 		},
 	],
@@ -3633,7 +3677,7 @@ unidentifiedArea: ["caves"],
 					}
 				}
 			],
-			hexImmuneSpecies: ["chicken"], // frogs can't be hexxed by this
+			hexImmuneSpecies: ["chicken"], // chickens can't be hexxed by this
 			archaeologyNotes: "This weapon's ability doesn't seem to work on chickens!",
 		},
 		{
@@ -4915,7 +4959,7 @@ unidentifiedArea: ["caves"],
 		},
 		{
 			id: 50,
-			name: "Animated Frog's Leg",
+			name: "Living Frog's Leg",
 			type: "item",
 			image: "assets/items/item/50.png",
 			stack: 2,
@@ -6186,32 +6230,46 @@ unidentifiedArea: ["caves"],
 			lore: "Made from an even bigger fish",
 			maxCharges: 1,
 			onClickFunction: function (inventoryPosition, hotbar) {
-			if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
-				if (Player.quests.questProgress.lakeLurkerLastCaught !== GetFullDate()) {
-					// remove one charge from the item
-					Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
+				if (!Game.hero.hasStatusEffect("Fish bait")) { // player does not have an existing fishing status effect
+					if (Player.quests.questProgress.lakeLurkerLastCaught !== GetFullDate()) {
+						// remove one charge from the item
+						Dom.inventory.removeItemCharge(inventoryPosition, hotbar);
 
-					// give fish bait status effect
-					Game.hero.statusEffects.push(new statusEffect({
-						title: "Fish bait",
-						effect: "Guaranteed to fish up a Lake Lurker on your next fishing attempt",
-						info: {
-							fishPool: [Items.fish[41]]
-						},
-						image: "bait",
-					}));
+						// give fish bait status effect
+						Game.hero.statusEffects.push(new statusEffect({
+							title: "Fish bait",
+							effect: "Guaranteed to fish up a Lake Lurker on your next fishing attempt",
+							info: {
+								fishPool: [Items.fish[41]]
+							},
+							image: "bait",
+						}));
 
-					// update status effect display
-					Game.hero.updateStatusEffects();
+						// update status effect display
+						Game.hero.updateStatusEffects();
+					}
+					else {
+							Dom.chat.insert("<i>You have already fished up a Lake Lurker today!</i>", undefined, undefined, true);
+					}
 				}
 				else {
-						Dom.chat.insert("<i>You have already fished up a Lake Lurker today!</i>", undefined, undefined, true);
+					Dom.chat.insert("<i>You already have some bait active!</i>", undefined, undefined, true);
 				}
 			}
-			else {
-				Dom.chat.insert("<i>You already have some bait active!</i>", undefined, undefined, true);
+		},
+		{
+			id: 39,
+			name: "Jar of Ants",
+			type: "consumable",
+			image: "assets/items/consumable/32.png",
+			functionText: "Lets out a swarm of ants!!",
+            cooldown: 20,
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// summon the ants!!
+				rrrrrrrrrrrrrrrrrrrrr
 			}
-		}
 		},
 	],
 	food: [

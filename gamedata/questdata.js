@@ -1689,13 +1689,13 @@ var Quests = {
 			startChat: [{
 				text: `<b>Have you seen this cat?</b>`,
 			},{
-				text: `Black cat with white paws and nose.`,
+				text: `Missing black cat with white paws and nose.`,
 			},{
 				text: `His name is <b>Amelio</b>.`,
 			},{
 				text: `Last seen outside the Eaglecrest tavern.`,
 			},{
-				text: `If found, please bring to <b>Priest Kemp-Eau</b> inside Eaglecrest Monastery for a reward.`,
+				text: `If found, please bring by lead to <b>Priest Kemp-Eau</b> inside <b>Eaglecrest Monastery</b> for a reward.`,
 			},],
 
 			finishName: "Priest Kemp-Eau",
@@ -1710,16 +1710,13 @@ var Quests = {
 			},{
 				text: `We have been searching for weeks. I cannot state how happy we are to see him back.`,
 			},{
-				text: `Ahh yes your reward. Here is some gold. I hope it goes towards a good cause.`,
-			},{
-				text: `Wait, adventurer!! If you want some more rewards.. we still need to find out why Amelio was missing for so long.`,
-			},{
-				text: `He's never done this before. I'm sure it's nothing, but..`
+				text: `Ahh yes your reward. Here is some gold. I hope it goes towards a good cause.`
 			}],
 
 			objectives: [
-				"Find the lost cat, Amelio.",
-				"Bring the cat to <strong>Priest Kemp-Eau</strong>.",
+				"Buy an <b>Animal Lead</b> from the <b>Eaglecrest Bazaar</b>.",
+				"Find the lost cat, <b>Amelio</b>.",
+				"Bring the cat to <strong>Priest Kemp-Eau</strong> on the lead.",
 			],
 
 			isCompleted: function() {
@@ -1739,7 +1736,7 @@ var Quests = {
 
 			rewards: {
 				xp: 50,
-				items: [{item: Items.currency[2], quantity: 5}],
+				items: [{item: Items.currency[2], quantity: 10}],
 			},
 		},
 
@@ -3097,6 +3094,457 @@ var Quests = {
 					{item: Items.currency[3], quantity: 1,},
 				],
 
+			},
+		},
+
+		// cat questline
+		{
+			id: 17,
+			quest: "Help! Lost Cat (again..)",
+			questArea: "eaglecrest",
+
+			startName: "Priest Kemp-Eau",
+			startChat: [{
+				text: `${Player.name}! It must be by some divine destiny you've come by here!`,
+			},{
+				text: `I couldn't have seen this coming but... well... our cat <b>Amelio</b> has gone missing again.`,
+			},{
+				text: `Since you were so helpful last time, we were wondering if you would be able to help out again??`,
+				options: [
+					{
+						text: "Sure!",
+						action: "progress",
+					},
+					{
+						text: "If I must...",
+						action: "progress",
+					},
+				]
+			},{
+				text: `What would the Monastery do without you, ${Player.name}!`,
+			},{
+				text: `I've spoken to the Tinkerers' Guild and managed to get my hands on a rare prototype: the <b>PawPerceptors~1450α</b>.`,
+			},{
+				text: `I was told it works via.. something something ley emittance.. Really, your Psyche is being led on a divine path to where you need to be.`,
+				long: true,
+			},{
+				text: `Anyway, follow the trail of paw prints and it should show us where Amelio is running off to!`,
+			},],
+
+			stepName1: "Priest Kemp-Eau",
+			stepChat1: [{
+				text: `${Player.name}, I sense you're bearing bad news. Where were you led?`,
+				options: [
+					{
+						text: "Tell Priest Kemp-Eau what happened",
+						action: "progress",
+					},
+				]
+			},{
+				text: `Down the sewer? ..That is certainly not a holy place!!!`,
+			},{
+				text: `I just can't think why Amelio would be going down there, rather than in the Monastery..`,
+			},{
+				text: `And to think it's getting demolished soon..`,
+			},{
+				text: `${Player.name}, this is not good - we need to do something about this before Amelio gets injured!`,
+			},{
+				text: `I sense <b>Alchemist Tamtam</b> will be able to help with this. Whilst I was searching for a device to find Amelio with, he did mention an experimental recipe that could help...`,
+				long: true,
+			},],
+
+			finishName: "Alchemist Tamtam",
+			finishChat: [{
+				text: `${Player.name}!!! Great to see you again!!!<br><em>Tamtam's tail wags quickly.</em>`,
+				options: [
+					{
+						text: "Tell Tamtam about the situation.",
+						action: "progress",
+					},
+				]
+			},{
+				text: `Oooooh.... Yeeeessss I do have a recipe I've been working on!!`,
+			},{
+				text: `Only thing is...... The ingredients can be hard to find... <sub>you'll see what I mean</sub>`,
+			},],
+
+			objectivesList: [
+				{
+					text: "Use the PawPerceptor~1450α to find the missing cat Amelio.",
+					isCompleted: function () {
+
+					},
+				},
+				{
+					text: "Bring the cat to <strong>Priest Kemp-Eau</strong>.",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					},
+				},
+				{
+					text: "Report back to <strong>Priest Kemp-Eau</strong>.",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					},
+				},
+				{
+					text: "Visit <b>Alchemist Tamtam<b> in <b>Eaglecrest Elixirs</b>.",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					},
+				},
+			],
+
+			howToStart: "Speak to <strong>Priest Kemp-Eau</strong> in the <b>Eaglecrest Monastery</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Help! Lost Cat"],
+			shareCooldownWith: [{questArea: "eaglecrest", id: 0}],
+
+			rewards: {
+				xp: 50,
+			},
+			// tbd remove the goggles after first part
+		},
+		{
+			id: 18,
+			quest: "Potion Making III",
+			questArea: "eaglecrest",
+
+			startName: "Alchemist Tamtam",
+			startChat: [{
+				text: `Ooookkkaaayy soooo, let me make you a list!!`,
+			},{
+				text: `You'll need three <b>cattails</b> from the rivers...`,
+			},{
+				text: `One <b><i>Doohickey</i></b>...`,
+				options: [
+					{
+						text: "Ok...",
+						action: "progress",
+					},
+					{
+						text: "What??",
+						action: "progress",
+					},
+				]
+			},{
+				text: `Shhh!! You'll know what I mean...`,
+			},{
+				text: `And, finally, one <b>Living Frog's Leg</b>... you can get the <i>Doohickey</i> and the leg from the toads around the plains!!`,
+			},{
+				text: `Welllll, good luck!!!`,
+			},],
+
+			stepName1: "Alchemist Tamtam",
+			stepChat1: [{
+				text: `<em>Tamtam's ears perk up.</em><br>Yay!! You found them! And you're not even injured!!`,
+				options: [
+					{
+						text: "Hand Tamtam the ingredients.",
+						action: "progress",
+					},
+				]
+			},{
+				text: `Ok... let's see!! First, for agility, the frog's leg....`,
+			},{
+				text: `Tamtam adds the leg to a cauldron, and it bubbles and turns green-y brown as the leg sinks.`,
+				saidBy: "none",
+				autoProgress: true,
+				progressIn: 4000,
+			},{
+				text: `Yay!! Now the <i>Doohickey</i>.`,
+			},{
+				text: `The <i>Doohickey</i> simmers in the cauldron as the contents become more viscous.`,
+				saidBy: "none",
+				autoProgress: true,
+				progressIn: 4000,
+			},{
+				text: `Purrrfect... now for the last ingredient!`,
+			},{
+				text: `Tamtam adds the cattails all at once, filling the room with a fine mist as the cauldron turns furry(???) and ginger.`,
+				saidBy: "none",
+				autoProgress: true,
+				progressIn: 4000,
+			},{
+				text: `Try this!!!!`,
+				options: [
+					{
+						text: "Take potion.",
+						action: "function",
+						function: function () {
+							// give the potion; make sure to check that the player has inventory space (otherwise give them temp space?)
+						}
+					},
+				]
+			},],
+
+			finishName: "Meow",
+			finishChat: "Well...",
+
+			objectivesList: [
+				{
+					text: "Gather 3 <b>cattails</b> from the Plains river. <i>They are the brown reeds in the water</i>.",
+					isCompleted: function () {
+
+					},
+				},
+				{
+					text: "Gather a <b>Living Frog's Leg</b> from a toad in the Plains.",
+					isCompleted: function () {
+
+					},
+				},
+				{
+					text: "Gather a <b><i>Doohickey</i></b> from a toad in the Plains.",
+					isCompleted: function () {
+
+					},
+				},
+				{
+					text: "Give the ingredients to <b>Alchemist Tamtam<b> in <b>Eaglecrest Elixirs</b>.",
+					isCompleted: function () {
+
+					},
+				},
+				{
+					text: "Drink the potion!!",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					},
+				},
+			],
+
+			autofinish: true,
+
+			howToStart: "Speak to <strong>Alchemist Tamtam</strong> in <b>Eaglecrest Elixirs</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Help! Lost Cat (again..)"],
+
+			rewards: {
+				xp: 60,
+				items: [{item: Items.item[1]}], // mystery
+			},
+		},
+		{
+			id: 19,
+			quest: "Practice Makes Purrfect",
+			questArea: "eaglecrest",
+
+			startName: "Alchemist Tamtam",
+			startChat: [{
+				text: `Ooookkkaaayy soooo, let me make you a list!!`,
+			},{
+				text: `You'll need three <b>cattails</b> from the rivers...`,
+			},{
+				text: `One <b><i>Doohickey</i></b>...`,
+				options: [
+					{
+						text: "Ok...",
+						action: "progress",
+					},
+					{
+						text: "What??",
+						action: "progress",
+					},
+				]
+			},{
+				text: `Shhh!! You'll know what I mean...`,
+			},{
+				text: `And, finally, one <b>Living Frog's Leg</b>... you can get the <i>Doohickey</i> and the leg from the toads around the plains!!`,
+			},{
+				text: `Welllll, good luck!!!`,
+			},],
+
+			stepName1: "Trainer Willow",
+			stepChat1: [{
+				text: `<em>Tamtam's ears perk up.</em><br>Yay!! You found them! And you're not even injured!!`,
+				options: [
+					{
+						text: "Hand Tamtam the ingredients.",
+						action: "progress",
+					},
+				]
+			},],
+
+			stepName2: "Trainer Willow",
+			stepChat2: [{
+				text: `<em>Tamtam's ears perk up.</em><br>Yay!! You found them! And you're not even injured!!`,
+				options: [
+					{
+						text: "Hand Tamtam the ingredients.",
+						action: "progress",
+					},
+				]
+			},],
+
+			finishName: "Alchemist Tamtam",
+			finishChat: [{
+				text: `<em>Tamtam's ears perk up.</em><br>Yay!! You found them! And you're not even injured!!`,
+				options: [
+					{
+						text: "Hand Tamtam the ingredients.",
+						action: "progress",
+					},
+				]
+			},],
+
+			objectivesList: [
+				{
+					text: "Talk to <b>Trainer Willow</b> in the <b>Eaglecrest Elixirs backrooms</b>.",
+					isCompleted: function () {
+
+					},
+				},
+				{
+					text: "Complete all three laps of the course as quickly as possible",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					}
+				},
+				{
+					text: "Talk to <b>Trainer Willow</b>.",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					}
+				},
+				{
+					text: "Talk to <b>Alchemist Tamtam</b> after you have finished your training.",
+					isCompleted: function () {
+
+					},
+				},
+			],
+
+			howToStart: "Speak to <strong>Alchemist Tamtam</strong> in <b>Eaglecrest Elixirs</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Potion Making III"],
+
+			rewards: {
+				xp: 60,
+				items: [{item: Items.item[1]}], // cat treats (tbd)
+			},
+		},
+		{
+			id: 20,
+			quest: "Cat Adventure",//tbd
+			questArea: "eaglecrest",
+
+			startName: "Alchemist Tamtam",
+			startChat: [{
+				text: `Ooookkkaaayy soooo, let me make you a list!!`,
+			},{
+				text: `You'll need three <b>cattails</b> from the rivers...`,
+			},{
+				text: `One <b><i>Doohickey</i></b>...`,
+				options: [
+					{
+						text: "Ok...",
+						action: "progress",
+					},
+					{
+						text: "What??",
+						action: "progress",
+					},
+				]
+			},{
+				text: `Shhh!! You'll know what I mean...`,
+			},{
+				text: `And, finally, one <b>Living Frog's Leg</b>... you can get the <i>Doohickey</i> and the leg from the toads around the plains!!`,
+			},{
+				text: `Welllll, good luck!!!`,
+			},],
+
+			stepName1: "Trainer Willow",
+			stepChat1: [{
+				text: `<em>Tamtam's ears perk up.</em><br>Yay!! You found them! And you're not even injured!!`,
+				options: [
+					{
+						text: "Hand Tamtam the ingredients.",
+						action: "progress",
+					},
+				]
+			},],
+
+			stepName2: "Trainer Willow",
+			stepChat2: [{
+				text: `<em>Tamtam's ears perk up.</em><br>Yay!! You found them! And you're not even injured!!`,
+				options: [
+					{
+						text: "Hand Tamtam the ingredients.",
+						action: "progress",
+					},
+				]
+			},],
+
+			finishName: "Alchemist Tamtam",
+			finishChat: [{
+				text: `<em>Tamtam's ears perk up.</em><br>Yay!! You found them! And you're not even injured!!`,
+				options: [
+					{
+						text: "Hand Tamtam the ingredients.",
+						action: "progress",
+					},
+				]
+			},],
+
+			objectivesList: [
+				{
+					text: "Talk to <b>Trainer Willow</b> in the <b>Eaglecrest Elixirs backrooms</b>.",
+					isCompleted: function () {
+
+					},
+				},
+				{
+					text: "Complete all three laps of the course as quickly as possible",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					}
+				},
+				{
+					text: "Talk to <b>Trainer Willow</b>.",
+					isCompleted: function () {
+
+					},
+					isHidden: function () {
+
+					}
+				},
+				{
+					text: "Talk to <b>Alchemist Tamtam</b> after you have finished your training.",
+					isCompleted: function () {
+
+					},
+				},
+			],
+
+			howToStart: "Speak to <strong>Alchemist Tamtam</strong> in <b>Eaglecrest Elixirs</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Potion Making III"],
+
+			rewards: {
+				xp: 60,
+				items: [{item: Items.item[1]}], // cat treats (tbd)
 			},
 		},
 		/*{

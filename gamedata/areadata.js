@@ -10959,7 +10959,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			}},
 			// finish line
 			{x: 270, y: 2440, width: 420, height: 60, collisionCondition: function () {
-				if (Player.quests.activeQuestArray.includes("Cat Warrior")) {
+				if (Player.quests.activeQuestArray.includes("Practice Makes Purrfect")) {
 					return false; // no collision
 				}
 				else {
@@ -10968,7 +10968,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			}},
 			// bit leading from the start to the water bit
 			{x: 510, y: 2660, width: 60, height: 300, collisionCondition: function () {
-				if (Player.quests.activeQuestArray.includes("Cat Warrior") && Player.quests.questProgress.catLifeProgress > 1) {
+				if (Player.quests.activeQuestArray.includes("Practice Makes Purrfect") && Player.quests.questProgress.catLifeProgress > 1) {
 					return false; // no collision
 				}
 				else {
@@ -11002,7 +11002,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 					Areas.catLife.initLap3();
 					Game.displayOnCanvas("split time .. tbd", ["Lap 3 of 3"], 4, true);
 				}
-				else if (Player.quests.activeQuestArray.includes("Cat Warrior") && (typeof Player.quests.questProgress.catLifeProgress === "undefined" || Player.quests.questProgress.catLifeProgress === 0)) {
+				else if (Player.quests.activeQuestArray.includes("Practice Makes Purrfect") && (typeof Player.quests.questProgress.catLifeProgress === "undefined" || Player.quests.questProgress.catLifeProgress === 0)) {
 					// start lap 1
 					Areas.catLife.initLap1();
 				}

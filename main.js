@@ -3964,7 +3964,7 @@ class Hero extends Attacker {
 
 						Game.projectiles.push(new Projectile({ // HERO projectile
 							map: map,
-							x: Game.hero.x,
+							x: Game.hero.x+30,
 							y: Game.hero.y,
 							attacker: this,
 							projectileStats: this,
@@ -5019,12 +5019,12 @@ class Hero extends Attacker {
 			Game.ctx.globalAlpha = 0.6;
 		}
 
-		if (!this.weaponImageLoading && (this.direction === 1 || this.direction === 4)) {
-			// held weapon should be rendered BEHIND hero
-			let offsetX = 0;
+		if (!this.weaponImageLoading && (this.direction === 1 || this.direction === 2)) {
+			// held weapon should be rendered BEHIND hero and flipped
+			let offsetX = -18;
 			let offsetY = 0; // so it bobs up and down
 			if (this.direction === 1) {
-				offsetX = -22;
+				offsetX = 11;
 			}
 			if (this.animation.state !== 3) {
 				offsetY = -this.animation.state;
@@ -5035,6 +5035,7 @@ class Hero extends Attacker {
 
 			this.heldWeaponObj.x = this.x + offsetX;
 			this.heldWeaponObj.y = this.y + offsetY;
+			this.heldWeaponObj.image = this.heldWeaponObj.imageNormal; // no need to change dimensions bc just flipped
 			Game.updateScreenPosition(this.heldWeaponObj);
 			Game.renderObject(this.heldWeaponObj);
 		}
@@ -5043,12 +5044,12 @@ class Hero extends Attacker {
 	}
 
 	postRenderFunction () {
-		if (!this.weaponImageLoading && (this.direction === 3 || this.direction === 2)) {
-			// held weapon should be rendered IN FRONT of hero
-			let offsetX = 0;
+		if (!this.weaponImageLoading && (this.direction === 3 || this.direction === 4)) {
+			// held weapon should be rendered IN FRONT of hero and not flipped
+			let offsetX = -3;
 			let offsetY = 0; // so it bobs up and down
 			if (this.direction === 3) {
-				offsetX = 22;
+				offsetX = -21;
 			}
 			if (this.animation.state !== 3) {
 				offsetY = -this.animation.state;
@@ -5059,6 +5060,7 @@ class Hero extends Attacker {
 
 			this.heldWeaponObj.x = this.x + offsetX;
 			this.heldWeaponObj.y = this.y + offsetY;
+			this.heldWeaponObj.image = this.heldWeaponObj.imageFlipped;
 			Game.updateScreenPosition(this.heldWeaponObj);
 			Game.renderObject(this.heldWeaponObj);
 		}
@@ -5110,16 +5112,20 @@ class Hero extends Attacker {
 			}
 
 			if (typeof weaponSrc !== "undefined") {
-				let p = Loader.loadImage("heroHeldWeapon", weaponSrc, false); // false = don't delete on area change
+				let p1 = Loader.loadImage("heroHeldWeapon", weaponSrc, false); // false = don't delete on area change
+				let p2 = Loader.loadImage("heroHeldWeaponFlipped", weaponSrc, false, "vertical"); // false = don't delete on area change
 
-				p.then(function () {
-					let img = Loader.getImageInfo("heroHeldWeapon").img;
+				Promise.all([p1,p2]).then(function () {
+					let imgNormal = Loader.getImageInfo("heroHeldWeapon").img;
+					let imgFlipped = Loader.getImageInfo("heroHeldWeaponFlipped").img;
 					// bascially just doing setImage :
-					this.heldWeaponObj.width = img.width; // set width and height !
-					this.heldWeaponObj.height = img.height;
-					this.heldWeaponObj.crop.width = img.width; // set width and height !
-					this.heldWeaponObj.crop.height = img.height;
-					this.heldWeaponObj.image = img; // and set img
+					this.heldWeaponObj.width = imgNormal.width; // set width and height ! (note flipped will have the same width and height)
+					this.heldWeaponObj.height = imgNormal.height;
+					this.heldWeaponObj.crop.width = imgNormal.width;
+					this.heldWeaponObj.crop.height = imgNormal.height;
+					this.heldWeaponObj.image = imgNormal; // and set img
+					this.heldWeaponObj.imageNormal = imgNormal;
+					this.heldWeaponObj.imageFlipped = imgFlipped;
 
 					this.weaponImageLoading = false; // can now be displayed !
 				}.bind(this));
@@ -11823,6 +11829,9 @@ Game.equipmentUpdate = function () {
             }
         }));
     }
+
+	// for screentint:
+	Game.renderDayNight();
 }
 
 // called whenever an item is removed / equipped / given / moved
@@ -11838,6 +11847,39 @@ Game.inventoryUpdate = function () {
 	}
 
     Dom.checkProgress(); // quest log update check
+}
+
+//
+// Loading of images associated with inventory items
+//
+
+// i.e. for jar of ants
+// the item object should be passed in, so it can be disabled until the image has been used
+Game.loadItemImages = function (item) {
+	let images = {};
+	if (typeof item.loadImages !== "undefined") {
+		// specific images specifed by weapon
+		Object.assign(images, item.loadImages);
+
+		// load the images
+		// set item property "disabled" to true so the player is blocked from using it
+		item.disabled = true;
+
+		let p = Loader.loadMultipleImages(images); // tbd add a deleteif function ? currently they stay loaded in until player leaves...
+
+		// wait until the image(s) have been loaded (or an error has been returned)
+		Promise.all(p).then(function () {
+			// only called once (every) image has loaded (or if it has already been loaded)
+			// set "disabled" property back to false
+			item.disabled = undefined;
+		})
+		.catch(function (err) {
+			console.error("Your image(s) did not load correctly.", err);
+		});
+
+		return true;
+	}
+	return false;
 }
 
 // set player projectile/bobber image
@@ -13517,6 +13559,14 @@ Game.renderDayNight = function () {
 				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 			}
 		}
+	}
+
+	// screen tint due to helm
+	// (currently just works for helm)
+	if (typeof Player.inventory.helm.screenTint !== "undefined") {
+		this.ctxDayNight.fillStyle = Player.inventory.helm.screenTint.colour;
+		this.ctxDayNight.globalAlpha = Player.inventory.helm.screenTint.amount || 0.3;
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	}
 
 	// use https://stackoverflow.com/questions/33351074/drawing-lights-on-a-canvas
