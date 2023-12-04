@@ -200,12 +200,17 @@ let Dom = {
 	canvas: {},
 	chat: {},
 	inventory: {
-		slotKeys: { // lookup for inventory slot keyname in Dom.elements based on item type
+		slotKeys: { // lookup for inventory DOM slot keyname in Dom.elements based on item type
 			weapon: "weapon",
 			helm: "helm",
 			chest: "chest",
 			greaves: "greaves",
 			boots: "boots",
+			staff: "weapon",
+			bow: "weapon",
+			sword: "weapon",
+			tool: "weapon",
+			rod: "weapon",
 			mount: "mountSlotUnlocked",
 			bag: "bag",
 			// aaaaaaaaaaaaa tbd trinkets
@@ -3735,6 +3740,8 @@ Dom.inventory.disposeConfirm = function (all) {
 	Game.equipmentUpdate();
 }
 
+// called upon dropping an item on the canvas or inventory/loot/bank/trade page
+// note that this also calls when dropping on something on that page (i.e. on an inventory slot) hence the if statements
 Dom.inventory.dispose = function (ev) {
 
 	let page = "inventoryPage";
@@ -3742,42 +3749,67 @@ Dom.inventory.dispose = function (ev) {
 		page = "bankPage";
 	}
 
-	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon" && ev.target.id !== "mount" && ev.target.id !== "bag" && !ev.target.classList.contains("stackNum")) {//aaaaaaaaa also check they're not dropping onto acccessory slot
+	// first check they're not dropping it onto an inventory slot
+	if (Dom.inventory.fromId !== undefined && ev.target.id !== "helm" && ev.target.id !== "chest" && ev.target.id !== "greaves" && ev.target.id !== "boots" && ev.target.id !== "weapon" && ev.target.id !== "mountSlotLocked" && ev.target.id !== "mountSlotUnlocked" && ev.target.id !== "bag" && !ev.target.classList.contains("stackNum")) {//aaaaaaaaa also check they're not dropping onto acccessory slot
 
-		let quest = false;
+		// can't dispose quest items
+		let deniedQuest = false;
 		if (Dom.inventory.fromArray[Dom.inventory.fromId].quest !== undefined && (Dom.inventory.fromArray[Dom.inventory.fromId].quest === true || Dom.inventory.fromArray[Dom.inventory.fromId].quest())) {
 			// if it is a quest item
-			quest = true;
+			deniedQuest = true;
 		}
 
-		let remove = true;
-		for (let i = 6; i < Dom.inventory.fromArray.length; i++) {
-			if (Dom.inventory.fromArray[i] !== undefined && Dom.inventory.fromArray[i].image !== undefined) {
-				// if it is safe to dispose of the bag
-				remove = false;
-				break;
+		// can't dispose bags if the inventory is too full
+		let deniedBag = false; // tracks if we're not allowed to remove a bag because of inventory space
+		if (Dom.inventory.fromId === "bag") {
+			// disposing a bag from the inventory
+			// check that all item slots 6 and onwards are empty, otherwise we wouldn't be able to dispose of a bag
+			for (let i = 6; i < Player.inventory.items.length; i++) {
+				if (Player.inventory.items[i] !== undefined && Player.inventory.items[i].image !== undefined) {
+					// it is NOT safe to dispose of a bag - there is something in a slot!
+					deniedBag = true;
+					break;
+				}
+			}
+		}
+		else if (Dom.inventory.fromId < 6 && Dom.inventory.fromArray === Player.bank.items) { // <6 because there are 6 bag slots in the bank (the first 6 item slots)
+			// disposing a bag from the bank
+			let bagSpace = Player.bank.items[Dom.inventory.fromId].size;
+			for (let i = Player.bank.items.length-bagSpace; i < Player.bank.items.length; i++) {
+				if (Player.bank.items[i] !== undefined && Player.bank.items[i].image !== undefined) {
+					// it is NOT safe to dispose of a bag - there is something in a slot!
+					deniedBag = true;
+					break;
+				}
 			}
 		}
 
 		ev.preventDefault(); // allows the item to drop
-		if ((ev.target.tagName !== "IMG" && ev.target.tagName !== "TD") && (remove || ((Dom.inventory.fromId !== 5 || Dom.inventory.fromArray !== Player.inventory.items) && (Dom.inventory.fromId > 5 || Dom.inventory.fromArray !== Player.bank.items))) && !quest) {
-			if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) {
-				Dom.alert.page("How many would you like to drop?", 3, undefined, page, {
-					target: Dom.inventory.disposeConfirm,
-				});
+
+		// if img or td then it is an inventory slot so don't dispose
+		if (ev.target.tagName !== "IMG" && ev.target.tagName !== "TD") {
+
+			if (!deniedBag && !deniedQuest) {
+				// allowed to dispose of the item!
+				if (Dom.inventory.fromArray[Dom.inventory.fromId].stacked > 1) { // stacked item
+					Dom.alert.page("How many would you like to drop?", 3, undefined, page, {
+						target: Dom.inventory.disposeConfirm,
+					});
+				}
+				else {
+					Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 2, undefined, page, {
+						target: Dom.inventory.disposeConfirm,
+					});
+				}
 			}
 			else {
-				Dom.alert.page("Are you sure you want to drop this item? It will be lost forever!", 2, undefined, page, {
-					target: Dom.inventory.disposeConfirm,
-				});
-			}
-		}
-		else if (ev.target.tagName !== "IMG" && ev.target.tagName !== "TD") { // if img or td then it is in an inventory so not dispose
-			if (!quest) {
-				Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, page);
-			}
-			else {
-				Dom.alert.page("You cannot dispose of this item because you need it for a quest.", 0, undefined, page);
+				// not allowed to dispose of the item (either because it's a bag or a quest item), so tell them why
+				if (deniedBag) {
+					Dom.alert.page("Move some items to the bank, sell or dispose of them before you can do that.", 0, undefined, page);
+				}
+				else { // deniedQuest must be true
+					Dom.alert.page("You cannot dispose of this item because you need it for a quest.", 0, undefined, page);
+				}
 			}
 		}
 	}
