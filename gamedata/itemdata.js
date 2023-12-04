@@ -6595,33 +6595,21 @@ unidentifiedArea: ["caves"],
 			mount: "whiteHorse", // set after quest is finished
 			onClickFunction: function () {
 				if (typeof Game.hero.summonedMount === "undefined") {
-					Game.mounts.push(new Mount({
+					Game.mounts.push(new Mount(Game.prepareNPC({
 						passenger: Game.hero,
 						x: Game.hero.x,
 						y: Game.hero.y,
 						direction: Game.hero.direction,
-						//orderOffsetY: -150,
-						rideAdjustY: -40,
 						name: "Horsey",
 						showNameTag: false,
-						type: "mounts",
-						hostility: "friendly",
 						rotationImages: {
 							up: "brownHorseBack",
 							down: "brownHorseFront",
 							left: "brownHorseLeft",
 							right: "brownHorseRight",
 						},
-						crop: {
-							x: 0,
-							y: 0,
-							width: 256,
-							height: 256
-						},
-						stats: {
-							maxHealth: 100,
-						},
-					}));
+						template: MountTemplates.default,
+					}, "mounts")));
 					Game.hero.getOnMount(Game.mounts[Game.mounts.length-1]);
 					Game.hero.summonedMount = Game.mounts[Game.mounts.length-1];
 				}

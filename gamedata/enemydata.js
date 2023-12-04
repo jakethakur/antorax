@@ -2272,4 +2272,31 @@ stoneElemental: {
 
 
 	},
-}
+};
+
+
+const MountTemplates = {
+	default: {
+		rideAdjustY: -40,
+		type: "mounts",
+		hostility: "friendly",
+		footHitbox: {
+			width: 45,
+			yAdjust: -38,
+		},
+		crop: {
+			x: 0,
+			y: 0,
+			width: 256,
+			height: 256
+		},
+		stats: {
+			maxHealth: 100,
+		},
+		onInteract: function () {
+			if (!Game.hero.mounted) {
+				Game.hero.getOnMount(this);
+			}
+		},
+	}
+};

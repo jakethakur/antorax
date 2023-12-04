@@ -382,6 +382,8 @@ var User = {
 			SPACE: " ", // 32
 			// enter (progress dialogue)
 			ENTER: "ENTER",
+			// mount
+			MOUNT: "E",
 			// shift (hide secondary canvas)
 			SHIFT: "SHIFT", // 16
 			// handled by dom

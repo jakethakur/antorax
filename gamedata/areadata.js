@@ -9374,6 +9374,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			arrow: {normal: "assets/projectiles/arrow.png"},
 			eagleStatue: {normal: "assets/objects/eagleStatue.png"},
 			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
+			//temp:
+			brownHorseRight: {normal: "assets/mounts/brownHorse/brownHorseSide.png"},
+			brownHorseLeft: {normal: "assets/mounts/brownHorse/brownHorseSide.png",flip:"vertical"},
+			brownHorseFront: {normal: "assets/mounts/brownHorse/brownHorseFront.png"},
+			brownHorseBack: {normal: "assets/mounts/brownHorse/brownHorseBack.png"},
 		},
 
 		areaTeleports: [
@@ -9446,6 +9451,23 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				{x: -69.8, y: 4254.4, width: 1651.9, height: 1543.3}, // flower forest
 			],
 		},
+
+		// temp for fun :~)
+		mounts: [
+			{
+				x: 520,
+				y: 3200,
+				direction: 3,
+				name: "Horsey",
+				rotationImages: {
+					up: "brownHorseBack",
+					down: "brownHorseFront",
+					left: "brownHorseLeft",
+					right: "brownHorseRight",
+				},
+				template: MountTemplates.default,
+			}
+		],
 
 		npcs: [
 			{
@@ -11643,44 +11665,45 @@ animateTiles: [
         },
 		images: {
             tiles: {normal: "assets/tilemap/pawPeaks.png"},
-spruceTree: {normal: "assets/objects/spruceTree.png"},
-well: {normal: "assets/objects/well.png"},
-mailbox: {normal: "assets/objects/mailbox.png"},
-mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
-marketStallPawPeaks: {normal: "assets/objects/marketStallPawPeaks.png"},
+			spruceTree: {normal: "assets/objects/spruceTree.png"},
+			well: {normal: "assets/objects/well.png"},
+			mailbox: {normal: "assets/objects/mailbox.png"},
+			mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
+			marketStallPawPeaks: {normal: "assets/objects/marketStallPawPeaks.png"},
 
-
-
-
-winterMelon: {normal: "assets/objects/winterMelon.png"},
-winterMelonFlip: {normal: "assets/objects/winterMelon.png", flip:"vertical"},
-horaldThymustad: {normal: "assets/npcs/horaldThymustad.png"},
-eighGold: {normal: "assets/npcs/eighgold.png"},
-geo: {normal: "assets/npcs/geo.png"},
-sparksCartographer: {normal: "assets/npcs/sparksCartographer.png"},
-trainCarriage: {normal: "assets/objects/trainCarriage.png"},
-trainFront: {normal: "assets/objects/trainFront.png"},
-trainFrontRight: {normal: "assets/objects/trainFront.png", flip: "vertical"},
-hayBale2: {normal: "assets/objects/hayBale2PawPeaks.png"},
-hayBale1: {normal: "assets/objects/hayBale1PawPeaks.png"},
-iceSpike: {normal: "assets/objects/iceSpike.png"},
-iceSpikeFlip: {normal: "assets/objects/iceSpike.png", flip:"vertical"},
-iceOrb: {normal: "assets/objects/iceOrb.png"},
-wateringCan: {normal: "assets/objects/wateringCan.png"},
-spade: {normal: "assets/objects/spade.png"},
-wheelBarrow: {normal: "assets/objects/wheelBarrow.png"},
-ironBucket: {normal: "assets/objects/ironBucket.png"},
-sapling: {normal: "assets/objects/sapling.png"},
-sprinkler: {normal: "assets/objects/sprinkler.png"},
-flowerBasket: {normal: "assets/objects/flowerBasket.png"},
-lanternNightLeft: {normal: "assets/objects/lanternNightLeft.png"},
-lanternNightRight: {normal: "assets/objects/lanternNightLeft.png",flip:"vertical"},
-hayWagon: {normal: "assets/objects/hayWagon.png"},
-flowerBasketSide: {normal: "assets/objects/flowerBasketSide.png"},
-mountain: {normal: "assets/objects/mountain.png"},
-target: {normal: "assets/objects/targetArchery.png"},
-horseshoe: {normal: "assets/objects/horseshoe.png"},
-},
+			winterMelon: {normal: "assets/objects/winterMelon.png"},
+			winterMelonFlip: {normal: "assets/objects/winterMelon.png", flip:"vertical"},
+			horaldThymustad: {normal: "assets/npcs/horaldThymustad.png"},
+			eighGold: {normal: "assets/npcs/eighgold.png"},
+			geo: {normal: "assets/npcs/geo.png"},
+			sparksCartographer: {normal: "assets/npcs/sparksCartographer.png"},
+			trainCarriage: {normal: "assets/objects/trainCarriage.png"},
+			trainFront: {normal: "assets/objects/trainFront.png"},
+			trainFrontRight: {normal: "assets/objects/trainFront.png", flip: "vertical"},
+			hayBale2: {normal: "assets/objects/hayBale2PawPeaks.png"},
+			hayBale1: {normal: "assets/objects/hayBale1PawPeaks.png"},
+			iceSpike: {normal: "assets/objects/iceSpike.png"},
+			iceSpikeFlip: {normal: "assets/objects/iceSpike.png", flip:"vertical"},
+			iceOrb: {normal: "assets/objects/iceOrb.png"},
+			wateringCan: {normal: "assets/objects/wateringCan.png"},
+			spade: {normal: "assets/objects/spade.png"},
+			wheelBarrow: {normal: "assets/objects/wheelBarrow.png"},
+			ironBucket: {normal: "assets/objects/ironBucket.png"},
+			sapling: {normal: "assets/objects/sapling.png"},
+			sprinkler: {normal: "assets/objects/sprinkler.png"},
+			flowerBasket: {normal: "assets/objects/flowerBasket.png"},
+			lanternNightLeft: {normal: "assets/objects/lanternNightLeft.png"},
+			lanternNightRight: {normal: "assets/objects/lanternNightLeft.png",flip:"vertical"},
+			hayWagon: {normal: "assets/objects/hayWagon.png"},
+			flowerBasketSide: {normal: "assets/objects/flowerBasketSide.png"},
+			mountain: {normal: "assets/objects/mountain.png"},
+			target: {normal: "assets/objects/targetArchery.png"},
+			horseshoe: {normal: "assets/objects/horseshoe.png"},
+			brownHorseRight: {normal: "assets/mounts/brownHorse/brownHorseSide.png"},
+			brownHorseLeft: {normal: "assets/mounts/brownHorse/brownHorseSide.png",flip:"vertical"},
+			brownHorseFront: {normal: "assets/mounts/brownHorse/brownHorseFront.png"},
+			brownHorseBack: {normal: "assets/mounts/brownHorse/brownHorseBack.png"},
+		},
 
 		onAreaJoin: function () {
 			Areas.pawPeaks.getOnTrainInbound();
@@ -11711,7 +11734,7 @@ horseshoe: {normal: "assets/objects/horseshoe.png"},
 			}
 
 			// unmount player once train has reached destination
-			Game.setTimeout(Game.hero.getOffMount.bind(Game.hero), 10000);removeAnimation
+			Game.setTimeout(Game.hero.getOffMount.bind(Game.hero), 10000);//removeAnimation
 		},
 
 		collisions: [
@@ -11723,7 +11746,7 @@ horseshoe: {normal: "assets/objects/horseshoe.png"},
             },
         ],
 
-areaTeleports: [
+		areaTeleports: [
             {
                 x: 8790,
                 y: 1803,
@@ -11735,7 +11758,23 @@ areaTeleports: [
             },
         ],
 
-npcs: [
+		mounts: [
+			{
+				x: 500,
+				y: 1700,
+				direction: 3,
+				name: "Horsey",
+				rotationImages: {
+					up: "brownHorseBack",
+					down: "brownHorseFront",
+					left: "brownHorseLeft",
+					right: "brownHorseRight",
+				},
+				template: MountTemplates.default,
+			}
+		],
+
+		npcs: [
             {
                 x: 2524,
                 y: 3100,
@@ -11753,7 +11792,7 @@ npcs: [
                 chat: {
                 },
             },
-{
+			{
                 x: 7513,
                 y: 3424,
                 image: "sparksCartographer",
@@ -11771,7 +11810,7 @@ npcs: [
                 },
             },
 
-  {
+  			{
                 x: 3513,
                 y: 2659,
                 image: "eighGold",
@@ -11819,7 +11858,7 @@ mailboxes: [
 			},
 ],
 things: [
-{
+			{
 				x: [-700, -430, -160],
 				y: [4478, 4478, 4478],
 				orderOffsetY: -100,
@@ -11848,7 +11887,14 @@ things: [
 					height: 450
 				},
 			},
-{x:[3236.5, 2162.2, 2642.1, 1056.3, 730.1, 6618, 5424.7, 1647.7, 3615.9, 1914.7, 1374.7, 28.7, 4716, 182.7, 6067.5, 470.2, 2376.5, 2911.9, 7273.5, 3838.9, 6911.3, 0, 2727.8, 4049.2, 996.4, 4739, 680, 6057.7, 5408.9, 2446.1, 3798.6, 7638.7, 7297.9, 61.9, 276.1, 829.4, 2667.8, 6284.3, 5486, 1178.8, 709.1, 999.2, 2411.7, 6587.9, 7320, 34.8, 429.6, 4365.2, 5022, 7689.2, 780.6, 1463.8, 5594, 6384.3, 210.3, 6667.5, 1040.1, 8032.7, 390, 71, 1446.4, 5329, 6815.1, 795, 1182.1, 6176.7, 301.1, 4651.6, 520.7, 66.2, 1532.8, 8112.3, 5431.1, 5954.6, 6893.7, 306.6, 1318.6, 901.5, 6603.7, 1107, 1491.2, 202.5, 740, 959, 73.7, 305.7, 1255.2, 3191, 8043.1, 1503.2, 7113.1, 3507.4, 3830.4, 2670.8, 2062.4, 7453.8, 6741.5, 4190.7, 2970.1, 8362.9, 674.3, 338.5, 78.5, 996.9, 2398.6, 1358.3, 3984.4, 7028.2, 8074.5, 2875.1, 7507.8, 6711.9, 3959.4, 7786.8, 2725.5, 6984.2, 4198.6, 536.5, 2503.8, 7534.8, 1408.2, 2092.7, 85.4, 6524.4, 907.7, 6824.9, 2793.3, 7786.8, 4213.8, 1243.4, 634.8, 6315.6, 1539.1, 2143.9, 8110.4, 7507.8, 7026.1, 6638.8, 2819.8, 7781.1, 10187.1, 514.3, 4233, 8254.4, 6307.4, 6887.3, 8559.8, 1745.2, 2850.2, 126.5, 9924.4, 2507.4, 8892.2, 8332.2, 7593.1, 10184, 6600.6, 4076.9, 9303.3, 979.1, 3170.7, 3617.4, 9593.2, 7026.1], y:[1440.5, 1483, 1499.6, 1514.7, 1518.3, 1522.3, 1533.4, 1537.2, 1538.7, 1550.5, 1551.9, 1552.1, 1552.6, 1552.6, 1586.2, 1591.7, 1598.5, 1622.7, 1638.8, 1655.2, 1748.1, 1804.3, 1804.9, 1814.4, 1820.9, 1848.9, 1877.6, 1915.3, 1938.9, 1955.6, 1965, 2034, 2037.5, 2111.6, 2117.3, 2130.5, 2183.9, 2246.6, 2274.2, 2288.4, 2315, 2346, 2373.2, 2399, 2429.4, 2446.4, 2451, 2456.9, 2506.7, 2507.8, 2564.1, 2590.2, 2625.3, 2664.9, 2688.2, 2710.8, 2731.6, 2746.5, 2789.9, 2870.4, 2876, 2973.5, 3005.8, 3036.8, 3046, 3062, 3096.6, 3168, 3176.9, 3194.4, 3200.6, 3253.3, 3279.1, 3284.2, 3290.7, 3328.9, 3354.3, 3404.2, 3440.4, 3533, 3560.6, 3569.5, 3605.5, 3769.4, 3792, 3806.9, 3821.2, 3827, 3860, 3871.4, 3876.2, 3889.5, 3899.3, 3917.4, 3940, 3963.5, 3998.1, 4003.5, 4028.6, 4055.9, 4057.7, 4097.1, 4097.1, 4100.3, 4116.2, 4162, 4316.4, 4328, 4360.6, 4387.4, 4532, 4551.7, 4603.5, 4618.5, 4636.9, 4662.8, 4736, 4826.9, 4829, 4841.4, 4854.2, 4894.2, 4897.8, 4903.1, 4978.6, 4985.9, 5026.2, 5031.7, 5072.6, 5083.5, 5160.9, 5174.9, 5238.9, 5270.4, 5281.9, 5285, 5297.9, 5302, 5363.2, 5391.5, 5430.3, 5443.7, 5492.6, 5533.1, 5601.1, 5627.6, 5652.5, 5664.1, 5716.3, 5746.5, 5782.7, 5808.5, 5846.5, 5846.5, 5850.6, 5856, 5860.9, 5862.1, 5865.9, 5868.4, 5886.8, 5886.8, 5891.5, 5984.5], image:"spruceTree",name:"Spruce",},
+
+			{
+				x:[3236.5, 2162.2, 2642.1, 1056.3, 730.1, 6618, 5424.7, 1647.7, 3615.9, 1914.7, 1374.7, 28.7, 4716, 182.7, 6067.5, 470.2, 2376.5, 2911.9, 7273.5, 3838.9, 6911.3, 0, 2727.8, 4049.2, 996.4, 4739, 680, 6057.7, 5408.9, 2446.1, 3798.6, 7638.7, 7297.9, 61.9, 276.1, 829.4, 2667.8, 6284.3, 5486, 1178.8, 709.1, 999.2, 2411.7, 6587.9, 7320, 34.8, 429.6, 4365.2, 5022, 7689.2, 780.6, 1463.8, 5594, 6384.3, 210.3, 6667.5, 1040.1, 8032.7, 390, 71, 1446.4, 5329, 6815.1, 795, 1182.1, 6176.7, 301.1, 4651.6, 520.7, 66.2, 1532.8, 8112.3, 5431.1, 5954.6, 6893.7, 306.6, 1318.6, 901.5, 6603.7, 1107, 1491.2, 202.5, 740, 959, 73.7, 305.7, 1255.2, 3191, 8043.1, 1503.2, 7113.1, 3507.4, 3830.4, 2670.8, 2062.4, 7453.8, 6741.5, 4190.7, 2970.1, 8362.9, 674.3, 338.5, 78.5, 996.9, 2398.6, 1358.3, 3984.4, 7028.2, 8074.5, 2875.1, 7507.8, 6711.9, 3959.4, 7786.8, 2725.5, 6984.2, 4198.6, 536.5, 2503.8, 7534.8, 1408.2, 2092.7, 85.4, 6524.4, 907.7, 6824.9, 2793.3, 7786.8, 4213.8, 1243.4, 634.8, 6315.6, 1539.1, 2143.9, 8110.4, 7507.8, 7026.1, 6638.8, 2819.8, 7781.1, 10187.1, 514.3, 4233, 8254.4, 6307.4, 6887.3, 8559.8, 1745.2, 2850.2, 126.5, 9924.4, 2507.4, 8892.2, 8332.2, 7593.1, 10184, 6600.6, 4076.9, 9303.3, 979.1, 3170.7, 3617.4, 9593.2, 7026.1], y:[1440.5, 1483, 1499.6, 1514.7, 1518.3, 1522.3, 1533.4, 1537.2, 1538.7, 1550.5, 1551.9, 1552.1, 1552.6, 1552.6, 1586.2, 1591.7, 1598.5, 1622.7, 1638.8, 1655.2, 1748.1, 1804.3, 1804.9, 1814.4, 1820.9, 1848.9, 1877.6, 1915.3, 1938.9, 1955.6, 1965, 2034, 2037.5, 2111.6, 2117.3, 2130.5, 2183.9, 2246.6, 2274.2, 2288.4, 2315, 2346, 2373.2, 2399, 2429.4, 2446.4, 2451, 2456.9, 2506.7, 2507.8, 2564.1, 2590.2, 2625.3, 2664.9, 2688.2, 2710.8, 2731.6, 2746.5, 2789.9, 2870.4, 2876, 2973.5, 3005.8, 3036.8, 3046, 3062, 3096.6, 3168, 3176.9, 3194.4, 3200.6, 3253.3, 3279.1, 3284.2, 3290.7, 3328.9, 3354.3, 3404.2, 3440.4, 3533, 3560.6, 3569.5, 3605.5, 3769.4, 3792, 3806.9, 3821.2, 3827, 3860, 3871.4, 3876.2, 3889.5, 3899.3, 3917.4, 3940, 3963.5, 3998.1, 4003.5, 4028.6, 4055.9, 4057.7, 4097.1, 4097.1, 4100.3, 4116.2, 4162, 4316.4, 4328, 4360.6, 4387.4, 4532, 4551.7, 4603.5, 4618.5, 4636.9, 4662.8, 4736, 4826.9, 4829, 4841.4, 4854.2, 4894.2, 4897.8, 4903.1, 4978.6, 4985.9, 5026.2, 5031.7, 5072.6, 5083.5, 5160.9, 5174.9, 5238.9, 5270.4, 5281.9, 5285, 5297.9, 5302, 5363.2, 5391.5, 5430.3, 5443.7, 5492.6, 5533.1, 5601.1, 5627.6, 5652.5, 5664.1, 5716.3, 5746.5, 5782.7, 5808.5, 5846.5, 5846.5, 5850.6, 5856, 5860.9, 5862.1, 5865.9, 5868.4, 5886.8, 5886.8, 5891.5, 5984.5],
+				image:"spruceTree",
+				name:"Spruce",
+				collision: {relativeX: 0, relativeY: 130, width: 30, height: 20},
+				orderOffsetY: -24,
+			},
 
 {x:[7818.8, 8099.4, 8489.7, 8637],y:[1463.5, 2082.1, 2538.3, 3150.4],image:"iceSpike",name:"icespike"},
 

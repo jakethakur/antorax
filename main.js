@@ -1338,6 +1338,24 @@ class Entity {
 			this.y = spawnPosition[1];
 		}
 
+		// another alternate spawning for villagers - I believe this is the exact same as spawn locations so tbd merge them?
+		// most go here so the x and y are set
+		if (this.type === "villagers") {
+			this.boundary = properties.boundary; // object of rectangle that the npc cannot walk out of (x, y, width, height)
+			if (this.boundary === undefined && Areas[Game.areaName].villagerData !== undefined) {
+				this.boundary = Game.villagerLocationArray;
+			}
+			// if boundary is an array , pick a random one
+			if (Array.isArray(this.boundary)) {
+				let locationIndex = Math.round(Game.villagers.length + (Game.villagerSeed*2)) % this.boundary.length;
+				this.boundary = this.boundary[locationIndex];
+			}
+			// random position inside the boundary
+			this.x = Random(this.boundary.x, this.boundary.x+this.boundary.width);
+			this.y = Random(this.boundary.y, this.boundary.y+this.boundary.height);
+		}
+
+
 		this.moveTowards = properties.moveTowards; // should be an object with an x and y, and a speed property if this entity doesn't have a .speed/this speed should be overriden
 		// movetowards can also be given a moveTowardsFinishFunction which is called when the locations is reached (not if it's interrupted before this!)
 		// note moveTowards is currently incompatible with player / enemy / projectile move towards - tbd merge them into this one :)
@@ -1714,7 +1732,10 @@ class Visible extends Entity {
 		// canvas positioning
 		this.z = properties.z || 0; // -1 is always below (e.g. wizard's lore) and 1 is always on top (e.g. projectile)
 		this.orderOffsetY = properties.orderOffsetY || 0; // offset to how the y acts in canvas positioning sorting algorithm
-
+		this.dynamicOrderOffsetY = properties.dynamicOrderOffsetY; // REPLACES orderOffsetY with a function that returns the value (i.e. used for mount to group it with hero)
+		if (typeof this.dynamicOrderOffsetY !== "undefined") {
+			this.dynamicOrderOffsetY = this.dynamicOrderOffsetY.bind(this);
+		}
 
 		this.removeIn = properties.removeIn; // measured in seconds
 
@@ -1723,6 +1744,15 @@ class Visible extends Entity {
 		if (properties.addToObjectArrays !== false) {
 			Game.allVisibles.push(this); // array for current area only
 		}
+	}
+
+	// used in render to set its .sortValue, or used to get the sort value of an object if it hasn't been updated yet
+	// this is from the bottom of the object (or the bottom of its foot hitbox if it has one)
+	getSortValue () {
+		if (typeof this.footHitbox !== "undefined") {
+			return this.footHitbox.y + this.footHitbox.height/2 + this.orderOffsetY + this.z * 10000000000;
+		}
+		return this.y + this.height/2 + this.orderOffsetY + this.z * 10000000000;
 	}
 }
 
@@ -2084,16 +2114,24 @@ class Character extends Thing {
 
 		// foot collision (for tile speeds/collisions)
 		// x and y positions are in centre
-		let footHeight = properties.footHeight || 20; // distance from bottom boundary of player of foot hitbox
+		if (typeof properties.footHitbox === "undefined") {
+			properties.footHitbox = {};
+		}
+		let footHeight = properties.footHitbox.height || 20; // distance from bottom boundary of character of foot hitbox
+		let footWidth = properties.footHitbox.width || this.width;
+		let xAdjust = properties.footHitbox.xAdjust || 0;
+		let yAdjust = properties.footHitbox.yAdjust || 0;
 		this.footHitbox = Game.entities[Game.entities.push(new Entity({
 			map: map,
-			x: this.x,
-			y: this.y + this.height/2 - footHeight/2,
-			width: this.width,
+			x: this.x + xAdjust,
+			y: this.y + this.height/2 - footHeight/2 + yAdjust,
+			width: footWidth,
 			height: footHeight,
 			hitboxColour: "#FF00FF",
 			type: "entities",
 		})) -1];
+		this.footHitbox.xAdjust = xAdjust;
+		this.footHitbox.yAdjust = yAdjust;
 
 		// channelling
 		this.channelling = false;
@@ -2443,8 +2481,8 @@ class Character extends Thing {
 
 	// update x, y, screenX and screenY of foot hitbox
 	updateFootHitbox () {
-		this.footHitbox.x = this.x;
-		this.footHitbox.y = this.y + this.height/2 - this.footHitbox.height/2;
+		this.footHitbox.x = this.x + this.footHitbox.xAdjust;
+		this.footHitbox.y = this.y + this.height/2 - this.footHitbox.height/2 + this.footHitbox.yAdjust;
 	}
 
 	// collide with solid tiles
@@ -2883,7 +2921,7 @@ class Character extends Thing {
 					// load checkpoint area
 					Game.loadArea(this.checkpoint, Areas[this.checkpoint].player);
 
-					this.health = this.stats.maxHealth;
+					this.health = this.stats.maxHealth/2; // respawn at half health
 
 					let ineffectiveAmount = LevelXP[Game.hero.level] / 6; // amount of XP to be worth 50% less
 					let stacks = 1;
@@ -3004,23 +3042,24 @@ class Character extends Thing {
 		return false;
 	}
 
-	// set character speed
+	// set character's this.speed, based off this.(stats.)walkSpeed
+	// also returns the new value of this.speed
 	// baseSpeed = true stops the speed being changed from status effects and slow tiles (e.g. for displacement) - so just sets speed to walk speed
-	// game = true stops equipment and potions from changing walk speed (other than special status effects where info.worksForGames = true)
+	// game = true stops equipment and potions from changing walk speed (other than special status effects where info.worksForGames = true) (i.e. for tag minigame)
 	setSpeed (baseSpeed, game) {
 		let footY = this.y + this.height/2 - this.footHitbox.height/2; // y position of feet
 
 		// set walk and swim speed values
 		let walkSpeed, swimSpeed, iceSpeed;
-		if (game) {
+		if (game) { // i.e. player in minigame
 			// default values (ignore equipment)
 			walkSpeed = 180;
 			swimSpeed = 60;
-			iceSpeed = 170;
+			iceSpeed = 270;
 		}
 		else {
 			// stat values
-			walkSpeed = this.stats.walkSpeed;
+			walkSpeed = this.walkSpeed || this.stats.walkSpeed;
 			swimSpeed = this.stats.swimSpeed;
 			iceSpeed = this.stats.iceSpeed;
 		}
@@ -3186,6 +3225,8 @@ class Character extends Thing {
 				}
 			}
 		}
+
+		return this.speed;
 	}
 
 	// whee! make the character fly away from their current point
@@ -3359,23 +3400,57 @@ class Character extends Thing {
 	getOnMount (object) {
 		this.mounted = true;
 		this.mount = object;
+		object.passenger = this;
 		this.moveMounted(0,0,0); // to update screen position etc
+
+		if (typeof this.dynamicOrderOffsetY === "undefined") {
+			// whilst on mount, override orderoffsetY
+			this.dynamicOrderOffsetY = function () {
+				if (typeof this.mount !== "undefined") {
+					let mountSortValue = this.mount.getSortValue();
+					this.orderOffsetY = 0;
+					let thisSortValue = this.getSortValue()-this.orderOffsetY;
+					let offset = mountSortValue - thisSortValue;
+					// now it appears level with mount, tweak to decide if mount appears in front or behind (tbd - probs a nicer way to do this?)
+					if (this.direction === 3 || this.direction === 1) {
+						// passenger appears behind
+						offset -= 0.1;
+					}
+					else {
+						// passenger appears in front
+						offset += 0.1;
+					}
+					return offset;
+				}
+				else {
+					return this.orderOffsetY;
+				}
+			};
+		}
+		else {
+			console.error("Mounted object already has a dynamicOrderOffsetY", this);
+		}
 	}
 
 	getOffMount () {
 		this.mounted = false;
 		this.mount = undefined;
+		this.dynamicOrderOffsetY = undefined;
 	}
 
 	// get off mount with displacement in the direction moving!
 	throwOffMount () {
-		// displace!
-		this.displace(0, Math.abs(this.mount.velocity), 1, Game.bearing({x:0, y:0}, {x: this.mount.speedX, y: this.mount.speedY}));
-		// take damage! (after the 1s displacement)
-		let damageQuotient = (this.mount.velocity - this.mount.throwOffVelocity) / (this.mount.maxVelocity - this.mount.throwOffVelocity)
-		Game.setTimeout(this.takeDamage.bind(this), 1000, 10 + 10*damageQuotient);
+		let vel = this.mount.velocity;
+		let speedX = this.mount.speedX;
+		let speedY = this.mount.speedY;
+		let damageQuotient = (this.mount.velocity - this.mount.throwOffVelocity) / (this.mount.maxVelocity - this.mount.throwOffVelocity); // for taking damage
 
 		this.getOffMount();
+
+		// displace!
+		this.displace(0, Math.abs(vel), 1, Game.bearing({x:0, y:0}, {x: speedX, y: speedY}));
+		// take damage! (after the 1s displacement)
+		Game.setTimeout(this.takeDamage.bind(this), 1000, 10 + 10*damageQuotient);
 	}
 }
 
@@ -3730,12 +3805,12 @@ class Hero extends Attacker {
 		this.removeChannelling("move"); // stuff cannot be channelled whilst moving
 
 		if (typeof this.mount.move !== "undefined") {
-			this.mount.move(delta, dirx, diry);
-
-			this.direction = this.mount.direction;
-			this.updateRotation();
+			let stillOnMount = this.mount.move(delta, dirx, diry);
 		}
 		if (this.mounted) { // check still mounted! might have been hit off the mount..
+			this.direction = this.mount.direction;
+			this.updateRotation();
+
 			if (typeof this.mount.rideAdjustX === "undefined") {
 				this.mount.rideAdjustX = 0;
 			}
@@ -3744,10 +3819,15 @@ class Hero extends Attacker {
 			}
 			this.x = this.mount.x + this.mount.rideAdjustX;
 			this.y = this.mount.y + this.mount.rideAdjustY;
+
+			// still do walking anim !
+			//this.totalDistanceWalked += this.mount.velocity*delta;
 		}
 		else {
 			this.move(delta, 0, 0);
 		}
+
+		this.updateFootHitbox();
 	}
 
 	move (delta, dirx, diry) { // called when hero being displaced, moving towards something, or player is moving hero
@@ -3879,6 +3959,11 @@ class Hero extends Attacker {
 		let maxY = Game.camera.maxY + Game.camera.height;
 		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
 		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
+
+		// round player position, otherwise screen judders
+		// tbd readd - unfortunately this currently significantly slows the hero down in two directions
+		//this.x = Round(this.x, 0);
+		//this.y = Round(this.y, 0);
 
 		// set direction based on dirx and diry
 		if (Math.abs(dirx) > Math.abs(diry)) {
@@ -5901,23 +5986,27 @@ class Mount extends Character {
 	constructor(properties) {
 		super(properties);
 
+		this.acceleration = properties.acceleration || 750; // speed gain per second
+
+		this.maxVelocity = properties.maxVelocity || 300;
+
+		this.stats.swimSpeed = properties.swimSpeedMultiplier || 60; // MAX VELOCITY in water
+		this.stats.iceSpeed = properties.iceSpeedMultiplier || 410; // MAX VELOCITY on ice
+
+		this.throwOffVelocity = properties.throwOffVelocity || 250; // change in velocity required to catapult the hero off..
+
+
+		// hero position on mount specified by rideAdjustX and Y in entity class
+
 		this.passenger = properties.passenger; // object
 
 		this.speedX = 0;
 		this.speedY = 0;
 		this.velocity = 0; // pythag
 
-		this.acceleration = properties.acceleration || 750; // speed gain per second
-
-		this.maxVelocity = properties.maxVelocity || 300;
-
-		this.throwOffVelocity = properties.throwOffVelocity || 250; // change in velocity required to catapult the hero off..
-
-		// hero position on mount specified by rideAdjustX and Y in entity class
-
 		this.direction = properties.direction || 4; // same numbers as hero directions
 
-		this.distanceTravelled = 0;
+		// tbd generalise the below
 		this.animateDistance = 30; // distance needed to travel to change image
 		this.lastAnimatedDistance = 0; // last distance travelled milestone at which the image was updated
 		this.state = 0; // image state, taken mod to find what image should be displayed
@@ -5934,32 +6023,26 @@ class Mount extends Character {
 		// figure out and cap velocity
 		this.velocity = Math.sqrt(this.speedX*this.speedX + this.speedY*this.speedY);
 
-		if (this.velocity > this.maxVelocity) {
-			let ratio = this.velocity / this.maxVelocity;
+		let maxVelocity = this.maxVelocity; // set maxVelocity based on water tiles etc
+		this.stats.walkSpeed = maxVelocity; // for setSpeed function
+		maxVelocity = this.setSpeed(); // water tiles etc
+
+		if (this.velocity > maxVelocity) {
+			let ratio = this.velocity / maxVelocity;
 			let multiplier = 1/Math.sqrt(ratio);
 			this.speedX *= multiplier;
 			this.speedY *= multiplier;
 			// now it has been limited to maxVelocity
-			this.velocity = this.maxVelocity
+			this.velocity = maxVelocity;
 		}
 
 		// set rotation image
 		this.setRotationImage(this.speedX, this.speedY);
 
-		// appears in front of / behind player depending on its rotation image
-		if (this.direction === 3 || this.direction === 1) {
-			// player appears behind
-			this.orderOffsetY = 0;
-		}
-		else {
-			// player appears in front
-			this.orderOffsetY = -600;
-		}
-
 		this.x += this.speedX*delta;
 		this.y += this.speedY*delta;
 
-		this.distanceTravelled += this.velocity*delta;
+		this.totalDistanceWalked += this.velocity*delta;
 
 		let collision = this.collide(this.speedX, this.speedY, delta);
 
@@ -5982,7 +6065,7 @@ class Mount extends Character {
 		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
 
 		// animation
-		if (this.distanceTravelled > this.lastAnimatedDistance + this.animateDistance) {
+		if (this.totalDistanceWalked > this.lastAnimatedDistance + this.animateDistance) {
 			this.state++;
 			this.lastAnimatedDistance += this.animateDistance;
 
@@ -6066,22 +6149,6 @@ class Villager extends NPC {
 		super(properties);
 
 		this.wait = 0; // total time spent waiting
-
-		this.boundary = properties.boundary; // object of rectangle that the npc cannot walk out of (x, y, width, height)
-
-		if (this.boundary === undefined && Areas[Game.areaName].villagerData !== undefined) {
-			this.boundary = Game.villagerLocationArray;
-		}
-
-		// if boundary is an array , pick a random one
-		if (Array.isArray(this.boundary)) {
-			let locationIndex = Math.round(Game.villagers.length + (Game.villagerSeed*2)) % this.boundary.length;
-			this.boundary = this.boundary[locationIndex];
-		}
-
-		// random position inside the boundary
-		this.x = Random(this.boundary.x, this.boundary.x+this.boundary.width);
-		this.y = Random(this.boundary.y, this.boundary.y+this.boundary.height);
 
 		// information about how the npc should behave
 		this.ai = {};
@@ -9406,6 +9473,12 @@ Game.init = function () {
 			animateBasis: "walk"
 		},
 
+		footHitbox: {
+			width: 26,
+			height: 10,
+			yAdjust: -5,
+		},
+
 
 		// properties inherited from Attacker
 
@@ -12474,6 +12547,12 @@ Game.drawHealthBar = function (ctx, character, x, y, width, height) {
 		else { // more than 9; multiply bar size by 10 and try again
 			barValue *= 3;
 		}
+
+		// stop infniite loops
+		if (barValue > 100000) {
+			console.error("No health bar value found for ", character);
+			break;
+		}
 	}
 
 	character.healthFraction = character.health / character.stats.maxHealth; // fraction of health remaining
@@ -12947,8 +13026,12 @@ Game.render = function (delta) {
 	// set values to sort by, basing their value on their z position as well as y value
 	// 10^10 is an arbitrary value that should always be out of reach of y values
 	for (let i = 0; i < this.allVisibles.length; i++) {
+		if (typeof this.allVisibles[i].dynamicOrderOffsetY !== "undefined") {
+			this.allVisibles[i].orderOffsetY = this.allVisibles[i].dynamicOrderOffsetY();
+		}
+
 		if (this.allVisibles[i].hidden !== true) {
-			this.allVisibles[i].sortValue = this.allVisibles[i].y + this.allVisibles[i].height/2 + this.allVisibles[i].orderOffsetY + this.allVisibles[i].z * 10000000000;
+			this.allVisibles[i].sortValue = this.allVisibles[i].getSortValue();
 		}
 		else {
 			// a y value might not have been assigned to the object yet

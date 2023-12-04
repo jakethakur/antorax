@@ -7687,10 +7687,11 @@ Dom.init = function () {
 	}
 
 	// keyboard functions
+	// hotbar
 	let array = ["ONE", "TWO", "THREE", "FOUR", "FIVE", "SIX"];
 	for (let i = 0; i < 6; i++) {
 		Keyboard.upFunctions[array[i]] = function () {
-			if (Game.rightClickActive) {
+			if (!Game.rightClickActive) {
 				// items
 				if (Player.inventory.items[i].onClick !== undefined) {
 					Player.inventory.items[i].onClick(i, true);
@@ -7709,12 +7710,24 @@ Dom.init = function () {
 		}
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
+
+	// dom bookmark hotkeys
 	array = ["CHAT", "INVENTORY", "QUESTS", "ADVENTURE", "REPUTATION", "SETTINGS"];
 	for (let i = 0; i < 6; i++) {
 		Keyboard.upFunctions[array[i]] = Dom.settings.hotkeys;
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);
 	}
 	Keyboard.listenForKey(User.settings.keyboard.TALK, undefined, Keyboard.upFunctions.TALK);
+
+	// mount:
+	Keyboard.upFunctions["MOUNT"] = function () {
+		if (Player.inventory.mount.onClick !== undefined) {
+			Player.inventory.mount.onClick("mount");
+			Game.inventoryUpdate();
+		}
+	}
+	Keyboard.listenForKey(User.settings.keyboard["MOUNT"], undefined, Keyboard.upFunctions["MOUNT"]);
+
 
 	Dom.chat.offset = 40; // distance of chat from bottom of canvas (because input is hidden)
 	// add a 'space' button on mobile devices and hide canvas chat input
