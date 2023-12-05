@@ -338,7 +338,15 @@ document.getElementById("play").onclick = function(){
 		sessionStorage.setItem("class",selected.class);
 		sessionStorage.setItem("skin",selected[selected.class]);
 		sessionStorage.setItem("name",document.getElementById("name").value);
-		window.location.replace("../index.html");
+
+		// sometimes sessionStorage doesn't carry over i.e. firefox local version. so store this info in the domain name instead for local versions
+		if (location.hostname === "") {
+			window.location.replace("../index.html?class="+selected.class+"&name="+document.getElementById("name").value+"&skin="+selected[selected.class]);
+		}
+		else {
+			window.location.replace("../index.html");
+		}
+
 	}else{
 		document.getElementById("name").style.borderColor = "red";
 		document.getElementById("random").style.borderColor = "red";

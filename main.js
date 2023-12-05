@@ -13345,7 +13345,7 @@ Game.renderObject = function (objectToRender) {
 				let b = parseInt(color.substring(5), 16);
 			}
 
-				// texture colors
+				/*// texture colors
 				let random = randomNum(depth * -1, depth * 1); // textures all colors by the same amount
 				r = Math.max(Math.min(r + random, 255), 0);
 				g = Math.max(Math.min(g + random, 255), 0);
@@ -13365,7 +13365,7 @@ Game.renderObject = function (objectToRender) {
 					b = "0" + b;
 				}
 
-				return "#"+r+g+b;
+				return "#"+r+g+b;*/
 
 			// optional changing between colours
 			this.colourTransition = properties.colourTransition; // array of colours to transition between
@@ -13675,7 +13675,7 @@ Game.renderDayNight = function () {
 //
 
 Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
-	if (localStorage.getItem("accept") === "true") {
+	if (localStorage.getItem("accept") === "true") { // check if they consent to local storage
 		// save player position to savedata.js
 		Player.x = Game.hero.x;
 		Player.y = Game.hero.y;
@@ -13713,6 +13713,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
 	}
+
 	if (saveType === "logout") {
 		window.location.replace("./selection/index.html");
 	}

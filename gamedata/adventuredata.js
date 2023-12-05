@@ -286,7 +286,7 @@ const Tutorial = [
 		chapter: 13, // called upon player finishing logs quest
 		func: function () {
 			Game.setTimeout(function () {
-				Dom.alert.page("You got a <b>bag</b> from that quest!<br><br>Move it to your <b>last inventory slot</b> to increase your inventory size.", 0);
+				Dom.alert.page("You got a <b>bag</b> from that quest!<br><br>Move it to your bag slot to increase your inventory size.", 0);
 			}, 1000);
 			Dom.instructions.unlockTab("reputation");
 		},

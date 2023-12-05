@@ -1,7 +1,19 @@
 // avoids it having to be called multiple times from inside Player's declaration
-let playerName = sessionStorage.getItem("name");
-let playerClass = sessionStorage.getItem("class");
-let playerSkin = sessionStorage.getItem("skin");
+let playerName, playerClass, playerSkin;
+
+playerName = sessionStorage.getItem("name");
+playerClass = sessionStorage.getItem("class");
+playerSkin = sessionStorage.getItem("skin");
+
+// note session storage doesn't work in firefox local versions, in which case we have to rely on query strings in domain name
+// (these are not used otherwise)
+const QueryStringParams = (new URL(document.location)).searchParams;
+if (playerClass === null) {
+	// session storage doesn't work in firefox local versions
+	playerName = QueryStringParams.get("name");
+	playerClass = QueryStringParams.get("class");
+	playerSkin = QueryStringParams.get("skin");
+}
 
 let playerClassName;
 switch (playerClass) {

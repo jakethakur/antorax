@@ -1,7 +1,8 @@
 "use strict";
 
 // go to class select if the user's class has not been selected yet for this session
-if (sessionStorage.getItem("class") === null) {
+// playerClass is set in savedata
+if (playerClass === null) {
 	window.location.replace("./selection/index.html");
 }
 
@@ -4071,6 +4072,7 @@ Dom.bank.bagCases = function () {//aaaaaaaaaaaaaaa tbd?
 	Dom.bank.page();
 }
 
+// deals with bag being moved in/out of slot in inventory
 Dom.inventory.bagCases = function () {
 	// slot backgrounds
 	/*if (Dom.inventory.fromId === "bag" && Dom.inventory.fromArray[Dom.inventory.fromId].image === undefined) {
@@ -4534,6 +4536,7 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 }
 
 // player wants to remove equipment from a slot
+// array is (the item in) that slot (misnomer)
 Dom.inventory.removeEquipment = function (array) {
 	// draw slot background
 	let element = Dom.inventory.slotKeys[array.type];
@@ -4548,6 +4551,11 @@ Dom.inventory.removeEquipment = function (array) {
 		type = "staff";
 	}
 	document.getElementById(element).style.backgroundImage = "url('assets/items/"+type+"/1.png')";
+
+	// bags
+	if (array.type === "bag") {
+		Dom.inventory.bagCases(); // DOESN'T YET WORK TBD FOR CLICKING OF BAGS TO UNEQUIP
+	}
 
 	Dom.inventory.beforeChangedStats();
 	if (array.stats !== undefined) {
@@ -5965,6 +5973,7 @@ Dom.adventure.update = function () {
 	}
 }
 
+// called upon clicking on an equipment slot (NOT dragging away from)
 Dom.inventory.reEquip = function (event) {
 	let slot = event.target.id;//composedPath()[0].id;
 	if (!Dom.inventory.deEquip) {
@@ -5991,7 +6000,7 @@ Dom.inventory.channel = function (array, i, hotbar) {
 
 }
 
-// called whenever the inventory is altered
+// called on init for each item in inventory and bank; and whenever an item is given
 // array = array item is contained in
 // i = item's index in the array / its key in the object
 // element = element that the item is being prepared for
@@ -6037,6 +6046,11 @@ Dom.inventory.prepare = function (array, i, element) {
 
 	// if the item is a piece of equipment (and not unidentified) then set the onClick
 	if (type !== undefined && !array[i].unidentified) {
+
+		// defines onclick for all items in the inventory!!! this stays with them no matter where they move!!
+		// only called on clicking, not dragging
+		// set by inventory.prepare (this parent function) on start of game / item being given
+		// only applies to slots with items in them (i.e. the items themselves)
 		Items[array[i].type][array[i].id].onClick = function (i) {
 
 			// if bank is open then bank
@@ -6060,7 +6074,7 @@ Dom.inventory.prepare = function (array, i, element) {
 				}
 			}
 
-			// equipped item so chooseStats, onClickFunction, or unequip
+			// clicking on an equipped item, so chooseStats, onClickFunction, or unequip
 			else {
 				let chooseStats = false;
 				let onClick = false;
@@ -6134,7 +6148,7 @@ Dom.inventory.prepare = function (array, i, element) {
 				if (!chooseStats && !onClick) {
 					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND on in inventory
 						Dom.inventory.deEquip = true;
-						Dom.inventory.removeEquipment(Player.inventory[i]);
+						Dom.inventory.removeEquipment(Player.inventory[i]); // handles changing of stats, bag slots, etc.
 						Player.inventory[i] = {};
 						Game.equipmentUpdate();
 						document.getElementById(Dom.inventory.slotKeys[i]).innerHTML = "";
