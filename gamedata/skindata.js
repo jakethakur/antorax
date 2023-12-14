@@ -31,6 +31,7 @@ var Skins = {
 				},
 			],
 			series:	"Classic",
+			base: true,
 		},
 		{
 			id: 2,
@@ -38,11 +39,12 @@ var Skins = {
 			src: "skinTone/elf", // colour is appended to the end of this
 			colours: [
 				{
-					name: "tbd", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#tbd", // approx hex code
+					name: "Light1", // this should be exactly what is appended to the image src (minus the .png)
+					hex: "#68823F",//tbd // approx hex code
 				},
 			],
 			series:	"Classic",
+			base: true,
 		},
 		{
 			id: 3,
@@ -106,26 +108,76 @@ var Skins = {
 			base: true,
 		},
 	],
+	hairColours: [
+		// expected to exist for all hair styles (any extra colours can be added directly to the hair object itself)
+		{
+			name: "Black", // this should be exactly what is appended to the image src (minus the .png)
+			hex: "#000000", // approx hex code
+		},
+		{
+			name: "Brown",
+			hex: "#432500",
+		},
+		{
+			name: "Blonde",
+			hex: "#8E7740",
+		},
+		{
+			name: "Ginger",
+			hex: "#914D37",
+		},
+		{
+			name: "White",
+			hex: "#B4B4B4",
+		},
+	],
 	hair: [
 		{
 			id: 0,
-			name: "Long Spiky",
-			src: "hair/longSpiky", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Brown", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#432500", // approx hex code
-				}
+			name: "Messy",
+			src: "hair/messy", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
 			],
 			series:	"Classic",
 			base: true,
 		},
 		{
 			id: 1,
+			name: "Short",
+			src: "hair/short", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
+			],
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 2,
+			name: "Long",
+			src: "hair/long", // colour is appended to the end of this
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 3,
+			name: "Ponytail",
+			src: "hair/ponytail", // colour is appended to the end of this
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 4,
+			name: "Curly",
+			src: "hair/curly", // colour is appended to the end of this
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 5,
 			name: "No Hair",
 			src: "hair/null", // colour is appended to the end of this
-			colours: [], // i.e. just base option
+			colourless: true,
 			series:	"Classic",
+			base: true,
 		},
 	],
 	// old skins below:

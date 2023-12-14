@@ -85,8 +85,7 @@ body{
 	height: 100vh;
 	float: right;
 
-	background-image: url("./assets/caravanBackground.png");
-	background-size: cover;
+	background-image: url("./assets/selectionBackground.png");
 }
 
 #playerView {
@@ -204,10 +203,39 @@ body{
 }
 
 #playerPreview {
-	height: 500px;
-	top: 100px;
-	margin-top: 15px;
-	margin-bottom: 5px;
+	position: relative;
+	top: 0;
+	left: 0;
+
+	height: 168px; /* background img height */
+	background-image: url("./assets/playerBackground.png");
+
+	border-top: 5px solid var(--border);
+	border-bottom: 5px solid var(--border);
+
+	margin-top: 10px;
+	margin-bottom: 13px;
+}
+
+.previewImage {
+	width: 52px;
+	height: 127px;
+
+	object-fit: none;
+	overflow: hidden;
+	object-position: 0% 0%;
+
+	top: 33px;
+}
+
+.previewImageUnder {
+	position: relative;
+	left: 0;
+}
+
+.previewImageOver {
+	position: absolute;
+	left: 149px;
 }
 
 #play{
@@ -217,20 +245,7 @@ body{
 	width: 290px;
 
 	padding: 10px;
-	margin: 20px;
-	cursor: pointer;
-
-	display: inline-block;
-}
-
-#customisationButton{
-	font-size: 25px;
-	margin: 0px;
-	color: var(--text);
-	width: 290px;
-
-	padding: 10px;
-	margin: 20px;
+	margin: 15px;
 	cursor: pointer;
 
 	display: inline-block;
@@ -247,28 +262,16 @@ body{
 	Customisation
 */
 
-#customisation {
-	background-image: url("./assets/selectionBackground.png");
-	/*background-size: cover;*/
-	/*background-position: center center;*/
-	height: 100vh;
-
-	margin-left: 500px;
-	margin-right: 350px;
-
-	border-left: 5px solid var(--border);
-	border-right: 5px solid var(--border);
+#customisationWrapper {
+	height: 400px; /* background img height */
+	background-image: url("./assets/customisationWardrobe.png");
 }
-
-
-
-
 
 .customisationSelect {
 	white-space: nowrap;
 	overflow-x: auto;
 	overflow-y: hidden;
-	height: 63px;
+	height: 52px;
 
 	display:inline-block;
 
@@ -278,15 +281,50 @@ body{
 }
 
 .customisationSelectTall {
-	height: 180px;
+	height: 127px;
 }
 
 .customisationSelection {
 	position: relative;
-	width: 80px;
-	height: 100px;
-	background-size: 80px;
 	background-repeat: no-repeat;
 	display: inline-block;
 	cursor: pointer;
+
+	width: 52px;
+	height: 127px;
+
+	object-fit: none;
+	overflow: hidden;
+	object-position: 0% 0%;
+}
+
+.customisationButton {
+	width: 87px;
+	height: 98px;
+	display: inline-block;
+}
+
+#skinToneView {
+	background-image: url("assets/customisationButtons/skinTone.png");
+}
+#skinToneView.selected {
+	background-image: url("assets/customisationButtons/skinToneSelected.png");
+}
+#clothingView {
+	background-image: url("assets/customisationButtons/clothing.png");
+}
+#clothingView.selected {
+	background-image: url("assets/customisationButtons/clothingSelected.png");
+}
+#hairView {
+	background-image: url("assets/customisationButtons/hair.png");
+}
+#hairView.selected {
+	background-image: url("assets/customisationButtons/hairSelected.png");
+}
+#hatView {
+	background-image: url("assets/customisationButtons/hat.png");
+}
+#hatView.selected {
+	background-image: url("assets/customisationButtons/hatSelected.png");
 }
