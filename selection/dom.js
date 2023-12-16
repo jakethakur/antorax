@@ -89,7 +89,7 @@ if(localStorageSelected !== null){
 	Object.assign(localStorageSelected.a, selected.a);
 	Object.assign(localStorageSelected.m, selected.m);
 
-	selected = localStorageSelected);
+	selected = localStorageSelected;
 }
 else {
 	selected.class = Object.keys(selected)[Math.floor(Math.random()*3)];
