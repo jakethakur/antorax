@@ -2,7 +2,7 @@ let playerName = sessionStorage.getItem("name");
 let playerClass = sessionStorage.getItem("class");
 // customisation
 // the keys of this (skin, hat, etc.) should be all the ids in skindata, other than the colour keys (hairColour etc.) which should be the word
-let customisation = sessionStorage.getItem("customisation");
+let customisation = JSON.parse(sessionStorage.getItem("customisation"));
 
 // note session storage doesn't work in firefox local versions, in which case we have to rely on query strings in domain name
 // (these are not used otherwise)
