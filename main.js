@@ -84,16 +84,17 @@ Game.loadPlayer = function () {
 		}
 
         Player = Object.assign(Player, savedPlayer);
-
-        Player.name = playerName;
-
-		// customisation:
-		// replaces the skindata ids (stored in the variable customisation, which is set in savedata) with the file addresses from skindata
-		Player.skinTone = Skins.skinTone[customisation.skinTone].src;
-		Player.clothing = Skins[playerClassName+"Clothing"][customisation.clothing].src;
-		Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
-		Player.hat = Skins.hat[customisation.hat].src;
     }
+
+	// the following are done based on selection screen, done here rather than savedata because they can be changed on each play
+	Player.name = playerName;
+
+	// customisation:
+	// replaces the skindata ids (stored in the variable customisation, which is set in savedata) with the file addresses from skindata
+	Player.skinTone = Skins.skinTone[customisation.skinTone].src;
+	Player.clothing = Skins[playerClassName+"Clothing"][customisation.clothing].src;
+	Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
+	Player.hat = Skins.hat[customisation.hat].src;
 }
 
 //
@@ -148,7 +149,7 @@ Game.initWebSocket = function () {
 				face: Player.face,
 				clothing: Player.clothing,
 				hair: Player.hair,
-				ears: Player.ears,
+				ears: Player.skinTone	,
 				hat: Player.hat,
 			}));
 
@@ -191,6 +192,7 @@ Game.initWebSocket = function () {
 							// expand changed
 							user.setExpandZ(message.expand);
 						}
+						user.updateFootHitbox();
 					}
 					break;
 
@@ -595,6 +597,7 @@ Game.addPlayer = function (player) {
 				},
 
 				// add the player
+				// tbd the images should be loaded first THEN the player object should be added ??
 				this.players.push(new UserControllable(copiedPlayer));
 				let addedPlayer = this.players[this.players.length-1];
 
@@ -607,7 +610,7 @@ Game.addPlayer = function (player) {
 						width: 52,
 						height: 127
 					});
-					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.facialExpression, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.ears, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
+					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.facialExpression, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
 
 					addedPlayer.updateRotation();
 
@@ -2121,19 +2124,27 @@ class Character extends Thing {
 		// properties.rotationImages should be an object with "up", "down", "Left", and "right"
 		this.setRotationImageVariables(properties.rotationImages);
 
+		// for if image hasn't been set yet (i.e. might be loaded in on object creation and then image is set)
+		if (isNaN(this.width)) {
+			this.width = 0;
+		}
+		if (isNaN(this.height)) {
+			this.height = 0;
+		}
+
 		// foot collision (for tile speeds/collisions)
 		// x and y positions are in centre
 		if (typeof properties.footHitbox === "undefined") {
 			properties.footHitbox = {};
 		}
 		let footHeight = properties.footHitbox.height || 20; // distance from bottom boundary of character of foot hitbox
-		let footWidth = properties.footHitbox.width || this.width;
+		let footWidth = properties.footHitbox.width || this.width || 0;
 		let xAdjust = properties.footHitbox.xAdjust || 0;
 		let yAdjust = properties.footHitbox.yAdjust || 0;
 		this.footHitbox = Game.entities[Game.entities.push(new Entity({
 			map: map,
 			x: this.x + xAdjust,
-			y: this.y + this.height/2 - footHeight/2 + yAdjust,
+			y: this.y + this.height/2 - footHeight/2 + yAdjust ,
 			width: footWidth,
 			height: footHeight,
 			hitboxColour: "#FF00FF",
@@ -3710,7 +3721,6 @@ class UserControllable extends Attacker {
 		this.clothing = properties.clothing;
 		this.hair = properties.hair;
 		this.face = properties.face;
-		this.ears = properties.ears;
 		this.hat = properties.hat;
 		// these should be given as a word
 	}
@@ -3718,17 +3728,17 @@ class UserControllable extends Attacker {
 	// call to load image after constructor
 	init () {
 		let skinKeyName = "playerSkin_"+this.skinTone;
+		let earsKeyName = "playerEars_"+this.skinTone;
 		let clothingKeyName = "playerClothing_"+this.clothing;
 		let hairKeyName = "playerHair_"+this.hair;
 		let faceKeyName = "playerFace_"+this.face;
-		let earsKeyName = "playerEars_"+this.ears;
 		let hatKeyName = "playerHat_"+this.hat;
 		let loadObj = {};
 		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
 		loadObj[faceKeyName] = {normal: "./assets/playerCustom/facialExpression/" + this.face + ".png"};
 		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"}; // tbd get from skindata
 		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
-		loadObj[earsKeyName] = {normal: "./assets/playerCustom/ears/" + this.ears + ".png"};
+		loadObj[earsKeyName] = {normal: "./assets/playerCustom/ears/" + this.skinTone + ".png"};
 		loadObj[hatKeyName] = {normal: "./assets/playerCustom/hat/" + this.hat + ".png"};
 		return Loader.loadMultipleImages(loadObj, false);
 	}
@@ -8611,7 +8621,7 @@ Game.loadDefaultImages = function () {
 	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/base.png", false));
 	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
 	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
-	toLoad.push(Loader.loadImage("playerEars_"+Player.ears, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
+	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
 	toLoad.push(Loader.loadImage("playerHat_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
 
 	// load class' default projectile
@@ -9444,7 +9454,7 @@ Game.init = function () {
 			{imageName: "playerFace_"+Player.face, doNotAnimate: true},
 			{imageName: "playerClothing_"+Player.clothing},
 			{imageName: "playerHair_"+Player.hair, doNotAnimate: true},
-			{imageName: "playerEars_"+Player.ears, doNotAnimate: true},
+			{imageName: "playerEars_"+Player.skinTone, doNotAnimate: true},
 			{imageName: "playerHat_"+Player.hat, doNotAnimate: true} // tbd add weapon here
 		],
 

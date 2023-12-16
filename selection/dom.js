@@ -72,7 +72,14 @@ let selected = { // default values
 	},
 };
 
-if(localStorage.getItem("selected") !== null){
+let localStorageSelected = localStorage.getItem("selected");
+if(localStorageSelected !== null){
+	localStorageSelected = JSON.parse(localStorageSelected);
+	// update to new system
+	Object.assign(localStorageSelected.k, selected.k);
+	Object.assign(localStorageSelected.a, selected.a);
+	Object.assign(localStorageSelected.m, selected.m);
+
 	selected = JSON.parse(localStorage.getItem("selected"));
 }
 else {
