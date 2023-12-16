@@ -95,6 +95,14 @@ Game.loadPlayer = function () {
 	Player.clothing = Skins[playerClassName+"Clothing"][customisation.clothing].src;
 	Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
 	Player.hat = Skins.hat[customisation.hat].src;
+	// face is hard coded for now
+	if (Skins.skinTone[customisation.skinTone].race === "Orc") {
+		// orc face (with teeth etc)
+		Player.face = "baseOrc";
+	}
+	else {
+		Player.face = "base";
+	}
 }
 
 //
@@ -149,7 +157,7 @@ Game.initWebSocket = function () {
 				face: Player.face,
 				clothing: Player.clothing,
 				hair: Player.hair,
-				ears: Player.skinTone	,
+				//ears: Player.skinTone,
 				hat: Player.hat,
 			}));
 
@@ -610,7 +618,7 @@ Game.addPlayer = function (player) {
 						width: 52,
 						height: 127
 					});
-					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.facialExpression, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
+					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.face, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
 
 					addedPlayer.updateRotation();
 
@@ -8618,7 +8626,7 @@ Game.loadDefaultImages = function () {
 	// load player images
 	toLoad.push(Loader.loadImage("playerSkin_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
 	//toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
-	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/base.png", false));
+	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
 	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
 	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
 	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));

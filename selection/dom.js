@@ -439,6 +439,13 @@ function display () {
 	document.getElementById("skinTonePreview").src = "../assets/playerCustom/skinTone/" + skinToneSrc + ".png";
 	// ears
 	document.getElementById("earsPreview").src = "../assets/playerCustom/ears/" + skinToneSrc + ".png";
+	// face
+	if (Skins.skinTone[selected[selected.class].skinTone].race === "Orc") {
+		document.getElementById("facePreview").src = "../assets/playerCustom/facialExpression/baseOrc.png";
+	}
+	else {
+		document.getElementById("facePreview").src = "../assets/playerCustom/facialExpression/base.png";
+	}
 
 	// clothing
 	let clothingSrc = Skins[selected.classFull+"Clothing"][selected[selected.class][selected.classFull+"Clothing"]].src;
@@ -452,9 +459,9 @@ function display () {
 
 }
 
-var customisationDisp = "hair";
-var imageDirectory = "hair/";
-populateSelectionMenu();
+var customisationDisp;
+var imageDirectory;
+hairButton();
 
 // display skin tone selection in the customisation menu
 function skinToneButton () {
@@ -565,8 +572,7 @@ function populateSelectionMenu () {
 		for (let j = 0; j < colourArray.length; j++) {
 			let colourObj = colourArray[j];
 
-			document.getElementById("customisationColourSelect").innerHTML += "<div class='customisationSelection' id='"+customisationDisp+"Colour"+j+"'>";
-			document.getElementById(customisationDisp+"Colour"+j).style.backgroundColor = colourObj.hex;
+			document.getElementById("customisationColourSelect").innerHTML += "<img src='assets/customisationColours/hair"+colourObj.name+".png' class='customisationSelection' id='"+customisationDisp+"Colour"+j+"'>";
 		}
 
 		// now add onclicks
