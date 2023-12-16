@@ -5,73 +5,120 @@ var Skins = {
 	skinTone: [
 		{
 			id: 0,
-			name: "Human",
-			src: "skinTone/human", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Light1", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#FEDDB4", // approx hex code
-				},
-			],
+			race: "Human",
+			colour: "Light1",
+			src: "humanLight1", // i.e. assets/playerCustom/THIS.png
 			series:	"Classic",
 			base: true,
 		},
 		{
 			id: 1,
-			name: "Orc",
-			src: "skinTone/orc", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Green1", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#68823F", // approx hex code
-				},
-				{
-					name: "Orange1", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#E0AA4C", // approx hex code
-				},
-			],
+			race: "Human",
+			colour: "Light2",
+			src: "humanLight2",
 			series:	"Classic",
+			base: true,
 		},
 		{
 			id: 2,
-			name: "Elf",
-			src: "skinTone/elf", // colour is appended to the end of this
-			colours: [
-				{
-					name: "tbd", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#tbd", // approx hex code
-				},
-			],
+			race: "Human",
+			colour: "Dark1",
+			src: "humanDark1",
 			series:	"Classic",
+			base: true,
 		},
 		{
 			id: 3,
-			name: "Penguin",
-			src: "skinTone/penguin", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Blue", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#2C3286", // approx hex code
-				},
-			],
+			race: "Human",
+			colour: "Dark2",
+			src: "humanDark2",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 4,
+			race: "Orc",
+			colour: "Green1",
+			src: "orcGreen1",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 5,
+			race: "Orc",
+			colour: "Green2",
+			src: "orcGreen2",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 6,
+			race: "Orc",
+			colour: "Orange1",
+			src: "orcOrange1",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 7,
+			race: "Orc",
+			colour: "Orange2",
+			src: "orcOrange2",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 8,
+			race: "Elf",
+			colour: "Light1",
+			src: "elfLight1",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 9,
+			race: "Elf",
+			colour: "Light2",
+			src: "elfLight2",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 10,
+			race: "Elf",
+			colour: "Dark1",
+			src: "elfDark1",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 11,
+			race: "Elf",
+			colour: "Dark2",
+			src: "elfDark2",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 12,
+			race: "Penguin",
+			colour: "Blue",
+			src: "penguin",
 			series:	"Dev",
 		},
 	],
 	mageClothing: [
 		{
 			id: 0,
-			name: "Cloak",
-			src: "clothing/mage/mageCloak", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Lapis", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#111B5A", // approx hex code
-				},
-				{
-					name: "Amethyst",
-					hex: "#530093"
-				},
-			],
+			name: "Lapis Cloak",
+			src: "mageCloakLapis", // clothing/mage/this
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 1,
+			name: "Amethyst Cloak",
+			src: "mageCloakAmethyst",
 			series:	"Classic",
 			base: true,
 		},
@@ -79,14 +126,22 @@ var Skins = {
 	archerClothing: [
 		{
 			id: 0,
-			name: "Coat",
-			src: "clothing/archer/archerCoat", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Ivy", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#2C3E1F", // approx hex code
-				},
-			],
+			name: "Ivy Coat",
+			src: "archerCoatIvy",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 1,
+			name: "Flamingo Coat",
+			src: "archerCoatFlamingo",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 2,
+			name: "Lily Coat",
+			src: "archerCoatLily",
 			series:	"Classic",
 			base: true,
 		},
@@ -94,40 +149,95 @@ var Skins = {
 	knightClothing: [
 		{
 			id: 0,
-			name: "Armour",
-			src: "clothing/knight/knightArmour", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Copper", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#6A1000", // approx hex code
-				},
-			],
+			name: "Copper Armour",
+			src: "knightArmourCopper",
 			series:	"Classic",
 			base: true,
+		},
+	],
+	hairColours: [
+		// expected to exist for all hair styles (any extra colours can be added directly to the hair object itself)
+		// for colours, the name property acts as the "id"
+		{
+			name: "Black", // this should be exactly what is appended to the image src (minus the .png)
+			hex: "#000000", // approx hex code
+		},
+		{
+			name: "Brown",
+			hex: "#432500",
+		},
+		{
+			name: "Blonde",
+			hex: "#8E7740",
+		},
+		{
+			name: "Ginger",
+			hex: "#914D37",
+		},
+		{
+			name: "White",
+			hex: "#B4B4B4",
 		},
 	],
 	hair: [
 		{
 			id: 0,
-			name: "Long Spiky",
-			src: "hair/longSpiky", // colour is appended to the end of this
-			colours: [
-				{
-					name: "Brown", // this should be exactly what is appended to the image src (minus the .png)
-					hex: "#432500", // approx hex code
-				}
+			name: "Messy",
+			src: "messy", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
 			],
 			series:	"Classic",
 			base: true,
 		},
 		{
 			id: 1,
-			name: "No Hair",
-			src: "hair/null", // colour is appended to the end of this
-			colours: [], // i.e. just base option
+			name: "Short",
+			src: "short", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
+			],
 			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 2,
+			name: "Long",
+			src: "long", // colour is appended to the end of this
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 3,
+			name: "Ponytail",
+			src: "ponytail", // colour is appended to the end of this
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 4,
+			name: "Curly",
+			src: "curly", // colour is appended to the end of this
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 5,
+			name: "No Hair",
+			src: "null", // colour is appended to the end of this
+			colourless: true,
+			series:	"Classic",
+			base: true,
 		},
 	],
+	hat: [
+		{
+			id: 0,
+			name: "No Hat",
+			src: "null",
+			series:	"Classic",
+			base: true,
+		},
+	],
+
 	// old skins below:
 	a: [
 		{

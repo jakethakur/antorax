@@ -1,18 +1,40 @@
-// avoids it having to be called multiple times from inside Player's declaration
-let playerName, playerClass, playerSkin;
-
-playerName = sessionStorage.getItem("name");
-playerClass = sessionStorage.getItem("class");
-playerSkin = sessionStorage.getItem("skin");
+let playerName = sessionStorage.getItem("name");
+let playerClass = sessionStorage.getItem("class");
+// customisation
+// the keys of this (skin, hat, etc.) should be all the ids in skindata, other than the colour keys (hairColour etc.) which should be the word
+let customisation = sessionStorage.getItem("customisation");
 
 // note session storage doesn't work in firefox local versions, in which case we have to rely on query strings in domain name
 // (these are not used otherwise)
 const QueryStringParams = (new URL(document.location)).searchParams;
-if (playerClass === null) {
+if (customisation === null || typeof customisation.clothing === "undefined") {
 	// session storage doesn't work in firefox local versions
 	playerName = QueryStringParams.get("name");
 	playerClass = QueryStringParams.get("class");
-	playerSkin = QueryStringParams.get("skin");
+	customisation = {};
+	customisation.skinTone = QueryStringParams.get("skinTone");
+	//customisation.face = QueryStringParams.get("face"); // not yet customisable
+	customisation.clothing = QueryStringParams.get("clothing");
+	customisation.hair = QueryStringParams.get("hair");
+	customisation.hairColour = QueryStringParams.get("hairColour");
+	customisation.hat = QueryStringParams.get("hat");
+}
+
+// customisation validation (probs unnecessary)
+if (customisation.skinTone === "undefined") {
+	customisation.skinTone = 0;
+}
+if (customisation.clothing === "undefined") {
+	customisation.clothing = 0;
+}
+if (customisation.hair === "undefined") {
+	customisation.hair = 0;
+}
+if (customisation.hairColour === "undefined") {
+	customisation.hairColour = "white";
+}
+if (customisation.hat === "undefined") {
+	customisation.hat = 0;
 }
 
 let playerClassName;
@@ -111,12 +133,14 @@ const AttackConstants = {
 	},
 };
 
+// note that this is just for default values for when the player FIRST joins antorax ! any changing values (e.g. customisation) should be set separately, otherwise they will just be overwritten
 var Player = {
 	name: playerName,
 	class: playerClass,
 	classFull: playerClassName,
 
-	skin: playerSkin,
+	// customisation properties are set in Game.loadPlayer
+
 	baseProjectile: baseProjectile,
 	baseProjectileAdjust: baseProjectileAdjust,
 
@@ -363,11 +387,11 @@ var User = {
 		total: 0,
 		unclaimed: 0,
 	},
-	skins: {
+	/*skins: {
 		a: [0, 1],
 		m: [0, 1],
 		k: [0, 1],
-	},
+	},*/ // old
 	progress: {},
 	lostLetterMessages: [],
 	settings: {

@@ -84,10 +84,25 @@ Game.loadPlayer = function () {
 		}
 
         Player = Object.assign(Player, savedPlayer);
-
-        Player.name = playerName;
-        Player.skin = playerSkin;//kkkkkkkkkkkkkkkkkkkkkk
     }
+
+	// the following are done based on selection screen, done here rather than savedata because they can be changed on each play
+	Player.name = playerName;
+
+	// customisation:
+	// replaces the skindata ids (stored in the variable customisation, which is set in savedata) with the file addresses from skindata
+	Player.skinTone = Skins.skinTone[customisation.skinTone].src;
+	Player.clothing = Skins[playerClassName+"Clothing"][customisation.clothing].src;
+	Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
+	Player.hat = Skins.hat[customisation.hat].src;
+	// face is hard coded for now
+	if (Skins.skinTone[customisation.skinTone].race === "Orc") {
+		// orc face (with teeth etc)
+		Player.face = "baseOrc";
+	}
+	else {
+		Player.face = "base";
+	}
 }
 
 //
@@ -124,10 +139,6 @@ Game.initWebSocket = function () {
 				name:  Player.name,
 				class: Player.class,
 				level: Player.level,
-				skinTone: Player.skinTone,
-				clothing: Player.clothing,
-				hair: Player.hair,
-				hat: Player.hat,
 				area: Player.areaName,
 				displayArea: Player.displayAreaName,
 				x: Player.x,
@@ -140,7 +151,14 @@ Game.initWebSocket = function () {
 					boots: Player.inventory.boots,
 					weapon: Player.inventory.weapon
 				},
-				achievementPoints: User.achievementPoints.total
+				achievementPoints: User.achievementPoints.total,
+				// customisation
+				skinTone: Player.skinTone,
+				face: Player.face,
+				clothing: Player.clothing,
+				hair: Player.hair,
+				//ears: Player.skinTone,
+				hat: Player.hat,
 			}));
 
 			// show other players online in chat (because player is connected to server)
@@ -182,6 +200,7 @@ Game.initWebSocket = function () {
 							// expand changed
 							user.setExpandZ(message.expand);
 						}
+						user.updateFootHitbox();
 					}
 					break;
 
@@ -586,19 +605,20 @@ Game.addPlayer = function (player) {
 				},
 
 				// add the player
+				// tbd the images should be loaded first THEN the player object should be added ??
 				this.players.push(new UserControllable(copiedPlayer));
 				let addedPlayer = this.players[this.players.length-1];
 
 				// load its image
 				Promise.all(addedPlayer.init()).then(function () {
 					// set the image
-					addedPlayer.setImage("player_"+addedPlayer.skinTone, {
+					addedPlayer.setImage("playerSkin_"+addedPlayer.skinTone, {
 						x: 0,
 						y: 0,
 						width: 52,
 						height: 127
 					});
-					addedPlayer.setAdditionalImages([{imageName: "player_"+addedPlayer.clothing}, {imageName: "player_"+addedPlayer.hair, doNotAnimate: true}]);
+					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.face, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
 
 					addedPlayer.updateRotation();
 
@@ -2112,19 +2132,27 @@ class Character extends Thing {
 		// properties.rotationImages should be an object with "up", "down", "Left", and "right"
 		this.setRotationImageVariables(properties.rotationImages);
 
+		// for if image hasn't been set yet (i.e. might be loaded in on object creation and then image is set)
+		if (isNaN(this.width)) {
+			this.width = 0;
+		}
+		if (isNaN(this.height)) {
+			this.height = 0;
+		}
+
 		// foot collision (for tile speeds/collisions)
 		// x and y positions are in centre
 		if (typeof properties.footHitbox === "undefined") {
 			properties.footHitbox = {};
 		}
 		let footHeight = properties.footHitbox.height || 20; // distance from bottom boundary of character of foot hitbox
-		let footWidth = properties.footHitbox.width || this.width;
+		let footWidth = properties.footHitbox.width || this.width || 0;
 		let xAdjust = properties.footHitbox.xAdjust || 0;
 		let yAdjust = properties.footHitbox.yAdjust || 0;
 		this.footHitbox = Game.entities[Game.entities.push(new Entity({
 			map: map,
 			x: this.x + xAdjust,
-			y: this.y + this.height/2 - footHeight/2 + yAdjust,
+			y: this.y + this.height/2 - footHeight/2 + yAdjust ,
 			width: footWidth,
 			height: footHeight,
 			hitboxColour: "#FF00FF",
@@ -3696,20 +3724,30 @@ class UserControllable extends Attacker {
 
 		this.userID = properties.userID;
 
+		// these should be the id in skindata
 		this.skinTone = properties.skinTone;
 		this.clothing = properties.clothing;
 		this.hair = properties.hair;
+		this.face = properties.face;
+		this.hat = properties.hat;
+		// these should be given as a word
 	}
 
 	// call to load image after constructor
 	init () {
-		let skinKeyName = "player_"+this.skinTone;
-		let clothingKeyName = "player_"+this.clothing;
-		let hairKeyName = "player_"+this.hair;
+		let skinKeyName = "playerSkin_"+this.skinTone;
+		let earsKeyName = "playerEars_"+this.skinTone;
+		let clothingKeyName = "playerClothing_"+this.clothing;
+		let hairKeyName = "playerHair_"+this.hair;
+		let faceKeyName = "playerFace_"+this.face;
+		let hatKeyName = "playerHat_"+this.hat;
 		let loadObj = {};
 		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
+		loadObj[faceKeyName] = {normal: "./assets/playerCustom/facialExpression/" + this.face + ".png"};
 		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"}; // tbd get from skindata
 		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
+		loadObj[earsKeyName] = {normal: "./assets/playerCustom/ears/" + this.skinTone + ".png"};
+		loadObj[hatKeyName] = {normal: "./assets/playerCustom/hat/" + this.hat + ".png"};
 		return Loader.loadMultipleImages(loadObj, false);
 	}
 
@@ -8565,40 +8603,6 @@ Game.minigameReset = function () {
 Game.loadDefaultImages = function () {
 	let toLoad = [];
 
-// temp:
-	let clothingName;
-	let clothingColours = [];
-	let className = "";
-	let hat = ["archaeologistHat", "null", "knightHat", "mageHat", "archerHat"];
-	switch (Player.class) {
-		case "m":
-			className = "mage";
-			clothingName = "mageCloak";
-			clothingColours = ["Amethyst", "Aquamarine", "Emerald", "Lapis", "Onyx", "Pearl", "Quartz", "Ruby"];
-			hat = "mageHat";
-			break;
-
-		case "a":
-		className = "archer";
-			clothingName = "archerCoat";
-			clothingColours = ["Crow", "Falcon", "Flamingo", "Hibiscus", "Ivy", "Lavender", "Lily", "Rose"];
-			hat = "archerHat";
-			break;
-
-		case "k":
-			className = "knight";
-			clothingName = "knightArmour";
-			clothingColours = ["Cobalt", "Copper", "Listerine", "Obsidian", "Pink", "Platinum", "Titanium", "Verdigris"];
-			hat = "knightHat";
-			break;
-	}
-		let skinTone = ["humanLight1", "orcGreen1", "orcOrange1", "humanDark1", "humanLight2", "orcGreen2", "orcOrange2", "humanDark2", "elfLight1", "elfLight2", "elfDark2", "elfDark1",];
-		let hair = ["CurlyBlonde", "CurlyBrown", "CurlyGinger", "CurlyWhite","CurlyBlack","LongMessyBlonde","LongMessyBrown","LongMessyGinger","LongMessyBlack","LongMessyWhite", "gingerPonytail", "brownPonytail", "blackPonytail", "whitePonytail", "blondePonytail", "shortBrown", "shortBlack", "shortBlonde", "shortWhite", "shortGinger", "longBrown", "longBlack", "longBlonde", "longWhite", "longGinger"];
-
-	Player.skinTone = skinTone[Random(0, skinTone.length-1)];
-	Player.clothing = clothingName + clothingColours[Random(0, clothingColours.length-1)];
-	Player.hair = hair[Random(0, hair.length-1)];
-	Player.hat = hat;
 	if (Player.name === "Sammer") {
 		Player.skinTone = "fish"
 		Player.hair = "null";
@@ -8618,11 +8622,15 @@ Game.loadDefaultImages = function () {
 		Player.hair = "skinFade";
 		Player.hat = "null";
 	}
-	// load image based on class
-	toLoad.push(Loader.loadImage("player_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
-	toLoad.push(Loader.loadImage("player_"+Player.clothing, "./assets/playerCustom/clothing/" + className + "/" + Player.clothing + ".png", false));
-	toLoad.push(Loader.loadImage("player_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
-	toLoad.push(Loader.loadImage("player_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
+
+	// load player images
+	toLoad.push(Loader.loadImage("playerSkin_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
+	//toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
+	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
+	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
+	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
+	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
+	toLoad.push(Loader.loadImage("playerHat_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
 
 	// load class' default projectile
 	toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
@@ -9449,7 +9457,14 @@ Game.init = function () {
 		hostility: "hero",
 
 		// properties inheritied from Thing
-		images: [{imageName: "player_"+Player.skinTone}, {imageName: "player_"+Player.clothing}, {imageName: "player_"+Player.hair, doNotAnimate: true}, {imageName: "player_"+Player.hat, doNotAnimate: true}],
+		images: [
+			{imageName: "playerSkin_"+Player.skinTone},
+			{imageName: "playerFace_"+Player.face, doNotAnimate: true},
+			{imageName: "playerClothing_"+Player.clothing},
+			{imageName: "playerHair_"+Player.hair, doNotAnimate: true},
+			{imageName: "playerEars_"+Player.skinTone, doNotAnimate: true},
+			{imageName: "playerHat_"+Player.hat, doNotAnimate: true} // tbd add weapon here
+		],
 
 		// properties inherited from Character
 		health: Player.health,
@@ -12401,20 +12416,27 @@ Game.fps = function (delta) {
 	this.resetFormatting();
 
 	// add current fps value to fps array
-	this.fpsArray.push(Math.round(1 / delta));
-	if (this.fpsArray.length >= 100) {
-		this.fpsArray.shift();
-	}
+	this.fpsArray.push(delta);
 
-	// calculate average
+	// calculate sum
 	let sum = 0;
 	for (let i = 0; i < this.fpsArray.length; i++) {
 		sum += this.fpsArray[i];
 	}
+
+	// if the sum is more than a second, remove from fpsArray
+	while (sum > 1) {
+		sum -= this.fpsArray[0];
+		this.fpsArray.shift();
+	}
+
+	// calculate average time per frame over the past second
 	let average = sum / this.fpsArray.length;
 
+	let fpsAverage = Round(1/average, 0);
+
 	// write on canvas
-	this.ctx.fillText("fps: " + Round(average), 10 + this.viewportOffsetX, 127 + this.viewportOffsetY);
+	this.ctx.fillText("fps: " + fpsAverage, 10 + this.viewportOffsetX, 127 + this.viewportOffsetY);
 }
 
 // reset text formatting
@@ -12959,6 +12981,9 @@ Game.render = function (delta) {
 	this.ctx.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
     this.ctxLight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 
+	// this needs to be reset after each clearRect
+	this.ctx.imageSmoothingEnabled = false;
+
     // fill canvas 'background colour' as black (or whatever other colour it should be)
 	if (typeof Areas[this.areaName].borderColour !== "undefined") {
     	this.ctx.fillStyle = Areas[this.areaName].borderColour;
@@ -13311,12 +13336,15 @@ Game.renderObject = function (objectToRender) {
 					crop = objectToRender.animation.baseCrop;
 				}
 
+				let offsetX = objectToRender.additionalImages[i].offsetX || 0;
+				let offsetY = objectToRender.additionalImages[i].offsetY || 0;
+
 				this.ctx.drawImage(
 					objectToRender.additionalImages[i].image,
 					crop.x, crop.y,
 					crop.width, crop.height,
-					drawX,
-					drawY,
+					drawX + offsetX,
+					drawY + offsetY,
 					objectToRender.width,
 					objectToRender.height
 				);

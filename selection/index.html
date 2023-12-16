@@ -42,26 +42,39 @@
 	</div>
 
 	<div class="column rightColumn" id="playerView">
+
 		<div id="info"></div>
-		<div id="skins"></div>		<!--<div id="customisationButton">Customise</div>-->
+
+		<div id="playerPreview">
+			<img src="../assets/playerCustom/skinTone/humanDark2.png" class="previewImageUnder previewImage" id="skinTonePreview" draggable="false">
+			<img src="../assets/playerCustom/facialExpression/base.png" class="previewImageOver previewImage" id="facePreview" draggable="false">
+			<img src="../assets/playerCustom/clothing/knight/knightArmourCobalt.png" class="previewImageOver previewImage" id="clothingPreview" draggable="false">
+			<img src="../assets/playerCustom/hair/shortBlack.png" class="previewImageOver previewImage" id="hairPreview" draggable="false">
+			<img src="../assets/playerCustom/ears/humanDark2.png" class="previewImageOver previewImage" id="earsPreview" draggable="false">
+			<img src="../assets/playerCustom/hat/null.png" class="previewImageOver previewImage" id="hatPreview" draggable="false">
+		</div>
+		<!--<div id="left">&#11013;</div>
+		<div id="right">&#10145;</div>-->
 
 		<input type="text" id="name" placeholder="Enter your name"></input>
 		<div id="random"></div>
 
-		<img src="./assets/a0/f.png" id="playerPreview" draggable="false"><br>
-		<div id="left">&#11013;</div>
-		<div id="right">&#10145;</div>
-
 		<div id="play"></div>
-	</div>
 
-	<div class="column" id="customisation" hidden>
-		<div class="customisationSelect" id="skinToneSelect"></div>
-		<div class="customisationSelect" id="skinToneColourSelect"></div>
-		<div class="customisationSelect" id="hairSelect"></div>
-		<div class="customisationSelect" id="hairColourSelect"></div>
-		<div class="customisationSelect customisationSelectTall" id="clothingSelect"></div>
-		<div class="customisationSelect" id="clothingColourSelect"></div>
+		<span class="customisationButton" id="skinToneView" draggable="false" onclick="skinToneButton()"
+		></span><span class="customisationButton" id="clothingView" draggable="false" onclick="clothingButton()"
+		></span><span class="customisationButton" id="hairView" draggable="false" onclick="hairButton()"
+		></span><span class="customisationButton" id="hatView" draggable="false" onclick="hatButton()"></span>
+		<div id="customisationWrapper">
+			<!--<div class="customisationSelect" id="skinToneSelect"></div>
+			<div class="customisationSelect" id="skinToneColourSelect"></div>
+			<div class="customisationSelect" id="hairSelect"></div>
+			<div class="customisationSelect" id="hairColourSelect"></div>
+			<div class="customisationSelect customisationSelectTall" id="clothingSelect"></div>
+			<div class="customisationSelect" id="clothingColourSelect"></div>-->
+			<div id="customisationSelect"></div>
+			<div id="customisationColourSelect"></div>
+		</div>
 	</div>
 
 	<div class="column" id="centralImage">
