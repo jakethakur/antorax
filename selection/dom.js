@@ -392,7 +392,7 @@ document.getElementById("play").onclick = function(){
 		sessionStorage.setItem("name",document.getElementById("name").value);
 		// customisation
 		selected[selected.class].clothing = selected[selected.class][selected.classFull+"Clothing"];
-		sessionStorage.setItem("customisation",selected[selected.class]);
+		sessionStorage.setItem("customisation",JSON.stringify(selected[selected.class]));
 
 		// sometimes sessionStorage doesn't carry over i.e. firefox local version. so store this info in the domain name instead for local versions
 		if (location.hostname === "" || location.hostname === "localhost") {
