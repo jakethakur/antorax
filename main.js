@@ -8605,16 +8605,19 @@ Game.loadDefaultImages = function () {
 
 	if (Player.name === "Sammer") {
 		Player.skinTone = "fish"
+		Player.ears = "null";
 		Player.hair = "null";
 	}
 
 	if (Player.name === "Pingu") {
 		Player.skinTone = "penguin"
+		Player.ears = "null";
 		Player.hair = "null";
 	}
 
 	if (Player.name === "James") {
 		Player.skinTone = "slug"
+		Player.ears = "null";
 		Player.hair = "null";
 	}
 	if (Player.name === "Axparagus") {
