@@ -3547,7 +3547,7 @@ var Quests = {
 				items: [{item: Items.item[1]}], // cat treats (tbd)
 			},
 		},
-		/*{
+		{
 			id: 17,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
@@ -3625,6 +3625,7 @@ var Quests = {
 				"Give <b>Peto the Pyromancer</b> three <b>eggs</b> from chickens.",
 				"Ask <b>Farmer Scop</b> where you can find some <b>milk</b>.",
 				"Ask <b>Alchemist Tamtam</b> for some milk.",
+				"Collect the potion ingredients from <b>Alchemist Tamtam</b>.",
 				"Add the four ingredients in the right order to brew some milk <i>(Milkfish is first!)</i>",
 				"Give <b>Peto the Pyromancer</b> the milk.",
 			],
@@ -3642,6 +3643,7 @@ var Quests = {
 				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 2);
 				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
 				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 4);
+				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
 				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
 				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
 
@@ -3676,7 +3678,7 @@ var Quests = {
 				{item: Items.item[68], quantity: 6},
 				{item: Items.item[31], quantity: 6},
 			],
-		},*/
+		},
 		/*{
 			id: 17,
 			quest: "WANTED: Baron Foxglove!!",

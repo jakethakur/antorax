@@ -52,26 +52,23 @@ let selected = { // default values
 	a: {
 		skinTone: 0,
 		hair: 0,
-		clothing: 0,
-		skinColour: "Light1",
+		archerClothing: 0,
 		hairColour: "Black",
-		clothingColour: "Ivy",
+		hat: 0,
 	},
 	m: {
 		skinTone: 0,
 		hair: 0,
-		clothing: 0,
-		skinColour: "Light1",
+		mageClothing: 0,
 		hairColour: "Black",
-		clothingColour: "Lapis",
+		hat: 0,
 	},
 	k: {
 		skinTone: 0,
 		hair: 0,
-		clothing: 0,
-		skinColour: "Light1",
+		knightClothing: 0,
 		hairColour: "Black",
-		clothingColour: "Copper",
+		hat: 0,
 	},
 };
 
@@ -370,21 +367,27 @@ document.getElementById("random").onclick = function(){
 	document.getElementById("name").value = randomName();
 }
 
+// play
 document.getElementById("play").onclick = function(){
-	if(document.getElementById("name").value.length > 2){
+	// check they've entered a name
+	if (document.getElementById("name").value.length > 2) {
+		// set sessionStorage
 		sessionStorage.setItem("class",selected.class);
-		sessionStorage.setItem("skin",selected[selected.class]);
 		sessionStorage.setItem("name",document.getElementById("name").value);
+		// customisation
+		selected[selected.class].clothing = selected[selected.class][selected.classFull+"Clothing"];
+		sessionStorage.setItem("customisation",selected[selected.class]);
 
 		// sometimes sessionStorage doesn't carry over i.e. firefox local version. so store this info in the domain name instead for local versions
-		if (location.hostname === "") {
-			window.location.replace("../index.html?class="+selected.class+"&name="+document.getElementById("name").value+"&skin="+selected[selected.class]);
+		if (location.hostname === "" || location.hostname === "localhost") {
+			window.location.replace("../index.html?class="+selected.class+"&name="+document.getElementById("name").value+"&skinTone="+selected[selected.class].skinTone+"&clothing="+selected[selected.class][selected.classFull+"Clothing"]+"&hair="+selected[selected.class].hair+"&hairColour="+selected[selected.class].hairColour+"&hat="+selected[selected.class].hat);
 		}
 		else {
 			window.location.replace("../index.html");
 		}
 
 	}else{
+		// no name entered
 		document.getElementById("name").style.borderColor = "red";
 		document.getElementById("random").style.borderColor = "red";
 		document.getElementById("play").style.borderColor = "red";
@@ -423,25 +426,34 @@ function display () {
 	}
 
 	// update player image
+
 	// skin tone
-	let skinToneSrc = Skins.skinTone[selected[selected.class].skinTone].src + selected[selected.class].skinColour;
-	document.getElementById("skinTonePreview").src = "../assets/playerCustom/" + skinToneSrc + ".png"; // tbd add colour
+	let skinToneSrc = Skins.skinTone[selected[selected.class].skinTone].src;
+	document.getElementById("skinTonePreview").src = "../assets/playerCustom/skinTone/" + skinToneSrc + ".png";
+	// ears
+	document.getElementById("earsPreview").src = "../assets/playerCustom/ears/" + skinToneSrc + ".png";
+
 	// clothing
-	let clothingSrc = Skins[selected.classFull+"Clothing"][selected[selected.class].clothing].src + selected[selected.class].clothingColour;
-	document.getElementById("clothingPreview").src = "../assets/playerCustom/" + clothingSrc + ".png"; // tbd add colour
+	let clothingSrc = Skins[selected.classFull+"Clothing"][selected[selected.class][selected.classFull+"Clothing"]].src;
+	document.getElementById("clothingPreview").src = "../assets/playerCustom/clothing/" + selected.classFull + "/" + clothingSrc + ".png";
+
 	// hair
 	let hairSrc = Skins.hair[selected[selected.class].hair].src + selected[selected.class].hairColour;
-	document.getElementById("hairPreview").src = "../assets/playerCustom/" + hairSrc + ".png";
+	document.getElementById("hairPreview").src = "../assets/playerCustom/hair/" + hairSrc + ".png";
+
+	// hat, ears, face tbd
 
 }
 
 var customisationDisp = "hair";
+var imageDirectory = "hair/";
 populateSelectionMenu();
 
 // display skin tone selection in the customisation menu
 function skinToneButton () {
 	deselectButtons(); // unselects old button
 	customisationDisp = "skinTone";
+	imageDirectory = "skinTone/";
 	document.getElementById(customisationDisp+"View").classList.add("selected");
 	populateSelectionMenu();
 }
@@ -451,12 +463,15 @@ function clothingButton () {
 	deselectButtons(); // unselects old button
 	if (selected.class === "m") {
 		customisationDisp = "mageClothing";
+		imageDirectory = "clothing/mage/";
 	}
 	else if (selected.class === "a") {
 		customisationDisp = "archerClothing";
+		imageDirectory = "clothing/archer/";
 	}
 	else if (selected.class === "k") {
 		customisationDisp = "knightClothing";
+		imageDirectory = "clothing/knight/";
 	}
 	document.getElementById("clothingView").classList.add("selected");
 	populateSelectionMenu();
@@ -466,6 +481,7 @@ function clothingButton () {
 function hairButton () {
 	deselectButtons(); // unselects old button
 	customisationDisp = "hair";
+	imageDirectory = "hair/";
 	document.getElementById(customisationDisp+"View").classList.add("selected");
 	populateSelectionMenu();
 }
@@ -474,6 +490,7 @@ function hairButton () {
 function hatButton () {
 	deselectButtons(); // unselects old button
 	customisationDisp = "hat";
+	imageDirectory = "hat/";
 	document.getElementById(customisationDisp+"View").classList.add("selected");
 	populateSelectionMenu();
 }
@@ -497,10 +514,10 @@ function populateSelectionMenu () {
 
 		let colour;
 		if (customisationDisp === "hair") {
-			colour = Skins.hairColours[0]; // default
+			colour = Skins.hairColours[0]; // default colour
 		}
 		else if (typeof skin.colours !== "undefined") {
-			colour = skin.colours[0];
+			colour = skin.colours[0]; // default colour
 		}
 		else {
 			colour = {name: ""}; // no colours available for this
@@ -508,7 +525,7 @@ function populateSelectionMenu () {
 
 		// add an el for each item
 		document.getElementById("customisationSelect").innerHTML += "<div class='customisationSelection' id='"+customisationDisp+j+"'>";
-		document.getElementById(customisationDisp+j).style.backgroundImage = 'url("../assets/playerCustom/'+skin.src+colour.name+'.png")';
+		document.getElementById(customisationDisp+j).style.backgroundImage = 'url("../assets/playerCustom/'+imageDirectory+skin.src+colour.name+'.png")';
 		// adjust (legacy)
 		//document.getElementById("outfit"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
 		//document.getElementById("outfit"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";

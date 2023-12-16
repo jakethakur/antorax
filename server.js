@@ -81,9 +81,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.name = parsedMessage.name;
 				ws.class = parsedMessage.class;
 				ws.level = parsedMessage.level;
-				ws.skinTone = parsedMessage.skinTone;
-				ws.clothing = parsedMessage.clothing;
-				ws.hair = parsedMessage.hair;
+				// game info
 				ws.area = parsedMessage.area;
 				ws.displayArea = parsedMessage.displayArea;
 				ws.x = parsedMessage.x;
@@ -92,6 +90,13 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.expand = parsedMessage.expand;
 				ws.equipment = parsedMessage.equipment;
 				ws.achievementPoints = parsedMessage.achievementPoints;
+				// customisation
+				ws.skinTone = parsedMessage.skinTone;
+				ws.face = parsedMessage.face;
+				ws.clothing = parsedMessage.clothing;
+				ws.hair = parsedMessage.hair;
+				ws.ears = parsedMessage.ears;
+				ws.hat = parsedMessage.hat;
 
 				// message the user to tell them what their userID is
 				// this information is used by the client if they want to except themselves from broadcasts
@@ -121,9 +126,6 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					name: parsedMessage.name,
 					class: parsedMessage.class,
 					level: parsedMessage.level,
-					skinTone: parsedMessage.skinTone,
-					clothing: parsedMessage.clothing,
-					hair: parsedMessage.hair,
 					area: parsedMessage.area,
 					displayArea: parsedMessage.displayArea,
 					x: parsedMessage.x,
@@ -131,7 +133,14 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					direction: parsedMessage.direction,
 					expand: parsedMessage.expand,
 					equipment: parsedMessage.equipment,
-					achievementPoints: parsedMessage.achievementPoints
+					achievementPoints: parsedMessage.achievementPoints,
+					// customisation
+					skinTone: parsedMessage.skinTone,
+					face: parsedMessage.face,
+					clothing: parsedMessage.clothing,
+					hair: parsedMessage.hair,
+					ears: parsedMessage.ears,
+					hat: parsedMessage.hat,
 				}));
 
 				// message the user to tell them about all the other users online
@@ -146,9 +155,6 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							name: client.name,
 							class: client.class,
 							level: client.level,
-							skinTone: client.skinTone,
-							clothing: client.clothing,
-							hair: client.hair,
 							area: client.area,
 							displayArea: client.displayArea,
 							x: client.x,
@@ -157,7 +163,14 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							expand: client.expand,
 							equipment: client.equipment,
 							achievementPoints: client.achievementPoints,
-							playingGame: client.playingGame
+							playingGame: client.playingGame,
+							// customisation
+							skinTone: client.skinTone,
+							face: client.face,
+							clothing: client.clothing,
+							hair: client.hair,
+							ears: client.ears,
+							hat: client.hat,
 						}));
 					}
 				});
