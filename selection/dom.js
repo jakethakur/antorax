@@ -76,6 +76,15 @@ let localStorageSelected = localStorage.getItem("selected");
 if(localStorageSelected !== null){
 	localStorageSelected = JSON.parse(localStorageSelected);
 	// update to new system
+	if (typeof localStorageSelected.k !== "object") {
+		localStorageSelected.k = {};
+	}
+	if (typeof localStorageSelected.a !== "object") {
+		localStorageSelected.a = {};
+	}
+	if (typeof localStorageSelected.m !== "object") {
+		localStorageSelected.m = {};
+	}
 	Object.assign(localStorageSelected.k, selected.k);
 	Object.assign(localStorageSelected.a, selected.a);
 	Object.assign(localStorageSelected.m, selected.m);
