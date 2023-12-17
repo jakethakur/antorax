@@ -240,7 +240,6 @@ body{
 
 #play{
 	font-size: 25px;
-	margin: 0px;
 	color: var(--text);
 	width: 290px;
 
@@ -249,6 +248,10 @@ body{
 	cursor: pointer;
 
 	display: inline-block;
+
+	/*position: fixed;
+	bottom: -15px;
+	transform: translate(-50%, -50%);*/
 }
 
 .title{

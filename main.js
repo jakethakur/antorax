@@ -5,7 +5,7 @@
 // Jake Thakur 2018-2023
 //
 
-// https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
+// initially based on https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
 
 //
 // Game object
@@ -88,6 +88,7 @@ Game.loadPlayer = function () {
 
 	// the following are done based on selection screen, done here rather than savedata because they can be changed on each play
 	Player.name = playerName;
+	Player.race = Skins.skinTone[customisation.skinTone].race;
 
 	// customisation:
 	// replaces the skindata ids (stored in the variable customisation, which is set in savedata) with the file addresses from skindata
@@ -1891,6 +1892,7 @@ class Thing extends Visible {
 		this.canBeOnLead = properties.canBeOnLead || false; // whether a lead can be put on them
 
 		this.showNameTag = properties.showNameTag || false;
+		this.hideAllInformation = properties.hideAllInformation || false; // for hiding channelling bar etc (only works for things)
 
 		this.walkable = properties.walkable || false; // whether the object can be walked on as normal ground (i.e. even if it is over water)
 		if (this.walkable && properties.addToObjectArrays !== false) {
@@ -1938,6 +1940,10 @@ class Thing extends Visible {
 				console.error(this.name, "could not have canBePickedUp property since onInteract had already been set.")
 			}
 		}
+
+		// channelling
+		this.channelling = false;
+		this.channellingInfo = false;
 
 
 		this.onDarkBackground = properties.onDarkBackground || false; // for darker character names (not currently finished - tbd)
@@ -2117,8 +2123,129 @@ class Thing extends Visible {
 
 	// overwritten by Character
 	postRenderFunction () {
-		if (this.showNameTag) {
-			Game.drawCharacterName(Game.ctx, this, this.screenX, this.screenY - this.height / 2 - 3);
+		if (!this.hideAllInformation) { // still requires showNameTag to be true to show the name etc
+			Game.drawCharacterInformation(Game.ctx, this);
+		}
+	}
+
+	// remove whatever is currently being channelled
+	// called when the character moves or tries to channel something else
+	// reason is set to why the channel was removed (i.e. "move", "damage", ...)
+	// if there is one, this also calls and resets channelCancelFunction (which should always be set after channel() is called!)
+	removeChannelling (reason) {
+		if (this.channelling !== false) {
+
+			// check that reason is a valid reason...
+			if (reason === "move" && !this.channellingInfo.cancelChannelOnMove) {
+				return;
+			}
+			if (reason === "damage" && !this.channellingInfo.cancelChannelOnDamage) {
+				return;
+			}
+
+			// remove existing channelling
+			if (this.channelling === "fishing" || typeof this.channelling.fishingType !== "undefined") {
+				// tbd generalise the following into a stop fishing fn ?
+
+				// remove fishing bobber
+				Game.removeObject(this.channellingProjectileId, "projectiles");
+				this.channellingProjectileId = null;
+
+				Game.clearTimeout(Game.fishTimeout);
+
+				// end fishing game
+				FishingGame.gameEnd();
+
+				Game.fishUp = undefined;
+			}
+			else if (this.channelling === "projectile") {
+				if (reason !== "projectileAttackFinished") {
+					this.finishAttack(); // for attack channelling for hero
+				}
+			}
+			else {
+				Game.clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
+				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up (maybs validate this?))
+			}
+
+			// now nothing is being channelled
+			this.channelling = false;
+			this.channellingInfo = false;
+
+			// if there was a channelCancelFunction, call it then set it back to undefined
+			if (typeof this.channelCancelFunction !== "undefined") {
+				this.channelCancelFunction();
+				this.channelCancelFunction = undefined;
+			}
+		}
+	}
+
+	// set the values of this.channelling and this.channellingInfo
+	// these should never be set / removed without using these functions !
+	// channellingValue is what this.channelling is set to
+	// parameters must be an array
+	// time is in ms, and is optional here (but required for "channel" fn below)
+	// description is a short description shown on the channelling bar
+	// description is set to false if a bar should not be shown
+	// extraInfo is an object that could have the following properties: (all saved in channellingInfo)
+	// extraInfo.colour is an optional colour for the channelling bar (otherwise it uses default magenta)
+	// extraInfo.cancelChannelOnDamage means the channel is cancelled when they take damage
+	// extraInfo.cancelChannelOnMove means the channel is cancelled when they move (on by default)
+	// extraInfo.channelCancelFunction is a function to be called on the channel being cancelled
+	// extraInfo.timeout is set to true if this was called from this.channel. otherwise channellingValue is not allowed to be an integer!!
+	setChannelling (channellingValue, time, description, extraInfo) {
+		this.removeChannelling("channellingForceSet"); // should never be the reason removeChannelling is called, but just in case...
+
+		if (typeof extraInfo === "undefined") {
+			extraInfo = {};
+		}
+
+		if (Number.isInteger(channellingValue) && !extraInfo.timeout) {
+			// not allowed !!!!
+			console.error("Channelling value was attempted to be set to an integer but wasn't a timeout!!", channellingValue);
+		}
+
+		// set channelling to the timeout
+		this.channelling = channellingValue; // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
+
+		if (typeof extraInfo.cancelChannelOnMove === "undefined") {
+			extraInfo.cancelChannelOnMove = true; // default value
+		}
+
+		this.channellingInfo = {
+			description: description,
+			time: time,
+			start: Date.now(), // tbd use Game.gameTicks or Game.gameTime here instead?
+			colour: extraInfo.colour,
+			cancelChannelOnDamage: extraInfo.cancelChannelOnDamage, // cancel the channelling when they take damage
+			cancelChannelOnMove: extraInfo.cancelChannelOnMove, // cancel the channelling when they move
+			timeout: extraInfo.timeout, // true or false
+		};
+	}
+
+	// **channel a function** (channelling projectiles etc is handled separately, in setChannelling above this)
+	// this.channelling is set to the timeout
+	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
+	// see setChannelling function above for documentation & constraints on params
+	channel (func, parameters, time, description, extraInfo) {
+		if (typeof this.hasStatusEffect === "undefined" || !this.hasStatusEffectType("stun")) { // cannot channel when stunned (but note Things can't be stunned)
+			// remove whatever was previously channelled
+			this.removeChannelling("channel");
+			// add line to remove channelling when channelling expires to the function
+			let channelFunction = function (parameters) {
+				func(...parameters);
+				this.channelling = false;
+				this.channellingInfo = false;
+			}.bind(this);
+
+			let channellingValue = Game.setTimeout(channelFunction, time, [parameters]); // what this.channelling is set to
+
+			if (typeof extraInfo === "undefined") {
+				extraInfo = {};
+			}
+			extraInfo.timeout = true; // because called from this fn, so channellingValue is allwoed to be an int
+
+			this.setChannelling(channellingValue, time, description, extraInfo)
 		}
 	}
 }
@@ -2160,10 +2287,6 @@ class Character extends Thing {
 		})) -1];
 		this.footHitbox.xAdjust = xAdjust;
 		this.footHitbox.yAdjust = yAdjust;
-
-		// channelling
-		this.channelling = false;
-		this.channellingInfo = false;
 
 
 		this.health = properties.health || properties.stats.maxHealth;
@@ -2349,128 +2472,6 @@ class Character extends Thing {
 
 		if (typeof properties.showNameTag === "undefined") {
 			this.showNameTag = true; // same as property in Thing, but now defaults to true
-		}
-	}
-
-
-	// remove whatever is currently being channelled
-	// called when the character moves or tries to channel something else
-	// reason is set to why the channel was removed (i.e. "move", "damage", ...)
-	// if there is one, this also calls and resets channelCancelFunction (which should always be set after channel() is called!)
-	removeChannelling (reason) {
-		if (this.channelling !== false) {
-
-			// check that reason is a valid reason...
-			if (reason === "move" && !this.channellingInfo.cancelChannelOnMove) {
-				return;
-			}
-			if (reason === "damage" && !this.channellingInfo.cancelChannelOnDamage) {
-				return;
-			}
-
-			// remove existing channelling
-			if (this.channelling === "fishing" || typeof this.channelling.fishingType !== "undefined") {
-				// tbd generalise the following into a stop fishing fn ?
-
-				// remove fishing bobber
-				Game.removeObject(this.channellingProjectileId, "projectiles");
-				this.channellingProjectileId = null;
-
-				Game.clearTimeout(Game.fishTimeout);
-
-				// end fishing game
-				FishingGame.gameEnd();
-
-				Game.fishUp = undefined;
-			}
-			else if (this.channelling === "projectile") {
-				if (reason !== "projectileAttackFinished") {
-					this.finishAttack(); // for attack channelling for hero
-				}
-			}
-			else {
-				Game.clearTimeout(this.channelling); // might not always be a timeout, but this doesn't matter (does nothing if not a timeout)
-				// N.B. this.channelling should never be an int, otherwise clearTimeout *does* mess it up (maybs validate this?))
-			}
-
-			// now nothing is being channelled
-			this.channelling = false;
-			this.channellingInfo = false;
-
-			// if there was a channelCancelFunction, call it then set it back to undefined
-			if (typeof this.channelCancelFunction !== "undefined") {
-				this.channelCancelFunction();
-				this.channelCancelFunction = undefined;
-			}
-		}
-	}
-
-	// set the values of this.channelling and this.channellingInfo
-	// these should never be set / removed without using these functions !
-	// channellingValue is what this.channelling is set to
-	// parameters must be an array
-	// time is in ms, and is optional here (but required for "channel" fn below)
-	// description is a short description shown on the channelling bar
-	// description is set to false if a bar should not be shown
-	// extraInfo is an object that could have the following properties: (all saved in channellingInfo)
-	// extraInfo.colour is an optional colour for the channelling bar (otherwise it uses default magenta)
-	// extraInfo.cancelChannelOnDamage means the channel is cancelled when they take damage
-	// extraInfo.cancelChannelOnMove means the channel is cancelled when they move (on by default)
-	// extraInfo.channelCancelFunction is a function to be called on the channel being cancelled
-	// extraInfo.timeout is set to true if this was called from this.channel. otherwise channellingValue is not allowed to be an integer!!
-	setChannelling (channellingValue, time, description, extraInfo) {
-		this.removeChannelling("channellingForceSet"); // should never be the reason removeChannelling is called, but just in case...
-
-		if (typeof extraInfo === "undefined") {
-			extraInfo = {};
-		}
-
-		if (Number.isInteger(channellingValue) && !extraInfo.timeout) {
-			// not allowed !!!!
-			console.error("Channelling value was attempted to be set to an integer but wasn't a timeout!!", channellingValue);
-		}
-
-		// set channelling to the timeout
-		this.channelling = channellingValue; // parameters is ...spread twice (from setTimeout and channelFunction) so array of array of params :)
-
-		if (typeof extraInfo.cancelChannelOnMove === "undefined") {
-			extraInfo.cancelChannelOnMove = true; // default value
-		}
-
-		this.channellingInfo = {
-			description: description,
-			time: time,
-			start: Date.now(), // tbd use Game.gameTicks or Game.gameTime here instead?
-			colour: extraInfo.colour,
-			cancelChannelOnDamage: extraInfo.cancelChannelOnDamage, // cancel the channelling when they take damage
-			cancelChannelOnMove: extraInfo.cancelChannelOnMove, // cancel the channelling when they move
-			timeout: extraInfo.timeout, // true or false
-		};
-	}
-
-	// **channel a function** (channelling projectiles etc is handled separately, in setChannelling above this)
-	// this.channelling is set to the timeout
-	// channelling fails (thus the timeout is cleared) if the character's channelling is set to something else or if the user moves
-	// see setChannelling function above for documentation & constraints on params
-	channel (func, parameters, time, description, extraInfo) {
-		if (!this.hasStatusEffectType("stun")) { // cannot channel when stunned
-			// remove whatever was previously channelled
-			this.removeChannelling("channel");
-			// add line to remove channelling when channelling expires to the function
-			let channelFunction = function (parameters) {
-				func(...parameters);
-				this.channelling = false;
-				this.channellingInfo = false;
-			}.bind(this);
-
-			let channellingValue = Game.setTimeout(channelFunction, time, [parameters]); // what this.channelling is set to
-
-			if (typeof extraInfo === "undefined") {
-				extraInfo = {};
-			}
-			extraInfo.timeout = true; // because called from this fn, so channellingValue is allwoed to be an int
-
-			this.setChannelling(channellingValue, time, description, extraInfo)
 		}
 	}
 
@@ -12519,7 +12520,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 		characterInformationHeight += 15;
 		characterInformationHeight += 3; // padding
 	}
-	else if (character.hostility !== "object" && character.hostility !== "hero") {
+	else if (typeof character.hostility !== "undefined" && character.hostility !== "object" && character.hostility !== "hero") {
 		console.error("Unknown character hostility: ", character.hostility);
 	}
 
@@ -12530,7 +12531,7 @@ Game.drawCharacterInformation = function (ctx, character) {
 		characterInformationHeight += 3; // padding
 	}
 
-	if (character.statusEffects.length > 0) {
+	if (typeof character.statusEffects !== "undefined" && character.statusEffects.length > 0) {
 		// character has 1 or more status effects
 		this.drawStatusEffects(ctx, character, character.screenX, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, 15, "centre");
 		characterInformationHeight += 15;

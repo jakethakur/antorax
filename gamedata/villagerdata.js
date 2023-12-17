@@ -157,6 +157,7 @@ var Villagers = [
             notUnlockedRoles: "Have you seen anyone playing Wizard's Lore before? Me neither. I bet those game boards are just for show.",
             chooseChat: "I'm going to head down to the Eaglecrest monastery soon. Would you like to come along too?",
             receiveTavernGood: `Thank you friend! A good day to you.`,
+			// Ever wonder where all those cats came from? They say that Tamtam guy is responsible...
         }
     },
     {
@@ -682,12 +683,12 @@ var Villagers = [
 		},
 		roles: [
 			{
-				sold: Player.class === "k" ? [{item: Items.sword[22], cost: 17},]
-					: Player.class === "m" ? [{item: Items.staff[17], cost: 17},]
-					: Player.class === "a" ? [{item: Items.bow[19], cost: 17,},]
-					: [],
+				sold: Player.class === "k" ? [{item: Items.sword[22], cost: 17},{item: Items.consumable[33], cost: 6},]
+					: Player.class === "m" ? [{item: Items.staff[17], cost: 17},{item: Items.consumable[33], cost: 6},]
+					: Player.class === "a" ? [{item: Items.bow[19], cost: 17,},{item: Items.consumable[33], cost: 6},]
+					: [{item: Items.consumable[33], cost: 6},],
 				role: "merchant",
-				shopGreeting: "They're made using the finest gunpowder I could source. So you can blow everything to the ground.",
+				shopGreeting: "My wares are made using the finest gunpowder I could source. So you can blow everything to the ground.",
 			},
 		],
 	},

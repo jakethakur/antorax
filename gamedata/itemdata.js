@@ -6080,7 +6080,7 @@ unidentifiedArea: ["caves"],
 			type: "consumable",
 			image: "assets/items/consumable/32.png",
 			functionText: "Restores 10 health",
-      cooldown: 5, // 5 seconds
+      		cooldown: 5, // 5 seconds
 			healAmount: 10,
 			onClickFunction: function (inventoryPosition) {
 				let healAmount = Player.inventory.items[inventoryPosition].healAmount;
@@ -6095,11 +6095,60 @@ unidentifiedArea: ["caves"],
 			name: "Dynamite",
 			type: "consumable",
 			image: "assets/items/consumable/33.png",
-			functionText: "tbd",
-            cooldown: 10, // tbc
+			functionText: "In 3 seconds, deal 10 damage to ALL characters near this, and set them on fire (I).",
+            cooldown: 25,
 			onClickFunction: function (inventoryPosition) {
-				// tbd
-			}
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// place down dynamite
+				let dynamiteObject = {
+					map: map,
+					image: "dynamiteLit",
+					name: "Dynamite",
+					x: Game.hero.x,
+					y: Game.hero.y,
+					type: "things",
+				};
+				let thing = Game.things[Game.things.push(new Thing(dynamiteObject))-1];
+				// deal damage and displace in 3s
+				thing.channel(function (dynamite) {
+					Game.enemies.forEach(enemy => {
+						let d = Game.distance(enemy, dynamite);
+						if (d < 120) {
+							enemy.displace(0, 180-d, 1, Game.bearing(dynamite, enemy));
+						}
+					});
+					let d = Game.distance(Game.hero, dynamite);
+					if (d < 120) {
+						Game.hero.displace(0, 180-d, 1, Game.bearing(dynamite, Game.hero));
+					}
+
+					Game.projectiles.push(new Projectile({ // explosion projectile
+						map: map,
+						x: dynamite.x,
+						y: dynamite.y,
+						targets: [Game.damageableByPlayer, [Game.hero]],
+						attacker: Game.hero,
+						rotate: 0,
+						image: "explosion",
+						name: "Explosion",
+						type: "projectiles",
+						stats: {
+							damage: 10,
+							flaming: 1,
+							damageAllHit: true,
+						},
+						// aesthetics
+						stayOnScreen: 500,
+						transparency: 0.8,
+					}));
+				}, [thing], 3000, "", {colour: "#FF5313"});
+			},
+			requiredImages: { // images that should be loaded for this item
+				dynamiteLit: {normal: "./assets/projectiles/dynamiteLit.png"},
+				// explosion is already loaded in by default
+			},
+			sellPrice: 3,
 		},
 		{
 			id: 34,
