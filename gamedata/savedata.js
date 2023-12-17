@@ -286,7 +286,7 @@ var Player = {
 		poisonStrength: 100, // (100%)
 		exploding: 0, // (I)
 		numberOfProjectiles: 0, // currently an archer only stat - if this isn't 0 or 1, multiple projectiles are fired!
-		enemyAggro: 100, // (110%) multiplier
+		enemyAggro: 100, // (110%) multiplier on aggro of enemies this attacks
 		channellingMoveSpeed: 100, // percentage of value in attackConstants
 
 		// projectiles

@@ -1348,7 +1348,7 @@ Spells = [
 	// testing spell !!
 	{
 		name: "OP Arrowspeed (dev spell)",
-		id: 27,
+		id: 28,
 		img: "assets/runes/6.png",
 		imgIconNum: 6,
 		class: "a",
@@ -1406,7 +1406,7 @@ Spells = [
 	// cave unidentified item active abilities
 	{
 		name: "Eternal Bell Ring", // thlock's helm
-		id: 28,
+		id: 29,
 		img: "assets/items/helm/32.png",
 		imgIconNum: 9,
 		class: "helm",
@@ -1448,7 +1448,7 @@ Spells = [
 	},
 	{
 		name: "Seeking Eye", // soulcrusher's chestplate
-		id: 29,
+		id: 30,
 		img: "assets/items/chest/20.png",
 		imgIconNum: 10,
 		class: "chest",
@@ -1482,5 +1482,156 @@ Spells = [
 			0,
 			10000,	// tier 1
 		],
+	},
+	{
+		name: "tbd", // sciron's greaves
+		id: 31,
+		img: "assets/items/greaves/19.png",
+		imgIconNum: 11,
+		class: "greaves",
+		description: ["", "tbd"],
+
+		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
+		func: function (properties) {
+		},
+
+		channelTime: [
+			0,
+			0,		// tier 1
+		],
+
+		manaCost: [
+			0,
+			0,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			10000,	// tier 1
+		],
+	},
+	{
+		name: "tbd", // behemoth's crushers
+		id: 32,
+		img: "assets/items/boots/22.png",
+		imgIconNum: 12,
+		class: "boots",
+		description: ["", "tbd"],
+
+		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
+		func: function (properties) {
+		},
+
+		channelTime: [
+			0,
+			0,		// tier 1
+		],
+
+		manaCost: [
+			0,
+			0,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			10000,	// tier 1
+		],
+	},
+	{
+		name: "tbd", // orzoth set
+		id: 33,
+		img: "assets/items/chest/20.png",//tbd
+		imgIconNum: 13,
+		class: "set",
+		description: ["", "tbd."],
+
+		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
+		func: function (properties) {
+		},
+
+		channelTime: [
+			0,
+			0,		// tier 1
+		],
+
+		manaCost: [
+			0,
+			0,		// tier 1
+		],
+
+		cooldown: [
+			0,
+			10000,	// tier 1
+		],
+	},
+	{
+		name: "BOOM!!!", // demolitionist darrow
+		id: 34,
+		class: "mage",
+		description: ["", "Fill the area with dynamite!"],
+		enemyOnly: true,
+		
+		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
+		func: function (properties) {
+			for (let i = 0; i < Spells[34].dynamiteNumber[properties.tier]; i++) {
+				let range = Spells[34].range[properties.tier];
+				let x = properties.caster.x + Random(-range, range);
+				let y = properties.caster.y + Random(-range, range);
+				ItemFunctions.placeDynamite(x, y, properties.caster, 10, 1);
+			}
+		},
+
+		channelTime: [
+			0,
+			1000,	// tier 1
+			2000,	// tier 2
+			3000,	// tier 3
+		],
+
+		range: [
+			0,
+			300,	// tier 1
+			300,	// tier 2
+			300,	// tier 3
+		],
+
+		dynamiteNumber: [
+			0,
+			3,		// tier 1
+			7,		// tier 2
+			13,		// tier 3
+		],
+	},
+	{
+		name: "Charge", 
+		id: 35,
+		class: "knight",
+		enemyOnly: true, // bee
+		//description: ["", ""],
+
+		func: function (properties) {
+			properties.caster.moveTowards = {
+				x: properties.target.x,
+				y: properties.target.y,
+				speedScalar: Spells[34].moveSpeedMultipler[properties.tier],
+				continueUntilCollide: true,
+			}
+		},
+
+		range: [
+			0,
+			500,	// tier 1
+		],
+
+		moveSpeedMultipler: [
+			0,
+			50,	// tier 1
+		],
+
+		channelTime: [
+			0,
+			1000,	// tier 1
+		],
+
 	},
 ];

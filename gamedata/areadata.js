@@ -9379,6 +9379,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			brownHorseLeft: {normal: "assets/mounts/brownHorse/brownHorseSide.png",flip:"vertical"},
 			brownHorseFront: {normal: "assets/mounts/brownHorse/brownHorseFront.png"},
 			brownHorseBack: {normal: "assets/mounts/brownHorse/brownHorseBack.png"},
+			// still temp for demolitionist darrow
+			demolitionistDarrow: {normal: "assets/npcs/demolitionist.png"},
+			demolitionistDarrowCorpse: {normal: "assets/npcs/demolitionist.png"},
+			dynamiteLit: {normal: "assets/projectiles/dynamiteLit.png"},
 		},
 
 		areaTeleports: [
@@ -10145,6 +10149,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				onDeathAdditional: function() {
 					Player.quests.questProgress.overdraftFrogDeadTwo = true;
 				},
+			},
+			// temp
+			{
+				x: 1000,
+				y: 1000,
+				template: EnemyTemplates.eaglecrest.demolitionistDarrow,
 			},
 		],
 

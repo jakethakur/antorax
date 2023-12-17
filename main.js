@@ -2364,7 +2364,7 @@ class Character extends Thing {
 		this.stats.windShield = properties.stats.windShield || false; // can't be moved by wind
 		this.stats.healingPower = properties.stats.healingPower || 100; // multiplier of healing receieved (doesn't include usual health regen)
 		this.stats.unstoppable = properties.stats.unstoppable || false; // immunity to movement-reducing abilities
-		this.stats.enemyAggro = properties.stats.enemyAggro || 100; // percentage
+		this.stats.enemyAggro = properties.stats.enemyAggro || 100; // percentage; refers to the aggro increase on enemies this attacks
 
 		this.critter = properties.critter; // if this is set to true, doesn't count for combatant achivements
 
@@ -6404,6 +6404,8 @@ class NonPlayerAttacker extends Attacker {
 		this.forgivenessTime = properties.attackBehaviour.forgivenessTime || 4000; // if this is negative then they never forgive you (:
 		this.attackThreshold = properties.attackBehaviour.attackThreshold || 1; // aggro-distance quotients below this aren't attacked
 
+
+
 		// construct attackTargets from properties (these are additional attackTargets that aren't included in attackTargetTypes)
 		this.additionalAttackTargets = [];
 		if (typeof properties.attackTargets !== "undefined") {
@@ -6509,8 +6511,13 @@ class NonPlayerAttacker extends Attacker {
 						let spell = this.spells[spellIndex];
 						// no longer ready
 						spell.ready = false;
+						// get spell parameters
+						let params = {};
+						if (typeof spell.parameters !== "undefined") {
+							params = spell.parameters.call(this);
+						}
 						// cast the spell
-						this.channelSpell(spell.id, spell.tier, spell.parameters.call(this));
+						this.channelSpell(spell.id, spell.tier, params);
 						// spell interval (how often it is cast by enemy)
 						Game.setTimeout(function (spellIndex) {
 							this.spells[spellIndex].ready = true;

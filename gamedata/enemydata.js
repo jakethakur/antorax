@@ -1920,7 +1920,7 @@ palatine: {
 						},
 						interval: 25000,
 				 },*/
-      ],
+      		],
 		},
 
 		foxgloveHands: {
@@ -1948,8 +1948,62 @@ palatine: {
 			corpseOnDeath: false,
 			respawnOnDeath: true,
 			spells: [
-      ],
+     		],
 		},
+
+		demolitionistDarrow: {
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
+			image: "demolitionistDarrow",
+			deathImage: "demolitionistDarrowCorpse",
+			name: "Demolitionist Darrow",
+			hostility: "boss",
+			bossKilledVariable: "demolitionistDarrow",
+			level: 20,
+			stats: {
+				maxHealth: 150,
+				defence: 7,
+				walkSpeed: 141,
+				damage: 5,
+				range: 360,
+				reloadTime: 500,
+				healthRegen: 0.25,
+				lootTime: 100000,
+				projectileSpeed: 150,
+			},
+			attackBehaviour: {
+				baseAggro: 1000, // always aggroed on player
+			},
+			spells: [
+				// ordered in order of boss priority to spells
+				{
+					id: 34, // dynamite
+					tier: 1,
+					interval: 7000,
+				},
+				{
+					id: 34, // dynamite
+					tier: 2,
+					interval: 14000,
+				},
+				{
+					id: 34, // dynamite
+					tier: 3,
+					interval: 6000,
+					castCondition: function (caster) {
+						return true;
+						return caster.health / caster.stats.maxHealth < 0.4;
+					}
+				},
+			],
+			xpGiven: 1000, // tbc?
+			projectile: {
+				image: "fireball"
+			},
+			lootTableTemplate: [BossLootTables.demolitionistDarrow],
+			inventorySpace: 18,
+		},
+
+		// tbd need to move the following to a new cave section
 
 		crystalAntOrange: {
 			rotationImages: {
@@ -2271,6 +2325,231 @@ stoneElemental: {
 
 
 
+	},
+
+	cave: {},
+
+	hive: {
+		workerBee: {
+			rotationImages: {
+				left: "bumblebeeLeft1",
+				right: "bumblebeeRight1"
+			},
+			name: "Worker Bee",
+			hostility: "neutral",
+			level: 20,
+			stats: {
+				damage: 30,
+				walkSpeed: 200,
+				swimSpeed: 200,
+				iceSpeed: 200, // tbd give flying property
+				maxHealth: 20,
+				defence: 0,
+				range: 30,
+				reloadTime: 1500,
+				healthRegen: 10,
+				onAttack: function () {
+					// die
+					this.takeDamage(20);
+				}
+			},
+			attackBehaviour: {
+				baseAggro: 0,
+			},
+			respawnOnDeath: false,
+			corpseOnDeath: false,
+			xpGiven: 100,
+			projectile: {
+				image: "melee",
+			},
+			animation: {
+				type: "carousel",
+				frameTime: 300,
+				images: ["bumblebeeLeft1", "bumblebeeLeft2"], // tbd make work with rotationImages
+			},
+		},
+
+		honeyBee: {
+			rotationImages: {
+				left: "bumblebeeLeft1",
+				right: "bumblebeeRight1"
+			},
+			name: "Honey Bee",
+			hostility: "hostile",
+			level: 20,
+			stats: { // tdb make so enemy circles player
+				damage: 20,
+				walkSpeed: 200,
+				swimSpeed: 200,
+				iceSpeed: 200, // tbd give flying property
+				maxHealth: 20,
+				defence: 0,
+				range: 300,
+				reloadTime: 1500,
+				healthRegen: 1,
+				projectileSpeed: 400, 
+				projectileRange: 500,
+				variance: 3,
+			},
+			respawnOnDeath: false,
+			corpseOnDeath: false,
+			xpGiven: 100,
+			projectile: {
+				image: "beeSting",
+			},
+			animation: {
+				type: "carousel",
+				frameTime: 300,
+				images: ["bumblebeeLeft1", "bumblebeeLeft2"], // tbd make work with rotationImages
+			},
+		},
+
+		leafcutterBee: {
+			rotationImages: {
+				left: "bumblebeeLeft1",
+				right: "bumblebeeRight1"
+			},
+			name: "Leafcutter Bee",
+			hostility: "hostile",
+			level: 20,
+			stats: { 
+				damage: 12,
+				walkSpeed: 140,
+				swimSpeed: 140,
+				iceSpeed: 140, // tbd give flying property
+				maxHealth: 50,
+				defence: 0,
+				range: 60,
+				reloadTime: 1000,
+				healthRegen: 1,
+			},
+			respawnOnDeath: false,
+			corpseOnDeath: false,
+			xpGiven: 100,
+			projectile: {
+				image: "melee",
+			},
+			animation: {
+				type: "carousel",
+				frameTime: 300,
+				images: ["bumblebeeLeft1", "bumblebeeLeft2"], // tbd make work with rotationImages
+			},
+		},
+
+		carpenterNest: {
+			rotationImages: {
+				left: "bumblebeeLeft1",
+				right: "bumblebeeRight1"
+			},
+			name: "Nest",
+			hostility: "hostile",
+			level: 25,
+			stats: { 
+				damage: 0,
+				walkSpeed: 0,
+				swimSpeed: 0,
+				iceSpeed: 0, // tbd give flying property
+				maxHealth: 250,
+				defence: 50,
+				range: 0,
+				reloadTime: 10000,
+				healthRegen: 0,
+				doesNotAttack: true,
+			},
+			spells: {
+				id: 11, // animate
+				tier: 1,
+				parameters: function () { // returns array of parameters
+					return {
+						number: 1,
+						location: [
+							{
+								x: this.x,
+								y: this.y,
+								width: 100,
+								height: 100,
+							},
+						],
+						// properties of enemies
+						image: "bumblebeeLeft1",
+						name: "Carpenter Bee",
+						hostility: "hostile",
+						level: 20,
+						corpseOnDeath: false,
+						respawnOnDeath: false,
+						stats: {
+							maxHealth: 30, 
+							defence: 0,
+							damage: 10,
+							range: 60,
+							reloadTime: 1000,
+							walkSpeed: 160,
+							swimSpeed: 160,
+							healthRegen: 1, 
+						},
+						attackBehaviour: {
+							baseAggro: 1000, // always aggroed on player
+						},
+						projectile: {
+							image: "melee",
+						},
+						xpGiven: 100,
+					};
+				},
+				interval: 10000,
+			},
+			respawnOnDeath: false,
+			corpseOnDeath: false,
+			xpGiven: 200,
+			projectile: {
+				image: "melee",
+			},
+			animation: {
+				type: "carousel",
+				frameTime: 300,
+				images: ["bumblebeeLeft1", "bumblebeeLeft2"], // tbd make work with rotationImages
+			},
+		},
+
+		bumblebee: {
+			rotationImages: {
+				left: "bumblebeeLeft1",
+				right: "bumblebeeRight1"
+			},
+			name: "Bumblebee",
+			hostility: "hostile",
+			level: 25,
+			stats: { 
+				damage: 50,
+				walkSpeed: 10,
+				swimSpeed: 10,
+				iceSpeed: 10, // tbd give flying property
+				maxHealth: 100,
+				defence: 10,
+				range: 60,
+				reloadTime: 1000,
+				healthRegen: 1,
+			},
+			spells: {
+				id: 35,
+				tier: 1,
+				parameters: function()
+				{
+					return {target: Game.hero};
+				}
+			},
+			respawnOnDeath: false,
+			corpseOnDeath: false,
+			xpGiven: 250,
+			projectile: {
+				image: "melee",
+			},
+			animation: {
+				type: "carousel",
+				frameTime: 300,
+				images: ["bumblebeeLeft1", "bumblebeeLeft2"], // tbd make work with rotationImages
+			},
+		},
 	},
 };
 

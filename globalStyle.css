@@ -16,6 +16,7 @@
     background-color: #aaaaaa;
 }
 
+/* this is likely out of date, since overwritten in Dom.settings.dark in dom.js*/
 :root {
 	--border: #886622;
 	--alert: #eecc77;

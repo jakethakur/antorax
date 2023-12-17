@@ -6101,48 +6101,7 @@ unidentifiedArea: ["caves"],
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				// place down dynamite
-				let dynamiteObject = {
-					map: map,
-					image: "dynamiteLit",
-					name: "Dynamite",
-					x: Game.hero.x,
-					y: Game.hero.y,
-					type: "things",
-				};
-				let thing = Game.things[Game.things.push(new Thing(dynamiteObject))-1];
-				// deal damage and displace in 3s
-				thing.channel(function (dynamite) {
-					Game.enemies.forEach(enemy => {
-						let d = Game.distance(enemy, dynamite);
-						if (d < 120) {
-							enemy.displace(0, 180-d, 1, Game.bearing(dynamite, enemy));
-						}
-					});
-					let d = Game.distance(Game.hero, dynamite);
-					if (d < 120) {
-						Game.hero.displace(0, 180-d, 1, Game.bearing(dynamite, Game.hero));
-					}
-
-					Game.projectiles.push(new Projectile({ // explosion projectile
-						map: map,
-						x: dynamite.x,
-						y: dynamite.y,
-						targets: [Game.damageableByPlayer, [Game.hero]],
-						attacker: Game.hero,
-						rotate: 0,
-						image: "explosion",
-						name: "Explosion",
-						type: "projectiles",
-						stats: {
-							damage: 10,
-							flaming: 1,
-							damageAllHit: true,
-						},
-						// aesthetics
-						stayOnScreen: 500,
-						transparency: 0.8,
-					}));
-				}, [thing], 3000, "", {colour: "#FF5313"});
+				ItemFunctions.placeDynamite(Game.hero.x, Game.hero.y, Game.hero, 10, 1);
 			},
 			requiredImages: { // images that should be loaded for this item
 				dynamiteLit: {normal: "./assets/projectiles/dynamiteLit.png"},
@@ -7939,7 +7898,63 @@ const ItemFunctions = {
 				enhancement = nonRareEnhancements[Random(0, nonRareEnhancements.length-1)];
 			}
 		}
-	}
+	},
+
+	// used by consumable 33, and demolitionist darrow boss
+	placeDynamite: function (x, y, caster, damage, flamingTier) {
+		if (typeof flamingTier === "undefined") {
+			flamingTier = 1;
+		}
+		if (typeof damage === "undefined") {
+			damage = 10;
+		}
+
+		let dynamiteObject = {
+			map: map,
+			image: "dynamiteLit",
+			name: "Dynamite",
+			x: x,
+			y: y,
+			type: "things",
+		};
+		let thing = Game.things[Game.things.push(new Thing(dynamiteObject))-1];
+		// deal damage and displace in 3s
+		thing.channel(function (dynamite) {
+			Game.enemies.forEach(enemy => {
+				let d = Game.distance(enemy, dynamite);
+				if (d < 120) {
+					enemy.displace(0, 180-d, 1, Game.bearing(dynamite, enemy));
+				}
+			});
+			let d = Game.distance(Game.hero, dynamite);
+			if (d < 120) {
+				Game.hero.displace(0, 180-d, 1, Game.bearing(dynamite, Game.hero));
+			}
+
+			Game.projectiles.push(new Projectile({ // explosion projectile
+				map: map,
+				x: dynamite.x,
+				y: dynamite.y,
+				targets: [Game.damageableByPlayer, [Game.hero]],
+				attacker: caster,
+				rotate: 0,
+				image: "explosion",
+				name: "Explosion",
+				type: "projectiles",
+				stats: {
+					damage: damage,
+					flaming: flamingTier,
+					damageAllHit: true,
+				},
+				// aesthetics
+				stayOnScreen: 500,
+				transparency: 0.8,
+			}));
+
+			// remove the dynamite object
+			Game.removeObject(dynamite.id, dynamite.type);
+		}, [thing], 3000, "", {colour: "#FF5313"});
+	},
 }
 
 // returns total number of items in archaeology that satisfy a certain requirement

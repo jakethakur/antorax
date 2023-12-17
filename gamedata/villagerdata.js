@@ -663,9 +663,9 @@ var Villagers = [
         images: {demolitionist: {normal: "assets/npcs/demolitionist.png"}},
 		name: "Demolitionist Darrow",
 		hostility: "friendly",
-		level: 10,
+		level: 20,
 		stats: {
-			maxHealth: 100,
+			maxHealth: 150,
 			defence: 7,
             walkSpeed: 141,
 		},
