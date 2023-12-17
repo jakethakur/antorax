@@ -10151,11 +10151,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 			},
 			// temp
-			{
+			/*{
 				x: 1000,
 				y: 1000,
 				template: EnemyTemplates.eaglecrest.demolitionistDarrow,
-			},
+			},*/
 		],
 
 		infoPoints: [
