@@ -109,23 +109,27 @@ body{
 }
 
 
-#name, #play, #random, #info, #logo, .news, .newsBanner, .customisationSelect, #customisationButton {
+#logo, .customisationSelect, #customisationButton {
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
+
 }
+
 
 #name, #playerPreview, #logo, #play, #random, #left, #right, #info {
 	/* position: absolute;*/
 }
 
-#logo, #random, #name{
-	top: 20px;
+#logo, #random{	
+top: 20px;
 }
 
 .news{
 	padding: 10px;
 	padding-bottom: 2px;
 	padding-top: 25px;
+        background-image: url("./assets/noticeBackground.png");
+	border: 5px solid var(--border);
 }
 .newsTitle{
 	display: inline;
@@ -136,6 +140,7 @@ body{
 .newsBanner,.news{
 	margin: 20px;
 	margin-left: 15px;
+	border: 5px solid #e3cb9c;
 }
 
 .newsBanner{
@@ -153,12 +158,15 @@ body{
 #info {
 	/* height: 50px; */
 	font-size: 20px;
+	color: #c3be5c;
 	display:inline-block;
 	width: 290px;
+	border: 5px solid #553a08;
 
 	padding: 10px;
 	margin: 10px;
 	margin-left: 15px;
+	background-image: url("./assets/buttonBackground.png");
 }
 
 #info {
@@ -172,6 +180,9 @@ body{
 	text-align: center;
 	font-family: 'El Messiri', serif;
 	color: var(--text);
+	background-image: url("./assets/nameBackground.png");
+	border: 5px solid #e1e1e1;
+	margin-top: 7px;
 
 	display:inline-block;
 	vertical-align: top;
@@ -185,7 +196,8 @@ body{
 	background-position: center;
 	cursor: pointer;
 	border-left: none;
-	margin-left: -5px;
+	margin-left: 10px;
+	margin-top: 10px;
 	display:inline-block;
 	vertical-align: top;
 }
@@ -240,8 +252,10 @@ body{
 
 #play{
 	font-size: 25px;
-	color: var(--text);
+	    font-weight: bold;
+	color: #c3be5c;
 	width: 290px;
+	border: 5px solid #553a08;
 
 	padding: 10px;
 	margin: 15px;
@@ -252,6 +266,7 @@ body{
 	/*position: fixed;
 	bottom: -15px;
 	transform: translate(-50%, -50%);*/
+	background-image: url("./assets/buttonBackground.png");	
 }
 
 .title{
