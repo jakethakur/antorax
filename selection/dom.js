@@ -435,7 +435,7 @@ function display () {
 
 	if(localStorage.getItem(selected.class) !== null) {
 		document.getElementById("info").innerHTML = "<strong>Level "+JSON.parse(localStorage.getItem(selected.class)).level+"</strong>"+
-		"<br><span style='font-size: 16px;'>"+JSON.parse(localStorage.getItem(selected.class)).displayAreaName+"</span>";
+		"<br><span style='font-size: 22px;'>"+JSON.parse(localStorage.getItem(selected.class)).displayAreaName+"</span>";
 	}
 	else {
 		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
