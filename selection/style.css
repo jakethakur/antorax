@@ -34,8 +34,8 @@ body{
 	margin-left: 500px;
 	margin-right: 350px;
 
-	border-left: 5px solid var(--border);
-	border-right: 5px solid var(--border);
+	border-left: 5px solid #715d44;
+	border-right: 5px solid #5d4b35;
 }
 
 #logo {
@@ -222,8 +222,8 @@ top: 20px;
 	height: 168px; /* background img height */
 	background-image: url("./assets/playerBackground.png");
 
-	border-top: 5px solid var(--border);
-	border-bottom: 5px solid var(--border);
+	border-top: 5px solid #715d44;
+	border-bottom: 5px solid #715d44;
 
 	margin-top: 10px;
 	margin-bottom: 13px;
@@ -283,6 +283,7 @@ top: 20px;
 #customisationWrapper {
 	height: 400px; /* background img height */
 	background-image: url("./assets/customisationWardrobe.png");
+	border-right: 5px solid #5B462F;
 }
 
 .customisationSelect {
@@ -317,7 +318,7 @@ top: 20px;
 }
 
 .customisationButton {
-	width: 87px;
+	width: 81px;
 	height: 98px;
 	display: inline-block;
 }
@@ -325,24 +326,26 @@ top: 20px;
 #skinToneView {
 	background-image: url("assets/customisationButtons/skinTone.png");
 }
-#skinToneView.selected, #skinToneView:hover {
+#skinToneView.selected{
 	background-image: url("assets/customisationButtons/skinToneSelected.png");
 }
 #clothingView {
 	background-image: url("assets/customisationButtons/clothing.png");
 }
-#clothingView.selected, #clothingView:hover {
+#clothingView.selected{
 	background-image: url("assets/customisationButtons/clothingSelected.png");
 }
 #hairView {
 	background-image: url("assets/customisationButtons/hair.png");
 }
-#hairView.selected, #hairView:hover {
+#hairView.selected{
 	background-image: url("assets/customisationButtons/hairSelected.png");
 }
 #hatView {
 	background-image: url("assets/customisationButtons/hat.png");
+	border-right: 5px solid #5B462F;
 }
-#hatView.selected, #hatView:hover {
+#hatView.selected{
 	background-image: url("assets/customisationButtons/hatSelected.png");
+	border-right: 5px solid #5B462F;
 }
