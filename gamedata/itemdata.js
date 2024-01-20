@@ -6412,6 +6412,16 @@ unidentifiedArea: ["caves"],
 			healthRestore: 30,
 			healthRestoreTime: 5,
 		},
+		{
+			id: 11,
+			name: "Antorax Day Birthday Cake",
+			type: "food",
+			image: "assets/items/food/11.png",
+			sellPrice: 8,
+			healthRestore: 88,
+			healthRestoreTime: 8,
+			lore: "Antorax turns eight!",
+		},
 	],
 	teleport: [
         {
