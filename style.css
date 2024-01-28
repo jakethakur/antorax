@@ -468,17 +468,17 @@ thead:after { /* space after bags in bank */
 }
 
 #playersInfo {
-	width: 292px;
+	width: 300px;
 	margin-left: -10px;
 	border-bottom: 1px solid black;
 	padding: 10px;
-	padding-bottom: 15px;
+	padding-bottom: 40px;
 	position: relative;
 	background-color: #c3bc99;
 	cursor: pointer;
 	max-height: 190px;
     overflow-y: visible;
-		left: 410px;
+		left: 402px;
 		top: 40px;
 }
 
