@@ -11,15 +11,15 @@ h1 {
 }
 
 td {
-	border-top: 5px solid var(--border);
-	border-left: 5px solid var(--border);
+	border-top: 5px solid #a79f7d;
+	border-left: 5px solid #b7b08f;
 	text-align: center;
 	font-size: 0px;
 	padding: 0px;
-	background-color: var(--bottom);
 	width: 50px;
 	height: 50px;
 	display:inline-block;
+	background-image: url("assets/interface/inventoryBackground.png");
 }
 
 input {
@@ -113,12 +113,12 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 .DOM {
-	border: 1px solid black; /* can go soon */
+	border: 1px solid black;
 	width: 500px;
 	height: 600px;
 	padding-left: 10px;
 	padding-right: 10px;
-	background-color: var(--page); /* can go soon */
+	background-color: var(--page);
 	overflow: hidden;
 	position: absolute;
 	top: 10px;
@@ -130,9 +130,24 @@ thead:after { /* space after bags in bank */
 	height: 600px;
 }
 
-#questsPage, #settingsPage, #settingsTwoPage, #adventurePage, #leaderboardPage, #creditsPage{
+#questsPage, #settingsTwoPage, #adventurePage, #leaderboardPage, #creditsPage{
 	overflow-y: auto;
 	overflow-x: hidden;
+}
+
+#questsPage, #settingsPage, #chatPage, #inventoryPage, #reputationPage, #adventurePage{
+	padding-left: 10px;
+	padding-right: 10px;
+	overflow: hidden;
+	position: absolute;
+	top: 10px;
+	zoom: var(--zoom);
+	height: 504px;
+	width: 750px;
+	background-image: url("assets/interface/book.png");
+	background-color: unset;
+	border: unset;
+
 }
 
 #questStart, #questFinish, #merchantPage, #mailPage, #driverPage, #identifierPage, #identifiedPage, #lootPage, #buyerPage, #choosePage, #textPage{
@@ -144,27 +159,33 @@ thead:after { /* space after bags in bank */
 	display: inline;
 }
 
-.adventure, .settings, #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests{
-	position: relative;
-	width: 511px;
-	border-left: 5px solid var(--border);
-	border-right: 5px solid var(--border);
-	border-bottom: 5px solid var(--border);
-	right: 10px;
-	background-color: var(--bottom);
+ #activeQuestBox, #possibleQuestBox, #completedQuestBox, #otherQuestBox, #activeQuests, #possibleQuests, #completedQuests, #otherQuests{
+	width: 310px;
+
 }
 
-.settings, #activeQuestBox, #completedQuestBox, #possibleQuestBox, #otherQuestBox {
-	width: 501px;
-	height: 40px;
+#activeQuestBox, #completedQuestBox, #possibleQuestBox, #otherQuestBox {
+	width: 310px;
 	text-align: left;
 	padding-left: 10px;
 	padding-top: 10px;
 }
 
+#settingsWrapperLeft {
+	width: 340px;
+	position: relative;
+	left: 35px;
+}
+
+#settingsWrapperRight {
+	width: 340px;
+	position: absolute;
+	left: 405px;
+	bottom: 55px;
+}
+
 #choosePageHelm, #choosePageChest, #choosePageGreaves, #choosePageBoots, #choosePageWeapon, #helm, #chest, #greaves, #boots, #weapon, #bag, #mountSlotLocked, #mountSlotUnlocked, #settingLogoutInner, #settingSave, #settingDelete, #settingControls, #settingCredits, .mailImage, .driverImage, .theseOptions {
-	background-color: var(--bottom);
-	margin-top: 10px;
+	margin-top: 5px;
 	border: 5px solid var(--border);
 	width: 50px;
 	height: 50px;
@@ -213,9 +234,9 @@ thead:after { /* space after bags in bank */
 
 #closeReputation, #closeSettings, #closeCredits {
 	position: relative;
-	width: 200px;
-	height: 50px;
-	background-color: var(--bottom);
+	width: 100px;
+	height: 45px;
+	background-color: #e1dfb8;
 	border: 5px solid var(--border);
 	text-align: center;
 	line-height:50px;
@@ -226,7 +247,6 @@ thead:after { /* space after bags in bank */
 }
 
 #closeReputation, #closeSettings {
-	top: 50px;
 }
 
 #closeCredits {
@@ -331,9 +351,12 @@ thead:after { /* space after bags in bank */
 }
 
 .chatBannerOption {
-	 list-style-image: url(assets/icons/dialogueChoiceBullet.png);
-	 font-size: 22px;
-	 padding-bottom: 5px;
+
+	 list-style-image: url(assets/icons/dialogueChoiceBullet.png);
+
+	 font-size: 22px;
+
+	 padding-bottom: 5px;
 	padding-top: 5px;
 }
 
@@ -342,8 +365,7 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 #chatPage {
-	padding-top: 10px;
-	height: 590px;
+
 }
 
 #chat {
@@ -368,7 +390,7 @@ thead:after { /* space after bags in bank */
 	bottom: 44px;
 	max-height: 520px;
 	margin-top: -30px;
-	width: 510px;
+	width: 400px;
 	user-select: text;
 	-moz-user-select: text;
 	-webkit-user-select: text;
@@ -377,19 +399,22 @@ thead:after { /* space after bags in bank */
 }
 
 .chatPara {
+	position: relative;
 	margin-bottom: 0px;
 	width: max-content;
-	max-width: 500px;
+	max-width: 280px;
+	left: 50px;
+	bottom: 50px;
 }
 
 #chatInput {
 	position: absolute;
-	bottom: 10px;
-	left: 10px;
-	width: 455px;
+	bottom: 58px;
+	left: 50px;
+	width: 240px;
 	padding-left: 3px;
 	padding-right: 40px;
-	background-color: var(--input);
+	background-color: #c9c2a0;
 }
 
 #canvasChatInput {
@@ -423,8 +448,8 @@ thead:after { /* space after bags in bank */
 
 #send {
 	position: absolute;
-	bottom: -4px;
-	right: 12px;
+	bottom: 45px;
+	left: 342px;
 	cursor: pointer;
 }
 
@@ -462,36 +487,46 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 #inventoryPage {
-	padding-left: 38px;
-	padding-top: 45px;
-	height: 555px;
-	width: 472px;
+	height: 504px;
+	width: 750px;
+	background-image: url("assets/interface/book.png");
 }
 
-#choosePageHelm, #choosePageChest, #choosePageGreaves, #choosePageBoots, #choosePageWeapon {
+#choosePageHelm, #choosePageChest, #choosePageGreaves, #choosePageBoots, #helm, #greaves, #boots, #chest {
 	position: relative;
 	z-index: 49;
 }
 
+#inventoryGearWrapper {
+	position: relative;
+	left: 45px;
+	top: 65px;
+}
+
 #helm, #choosePageHelm {
-	background-image: url("assets/items/helm/1.png");
+	background-image: url("assets/items/helm/1.png"), url("assets/interface/gearBackground.png");
+	margin-top: 20px;
 }
 
 #chest, #choosePageChest {
-	background-image: url("assets/items/chest/1.png");
+	background-image: url("assets/items/chest/1.png"), url("assets/interface/gearBackground.png");
 }
 
 #greaves, #choosePageGreaves {
-	background-image: url("assets/items/greaves/1.png");
+	background-image: url("assets/items/greaves/1.png"), url("assets/interface/gearBackground.png");
 }
 
 #boots, #choosePageBoots {
-	background-image: url("assets/items/boots/1.png");
+	background-image: url("assets/items/boots/1.png"), url("assets/interface/gearBackground.png");
 }
 
-#helm, #weapon, #choosePageHelm, #choosePageWeapon {
-	margin-top: 50px;
+
+#weapon, #choosePageWeapon {
+	position: relative;
+	left: 265px;
+	top: -120px;
 }
+
 
 #inventoryGoldXP, .players, .leaderboardPageSkin {
 	position: relative;
@@ -510,7 +545,7 @@ thead:after { /* space after bags in bank */
 
 #bagText {
 	position: absolute;
-	left: 170px;
+	left: 440px;
 }
 
 #information, #itemIdentification{
@@ -535,17 +570,59 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 #questsPage {
-	border-top: 5px solid var(--border);
-	width: 500px;
-	height: 596px;
 }
+
+#ongoingQuestsBox {
+position:relative;
+left: 35px;
+top: 60px;
+	width:350px;
+max-height: 395px;
+overflow: auto;
+}
+
+#inactiveQuestsBox {
+position: absolute;
+left: 405px;
+top: 60px;
+width:350px;
+max-height: 395px;
+overflow: auto;
+}
+
+#activeQuests {
+	background-image: url("./assets/interface/activeQuests.png");
+		color: #bbb82e;
+		border: 5px solid #a79126;
+
+}
+#possibleQuests {
+	background-image: url("./assets/interface/possibleQuests.png");
+		color: #bbb82e;
+		border: 5px solid #a79126;
+}
+#completedQuests {
+	background-image: url("./assets/interface/completedQuests.png");
+		color: #bbb82e;
+		border-left: 5px solid #917d1d;
+		border-right: 5px solid #917d1d;
+		border-bottom: 5px solid #a79126;
+}
+#otherQuests {
+	background-image: url("./assets/interface/otherQuests.png");
+		color: #bbb82e;
+		border-left: 5px solid #917d1d;
+		border-right: 5px solid #917d1d;
+		border-bottom: 5px solid #a79126;
+}
+
 
 #activeQuests, #possibleQuests, #completedQuests, #otherQuests{
 	text-align: center;
-	line-height: 50px;
+	line-height: 40px;
 	vertical-align: middle;
-	font-size: 20px;
-	background-color: var(--top);
+	font-size: 22px;
+	font-weight: bold;
 	cursor: pointer;
 }
 
@@ -554,6 +631,7 @@ thead:after { /* space after bags in bank */
 	min-height: 30px;
 	height: auto;
 	line-height: 20px;
+	background-color: var(--border);
 }
 
 /*					*/
@@ -561,27 +639,35 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 .adventure {
+	border: 5px solid #7d7c61;
+	background-color: #bdb093;
+	padding-top: 10px;
+	padding-bottom: 16px;
+	padding-left: 10px;
+	width: 290px;
 	margin-top: 10px;
-	border-top: 5px solid var(--border);
-	right: 0px;
-	width: 450px;
-	padding: 10px;
-	padding-top: 15px;
-	padding-bottom: 20px;
+}
+
+#adventureWrapper {
+position: absolute;
+width: 300px;
+left: 405px;
+top: 60px;
+height: 390px;
+overflow-y:: auto;
+overflow-x: visible;
+
 }
 
 .adventureContent {
-	font-size: 20px;
+	font-size: 15px;
 	position: relative;
 	line-height: 20px;
 	top: 10px;
 }
 
 #adventurePage {
-	font-size: 30px;
-	padding: 20px;
-	width: 480px;
-	height: 560px;
+
 }
 
 /*					*/
@@ -589,8 +675,8 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 #closeReputation {
-	left: 130px;
-	top: 70px;
+	left: 100px;
+	top: 7px;
 }
 
 .widthPadding {
@@ -601,15 +687,18 @@ thead:after { /* space after bags in bank */
 }
 
 #reputationPage {
-	padding-top: 20px;
-	height: 580px;
-	width: 490px;
-	padding-left: 20px;
+}
+
+#reputationWrapper {
+	position: relative;
+	left: 37px;
+	top: 50px;
+	width: 325px;
+	height:auto;
+	font-size: 15px;
 }
 
 .reputationBox {
-	left: 230px;
-	position: absolute;
 	height: 20px;
 	width: 250px;
 	border: 1px solid black;
@@ -618,7 +707,7 @@ thead:after { /* space after bags in bank */
 
 .reputationBar {
 	position: absolute;
-	height: 20px;
+	left:60px;
 	line-height: 22px;
 	vertical-align: middle;
 	background-color: gold;
@@ -630,14 +719,16 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 /* fullscreen should always be the top setting */
-#settingFullscreen {
-	border-top: 5px solid var(--border);
-}
+
 
 .settings {
 	line-height: 30px;
 	vertical-align: middle;
 	font-size: 20px;
+	width: 310px;
+	border: 5px solid #9d9c7d;
+	border-top: 5px solid var(--border);
+	text-indent: 7px;
 }
 
 #settingsTwoPage {
@@ -679,11 +770,12 @@ thead:after { /* space after bags in bank */
 	vertical-align: middle;
 	line-height: 40px;
 	text-align: center;
+	width: 380px;
 }
 
 #settingLogout {
-	top: 15px;
-	height: 230px;
+	top: 40px;
+	height: 210px;
 }
 
 #settingLogoutInner, #settingSave, #settingDelete, #settingControls, #settingCredits{
@@ -691,42 +783,47 @@ thead:after { /* space after bags in bank */
 	width: 100px;
 	left: 200px;
 	height: 40px;
-	background-color: var(--bottom);
-	margin-bottom: 20px;
+	background-color: #e1dfb8;;
+	margin-bottom: 0px;
 	cursor: pointer;
 }
 
 #settingSave {
-	left: 50px;
+top: 40px;
+left: 55px;
 }
 
 #settingDelete {
-	left: 350px;
+	left: 55px;
+	top: 105px;
 }
 
 #settingControls {
 	left: 200px;
+	bottom: 50px;
 }
 
 #settingCredits {
-	left: 200px;
-	margin-bottom: 90px;
+	left: 520px;
+	bottom: 5px;
+	height: 35px;
 }
 
 .radio1 {
 	position: absolute;
-	left: 250px;
+	left: 180px;
 }
 
 .radio2 {
 	position: absolute;
-	left: 375px;
+	left: 240px;
 }
 
 /* setting groups (for margin above) */
-#settingNotifs, #settingTutorial, #settingAccept, #settingMusic, #settingParticles, #settingTransparency, #settingMinigames, #settingCoords, #settingNametag {
+#settingNotifs, #settingTutorial, #settingAccept, #settingMusic, #settingParticles, #settingTransparency, #settingMinigames, #settingCoords, #settingNametag, #settingWeather, #settingFps, #settingHitboxes, #settingAggro, #settingGrid {
 	margin-top: 10px;
-	border: 5px solid var(--border);
+	border: 5px solid #9d9c7d;
+	border-top: 5px solid var(--border);
 }
 
 /*					*/
@@ -1146,7 +1243,7 @@ thead:after { /* space after bags in bank */
 /*					*/
 
 /* positioning */
-#itemInventory, #hotbar, #loot{
+#hotbar, #loot{
 	position: absolute;
 	top: 121px;
 	left: 139px;
@@ -1154,11 +1251,25 @@ thead:after { /* space after bags in bank */
 	font-size: 0px;
 }
 
+#itemInventory{
+}
+
+#itemInventoryWrapper{
+	position: absolute;
+	top: 48px;
+	left: 397px;
+	height: 390px;
+	margin-top: 10px;
+	font-size: 0px;
+	overflow:auto;
+}
+
+
 /* positioning */
 #trinketsInventory {
 	position: absolute;
-	top: 31px;
-	left: 139px;
+	top: 48px;
+	left: 55px;
 	margin-top: 10px;
 	font-size: 0px;
 }
@@ -1166,26 +1277,26 @@ thead:after { /* space after bags in bank */
 /* positioning */
 #bag, #mountSlotLocked, #mountSlotUnlocked {
 	position: absolute;
-	top: 31px;
+	top: 48px;
 	margin-top: 10px;
 	font-size: 0px;
 }
 
 #bag {
-	left: 414px;
-	background-image: url("assets/items/bag/1.png");
+	left: 310px;
+	background-image: url("assets/items/bag/1.png"), url("assets/interface/gearBackground.png");
 }
 
 #mountSlotLocked, #mountSlotUnlocked {
-	left: 331px;
+	left: 240px;
 }
 
 #mountSlotUnlocked {
-	background-image: url("assets/items/mount/1.png");
+	background-image: url("assets/items/mount/1.png"), url("assets/interface/gearBackground.png");
 }
 
 #mountSlotLocked, .trinketSlotLocked {
-	background-image: url("assets/items/bag/0.png");
+	background-image: url("assets/items/bag/0.png"), url("assets/interface/gearBackground.png");
 }
 
 /* appearance */

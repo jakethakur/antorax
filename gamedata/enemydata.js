@@ -54,9 +54,7 @@ const SpeciesTemplates = {
 			maxHealth: 15,
 			walkSpeed: 170,
 		},
-		chat: {
-			notUnlockedRoles: "Miau.",
-		},
+		language: "cat",
 		canBeOnLead: true,
 		// for villagers only (think this works ?)
         areas: [
@@ -1970,6 +1968,7 @@ palatine: {
 				lootTime: 100000,
 				projectileSpeed: 150,
 			},
+			projectileClassResistance: ["blast"],
 			attackBehaviour: {
 				baseAggro: 1000, // always aggroed on player
 			},
@@ -1978,19 +1977,18 @@ palatine: {
 				{
 					id: 34, // dynamite
 					tier: 1,
-					interval: 7000,
+					interval: 6000,
 				},
 				{
 					id: 34, // dynamite
 					tier: 2,
-					interval: 14000,
+					interval: 15000,
 				},
 				{
 					id: 34, // dynamite
 					tier: 3,
-					interval: 6000,
+					interval: 7000,
 					castCondition: function (caster) {
-						return true;
 						return caster.health / caster.stats.maxHealth < 0.4;
 					}
 				},

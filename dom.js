@@ -26,6 +26,7 @@ let Dom = {
 		activeAbility: document.getElementById("activeAbility"),
 		activeQuestBox: document.getElementById("activeQuestBox"),
 		adventurePage: document.getElementById("adventurePage"),
+		adventureWrapper: document.getElementById("adventureWrapper"),
 		aggroOn: document.getElementById("aggroOn"),
 		bag: document.getElementById("bag"),
 		bagText: document.getElementById("bagText"),
@@ -168,6 +169,7 @@ let Dom = {
 		questStartStartRewardsTitle: document.getElementById("questStartStartRewardsTitle"),
 		questStartXP: document.getElementById("questStartXP"),
 		reputationPage: document.getElementById("reputationPage"),
+		reputationWrapper: document.getElementById("reputationWrapper"),
 		rightArrow: document.getElementById("rightArrow"),
 		secondary: document.getElementById("secondary"),
 		set: document.getElementById("set"),
@@ -536,7 +538,7 @@ Dom.quests.active = function (quest) {
 				if (!isHidden[i]) {
 					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
 					if (isCompleted[i] === true && i !== objectives.length-1) {
-						Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
+						Dom.quests.activeHTML[currentQuest.important] += "&#10004;";
 					}
 					else if (isCompleted[i] !== false && typeof isCompleted[i] !== "undefined" && i !== objectives.length-1) {
 						Dom.quests.activeHTML[currentQuest.important] += " " + isCompleted[i];
@@ -1525,16 +1527,16 @@ Dom.reputation.give = function (area, amount) {
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 		Player.reputation[area].changed = true;
 		if (Dom.reputation.ready) {
-			Dom.elements.reputationPage.innerHTML += FromCamelCase(area) + ': <div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
+			Dom.elements.reputationWrapper.innerHTML += FromCamelCase(area) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
 		}
 	}
 }
 
 Dom.reputation.start = function () {
-	Dom.elements.reputationPage.innerHTML = "";
+	Dom.elements.reputationWrapper.innerHTML = "<br>";
 	for (let i = 0; i < Object.keys(Player.reputation).length; i++) {
 		if (Player.reputation[Object.keys(Player.reputation)[i]].changed) {
-			Dom.elements.reputationPage.innerHTML += FromCamelCase(Object.keys(Player.reputation)[i]) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
+			Dom.elements.reputationWrapper.innerHTML += FromCamelCase(Object.keys(Player.reputation)[i]) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
 		}
 	}
 	Player.reputationReady = true;
@@ -1545,11 +1547,11 @@ Dom.reputation.start = function () {
 Dom.reputation.levels = ["Abhorred","Hated","Unfriendly","Neutral","Friendly","Honoured","Venerated"];
 Dom.reputation.update = function () {
 	// if the close button is not there yet
-	if (!Dom.reputation.ready && Dom.elements.reputationPage.getElementsByTagName("div").length === 0) {
+	if (!Dom.reputation.ready && Dom.elements.reputationWrapper.getElementsByTagName("div").length === 0) {
 		for (let i = 0; i < Object.keys(Player.reputation).length; i++) {
 			if (Player.reputation[Object.keys(Player.reputation)[i]].changed && Dom.elements.closeReputation === null) {
 				// if the close button should be there
-				Dom.elements.reputationPage.innerHTML += "<div id='closeReputation' onclick='Dom.reputation.start()'>Close</div>"
+				Dom.elements.reputationWrapper.innerHTML += "<div id='closeReputation' onclick='Dom.reputation.start()'>Close</div>"
 				Dom.elements.closeReputation = document.getElementById("closeReputation");
 			}
 		}
@@ -3705,7 +3707,7 @@ Dom.inventory.disposeConfirm = function (all) {
 		if (Dom.inventory.fromId <= 5 && Dom.inventory.fromArray === Player.bank.items) {
 			Player.bank.items.splice(Player.bank.items.length - Player.bank.items[Dom.inventory.fromId].size);
 			Dom.bank.page();
-			Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('assets/items/bag/1.png')";
+			Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('assets/items/bag/1.png'), url('assets/interface/gearBackground.png')";
 		}
 
 		Dom.inventory.remove(Dom.inventory.fromId, all, Dom.inventory.fromArray);
@@ -4041,10 +4043,10 @@ Dom.inventory.bagSwaps = function (to, from, array) {
 Dom.bank.bagCases = function () {//aaaaaaaaaaaaaaa tbd?
 	// slot backgrounds
 	if (Dom.inventory.fromArray === Player.bank.items && Dom.inventory.fromId < 6 && Dom.inventory.fromArray[Dom.inventory.fromId].image === undefined) {
-		Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('./assets/items/bag/1.png')";
+		Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.fromId].style.backgroundImage = "url('./assets/items/bag/1.png'), url('assets/interface/gearBackground.png')";
 	}
 	if (Dom.inventory.toArray === Player.bank.items && Dom.inventory.toId < 6) {
-		Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.toId].style.backgroundImage = "none";
+		Dom.elements.bankPageInventory.getElementsByTagName("td")[Dom.inventory.toId].style.backgroundImage = "url('assets/interface/gearBackground.png')";
 	}
 
 	// going from the bag slot from a bag
@@ -4550,7 +4552,7 @@ Dom.inventory.removeEquipment = function (array) {
 	else if (Player.class === "m") {
 		type = "staff";
 	}
-	document.getElementById(element).style.backgroundImage = "url('assets/items/"+type+"/1.png')";
+	document.getElementById(element).style.backgroundImage = "url('assets/items/"+type+"/1.png'), url('assets/interface/gearBackground.png')";
 
 	// bags
 	if (array.type === "bag") {
@@ -4667,7 +4669,7 @@ Dom.inventory.removeEquipment = function (array) {
 Dom.inventory.addEquipment = function (array, noSet) {
 	// remove slot background
 	let element = Dom.inventory.slotKeys[array.type];
-	document.getElementById(element).style.backgroundImage = "none";
+	document.getElementById(element).style.backgroundImage = "url('assets/interface/gearBackground.png')";
 
 	Dom.inventory.beforeChangedStats();
 
@@ -4862,16 +4864,16 @@ Dom.inventory.count = function (ID, type, notEquipped, array, quest) {
 }
 
 if (Player.class === "a") {
-	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/bow/1.png')";
-	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/bow/1.png')";
+	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/bow/1.png'), url('assets/interface/gearBackground.png')";
+	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/bow/1.png'), url('assets/interface/gearBackground.png')";
 }
 else if (Player.class === "m") {
-	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/staff/1.png')";
-	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/staff/1.png')";
+	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/staff/1.png'), url('assets/interface/gearBackground.png')";
+	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/staff/1.png'), url('assets/interface/gearBackground.png')";
 }
 else {
-	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/sword/1.png')";
-	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/sword/1.png')";
+	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/sword/1.png'), url('assets/interface/gearBackground.png')";
+	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/sword/1.png'), url('assets/interface/gearBackground.png')";
 }
 
 //Dom.elements.inventoryGoldXP.style.backgroundImage = 'url("./selection/assets/'+Player.class+Player.skin+'/f.png")';
@@ -5685,11 +5687,11 @@ Dom.bank.page = function () {
 		if (i < Player.bank.unlockedSlots) {
 			// draw bag slot background if there is no item
 			if (Player.bank.items[i].image === undefined) {
-				Dom.elements.bankPageInventory.getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/1.png')";
+				Dom.elements.bankPageInventory.getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/1.png'), url('assets/interface/gearBackground.png')";
 			}
 		}
 		else {
-			Dom.elements.bankPageInventory.getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/0.png')";
+			Dom.elements.bankPageInventory.getElementsByTagName("td")[i].style.backgroundImage = "url('./assets/items/bag/0.png'), url('assets/interface/gearBackground.png')";
 			if (nextUnlock) {
 				Dom.elements.bankPageInventory.getElementsByTagName("td")[i].onclick = function () {
 					if (Dom.inventory.check(2, "currency") /*+ Dom.inventory.check(2, "currency", undefined, undefined, Player.bank.items)*/ >= BagSlotCosts[i]) {
@@ -5959,16 +5961,16 @@ Dom.mail.unread = function () {
 }
 
 Dom.adventure.update = function () {
-	Dom.elements.adventurePage.innerHTML = `<div id="level" style="display:inline;">Level ${Player.level}</div>
-		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
-		<br><br><br>Suggested Content:`;
+	Dom.elements.adventureWrapper.innerHTML = `<div id="level" style="display:inline;">Level ${Player.level}</div>
+		<a href="./achievements/index.html" target="_blank" style="font-size: 22px; display: inline; float: right;">Achievements</a>
+		<br><br>Suggested Content:`;
 	for (let i = 0; i < Object.keys(Adventure).length; i++) {
 		if (Adventure[Object.keys(Adventure)[i]].condition()) {
 			let html = Adventure[Object.keys(Adventure)[i]].html;
 			if (Adventure[Object.keys(Adventure)[i]].special !== undefined) {
 				html = html.replace(/SPECIAL/, Adventure[Object.keys(Adventure)[i]].special());
 			}
-			Dom.elements.adventurePage.innerHTML += html;
+			Dom.elements.adventureWrapper.innerHTML += html;
 		}
 	}
 }
@@ -7156,7 +7158,7 @@ Dom.init = function () {
 		// if there is an item
 		else if (item.image !== undefined) {
 			Dom.inventory.prepare(Player.inventory, Object.keys(Player.inventory)[i], Dom.elements[Dom.inventory.slotKeys[Object.keys(Player.inventory)[i]]]);
-			document.getElementById(Dom.inventory.slotKeys[Object.keys(Player.inventory)[i]]).style.backgroundImage = "none";
+			document.getElementById(Dom.inventory.slotKeys[Object.keys(Player.inventory)[i]]).style.backgroundImage = "url('assets/interface/gearBackground.png')";
 		}
 	}
 
@@ -7749,7 +7751,9 @@ Dom.init = function () {
 				if (typeof Game.hero.spells[i] !== "undefined") {
 					// spell slot i isn't empty
 					if (typeof Game.hero.spells[i].onCooldown === "undefined" || Game.hero.spells[i].onCooldown === 0) {
-						Game.hero.channelSpell(Game.hero.spells[i].id, Game.hero.spells[i].tier, {target: {x: Game.previousMousePosition.x, y: Game.previousMousePosition.y}});
+						let targetX = Game.camera.x + Game.previousMousePosition.x - Game.viewportOffsetX; // mouseX (tbd should probably be made into a function)
+						let targetY = Game.camera.y + Game.previousMousePosition.y - Game.viewportOffsetX; // mouseY
+						Game.hero.channelSpell(Game.hero.spells[i].id, Game.hero.spells[i].tier, {target: {x: targetX, y: targetY}});
 					}
 				}
 			}

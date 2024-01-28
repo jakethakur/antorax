@@ -143,6 +143,10 @@ var Player = {
 
 	baseProjectile: baseProjectile,
 	baseProjectileAdjust: baseProjectileAdjust,
+	projectileOverride: {
+		projectile: undefined, // keyName of image in loader
+		adjust: undefined,
+	}, // overrides base projectile and player weapon projectile
 
 	// updated by saved progress
 	x: 3838, // start coords
@@ -215,9 +219,9 @@ var Player = {
 		completedQuestArray: [],
 		canBeFinishedArray: [], // array of quests that can be finished (for use in main)
 
-		npcProgress: {}, // stores the number of NPCs spoken to for that quest (the key name is the quest area followed by the quest id)
-		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
-		// npcProgress and questProgress can mostly be used for the same thing, but have different data structures
+		questProgress: {}, // OLD QUESTS ONLY - don't use for new quests ! stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
+		progress: {}, // same as questProgress, but now divided into areas and their quest ids à la npcProgress. for anything that npcProgress can't track
+		npcProgress: {}, // stores the number of NPCs spoken to for that quest (the key name is the quest area followed by the quest id, i.e. eaglecrest[10])
 		// npcProgress is incremented automatically by quest progress steps, so there should be no need to increment manually
 
 		questLastFinished: {}, // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
@@ -297,7 +301,6 @@ var Player = {
 		//projectileRange: 300,
 		//projectileAcceleration: 0,aaaaaaaaaaaaaaaaaaaaaaaa
 		//projectileStopMovingOnDamage: false,
-		// aaaaaaaaaaaa tbd make a variable here that contains all the class' default stats for these things
 
 		// class specific
 		meleeRange: AttackConstants.sword.meleeRange,
@@ -340,14 +343,27 @@ var Player = {
 // assign is used so the properties cannot be changed
 const DefaultStats = Object.assign({}, Player.stats);
 
-// array of objects of characters player can transform into
-// if the player is transformed into one of these, the only thing that is changed in Player is Player.transformedInto (set to the id of the object in this array)
-// if player is transformed, stats are set to DefaultStats with any exceptions given in PlayerTransformations
-const PlayerTransformations = [
-	{
-		id: 0,
-		class: "cat",
-		skin: "0",
+// object of objects of characters that the player can transform into (see prototype.Hero.transform)
+const PlayerTransformations = {
+	cat: {
+		// tbd load in images here as well ? or maybe better to be always loaded by the item (cat potion in this case)
+        rotationImages: {
+            left: "catGingerLeft",
+            right: "catGingerRight"
+        },
+		animation: {
+			type: "spritesheet",
+			frameTime: 30,
+			imagesPerRow: 3,
+			totalImages: 3,
+			animateBasis: "walk"
+		},
+		crop: {
+			x: 0,
+			y: 0,
+			width: 90,
+			height: 82,
+		},
 
 		stats: {
 			damage: 2,
@@ -370,14 +386,17 @@ const PlayerTransformations = [
 			maxMana: 10,
 			manaRegen: 0.75, //tbd balance
 		},
-		conditionalStats: [],//?????change??????
-
-		health: 50,
+		//conditionalStats: [],//?????change??????
 
 		// spells
-		spells: [{id: 13, tier: 1}],
+		spells: [{id: 17, tier: 1}],
+
+		projectile: {
+			image: "furballGinger",
+		},
+		// tbd attackstyle
 	},
-];
+};
 
 var User = {
 	archaeology: [],

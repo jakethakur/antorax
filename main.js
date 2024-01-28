@@ -1807,60 +1807,11 @@ class Thing extends Visible {
 
 		this.renderType = "image";
 
-		// set image related variables
+		// set image and animation related variables
+		this.setImageFromProperties(properties); // sets all image and animation related variables
 
-		// set image to a default rotation image if image is undefined but rotationImages is not
-		// otherwise npc would be made hidden by the next block of code
-		if (properties.image === undefined && properties.rotationImages !== undefined) {
-			properties.image = properties.rotationImages.left || properties.rotationImages.forward;
-		}
-
-		if (properties.image === undefined && properties.images !== undefined) {
-			// multiple images included in an array, to be rendered on top of each other
-			this.additionalImages = properties.images;
-			properties.image = this.additionalImages.shift();
-			properties.image = properties.image.imageName;
-			this.setAdditionalImages(this.additionalImages);
-		}
-
-		if (properties.image !== undefined) {
-			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
-		}
-		else if (properties.imageDay !== undefined) {
-			// has separate day image and night image
-			this.imageDay = properties.imageDay;
-			this.imageNight = properties.imageNight;
-			this.setImage(properties.imageDay, properties.crop, properties.width, properties.height, properties.rotationImages);
-			// this is set by setDayNightImages
-		}
-		else {
-			// an image must be loaded and set via setImage before it can be shown (and then hidden may be set back to false)
-			this.hidden = true;
-		}
 
 		this.setExpand(properties.expand || 1); // width multiplier (based on base width and base height)
-
-		// sources (and keys) of rotation images, used if images need to be reloaded for next area
-		this.rotationImageSources = {};
-		if (this.rotationImages !== undefined) {
-			if (this.source.location === "villager") {
-				// find image sources in villagers
-				this.rotationImageSources = Villagers[this.source.id].images;
-			}
-			else if (this.source.location === "area") {
-				// find image sources in area
-				let imageKeys = Object.values(this.rotationImages);
-				for (let i = 0; i < imageKeys.length; i++) {
-					if (imageKeys[i] !== undefined) {
-						this.rotationImageSources[imageKeys[i]] = Areas[Game.areaName].images[imageKeys[i]];
-					}
-				}
-			}
-			else if (this.source.location === "prevArea") { // i.e. characters from lead
-				this.rotationImageSources = properties.rotationImageSources;
-			}
-			// note nothing is yet done for enemies summonned by spells
-		}
 
 
 
@@ -1874,14 +1825,6 @@ class Thing extends Visible {
 		this.bright = properties.bright; // currently does nothing
 
 		this.totalDistanceWalked = 0; // in px
-
-		//
-		// animation
-		//
-		if (typeof properties.crop !== "undefined" && typeof properties.animation !== "undefined") {
-			properties.animation.baseCrop = properties.crop; // for cropping borders of spritesheet animation
-		}
-		this.setAnimation(properties.animation); // see setAnimation function for what properties should be passed in etc
 
 
 
@@ -1949,6 +1892,70 @@ class Thing extends Visible {
 		this.onDarkBackground = properties.onDarkBackground || false; // for darker character names (not currently finished - tbd)
 	}
 
+	// sets all image and animation related variables
+	// called from constructor, or if the whole image structure needs to be changed, e.g. for transformations (see hero)
+	setImageFromProperties (properties) {
+		// set image to a default rotation image if image is undefined but rotationImages is not
+		// otherwise npc would be made hidden by the next block of code
+		if (properties.image === undefined && properties.rotationImages !== undefined) {
+			properties.image = properties.rotationImages.left || properties.rotationImages.forward;
+		}
+
+		// multiple images included in an array, to be rendered on top of each other
+		this.additionalImages = properties.images; // can be undefined
+		if (properties.image === undefined && properties.images !== undefined) {
+			// if image is not specified, it becomes the first additionalImage
+			properties.image = this.additionalImages.shift();
+			properties.image = properties.image.imageName;
+		}
+		this.setAdditionalImages(this.additionalImages);
+
+		if (properties.image !== undefined) {
+			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
+		}
+		else if (properties.imageDay !== undefined) {
+			// has separate day image and night image
+			this.imageDay = properties.imageDay;
+			this.imageNight = properties.imageNight;
+			this.setImage(properties.imageDay, properties.crop, properties.width, properties.height, properties.rotationImages);
+			// this is set by setDayNightImages
+		}
+		else {
+			// an image must be loaded and set via setImage before it can be shown (and then hidden may be set back to false)
+			this.hidden = true;
+		}
+
+		// sources (and keys) of rotation images, used if images need to be reloaded for next area
+		this.rotationImageSources = {};
+		if (this.rotationImages !== undefined) {
+			if (this.source.location === "villager") {
+				// find image sources in villagers
+				this.rotationImageSources = Villagers[this.source.id].images;
+			}
+			else if (this.source.location === "area") {
+				// find image sources in area
+				let imageKeys = Object.values(this.rotationImages);
+				for (let i = 0; i < imageKeys.length; i++) {
+					if (imageKeys[i] !== undefined) {
+						this.rotationImageSources[imageKeys[i]] = Areas[Game.areaName].images[imageKeys[i]];
+					}
+				}
+			}
+			else if (this.source.location === "prevArea") { // i.e. characters from lead
+				this.rotationImageSources = properties.rotationImageSources;
+			}
+			// note nothing is yet done for enemies summonned by spells
+		}
+
+		//
+		// animation
+		//
+		if (typeof properties.crop !== "undefined" && typeof properties.animation !== "undefined") {
+			properties.animation.baseCrop = properties.crop; // for cropping borders of spritesheet animation
+		}
+		this.setAnimation(properties.animation); // see setAnimation function for what properties should be passed in etc
+	}
+
 	// imageName is the key name of the image stored in loader
 	// crop is object with width and height information (x, y , width, height)
 	// width and height are optional "stretch" parameters
@@ -1981,16 +1988,18 @@ class Thing extends Visible {
 	// images to be rendered on top of the main image
 	// crop etc is inherited from main image
 	setAdditionalImages (additionalImageArray) {
-		this.additionalImages = [];
-
-		for (let i = 0; i < additionalImageArray.length; i++) {
-			let imageObject = Loader.getImageInfo(additionalImageArray[i].imageName);
-			this.additionalImages.push({
-				image: imageObject.img,
-				imageSrc: imageObject.src,
-				doNotAnimate: additionalImageArray[i].doNotAnimate, // optional
-				// more tbd ?
-			})
+		if (Array.isArray(additionalImageArray)) {
+			this.additionalImages = [];
+	
+			for (let i = 0; i < additionalImageArray.length; i++) {
+				let imageObject = Loader.getImageInfo(additionalImageArray[i].imageName);
+				this.additionalImages.push({
+					image: imageObject.img,
+					imageSrc: imageObject.src,
+					doNotAnimate: additionalImageArray[i].doNotAnimate, // optional
+					// more tbd ?
+				})
+			}
 		}
 	}
 
@@ -2023,6 +2032,7 @@ class Thing extends Visible {
 
 	// temporary change of image (used with resetImage)
 	// parameters same as setImage
+	// currently just reserved for hex. tbd in the future a hex-style effect should only work if initialImageInformation has not been set yet ?
 	changeImage (imageName, crop, width, height, rotationImages) {
 		// variables for changing image back
 		if (this.initialImageInformation === undefined) {
@@ -2034,9 +2044,15 @@ class Thing extends Visible {
 				baseHeight: this.baseHeight,
 				rotationImages: this.rotationImages
 			}
-		}
 
-		this.setImage(imageName, crop, width, height, rotationImages);
+			this.setImage(imageName, crop, width, height, rotationImages);
+
+			return true;
+		}
+		else {
+			console.error("Cannot change image when initialImageInformation has already been set, for entity", this);
+			return false;
+		}
 	}
 
 	// reset image to information saved by changeImage
@@ -2045,9 +2061,13 @@ class Thing extends Visible {
 			this.setImage(this.initialImageInformation.name, this.initialImageInformation.crop, this.initialImageInformation.baseWidth, this.initialImageInformation.baseHeight, this.initialImageInformation.rotationImages);
 
 			this.initialImageInformation = undefined;
+
+			return true;
 		}
 		else {
 			console.warn("resetImage was called when initialImageInformation had not been set for " + this.name);
+
+			return false;
 		}
 	}
 
@@ -2296,6 +2316,14 @@ class Character extends Thing {
 		this.damageableByPlayer = properties.damageableByPlayer; // set to true if the hero can damage them (automatically set to true for enemies and dummies)
 		if (this.damageableByPlayer && properties.addToObjectArrays !== false) {
 			Game.damageableByPlayer.push(this);
+		}
+
+		this.projectileClassResistance = properties.projectileClassResistance; // string or array of strings of projectileTypes that can't damage this
+		if (typeof this.projectileClassResistance === "undefined") {
+			this.projectileClassResistance = []; // ensures it is an array
+		}
+		if (!Array.isArray(this.projectileClassResistance)) {
+			this.projectileClassResistance = [this.projectileClassResistance]; // ensures it is an array
 		}
 
 		this.speed = properties.stats.walkSpeed || 0;
@@ -2639,29 +2667,29 @@ class Character extends Thing {
 
 				// diagonal movement
 
-				this.y += moveRadius * 1.71;
-				this.x += moveRadius * 0.71;
+				this.y += moveRadius * 0.7; // 0.7 is approx sqrt(0.5)
+				this.x += moveRadius * 0.7;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
 					break;
 				}
 
-				this.x -= moveRadius * 1.42;
+				this.x -= moveRadius * 1.4;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
 					break;
 				}
 
-				this.y -= moveRadius * 1.42;
+				this.y -= moveRadius * 1.4;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
 					break;
 				}
 
-				this.x += moveRadius * 1.42;
+				this.x += moveRadius * 1.4;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
@@ -2669,8 +2697,8 @@ class Character extends Thing {
 				}
 
 				// no luck .. let's reset position and try again with a larger "radius"
-				this.x -= moveRadius * 0.71;
-				this.y += moveRadius * 0.71;
+				this.x -= moveRadius * 0.7;
+				this.y += moveRadius * 0.7;
 
 				if (moveRadius > 1000) {
 					// stop an infinite loop, just in case
@@ -2877,6 +2905,7 @@ class Character extends Thing {
 								flaming: 1,
 								damageAllHit: true,
 							},
+							projectileClass: "blast",
 							// aesthetics
 							stayOnScreen: 500,
 							transparency: 0.8,
@@ -3558,7 +3587,8 @@ class Attacker extends Character {
 
 
 		// information about projectile (how it looks)
-		// only supported for enemies - should be updated to work for player as well (TBD TBD!!!)
+		// for the player, this only refers to a projectile that overrides both the weapon projectile and the skin (savedata) projectile. i.e. transformations 
+		// should be updated to work for player more generally ? (TBD TBD!!!)
 		this.projectile = {};
 		if(typeof properties.projectile !== "undefined")
 		{
@@ -3578,7 +3608,7 @@ class Attacker extends Character {
 
 		// spells
 		this.spells = properties.spells || [];
-		if (this.constructor.name !== "Hero") { // hero spells are saved as an object instead (not sure why???)
+		if (this.constructor.name !== "Hero") {
 			this.spells = this.spells.map(a => Object.assign({}, a)); // deep copy objects in array
 			for (let i = 0; i < this.spells.length; i++) {
 				if (this.spells[i].interval !== undefined) {
@@ -3837,6 +3867,69 @@ class Hero extends Attacker {
 			crop: {x: 0, y: 0, width: 50, height: 50},
 		};
 		this.weaponUpdate();
+
+		// temporary transformations, i.e. into cat
+		// note that hex etc are NOT included under this, since your base stats, spells, etc. still remain
+		this.transformed = false;
+	}
+
+	// new properties are added to this as required
+	// currently just works for spells, stats, image, animation, projectiles
+	transform (properties) {
+		if (this.transformed) {
+			console.error("Game.hero.transform was called even though hero is already transformed. Parameters:", properties);
+			return false;
+		}
+		this.transformed = true;
+
+		// image and animation
+		// (same as in constructor)
+		// old image does not need to be saved, since it can be figured out from saved data (this is the hero)
+		this.setImageFromProperties(properties);
+
+		// projectile
+		if (typeof this.projectile.image !== "undefined") {
+			console.error("Game.hero.projectile.image is being used for a projectile that isn't due to a transformation!");
+		}
+		this.projectile = properties.projectile; 
+		if (typeof this.projectile.adjust === "undefined") {
+			this.projectile.adjust = {};
+		}
+		Game.projectileImageUpdate();
+		
+		// stats
+		this.untransformedStats = this.stats;
+		if (typeof properties.stats !== "undefined") {
+			this.stats = properties.stats;
+		}
+		// tbd conditionalStats
+
+		// spells
+		this.untransformedSpells = this.spells;
+		if (typeof properties.spells !== "undefined") {
+			this.spells = properties.spells;
+		}
+		// tbd save these untransformed arrays in savedata
+	}
+
+	untransform () {
+		let heroProperties = Game.heroBaseProperties();
+		// image and animation
+		this.setImageFromProperties(heroProperties);
+
+		// projectile
+		this.projectile = {};
+		Game.projectileImageUpdate();
+
+		// stats
+		this.stats = this.untransformedStats;
+		this.untransformedStats = undefined;
+
+		// spells
+		this.spells = this.untransformedSpells;
+		this.untransformedSpells = undefined;
+
+		this.transformed = false;
 	}
 
 	// move on a mount
@@ -4059,26 +4152,27 @@ class Hero extends Attacker {
 						let hitboxSize = 0;
 						let projectileName = "";
 						let imageName = "";
-						let trail = {
-							width: 2.5,
-							height: 2.5,
-							colour: ["FB6304", "#FFBF00", "#FFFF00", "#FFAC1C", "#FF4433"], // class Particle chooses random colour from array
-							removeIn: 750,
-							variance: 15, // variance in position (in x/y axis in one direction from player)
-							intensity: 30,
-						};
+						let trail;
 						if (weaponType === "staff") {
 							hitboxSize = 23;
 							projectileName = "Fireball Attack";
 							imageName = Game.heroProjectileName;
+							trail = {
+								width: 2.5,
+								height: 2.5,
+								colour: ["FB6304", "#FFBF00", "#FFFF00", "#FFAC1C", "#FF4433"], //particle chooses random colour from array
+								removeIn: 750,
+								variance: 15, // variance in position (in x/y axis in one direction from player)
+								intensity: 30,
+							};
 						}
 						else if (weaponType === "bow") {
 							trail = {
-                width: 1.5,
-                height: 1.5,
-                colour: ["#CECDCC", "#D7D8D2"], // class Particle chooses random colour from array
-                removeIn: 1500,
-                variance: 5, // variance in position (in x/y axis in one direction from player)
+								width: 1.5,
+								height: 1.5,
+								colour: ["#CECDCC", "#D7D8D2"], // particle chooses random colour from array
+								removeIn: 1500,
+								variance: 5, // variance in position (in x/y axis in one direction from player)
 								intensity: 5,
 							};
 							hitboxSize = 10;
@@ -5213,25 +5307,33 @@ class Hero extends Attacker {
 
 	// called after this.direction is updated
 	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
+	// this is just default behaviour for player, i.e. overriden if rotationImages is set (in which case it works like a standard character)
+	// (this system should probably be updated in the future)
 	updateRotation () {
-		if (this.direction === 1) { // facing up
-			this.crop.y = this.baseHeight*2;
-			this.animation.baseCrop.y = this.baseHeight*2;
+		if (typeof this.rotationImages === "undefined") {
+			// no overriding of standard behaviour
+			if (this.direction === 1) { // facing up
+				this.crop.y = this.baseHeight*2;
+				this.animation.baseCrop.y = this.baseHeight*2;
+			}
+	
+			else if (this.direction === 2) { // facing left
+				this.crop.y = this.baseHeight*3;
+				this.animation.baseCrop.y = this.baseHeight*3;
+			}
+	
+			else if (this.direction === 3) { // facing down
+				this.crop.y = 0;
+				this.animation.baseCrop.y = 0;
+			}
+	
+			else if (this.direction === 4) { // facing right
+				this.crop.y = this.baseHeight;
+				this.animation.baseCrop.y = this.baseHeight;
+			}
 		}
-
-		else if (this.direction === 2) { // facing left
-			this.crop.y = this.baseHeight*3;
-			this.animation.baseCrop.y = this.baseHeight*3;
-		}
-
-		else if (this.direction === 3) { // facing down
-			this.crop.y = 0;
-			this.animation.baseCrop.y = 0;
-		}
-
-		else if (this.direction === 4) { // facing right
-			this.crop.y = this.baseHeight;
-			this.animation.baseCrop.y = this.baseHeight;
+		else { // work like normal characters
+			this.setRotationImage();
 		}
 	}
 
@@ -5298,6 +5400,8 @@ class Projectile extends Thing {
 		super(properties);
 
 		this.z = properties.z || 1; // appears on top by default (z would normally be 0)
+
+		this.projectileClass = properties.projectileClass; // for resistance to certain types i.e. blast resistance
 
 		this.projectileStats = properties.projectileStats || { // stats used for when dealing damage. these can be the own projectile's or the actual attacker's
 			// for if projectile deals its own damage (thus has its own stats)
@@ -5634,7 +5738,8 @@ class Projectile extends Thing {
 				let targetAlreadyDamaged = this.damageDealt.find(damage => damage.enemy.id === target.id);
 
 				// check projectile is touching character it wants to damage, and that target should be damaged
-				if (this.isTouching(target) && !target.respawning && !target.isCorpse && targetAlreadyDamaged === undefined && !this.exceptTargets.includes(target)) {
+				if (this.isTouching(target) && !target.respawning && !target.isCorpse && targetAlreadyDamaged === undefined
+					&& !this.exceptTargets.includes(target) && !target.projectileClassResistance.includes(this.projectileClass)) {
 
 					let canBeDamaged = true;
 
@@ -7459,6 +7564,11 @@ Game.statusEffects.functions = {
 	// also reset its dimensions
 	resetImage: function (target) {
 		target.resetImage();
+	},
+
+	// just for hero, i.e. turning them back into hero after they were cat
+	resetTransform: function (target) {
+		target.resetTransform();
 	},
 
 	// used in minigames after stun effect instead of death
@@ -9454,8 +9564,14 @@ Game.init = function () {
 	this.playingMusic = null;
 
 
+	//
 	// create the player
+	//
+
 	// its x and y are not set until Game.loadArea resumes
+
+	let heroProperties = Game.heroBaseProperties(); // object of properties - images, crop, animation
+
 	this.hero = new Hero({
 		// properties inherited from Entity
 		map: map,
@@ -9468,14 +9584,9 @@ Game.init = function () {
 		hostility: "hero",
 
 		// properties inheritied from Thing
-		images: [
-			{imageName: "playerSkin_"+Player.skinTone},
-			{imageName: "playerFace_"+Player.face, doNotAnimate: true},
-			{imageName: "playerClothing_"+Player.clothing},
-			{imageName: "playerHair_"+Player.hair, doNotAnimate: true},
-			{imageName: "playerEars_"+Player.skinTone, doNotAnimate: true},
-			{imageName: "playerHat_"+Player.hat, doNotAnimate: true} // tbd add weapon here
-		],
+		images: heroProperties.images,
+		crop: heroProperties.crop,
+		animation: heroProperties.animation,
 
 		// properties inherited from Character
 		health: Player.health,
@@ -9485,19 +9596,6 @@ Game.init = function () {
 		class: Player.class,
 
 		direction: 3,
-		crop: {
-			x: 0,
-			y: 0,
-			width: 52,
-			height: 127
-		},
-		animation: {
-			type: "spritesheet",
-			frameTime: 18,
-			imagesPerRow: 4,
-			totalImages: 4,
-			animateBasis: "walk"
-		},
 
 		footHitbox: {
 			width: 26,
@@ -9640,6 +9738,35 @@ Game.init = function () {
 		Game.saveProgress("auto");
 	}, 60000);
 };
+
+// returns object of base properties for hero
+// called on initially creating the hero, as well as untransforming the hero
+Game.heroBaseProperties = function () {
+	let properties = {
+		images: [
+			{imageName: "playerSkin_"+Player.skinTone},
+			{imageName: "playerFace_"+Player.face, doNotAnimate: true},
+			{imageName: "playerClothing_"+Player.clothing},
+			{imageName: "playerHair_"+Player.hair, doNotAnimate: true},
+			{imageName: "playerEars_"+Player.skinTone, doNotAnimate: true},
+			{imageName: "playerHat_"+Player.hat, doNotAnimate: true} // tbd add weapon here
+		],
+		crop: {
+			x: 0,
+			y: 0,
+			width: 52,
+			height: 127
+		},
+		animation: {
+			type: "spritesheet",
+			frameTime: 18,
+			imagesPerRow: 4,
+			totalImages: 4,
+			animateBasis: "walk"
+		},
+	};
+	return properties;
+}
 
 // re-start hero status effect ticks (from savedata)
 Game.initStatusEffects = function () {
@@ -9857,7 +9984,7 @@ Game.setDayNightImages = function () {
 			if (Event.darkness >= 0.2) {
 				// night time
 				if (thing.imageName !== thing.imageNight) {
-					thing.changeImage(thing.imageNight);
+					thing.changeImage(thing.imageNight); // should be setImage ??
 				}
 			}
 			else {
@@ -10432,18 +10559,29 @@ Game.update = function (delta) {
 		// strafing is slower
 		if (dirx !== 0 && diry !== 0) {
 			// strafing
+
 			if (dirx === 1) {
-				dirx = 0.71; // ~sqrt(0.5)
+				dirx = 0.7; // ~sqrt(0.5)
 			}
 			else if (dirx === -1) {
-				dirx = -0.71;
+				dirx = -0.7;
 			}
 			if (diry === 1) {
-				diry = 0.71;
+				diry = 0.7;
 			}
 			else if (diry === -1) {
-				diry = -0.71;
+				diry = -0.7;
 			}
+			
+			/* alt method
+			if (this.strafeDirection === 0) {
+				this.strafeDirection = 1;
+				dirx = 0;
+			}
+			else {
+				this.strafeDirection = 0;
+				diry = 0;
+			}*/
 		}
 
 		if (this.hero.mounted) {
@@ -11997,6 +12135,8 @@ Game.loadItemImages = function (item) {
 }
 
 // set player projectile/bobber image
+// order of precedence is Game.hero.projectile > Player.inventory.weapon.projectile > Player.baseProjectile
+// Game.hero.projectile doesn't apply to bobber
 // currently only works for heroProjectile not heroProjectile2
 Game.projectileImageUpdate = function () {
 	// figure out if it is a projectile or bobber, and save variable names for later
@@ -12007,8 +12147,26 @@ Game.projectileImageUpdate = function () {
 		adjustAddress = null;
 	}
 
+	// if the player has a special projectile image that should override any weapon/skin projectile image 
+	// this should only apply to player transformations
+	if (typeof Game.hero.projectile.image !== "undefined") {
+		if (nameAddress === "heroProjectileName") {
+			// weapon projectile
+			this[nameAddress] = Game.hero.projectile.image;
+
+			if (adjustAddress !== null) {
+				this[adjustAddress] = Game.hero.projectile.adjust;
+			}
+
+			this.heroProjectileInfo = Game.hero.projectile;
+
+			// load image and stop player attacking until it has loaded (if necessary)
+			this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal: "./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
+		}
+	}
+
 	// if the player is now holding a weapon with a special projectile image, load that image and stop the player from attacking until this is done
-	if (typeof Player.inventory.weapon.projectile !== "undefined" && this[nameAddress] !== Player.inventory.weapon.projectile) {
+	else if (typeof Player.inventory.weapon.projectile !== "undefined" && this[nameAddress] !== Player.inventory.weapon.projectile) {
 		// not loaded projectile image before
 		let weaponObj = Items[Player.inventory.weapon.type][Player.inventory.weapon.id];
 
@@ -12030,11 +12188,11 @@ Game.projectileImageUpdate = function () {
 		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal:"./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
 	}
 
-	// if the player is NOT holding a weapon with a special projectile image, and the skin does have a special projectile image
+	// if the player is NOT holding a weapon with a special projectile image, and the player DOES have a special projectile image
 	else if (Player.inventory.weapon.projectile === undefined && this[nameAddress] !== Player.baseProjectile) {
 		// needs to reload default projectile image
 		if (nameAddress === "heroProjectileName") {
-			// weapon projectile - saved in skindata by default
+			// weapon projectile - saved as Player.baseProjectile by default
 			this[nameAddress] = Player.baseProjectile;
 		}
 		else if (nameAddress === "heroBobberName") {
@@ -12044,7 +12202,7 @@ Game.projectileImageUpdate = function () {
 		if (adjustAddress !== null) { // set adjust for projectiles only (not bobbers)
 			this[adjustAddress] = Player.baseProjectileAdjust;
 		}
-		this.heroProjectileInfo = Skins[Player.class][Player.skin].projectileInfo || {};
+		this.heroProjectileInfo = {};
 
 		// load image and stop player attacking until it has loaded
 		this.loadImagesAndStopAttacking({[this[nameAddress]]: {normal: "./assets/projectiles/" + this[nameAddress] + ".png"}}, false);
@@ -13724,11 +13882,13 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.mana = Game.hero.mana;
 		Player.trails = Game.hero.trails;
 		Player.oldPosition = Game.hero.oldPosition; // temporary teleport
-		// re-link status effects + spells (inefficient - tbd)
+		// re-link status effects + spells (inefficient? - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
 		Player.spells = Game.hero.spells;
-		// re-link player stats (inefficient - tbd)
-		//Player.stats = Game.hero.stats;
+		Player.untransformedSpells = Game.hero.untransformedSpells;
+		// re-link player stats (inefficient? - tbd)
+		Player.stats = Game.hero.stats;
+		Player.untransformedStats = Game.hero.untransformedStats;
 
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));

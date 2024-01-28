@@ -1062,14 +1062,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Ozzy",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau when the human isn't a cat
+            notUnlockedRoles: "Hey!",
+		},
     },
     {
         id: 28,
@@ -1089,14 +1092,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Luna",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "Not seen you around here before~",
+		},
     },
     {
         id: 29,
@@ -1116,14 +1122,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Thor",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "Hello~",
+		},
     },
     {
         id: 30,
@@ -1143,14 +1152,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Loki",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "HI",
+		},
     },
     {
         id: 31,
@@ -1170,14 +1182,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Hebes",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "Mm whatchu want?",
+		},
     },
     {
         id: 32,
@@ -1197,14 +1212,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Snowy",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "Hey hey!!",
+		},
     },
     {
         id: 33,
@@ -1224,14 +1242,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Zig",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "<i>Grrrr</i>",
+		},
     },
     {
         id: 34,
@@ -1251,14 +1272,17 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 104,
+			width: 105,
 			height: 108,
 		},
         name: "Twilight",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "Hm~ come back later.",
+		},
     },
     {
         id: 35,
@@ -1278,13 +1302,16 @@ var Villagers = [
 			animateBasis: "walk"
 		},
 		crop: {
-			x: 1,
+			x: 0,
 			y: 0,
-			width: 91,
+			width: 90,
 			height: 82,
 		},
         name: "Merlin",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		chat: { // just displays as Miau 
+            notUnlockedRoles: "So sleepy~",
+		},
     },
 ];
