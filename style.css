@@ -395,7 +395,7 @@ thead:after { /* space after bags in bank */
 	-moz-user-select: text;
 	-webkit-user-select: text;
 	-ms-user-select: text;
-	overflow: hidden;
+	overflow: auto;
 }
 
 .chatPara {
