@@ -388,8 +388,8 @@ thead:after { /* space after bags in bank */
 #chatText {
 	position: absolute;
 	bottom: 44px;
-	max-height: 380px;
-	margin-bottom: 10px;
+	max-height: 390px;
+	margin-top: -20px;
 	width: 400px;
 	user-select: text;
 	-moz-user-select: text;
@@ -454,7 +454,7 @@ thead:after { /* space after bags in bank */
 }
 
 #players {
-	width: 300px;
+	width: 502px;
 	height: 15px;
 	margin-left: -10px;
 	border-bottom: 1px solid black;
@@ -462,9 +462,6 @@ thead:after { /* space after bags in bank */
 	padding-top: 0px;
 	text-align: center;
 	cursor: pointer;
-	position: relative;
-	left: 402px;
-	top: 40px;
 }
 
 #playersInfo {

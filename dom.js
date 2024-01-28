@@ -757,7 +757,7 @@ Dom.changeBook = function (page, openClose) {
 			Dom.reputation.update();
 		}
 		if (page === "chatPage") {
-			if (Dom.elements.chatText.offsetHeight === 520) {
+			if (Dom.elements.chatText.offsetHeight === 390) {
 				Dom.elements.chatText.style.overflowY = "auto";
 				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
 			}
@@ -1212,7 +1212,7 @@ Dom.chat.insert = function (text, delay, time, noRepeat) {
 
 			// add the text to the chat page
 			Dom.elements.chatText.innerHTML += "<p class='chatPara'>" + text + "</p>";
-			if (Dom.elements.chatText.offsetHeight === 520) {
+			if (Dom.elements.chatText.offsetHeight === 390) {
 				Dom.elements.chatText.style.overflowY = "auto";
 				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
 			}
