@@ -26,6 +26,7 @@ let Dom = {
 		activeAbility: document.getElementById("activeAbility"),
 		activeQuestBox: document.getElementById("activeQuestBox"),
 		adventurePage: document.getElementById("adventurePage"),
+		adventureWrapper: document.getElementById("adventureWrapper"),
 		aggroOn: document.getElementById("aggroOn"),
 		bag: document.getElementById("bag"),
 		bagText: document.getElementById("bagText"),
@@ -1526,13 +1527,13 @@ Dom.reputation.give = function (area, amount) {
 		Dom.chat.insert("You have gained " + amount + " reputation with " + FromCamelCase(area));
 		Player.reputation[area].changed = true;
 		if (Dom.reputation.ready) {
-			Dom.elements.reputationWrapper.innerHTML += FromCamelCase(area) + ': <div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
+			Dom.elements.reputationWrapper.innerHTML += FromCamelCase(area) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
 		}
 	}
 }
 
 Dom.reputation.start = function () {
-	Dom.elements.reputationWrapper.innerHTML = "";
+	Dom.elements.reputationWrapper.innerHTML = "<br>";
 	for (let i = 0; i < Object.keys(Player.reputation).length; i++) {
 		if (Player.reputation[Object.keys(Player.reputation)[i]].changed) {
 			Dom.elements.reputationWrapper.innerHTML += FromCamelCase(Object.keys(Player.reputation)[i]) + ':<div class="widthPadding"></div> <div class="reputationBox"> <div class="reputationBar"></div> </div><br><br>';
@@ -5960,16 +5961,16 @@ Dom.mail.unread = function () {
 }
 
 Dom.adventure.update = function () {
-	Dom.elements.adventurePage.innerHTML = `<div id="level" style="display:inline;">Level ${Player.level}</div>
-		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
-		<br><br><br>Suggested Content:`;
+	Dom.elements.adventureWrapper.innerHTML = `<div id="level" style="display:inline;">Level ${Player.level}</div>
+		<a href="./achievements/index.html" target="_blank" style="font-size: 22px; display: inline; float: right;">Achievements</a>
+		<br><br>Suggested Content:`;
 	for (let i = 0; i < Object.keys(Adventure).length; i++) {
 		if (Adventure[Object.keys(Adventure)[i]].condition()) {
 			let html = Adventure[Object.keys(Adventure)[i]].html;
 			if (Adventure[Object.keys(Adventure)[i]].special !== undefined) {
 				html = html.replace(/SPECIAL/, Adventure[Object.keys(Adventure)[i]].special());
 			}
-			Dom.elements.adventurePage.innerHTML += html;
+			Dom.elements.adventureWrapper.innerHTML += html;
 		}
 	}
 }

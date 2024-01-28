@@ -135,7 +135,7 @@ thead:after { /* space after bags in bank */
 	overflow-x: hidden;
 }
 
-#questsPage, #settingsPage, #chatPage, #inventoryPage, #reputationPage{
+#questsPage, #settingsPage, #chatPage, #inventoryPage, #reputationPage, #adventurePage{
 	padding-left: 10px;
 	padding-right: 10px;
 	overflow: hidden;
@@ -414,7 +414,7 @@ thead:after { /* space after bags in bank */
 	width: 240px;
 	padding-left: 3px;
 	padding-right: 40px;
-	background-color: var(--border);
+	background-color: #c9c2a0;
 }
 
 #canvasChatInput {
@@ -499,7 +499,7 @@ thead:after { /* space after bags in bank */
 
 #inventoryGearWrapper {
 	position: relative;
-	left: 55px;
+	left: 45px;
 	top: 65px;
 }
 
@@ -523,8 +523,8 @@ thead:after { /* space after bags in bank */
 
 #weapon, #choosePageWeapon {
 	position: relative;
-	left: 292px;
-	top: -138px;
+	left: 265px;
+	top: -120px;
 }
 
 
@@ -642,9 +642,10 @@ overflow: auto;
 	border: 5px solid #7d7c61;
 	background-color: #bdb093;
 	padding-top: 10px;
-	padding-bottom: 10px;
+	padding-bottom: 16px;
 	padding-left: 10px;
 	width: 290px;
+	margin-top: 10px;
 }
 
 #adventureWrapper {
@@ -652,21 +653,21 @@ position: absolute;
 width: 300px;
 left: 405px;
 top: 60px;
+height: 390px;
+overflow-y:: auto;
+overflow-x: visible;
 
 }
 
 .adventureContent {
-	font-size: 20px;
+	font-size: 15px;
 	position: relative;
 	line-height: 20px;
 	top: 10px;
 }
 
 #adventurePage {
-	font-size: 30px;
-	padding: 20px;
-	width: 480px;
-	height: 560px;
+
 }
 
 /*					*/
@@ -674,7 +675,7 @@ top: 60px;
 /*					*/
 
 #closeReputation {
-	left: 130px;
+	left: 100px;
 	top: 7px;
 }
 
@@ -691,15 +692,13 @@ top: 60px;
 #reputationWrapper {
 	position: relative;
 	left: 37px;
-	top:30px;
+	top: 50px;
 	width: 325px;
 	height:auto;
 	font-size: 15px;
 }
 
 .reputationBox {
-	left: 120px;
-	top: 75px;
 	height: 20px;
 	width: 250px;
 	border: 1px solid black;
@@ -708,7 +707,7 @@ top: 60px;
 
 .reputationBar {
 	position: absolute;
-	left:50px;
+	left:60px;
 	line-height: 22px;
 	vertical-align: middle;
 	background-color: gold;
@@ -784,7 +783,7 @@ top: 60px;
 	width: 100px;
 	left: 200px;
 	height: 40px;
-	background-color: var(--bottom);
+	background-color: #e1dfb8;;
 	margin-bottom: 0px;
 	cursor: pointer;
 }
