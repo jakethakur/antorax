@@ -749,7 +749,7 @@ Spells = [
 		img: "assets/runes/0.png", // tbd make a unique image for this?
 		imgIconNum: 0,
 		class: "cat",
-		description: ["", "Leap towards your mouse location, up to 500 pixels."],
+		description: ["", "Leap towards your mouse location, up to 150 pixels."],
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
@@ -1219,7 +1219,7 @@ Spells = [
 				},
 			});
 
-			Game.setTimeout(boss.untransform.bind(boss), Spells[26].sinkDuration[properties.tier]);
+			Game.setTimeout(boss.untransform.bind(boss), Spells[26].beDuration[properties.tier]);
 			// also needs to remove player status effects and delete hands !!!!!!!!! and reset flowersToCollect !!!!
 
 			// summon foxglove's hands
@@ -1245,7 +1245,7 @@ Spells = [
 				Game.statusEffects.generic({
 					target: Game.hero,
 					effectTitle: "Flower to Collect " + i,
-					effectDescription: "Collect the three flow to deal damage to Foxglove!",
+					effectDescription: "Collect the three flowers to deal damage to Foxglove!",
 					imageName: "flower"+flowersId,
 				});
 				boss.flowersToCollect.push(flowerId);

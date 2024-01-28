@@ -7749,7 +7749,9 @@ Dom.init = function () {
 				if (typeof Game.hero.spells[i] !== "undefined") {
 					// spell slot i isn't empty
 					if (typeof Game.hero.spells[i].onCooldown === "undefined" || Game.hero.spells[i].onCooldown === 0) {
-						Game.hero.channelSpell(Game.hero.spells[i].id, Game.hero.spells[i].tier, {target: {x: Game.previousMousePosition.x, y: Game.previousMousePosition.y}});
+						let targetX = Game.camera.x + Game.previousMousePosition.x - Game.viewportOffsetX; // mouseX (tbd should probably be made into a function)
+						let targetY = Game.camera.y + Game.previousMousePosition.y - Game.viewportOffsetX; // mouseY
+						Game.hero.channelSpell(Game.hero.spells[i].id, Game.hero.spells[i].tier, {target: {x: targetX, y: targetY}});
 					}
 				}
 			}
