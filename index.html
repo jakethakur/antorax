@@ -69,8 +69,6 @@
 		<div id="inventoryGoldXP"></div>
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification(true)"onmouseleave="Dom.expand('itemIdentification')"></div>
 
-		<div id="weapon" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-
 		<span id="inventoryGearWrapper">
 			<div id="helm" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 			<div id="chest" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
@@ -78,6 +76,7 @@
 			<div id="boots" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		</span>
 
+		<div id="weapon" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 
 		<table id="trinketsInventory">
 			<tr>
@@ -112,48 +111,44 @@
 			<td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" /><td onclick="Game.inventoryUpdate()" />
 		</tr>
 	</table>
+
 	<div id="questsPage" hidden class="DOM">
+		<div id="inactiveQuestsBox">
+			<div id="possibleQuests"onclick="Dom.expand('possibleQuestBox')">Possible Quests</div>
+			<div id="possibleQuestBox"hidden></div>
+			<div id="completedQuests"onclick="Dom.expand('completedQuestBox')">Completed Quests</div>
+			<div id="completedQuestBox"hidden><center>You have no completed quests</center></div>
+			<div id="otherQuests"onclick="Dom.expand('otherQuestBox')">Other Quests</div>
+			<div id="otherQuestBox"hidden></div>
+		</div>
 
-
-	<div id="inactiveQuestsBox">
-		<div id="possibleQuests"onclick="Dom.expand('possibleQuestBox')">Possible Quests</div>
-		<div id="possibleQuestBox"hidden></div>
-		<div id="completedQuests"onclick="Dom.expand('completedQuestBox')">Completed Quests</div>
-		<div id="completedQuestBox"hidden><center>You have no completed quests</center></div>
-		<div id="otherQuests"onclick="Dom.expand('otherQuestBox')">Other Quests</div>
-		<div id="otherQuestBox"hidden></div>
-	</div>
-
-	<div id="ongoingQuestsBox">
-		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
-		<div id="activeQuestBox"hidden></div>
-	</div>
-
+		<div id="ongoingQuestsBox">
+			<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
+			<div id="activeQuestBox"hidden></div>
+		</div>
 	</div>
 
 	<div id="adventurePage" hidden class="DOM">
-
 	</div>
 
-<div id="reputationPage" hidden class="DOM">
+	<div id="reputationPage" hidden class="DOM">
 
-	<div id="adventureWrapper">
-			<div id="level" style="display:inline;">Level 1</div>
-			<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
-			<div><br><span style="font-size: 20px;">Suggested Content:</p></div>
-			<div id="archaeology" class="adventure">
-				<a href="./archaeology/index.html" target="_blank"style="font-size: 25px;">Archaeology</a><br>
-				<span style="font-size: 15px;">Uncover and collect weapons and armour.</span>
-			</div>
-	 </div>
+		<div id="adventureWrapper">
+				<div id="level" style="display:inline;">Level 1</div>
+				<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
+				<div><br><span style="font-size: 20px;">Suggested Content:</p></div>
+				<div id="archaeology" class="adventure">
+					<a href="./archaeology/index.html" target="_blank"style="font-size: 25px;">Archaeology</a><br>
+					<span style="font-size: 15px;">Uncover and collect weapons and armour.</span>
+				</div>
+		</div>
 
-	<div id="reputationWrapper">
-		<br><p style="font-size: 20px;">Here you can see your reputation with the different factions of Antorax. If you have a good reputation you may receive discounts from local merchants and the villagers may trust you enough to help them for a reward.</p><br>
-		<p style="font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
+		<div id="reputationWrapper">
+			<br><p style="font-size: 20px;">Here you can see your reputation with the different factions of Antorax. If you have a good reputation you may receive discounts from local merchants and the villagers may trust you enough to help them for a reward.</p><br>
+			<p style="font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
+		</div>
+
 	</div>
-
-
-</div>
 
 	<div id="settingsPage" hidden class="DOM">
 		<div id="settingLogout"></div>

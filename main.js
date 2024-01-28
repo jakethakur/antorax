@@ -2667,29 +2667,29 @@ class Character extends Thing {
 
 				// diagonal movement
 
-				this.y += moveRadius * 1.71;
-				this.x += moveRadius * 0.71;
+				this.y += moveRadius * 0.7; // 0.7 is approx sqrt(0.5)
+				this.x += moveRadius * 0.7;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
 					break;
 				}
 
-				this.x -= moveRadius * 1.42;
+				this.x -= moveRadius * 1.4;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
 					break;
 				}
 
-				this.y -= moveRadius * 1.42;
+				this.y -= moveRadius * 1.4;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
 					break;
 				}
 
-				this.x += moveRadius * 1.42;
+				this.x += moveRadius * 1.4;
 				this.updateFootHitbox();
 				if (!this.isStuck()) {
 					collision = false;
@@ -2697,8 +2697,8 @@ class Character extends Thing {
 				}
 
 				// no luck .. let's reset position and try again with a larger "radius"
-				this.x -= moveRadius * 0.71;
-				this.y += moveRadius * 0.71;
+				this.x -= moveRadius * 0.7;
+				this.y += moveRadius * 0.7;
 
 				if (moveRadius > 1000) {
 					// stop an infinite loop, just in case
@@ -10559,18 +10559,29 @@ Game.update = function (delta) {
 		// strafing is slower
 		if (dirx !== 0 && diry !== 0) {
 			// strafing
+
 			if (dirx === 1) {
-				dirx = 0.71; // ~sqrt(0.5)
+				dirx = 0.7; // ~sqrt(0.5)
 			}
 			else if (dirx === -1) {
-				dirx = -0.71;
+				dirx = -0.7;
 			}
 			if (diry === 1) {
-				diry = 0.71;
+				diry = 0.7;
 			}
 			else if (diry === -1) {
-				diry = -0.71;
+				diry = -0.7;
 			}
+			
+			/* alt method
+			if (this.strafeDirection === 0) {
+				this.strafeDirection = 1;
+				dirx = 0;
+			}
+			else {
+				this.strafeDirection = 0;
+				diry = 0;
+			}*/
 		}
 
 		if (this.hero.mounted) {

@@ -351,9 +351,12 @@ thead:after { /* space after bags in bank */
 }
 
 .chatBannerOption {
-	 list-style-image: url(assets/icons/dialogueChoiceBullet.png);
-	 font-size: 22px;
-	 padding-bottom: 5px;
+
+	 list-style-image: url(assets/icons/dialogueChoiceBullet.png);
+
+	 font-size: 22px;
+
+	 padding-bottom: 5px;
 	padding-top: 5px;
 }
 
@@ -497,11 +500,12 @@ thead:after { /* space after bags in bank */
 #inventoryGearWrapper {
 	position: relative;
 	left: 55px;
+	top: 65px;
 }
 
 #helm, #choosePageHelm {
 	background-image: url("assets/items/helm/1.png"), url("assets/interface/gearBackground.png");
-		margin-top: 20px;
+	margin-top: 20px;
 }
 
 #chest, #choosePageChest {
@@ -519,8 +523,8 @@ thead:after { /* space after bags in bank */
 
 #weapon, #choosePageWeapon {
 	position: relative;
-	left: 300px;
-	top: 150px;
+	left: 292px;
+	top: -138px;
 }
 
 
@@ -670,8 +674,8 @@ top: 60px;
 /*					*/
 
 #closeReputation {
-left: 130px;
-top: 70px;
+	left: 130px;
+	top: 7px;
 }
 
 .widthPadding {
@@ -696,7 +700,6 @@ top: 70px;
 .reputationBox {
 	left: 120px;
 	top: 75px;
-	position: absolute;
 	height: 20px;
 	width: 250px;
 	border: 1px solid black;
