@@ -68,11 +68,16 @@
 	<div id="inventoryPage" hidden class="DOM" onclick="Dom.inventory.deEquip = false;" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
 		<div id="inventoryGoldXP"></div>
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification(true)"onmouseleave="Dom.expand('itemIdentification')"></div>
+
 		<div id="weapon" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="helm" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="chest" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="greaves" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-		<div id="boots" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+
+		<span id="inventoryGearWrapper">
+			<div id="helm" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="chest" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="greaves" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="boots" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+		</span>
+
 
 		<table id="trinketsInventory">
 			<tr>
@@ -108,8 +113,9 @@
 		</tr>
 	</table>
 	<div id="questsPage" hidden class="DOM">
-		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
-		<div id="activeQuestBox"hidden></div>
+
+
+	<div id="inactiveQuestsBox">
 		<div id="possibleQuests"onclick="Dom.expand('possibleQuestBox')">Possible Quests</div>
 		<div id="possibleQuestBox"hidden></div>
 		<div id="completedQuests"onclick="Dom.expand('completedQuestBox')">Completed Quests</div>
@@ -118,23 +124,41 @@
 		<div id="otherQuestBox"hidden></div>
 	</div>
 
-	<div id="adventurePage" hidden class="DOM">
-		<div id="level" style="display:inline;">Level 1</div>
-		<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
-		<div><br>Suggested Content:</div>
-		<div id="archaeology" class="adventure">
-			<a href="./archaeology/index.html" target="_blank">Archaeology</a><br>
-			<span style="font-size: 20px;">Uncover and collect weapons and armour.</span>
-		</div>
+	<div id="ongoingQuestsBox">
+		<div id="activeQuests"onclick="Dom.expand('activeQuestBox')">Active Quests</div>
+		<div id="activeQuestBox"hidden></div>
 	</div>
 
-	<div id="reputationPage" hidden class="DOM">
-		<br><p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">Here you can see your reputation with the different factions of Antorax. If you have a good reputation you may receive discounts from local merchants and the villagers may trust you enough to help them for a reward.</p><br>
-		<p style="padding-left: 30px;padding-right: 20px;font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
 	</div>
+
+	<div id="adventurePage" hidden class="DOM">
+
+	</div>
+
+<div id="reputationPage" hidden class="DOM">
+
+	<div id="adventureWrapper">
+			<div id="level" style="display:inline;">Level 1</div>
+			<a href="./achievements/index.html" target="_blank" style="display: inline; float: right;">Achievements</a>
+			<div><br><span style="font-size: 20px;">Suggested Content:</p></div>
+			<div id="archaeology" class="adventure">
+				<a href="./archaeology/index.html" target="_blank"style="font-size: 25px;">Archaeology</a><br>
+				<span style="font-size: 15px;">Uncover and collect weapons and armour.</span>
+			</div>
+	 </div>
+
+	<div id="reputationWrapper">
+		<br><p style="font-size: 20px;">Here you can see your reputation with the different factions of Antorax. If you have a good reputation you may receive discounts from local merchants and the villagers may trust you enough to help them for a reward.</p><br>
+		<p style="font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
+	</div>
+
+
+</div>
 
 	<div id="settingsPage" hidden class="DOM">
 		<div id="settingLogout"></div>
+
+	<div id="settingsWrapperLeft">
 		<div id="settingFullscreen" class="settings">
 			Fullscreen:
 			<span class="radio1"><input type="radio" id="fullscreenOn" name="fullscreenOnOff" onclick="Dom.settings.fullscreen()">Yes</input></span>
@@ -166,35 +190,41 @@
 			<span class="radio1"><input type="radio" id="musicOn" name="musicOnOff" onclick="Dom.settings.music()">Yes</input></span>
 			<span class="radio2"><input type="radio" name="musicOnOff" checked="true" onclick="Dom.settings.music()">No</input></span>
 		</div>
+
 		<div id="settingParticles" class="settings">
             Show particles:
             <span class="radio1"><input type="radio" id="particlesOn" name="particlesOnOff" checked="true">Yes</input></span>
             <span class="radio2"><input type="radio" id="particlesOff" name="particlesOnOff">No</input></span>
-        </div>
+    </div>
+
 		<div id="settingWeather" class="settings">
 			Show weather:
 			<span class="radio1"><input type="radio" id="weatherOn" name="weatherOnOff" checked="true">Yes</input></span>
 			<span class="radio2"><input type="radio" id="weatherOff" name="weatherOnOff">No</input></span>
 		</div>
+
 		<div id="settingTransparency" class="settings">
 			Page transparency:
 			<span class="radio1"><input type="radio" id="transparencyOn" name="transparencyOnOff" onclick="Dom.settings.transparency()">On</input></span>
 			<span class="radio2"><input type="radio" id="transparencyOff" name="transparencyOnOff" checked="true" onclick="Dom.settings.transparency()">Off</input></span>
 		</div>
+	</div>
+
+<div id="settingsWrapperRight">
 		<div id="settingDark" class="settings">
 			Dark theme:
 			<span class="radio1"><input type="radio" id="darkOn" name="darkOnOff" onclick="Dom.settings.dark()">On</input></span>
 			<span class="radio2"><input type="radio" id="darkOff" name="darkOnOff" checked="true" onclick="Dom.settings.dark()">Off</input></span>
 		</div>
 		<div id="settingMinigames" class="settings">
-			Minigame notifications:
-			<span class="radio1"><input type="radio" id="minigamesOn" name="minigameOnOff" checked="true" onclick="Dom.settings.minigames()">Yes</input></span>
-			<span class="radio2"><input type="radio" id="minigamesOff" name="minigameOnOff" onclick="Dom.settings.minigames()">No</input></span>
+			Minigame alerts:
+			<span class="radio1"><input type="radio" id="minigamesOn" name="minigameOnOff" checked="true" onclick="Dom.settings.minigames()">On</input></span>
+			<span class="radio2"><input type="radio" id="minigamesOff" name="minigameOnOff" onclick="Dom.settings.minigames()">Off</input></span>
 		</div>
 		<div id="settingNametag" class="settings">
-			Show player nametag:
-			<span class="radio1"><input type="radio" id="nametagOn" name="nametagOnOff">Yes</input></span>
-			<span class="radio2"><input type="radio" id="nametagOff" name="nametagOnOff" checked="true">No</input></span>
+			Player nametag:
+			<span class="radio1"><input type="radio" id="nametagOn" name="nametagOnOff">On</input></span>
+			<span class="radio2"><input type="radio" id="nametagOff" name="nametagOnOff" checked="true">Off</input></span>
 		</div>
 		<div id="settingCoords" class="settings">
 			Show co-ordinates:
@@ -221,6 +251,7 @@
 			<span class="radio1"><input type="radio" id="gridOn" name="gridOnOff" onclick="Dom.settings.grid()">Yes</input></span>
 			<span class="radio2"><input type="radio" name="gridOnOff" checked="true" onclick="Dom.settings.grid()">No</input></span>
 		</div>
+	</div>
 		<br>
 		<div id='settingCredits' onclick='Dom.settings.page("creditsPage")'>Credits</div><br><br><br><br>
 	</div>

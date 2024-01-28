@@ -536,7 +536,7 @@ Dom.quests.active = function (quest) {
 				if (!isHidden[i]) {
 					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
 					if (isCompleted[i] === true && i !== objectives.length-1) {
-						Dom.quests.activeHTML[currentQuest.important] += " &#10004;";
+						Dom.quests.activeHTML[currentQuest.important] += "&#10004;";
 					}
 					else if (isCompleted[i] !== false && typeof isCompleted[i] !== "undefined" && i !== objectives.length-1) {
 						Dom.quests.activeHTML[currentQuest.important] += " " + isCompleted[i];
