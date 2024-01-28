@@ -454,7 +454,7 @@ thead:after { /* space after bags in bank */
 }
 
 #players {
-	width: 502px;
+	width: 300px;
 	height: 15px;
 	margin-left: -10px;
 	border-bottom: 1px solid black;
@@ -462,13 +462,16 @@ thead:after { /* space after bags in bank */
 	padding-top: 0px;
 	text-align: center;
 	cursor: pointer;
+	position: relative;
+	left: 402px;
+	top: 40px;
 }
 
 #playersInfo {
 	width: 300px;
 	margin-left: -10px;
 	border-bottom: 1px solid black;
-	padding: 10px;
+	padding: 20px;
 	padding-bottom: 20px;
 	position: relative;
 	background-color: #c3bc99;
