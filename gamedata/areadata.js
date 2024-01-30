@@ -3883,6 +3883,7 @@ var Areas = {
 		cart2: {normal: "assets/objects/cartEaglecrest2.png", christmas: "assets/objects/cartEaglecrestChristmas2.png"},
 		cart3: {normal: "assets/objects/cartEaglecrest3.png", christmas: "assets/objects/cartEaglecrestChristmas3.png"},
 		driver: {normal: "assets/npcs/alaran.png"},
+		weaponsmith: {normal: "assets/npcs/weaponsmith.png"},
 		alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"},
 		guard1: {normal: "assets/npcs/eaglecrestGuard.png"},
 		guard2: {normal: "assets/npcs/eaglecrestGuard2.png"},
@@ -4274,6 +4275,35 @@ var Areas = {
 	],
 
 	npcs: [
+
+		{
+			x: 4095,
+			y: 3412,
+			image: "weaponsmith",
+			name: "Weaponsmith",
+			hostility: "friendly",
+			level: 10,
+			stats: {
+				maxHealth: 100,
+				defence: 2,
+			},
+			roles: [
+				{
+					sold: Player.class === "k" ? [{item: Items.sword[2], cost: 3},]
+					: Player.class === "m" ? [{item: Items.staff[2], cost: 3},]
+					: Player.class === "a" ? [{item: Items.bow[2], cost: 3,},]
+					: [],
+					role: "merchant",
+					shopGreeting: "Would you like to buy anything?",
+				},
+			],
+			chat: {
+				shopLeave: "Come back some time.",
+				inventoryFull: "Looks like your bag's too full! Empty it a bit and come back.",
+				tooPoor: "You can't afford that item. Kill some enemies and come back.",
+			},
+		},
+
 		{
 			// id: 0,
 			x: 2635,
@@ -4788,8 +4818,8 @@ var Areas = {
 	crop: {
 		x: 0,
 		y: 0,
-		width: 135,
-		height: 135
+		width: 202.5,
+		height: 202.5
 	},
 	animation: {
 		type: "spritesheet",
@@ -4828,7 +4858,7 @@ animation: {
 },
 },
 
-{x: [4967.3, 5052.8, 4953.3], y: [2619, 2721.5, 2717.2], image: 'gearRust', name: 'gearRust',
+{x: [ 5052.8, 4953.3], y: [ 2721.5, 2717.2], image: 'gearRust', name: 'gearRust',
 crop: {
 	x: 0,
 	y: 0,
