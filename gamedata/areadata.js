@@ -3481,6 +3481,13 @@ var Areas = {
 			tiles: [307, 343],
 			animateTime: 180,
 		},
+
+		{
+		// Tinkerer Windows!
+		tiles: [356, 358, 359, 350, 357, 360],
+		animateTime: 400,
+		},
+
 		{
 		// water boundary 2
 		tiles: [311, 336],
@@ -3923,6 +3930,10 @@ var Areas = {
 		eaglecrestLampSamhain: {samhain: "assets/objects/eaglecrestLampSamhain.png"},
 		helpNotice: {normal: "assets/objects/helpNotice.png"},
 		buntingEaglecrest: {normal: "assets/objects/buntingEaglecrest.png"},
+		gearSteel: {normal: "assets/objects/gearSteel.png"},
+		gearRust: {normal: "assets/objects/gearRust.png"},
+		siren: {normal: "assets/objects/siren.png"},
+		tinkererChimney: {normal: "assets/objects/tinkererChimney.png"},
 		buntingEaglecrestTinkerers: {normal: "assets/objects/buntingEaglecrestTinkerers.png"},
 		buntingEaglecrest2: {normal: "assets/objects/buntingEaglecrest2.png"},
 		buntingEaglecrest3: {normal: "assets/objects/buntingEaglecrest3.png"},
@@ -4770,7 +4781,67 @@ var Areas = {
 			frameTime: 1000,
 			imagesPerRow: 2,
 			totalImages: 2,
-		},},
+		},
+	},
+
+	{x: [4967.3, 5052.8], y: [2619, 2721.5], z:-1, image: 'gearSteel', name: 'gearSteel',
+	crop: {
+		x: 0,
+		y: 0,
+		width: 135,
+		height: 135
+	},
+	animation: {
+		type: "spritesheet",
+		frameTime: 83,
+		imagesPerRow: 2,
+		totalImages: 2,
+	},
+},
+{x: [5520.1, 4818.1, 5305.4], y: [2760.2, 2569.5, 2241], image: 'tinkererChimney', name: 'tinkererChimney',
+crop: {
+	x: 0,
+	y: 0,
+	width: 140,
+	height: 140
+},
+animation: {
+	type: "spritesheet",
+	frameTime: 200,
+	imagesPerRow: 3,
+	totalImages: 3,
+},
+},
+
+{x: [4880.2, 5031.2, 5377.6], y: [2728.7, 2375.8, 2625.2], image: 'siren', name: 'siren',
+crop: {
+	x: 0,
+	y: 0,
+	width: 32,
+	height: 32
+},
+animation: {
+	type: "spritesheet",
+	frameTime: 200,
+	imagesPerRow: 2,
+	totalImages: 2,
+},
+},
+
+{x: [4967.3, 5052.8, 4953.3], y: [2619, 2721.5, 2717.2], image: 'gearRust', name: 'gearRust',
+crop: {
+	x: 0,
+	y: 0,
+	width: 68,
+	height: 68
+},
+animation: {
+	type: "spritesheet",
+	frameTime: 83,
+	imagesPerRow: 2,
+	totalImages: 2,
+},
+},
 
 		{x: [2763.1, 2606.7, 1318.9, 4898, 6131.9, 2304.2, 691.6, 4684.9, 2693.5, 6805.9, 7972.8, 6477.6, 3750, 3748.2], y: [1242.4, 893, 1715.1, 883.7, 1725.9, 2558.5, 2863.1, 4305, 4185.2, 2873.8, 3894.1, 395.1, 180.5, 4015], z: 1, image: 'buntingEaglecrest', name: 'buntingEaglecrest',
 		crop: {
