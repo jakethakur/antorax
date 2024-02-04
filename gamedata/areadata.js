@@ -4792,22 +4792,26 @@ var Areas = {
 		{x: [3409.3, 4162.9, 4196.9], y: [4056.7, 2904.1, 3322.6], image: 'buntingEaglecrest3', name: 'buntingEaglecrest3'},
 		{x: [4092.8, 3769.1, 1864.6, 2443.1], y: [4056.7, 2544, 1712.2, 2857], image: 'buntingEaglecrest4', name: 'buntingEaglecrest4'},
 		{x: [3061.8, 3022.1, 4494.7, 4443.1, 3756.6, 3747.5], y: [2743.4, 2847.8, 2856.2, 2730.6, 2810, 4266.1], z: 1, image: 'buntingEaglecrest', name: 'buntingEaglecrest',
+			crop: {
+				x: 0,
+				y: 0,
+				width: 480,
+				height: 120
+		},
+			animation: {
+				type: "spritesheet",
+				frameTime: 1000,
+				imagesPerRow: 2,
+				totalImages: 2,
+			},
+		},
+	 {x: [5191.5], y: [2560.4], z: 1, image: 'buntingEaglecrestTinkerers', name: 'buntingEaglecrestTinkerers',
 		crop: {
 			x: 0,
 			y: 0,
 			width: 480,
 			height: 120
-		},
-	},
-
-		{x: [5191.5], y: [2560.4], z: 1, image: 'buntingEaglecrestTinkerers', name: 'buntingEaglecrestTinkerers',
-		crop: {
-			x: 0,
-			y: 0,
-			width: 480,
-			height: 120
-		},
-
+				},
 		animation: {
 			type: "spritesheet",
 			frameTime: 1000,
