@@ -6079,7 +6079,42 @@ unidentifiedArea: ["caves"],
                 furballGinger: {normal: "./assets/projectiles/furballGinger.png"},
             },
             quest: true,
-        },
+        },	
+		{
+			id: 32,
+			name: "Hive Honey",
+			type: "consumable",
+			image: "assets/items/consumable/32.png",
+			functionText: "Restores 10 health",
+      		cooldown: 5, // 5 seconds
+			healAmount: 10,
+			onClickFunction: function (inventoryPosition) {
+				let healAmount = Player.inventory.items[inventoryPosition].healAmount;
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// restore the health
+				Game.restoreHealth(Game.hero, healAmount);
+			}
+		},
+		{
+			id: 33,
+			name: "Dynamite",
+			type: "consumable",
+			image: "assets/items/consumable/33.png",
+			functionText: "In 3 seconds, deal 10 damage to ALL characters near this, and set them on fire (I).",
+            cooldown: 25,
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// place down dynamite
+				ItemFunctions.placeDynamite(Game.hero.x, Game.hero.y, Game.hero, 10, 1);
+			},
+			requiredImages: { // images that should be loaded for this item
+				dynamiteLit: {normal: "./assets/projectiles/dynamiteLit.png"},
+				// explosion is already loaded in by default
+			},
+			sellPrice: 3,
+		},
 		{
 			id: 34,
 			name: "Present",
