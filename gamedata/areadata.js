@@ -9521,6 +9521,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			demolitionistDarrow: {normal: "assets/npcs/demolitionist.png"},
 			demolitionistDarrowCorpse: {normal: "assets/npcs/demolitionist.png"},
 			dynamiteLit: {normal: "assets/projectiles/dynamiteLit.png"},
+			shrub: {normal: "assets/objects/shrub.png"},
+			shrub1: {normal: "assets/objects/shrub1.png"},
+			shrub2: {normal: "assets/objects/shrub2.png"},
 		},
 
 		areaTeleports: [
@@ -10381,6 +10384,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			{x: 4804.9, y: 4222.6, image: 'eagleStatue', name: 'Eagle Statue', crop: {x: 0,y: 2,width: 150,height: 188}, canBeShown: function () {
 				return Player.reputation.eaglecrestCity.level === 6; // venerated
 			}},
+
+
+			//greenery
 
 			// misc again
 			{x: 2789.4, y: 257.1, image: 'eaglecrestBanner', name: 'Eaglecrest Banner'},
@@ -14040,6 +14046,7 @@ chloroville: {
 			tinkererChimney: {normal: "assets/objects/tinkererChimney.png"},
 			tinkererLight: {normal: "assets/objects/tinkererLight.png"},
 		 	tinkererWires: {normal: "assets/objects/tinkererWires.png"},
+			tinkererMech: {normal: "assets/mounts/tinkererMech/tinkererMechIdle.png"},
 			siren: {normal: "assets/objects/siren.png"},
 
 	},
@@ -14062,7 +14069,23 @@ chloroville: {
 				totalImages: 2,
 			},
 		},
-
+		{
+			x: 1441, y: 1106,
+			image: "tinkererMech",
+			name: "tinkererMech",
+			crop: {
+				x: 0,
+				y: 0,
+				width: 493,
+				height: 388,
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 250,
+				imagesPerRow: 4,
+				totalImages: 4,
+			},
+},
 
 		{
 			x: [2258.5, 2193.9, 666.4, 2689, 2629.6, 2364.4, 1952.2, 2269.3, 2619.7, 840.1, 665.8, 388.5, 282.1],
