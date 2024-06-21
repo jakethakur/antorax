@@ -4631,6 +4631,10 @@ class Hero extends Attacker {
 							// game won
 							// <=> fish caught
 
+							if (typeof this.channelling.name === "undefined") {
+								console.error("No fish has been set to channelling", this.channelling);
+							}
+
 							// quest progress
 							Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
 
@@ -5029,7 +5033,7 @@ class Hero extends Attacker {
 			}
 			else if (Player.stats.fishingSkill === 0) {
 				// tutorial
-				fish = Items.fish[9]; // tbd make depend on area
+				fish = Items.fish[14]; // tbd make depend on area ?
 				itemRarity = "tutorial";
 
 				// close prev alert if it's still open
@@ -10771,12 +10775,16 @@ Game.update = function (delta) {
 							}
 						}
 
-						// quest finishes
+						// quest step finishes 
 						if (role.role === "questFinish" || role.role === "questStartFinish") {
-							// check if quest is ready to be finished
+							// check if quest step is ready to be finished
 
-							let questCanBeFinished = true; // set to false if the quest cannot be finished
+							let questCanBeFinished = true; // set to false if the quest step cannot be finished
 							let questToBeFinished = role.quest;
+							let stepToBeFinished = role.step; // this could be an array
+							if (!Array.isArray(stepToBeFinished)) {
+								stepToBeFinished = [stepToBeFinished];
+							}
 
 							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
 								// quest is an array (hence a Random one is picked each questing time period)
@@ -10800,6 +10808,14 @@ Game.update = function (delta) {
 							}
 
 							if (questCanBeFinished) {
+								// loop through each possible step of the quest
+								for (let stepIndex = 0; stepIndex < stepToBeFinished.length; stepIndex++) {
+									let step = stepToBeFinished[stepIndex];
+
+
+								}
+
+
 								// check if quest conditions have been fulfilled
 								// canBeFinishedArray used for efficiency
 								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
@@ -10827,6 +10843,7 @@ Game.update = function (delta) {
 
 							let questCanBeProgressed = true; // set to false if the quest cannot be finished
 							let questToBeProgressed = role.quest;
+							let questSteps = role.steps;
 
 							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
 								// quest is an array (hence a Random one is picked each questing time period)
@@ -10853,15 +10870,14 @@ Game.update = function (delta) {
 								// check if quest conditions have been fulfilled
 
 								let isCompleted = questToBeProgressed.isCompleted();
-								let canBeProgressed = true;
 								for (let i = 0; i < role.step; i++) { // one step for each quest objective
 									if (isCompleted[i] !== true) {
-										canBeProgressed = false;
+										questCanBeProgressed = false;
 										break;
 									}
 								}
 
-								if (canBeProgressed) {
+								if (questCanBeProgressed) {
 									// inventory space is checked by choose DOM
 									textArray.push(role.chooseText || "Quest progress: " + questToBeProgressed.quest);
 									functionArray.push(Dom.quest.progressFromNpc);

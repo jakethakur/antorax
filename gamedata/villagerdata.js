@@ -756,7 +756,7 @@ var Villagers = [
 	{
         id: 20,
         images: {necta: {normal: "assets/npcs/babii.png"}},
-		name: "Necta, Dune Surveyor",
+		name: "Babii, Dune Surveyor",
 		hostility: "friendly",
 		level: 35,
 		stats: {
@@ -776,7 +776,7 @@ var Villagers = [
 	{
         id: 21,
         images: {espi: {normal: "assets/npcs/iglooghost.png"}},
-		name: "Espi, Ley Musician",
+		name: "Iglooghost, Ley Musician",
 		hostility: "friendly",
 		level: 35,
 		stats: {
@@ -1314,4 +1314,37 @@ var Villagers = [
             notUnlockedRoles: "So sleepy~",
 		},
     },
+	{
+        id: 36,
+        images: {namelessOne: {normal: "assets/npcs/namelessOne.png"}},
+		name: "The Nameless One",
+		hostility: "friendly",
+		level: 20,
+		stats: {
+			maxHealth: 1010,
+			defence: 1010,
+            walkSpeed: 0,
+		},
+        areas: [
+            "eaglecrestPlains",
+        ],
+		chat: {
+            notUnlockedRoles: "They call me The Nameless One, not that any of them bothered to ask my name!",
+			// merchant
+			shopLeave: "See you soon, mate! I’ll be right here. Just look for the fella with the thousand-odd legs.",
+			inventoryFull: "Your inventory’s too stuffed to buy that item, pal! Suffering from success, eh?",
+			tooPoor: "Sorry, pal. You’ve got nowt to buy that item with. I’ll keep it safe til next time you’re here… don’t you worry!",
+		},
+		roles: [
+			{
+				sold: [{item: Items.trinket[7], cost: 44},{item: Items.consumable[39], cost: 6},],
+				role: "merchant",
+				shopGreeting: `A shade has fallen over Antorax… The otherworldly fog has rolled in… My corporeal form can once again manifest in this outside world…
+Which means I can now show you all the clobber I’ve got for sale! Lemme know if you find something you like the look of, pal!`,
+			},
+		],
+		canBeShown: function () {
+			return Event.fog > 0.2;
+		}
+	},
 ];

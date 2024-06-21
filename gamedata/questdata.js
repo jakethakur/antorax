@@ -3294,13 +3294,13 @@ var Quests = {
 					},
 				},
 				{
-					text: "Gather a <b>Living Frog's Leg</b> from a toad in the Plains.",
+					text: "Loot a <b>Living Frog's Leg</b> from a toad in the Plains.",
 					isCompleted: function () {
 
 					},
 				},
 				{
-					text: "Gather a <b><i>Doohickey</i></b> from a toad in the Plains.",
+					text: "Loot a <b><i>Doohickey</i></b> from a toad in the Plains.",
 					isCompleted: function () {
 
 					},
@@ -3561,120 +3561,197 @@ var Quests = {
 				items: [{item: Items.item[1]}], // mystery (monastery armour reward, and catnip)
 			},
 		},
-		/*{
-			id: 17,
+		{
+			id: 21,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 
-			startName: "Peto the Pyromancer",
-			startChat: [{
-				text: `Hello there, stranger! Would you mind helping me with a a certain... <i>ahahaha</i>... a certain matter?`,
-			},{
-				text: `I need a number of specific reagents for my... uh... experiments and you seem like you'd be able to help.`,
-			},{
-				text: `A pyromancer's work is never done, but a bag of flour would certainly help speed it up. <i>hehe</i>`,
-			},{
-				text: `Could you retreive some from the nearby farm if you're willing?`,
-			}],
-
-			stepName1: "Farmer Scop",
-			stepChat1: [{
-				text: `That pyromancer's an odd fella. He loves his pies, but the rumours I've 'eard are bloomin' unsavoury.`
-			},{
-				text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the entrance, then get off with ye!`
-			},],
-
-			stepName2: "Peto the Pyromancer",
-			stepChat2: [{
-				text: `Oh goody! A bag of flour! This'll do nicely for my pyromancer experiments <i>hahaha</i>.`
-			},{
-				text: `If you're still willing, some eggs would go down a treat! You can nick them off the local chickens <i>hehe</i>.`
-			},],
-
-			stepName3: "Peto the Pyromancer",
-			stepChat3: [{
-				text: `Are those my eggs? Why, thank you!`
-			},{
-				text: `What do I need them for? Why, that's <i>ahaha</i>.. why, that would be <i>hahaha</i>... that would be none of your business!`
-			},{
-				text: `But if you're willing to fetch one final ingredient, I could do with some milk! That farm might be worth another try...`
-			}],
-
-			stepName4: "Farmer Scop",
-			stepChat4: [{
-				text: `I thought I told ya to get lost! We've got no cows here and besides... I'm not makin' any more pies for that Peto fella! Not after..... last time.`,
-			},{
-				text: `You city folk make me sick.`,
-			},{
-				text: `But if you're that desperate, I reckon that <b>Alchemist Tamtam</b> would sell you some milk. Now get off me land! I've nowt left for ye here!`
-			},],
-
-			stepName5: "Alchemist Tamtam",
-			stepChat5: [{
-				text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
-			},{
-				text: `It's been a long time since someone's asked me for that...`,
-			},{
-				text: `I guess... we can brew some!!!`
-			},{
-				text: `Yesss... We'll need a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
-			},{
-				text: `Oooonly thing is... I can't remember the order we need to add them to the cauldron in!`
-			},{
-				text: `You'll need to add the <b>Milkfish</b> first... After that, I guess there's only one way to find out!!`
-			},],
-
-			finishName: "Peto the Pyromancer",
-			finishChat: [{
-				text: `My ingredients!`,
-			},{
-				text: `Wait. Did I say 'ingredients'? Well I meant... <i>ahaha</i> my pyromancer potion ingredients! For a potion! <i>oh no.</i>.`,
-			},{
-				text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
-			},],
-
-			objectives: [
-				"Ask <b>Farmer Scop</b> where you can find some <b>flour</b>.",
-				"Give <b>Peto the Pyromancer</b> some flour.",
-				"Give <b>Peto the Pyromancer</b> three <b>eggs</b> from chickens.",
-				"Ask <b>Farmer Scop</b> where you can find some <b>milk</b>.",
-				"Ask <b>Alchemist Tamtam</b> for some milk.",
-				"Collect the potion ingredients from <b>Alchemist Tamtam</b>.",
-				"Add the four ingredients in the right order to brew some milk <i>(Milkfish is first!)</i>",
-				"Give <b>Peto the Pyromancer</b> the milk.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `Hello there, stranger! Would you mind helping me with a a certain... <i>ahahaha</i>... a certain matter?`,
+					},{
+						text: `I need a number of specific reagents for my... uh... experiments and you seem like you'd be able to help.`,
+					},{
+						text: `A pyromancer's work is never done, but a bag of flour would certainly help speed it up. <i>hehe</i>`,
+					},{
+						text: `Could you retreive some from the nearby farm if you're willing?`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Farmer Scop",
+					chat: [{
+						text: `That pyromancer's an odd fella. He loves his pies, but the rumours I've 'eard are bloomin' unsavoury.`
+					},{
+						text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the entrance, then get off with ye!`
+					},],
+				},
+				{
+					stepNum: 2,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `Oh goody! A bag of flour! This'll do nicely for my pyromancer experiments <i>hahaha</i>.`
+					},{
+						text: `If you're still willing, two eggs would go down a treat! You can nick them off the local chickens <i>hehe</i>.`
+					},],
+					removeItems: [
+						{item: Items.item[76], quantity: 1},
+					],
+				},
+				{
+					stepNum: 3,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `Are those my eggs? Why, thank you!`
+					},{
+						text: `What do I need them for? Why, that's <i>ahaha</i>.. why, that would be <i>hahaha</i>... that would be none of your business!`
+					},{
+						text: `But if you're willing to fetch one final ingredient, I could do with some milk! That farm might be worth another try...`
+					}],
+					objectiveRequirement: [2], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					removeItems: [
+						{item: Items.item[40], quantity: 2},
+					],
+				},
+				{
+					stepNum: 4,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `I thought I told ya to get lost! We've got no cows here and besides... I'm not makin' any more pies for that Peto fella! Not after..... last time.`,
+					},{
+						text: `You city folk make me sick.`,
+					},{
+						text: `But if you're that desperate, I reckon that <b>Alchemist Tamtam</b> would sell you some milk. Now get off me land! I've nowt left for ye here!`
+					},],
+				},
+				{
+					stepNum: 5,
+					name: "Alchemist Tamtam",
+					chat: [{
+						id: 1,
+						text: `Okie let's try again from the start!!<br><em>Tamtam's ears perk up.</em>`,
+					},{
+						id: 1,
+						text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
+					},{
+						id: 2,
+						text: `It's been a long time since someone's asked me for that...`,
+					},{
+						id: 3,
+						text: `I guess... we can brew some!!!`
+					},{
+						id: 4,
+						text: `Hmmm, so that'll be a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
+					},{
+						id: 5,
+						text: `Oooonly thing is... I can't remember the order we need to add them to the cauldron in.`
+					},{
+						id: 6,
+						text: `Looks like we'll need a bit of guesswork...`,
+					},{
+						id: 7,
+						text: `You'll need to add the <b>Milkfish</b> first... After that, I guess there's only one way to find out!!`,
+						options: [
+							{
+								text: "Add the Milkfish to the cauldron",
+								action: "progress",
+							},
+						]
+					},{
+						id: 8,
+						text: `Oookkkkaay, what to add next...`,
+						options: [
+							{
+								text: "Add the Katydid to the cauldron",
+								action: "progress",
+								//jumpToId: , // fail
+							},
+							{
+								text: "Add the Iron Ore to the cauldron",
+								action: "progress",
+							},
+							{
+								text: "Add the Lavender to the cauldron",
+								action: "progress",
+							},
+						]
+					},{
+						id: 9,
+						text: `..... Looks like the ore was right! What next??`,
+						options: [
+							{
+								text: "Add the Katydid to the cauldron",
+								action: "progress",
+							},
+							{
+								text: "Add the Lavender to the cauldron",
+								action: "progress",
+							},
+						]
+					},{
+						id: 10,
+						text: `Yay!!! Which leaves...`,
+						options: [
+							{
+								text: "Add the Katydid to the cauldron",
+								action: "progress",
+							},
+						]
+					},
+					],
+				},
+				{
+					stepNum: 6,
+					finish: true,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `My ingredients!`,
+					},{
+						text: `Wait. Did I say 'ingredients'? Well I meant... <i>ahaha</i> my pyromancer potion ingredients! For a potion! <i>oh no.</i>.`,
+					},{
+						text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
+					},],
+					objectiveRequirement: [5], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					removeItems: [
+						{item: Items.item[77], quantity: 1},
+					],
+				},
 			],
 
-			isHidden: function() {
-				let hidden = [];
-
-				if (Player.quests.npcProgress.eaglecrest[18] === undefined) {
-					Player.quests.npcProgress.eaglecrest[18] = 0;
-				}
-
-				// true or falses for each objective (apart from the turn-in objective)
-				hidden.push(false);
-				hidden.push(false);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 2);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 4);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
-
-				return hidden;
-			},
-
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Dom.inventory.check(68, "item"), 6));
-				completed.push(checkProgress(Dom.inventory.check(31, "item"), 6));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Ask <b>Farmer Scop</b> where you can find some flour.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+				{id: 1, text: "Give <b>Peto the Pyromancer</b> some flour.",
+					isCompleted: function() {return checkProgress(Dom.inventory.check(76, "item"), 1)}, completeStep: 2,
+				},
+				{id: 2, text: "Gather two eggs from chickens in the Plains.",
+					isCompleted: function() {return checkProgress(Dom.inventory.check(40, "item"), 2)}, completeStep: 3,
+					revealStep: 2, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 3, text: "Give <b>Peto the Pyromancer</b> the eggs.",
+					completeStep: 3,
+					revealStep: 2, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 3, text: "Ask <b>Farmer Scop</b> where you can find some milk.",
+					completeStep: 3,
+					revealStep: 3,
+				},
+				{id: 4, text: "Ask <b>Alchemist Tamtam</b> for some milk.",
+					completeStep: 4,
+					revealStep: 4,
+				},
+				{id: 5, text: "Add the four ingredients in the right order to brew some milk.",
+					isCompleted: function() {return checkProgress(Dom.inventory.check(77, "item"), 1)},
+					revealStep: 5,
+				},
+				{id: 6, text: "Give <b>Peto the Pyromancer</b> the milk.",
+					revealStep: 3,
+				},
+			],
 
 			howToStart: "Speak to <b>Peto the Pyromancer</b> in Eaglecrest City.",
 			levelRequirement: 7,
@@ -3684,15 +3761,10 @@ var Quests = {
 				xp: 100,
 				items: [
 					{item: Items.item[1]}, // mystery (get the helm the next day)
-					{item: Items.currency[2], quantity: 2,},
+					{item: Items.currency[2], quantity: 5,},
 				],
 			},
-
-			removeItems: [
-				{item: Items.item[68], quantity: 6},
-				{item: Items.item[31], quantity: 6},
-			],
-		},*/
+		},
 		/*{
 			id: 17,
 			quest: "WANTED: Baron Foxglove!!",

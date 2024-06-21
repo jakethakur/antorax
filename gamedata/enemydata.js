@@ -250,6 +250,32 @@ const EnemyTemplates = {
 			maxHealth: 1090,
 		},
 	},
+
+	item: {
+		jarAnt : {
+			image: "jarAnt",
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			name: "Ant",
+			hostility: "hostile",
+			level: 1,
+			stats: {
+				damage: 3,
+				walkSpeed: 50,
+				swimSpeed: 25,
+				iceSpeed: 100,
+				maxHealth: 1,
+				range: 40,
+				healthRegen: 0.3,
+				reloadTime: 3000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+		}
+	},
+
 	nilbog: {
 		goblinRockthrower: {
 			speciesTemplate: SpeciesTemplates.nilbogGoblin,
