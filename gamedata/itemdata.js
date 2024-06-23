@@ -4201,6 +4201,7 @@ unidentifiedArea: ["caves"],
 			},
 			rarity: "unique",
 			sellPrice: 6,
+			functionText: "Leaves a trail of insects", // tbd
 			lore: "",
 			obtain: ["merchant"],
 			area: ["eaglecrest"],

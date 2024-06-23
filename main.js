@@ -5033,7 +5033,7 @@ class Hero extends Attacker {
 			}
 			else if (Player.stats.fishingSkill === 0) {
 				// tutorial
-				fish = Items.fish[14]; // tbd make depend on area ?
+				filteredFish = Items.fish[14]; // tbd make depend on area ?
 				itemRarity = "tutorial";
 
 				// close prev alert if it's still open
@@ -10645,7 +10645,7 @@ Game.update = function (delta) {
 			// hero not touching npc
 			canSpeak = false;
 		}
-		else if (Dom.currentlyDisplayed === npc.name) {
+		else if (Dom.currentlyDisplayed === npc.name) { // tbd this isn't always the case even if we are speaking to the npc... change to currentNPC check ?
 			// it is already currently displayed
 			canSpeak = false;
 		}
@@ -10776,24 +10776,24 @@ Game.update = function (delta) {
 						}
 
 						// quest step finishes 
-						if (role.role === "questFinish" || role.role === "questStartFinish") {
+						if (role.role === "questProgress") {
 							// check if quest step is ready to be finished
 
-							let questCanBeFinished = true; // set to false if the quest step cannot be finished
-							let questToBeFinished = role.quest;
-							let stepToBeFinished = role.step; // this could be an array
-							if (!Array.isArray(stepToBeFinished)) {
-								stepToBeFinished = [stepToBeFinished];
+							let canBeFinished = true; // set to false if the quest step cannot be finished
+							let quest = role.quest;
+							let stepArray = role.step; // this could be an array
+							if (!Array.isArray(stepArray)) {
+								stepArray = [stepArray];
 							}
 
 							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
 								// quest is an array (hence a Random one is picked each questing time period)
 								// all of these quests are daily quests or repeatable quests
 
-								questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
+								quest = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
 
-								if (questToBeFinished === undefined) { // none of the quests are currently active
-									questCanBeFinished = false;
+								if (quest === undefined) { // none of the quests are currently active
+									canBeFinished = false;
 									notUnlockedRoles = true;
 								}
 
@@ -10802,32 +10802,91 @@ Game.update = function (delta) {
 							else {
 								// single quest
 								if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
-									questCanBeFinished = false;
+									canBeFinished = false;
 									notUnlockedRoles = true;
 								}
 							}
 
-							if (questCanBeFinished) {
+							if (canBeFinished) {
 								// loop through each possible step of the quest
-								for (let stepIndex = 0; stepIndex < stepToBeFinished.length; stepIndex++) {
-									let step = stepToBeFinished[stepIndex];
+								for (let stepIndex = 0; stepIndex < stepArray.length; stepIndex++) {
+									let step = stepArray[stepIndex];
+									
+									let stepDone = false;
 
+									if (Player.quests.stepProgress[quest.questArea][quest.id][step]) {
+										// step already been completed
+										stepDone = false;
+									}
+									if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
+										// quest's steps must all be completed in order (other than optional steps)
+										let checkStep = step-1;
+										while (quest.steps[checkStep].optional) {
+											checkStep--;
+										}
+										if (!Player.quests.stepProgress[quest.questArea][quest.id][checkStep]) {
+											// previous step not been done yet
+											stepDone = false;
+										}
+									}
 
-								}
+									if (typeof quest.steps[step].objectiveRequirement === "undefined") {
+										// no objectives need to be completed for this step
+										stepDone = true;
+									}
+									else {
+										// there are objectives that need to be completed for this step
+										stepDone = true;
+										for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
+											let obj = quest.steps[step].objectiveRequirement[objIndex];
+											if (Player.quests.objectiveProgress[quest.questArea][quest.id] !== true) {
+												// objective is not done
+												stepDone = false;
+												break;
+											}
+										}
+									}
 
+									// check if ready for this step to be completed
+									if (stepDone) {
+										// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
+										questFinish = true;
+										for (let i = 0; i < quest.steps.length; i++) {
+											if (!Player.quests.stepProgress[quest.questArea][quest.id][i] && !quest.steps[i].optional && i!==step) {
+												// the step is not finished, isn't optional, and isn't the step that's just about to be done
+												questFinish = false;
+												break;
+											}
+										}
 
-								// check if quest conditions have been fulfilled
-								// canBeFinishedArray used for efficiency
-								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
-									// inventory space is checked by choose DOM
-									textArray.push("Quest finish: " + questToBeFinished.quest);
-									functionArray.push(Dom.quest.finishFromNpc);
-									parameterArray.push([questToBeFinished, npc]);
-									additionalOnClickArray.push(role.additionalOnClick);
-								}
-								// quest conditions have not been fulfilled
-								else {
-									questActive = true;
+										if (questFinish) {
+											// quest is to be finished
+											textArray.push(role.chooseText || "Quest finish: " + quest.quest);
+										}
+										else {
+											textArray.push(role.chooseText || "Quest progress: " + quest.quest);
+										}
+										parameterArray.push([quest, npc, step, questFinish]);
+										functionArray.push(Dom.quest.progressFromNpc);
+										additionalOnClickArray.push(role.additionalOnClick);
+										// (inventory space is checked by choose DOM)
+
+										break; // don't check any other steps - this npc just progresses the first available step
+									}
+
+									// check if quest conditions have been fulfilled
+									// old::
+									/*if (Player.quests.canBeFinishedArray.includes(quest.quest)) {
+										// inventory space is checked by choose DOM
+										textArray.push("Quest finish: " + quest.quest);
+										functionArray.push(Dom.quest.finishFromNpc);
+										parameterArray.push([quest, npc]);
+										additionalOnClickArray.push(role.additionalOnClick);
+									}
+									// quest conditions have not been fulfilled
+									else {
+										questActive = true;
+									}*/
 								}
 
 							}
@@ -10838,7 +10897,7 @@ Game.update = function (delta) {
 						}
 
 						// quest progression
-						if (role.role === "questProgress") {
+						/*if (role.role === "questProgress") {
 							// check if quest is ready to be progressed
 
 							let questCanBeProgressed = true; // set to false if the quest cannot be finished
@@ -10894,7 +10953,7 @@ Game.update = function (delta) {
 							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
 								questComplete = true;
 							}
-						}
+						}*/
 
 						// merchants
 						else if (role.role === "merchant") {
@@ -11020,7 +11079,7 @@ Game.update = function (delta) {
 							// bank appears as an option for choose DOM
 							textArray.push(role.chooseText || "I'd like to access my bank storage.");
 							functionArray.push(Dom.bank.page);
-							parameterArray.push([]);
+							parameterArray.push([npc]);
 							additionalOnClickArray.push(role.additionalOnClick);
 						}
 

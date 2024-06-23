@@ -320,14 +320,16 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		<div id="accept" class="closeClass" onclick="Dom.quest.accept()">Accept</div>
 		<div id="decline" class="closeClass" onclick="Dom.closePage('questStart')">Decline</div>
 	</div>
-	<div id="questFinish" hidden class="DOM shortDOM">
+	<div id="questFinish" hidden class="DOM shortDOM"> <!-- used for finishing a step of a quest (not just the whole thing) -->
 		<br><h1 id="questFinishQuest"></h1>
+		<b id="questFinishObjectivesHeading"></b>
+		<br><p id="questFinishObjectives"></p>
 		<p id="questFinishRewardsTitle"></p>
 		<p id="questFinishRewards"></p>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
-		<div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();">Complete Quest</div>
-		<div id="declineReward" class="closeClass" onclick="Dom.quest.declineRewards();">Not Now</div>
+		<div id="acceptReward" class="closeClass" onclick="Dom.quest.dismissRewards();">Dismiss</div>
+		<!--<div id="declineReward" class="closeClass" onclick="Dom.quest.declineRewards();">Not Now</div>-->
 		<img id="chanceImage" src="./assets/icons/bag.png" hidden></img>
 		<p id="chance" hidden>You do not have enough inventory space to hold all of the possible rewards from this quest. If you complete it now, there is a chance you might not get as many rewards as you could.</p>
 	</div>

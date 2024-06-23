@@ -3705,7 +3705,6 @@ var Quests = {
 				},
 				{
 					stepNum: 6,
-					finish: true,
 					name: "Peto the Pyromancer",
 					chat: [{
 						text: `My ingredients!`,
@@ -3718,6 +3717,13 @@ var Quests = {
 					removeItems: [
 						{item: Items.item[77], quantity: 1},
 					],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.item[1]}, // mystery (get the helm the next day)
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
 				},
 			],
 
@@ -3756,14 +3762,6 @@ var Quests = {
 			howToStart: "Speak to <b>Peto the Pyromancer</b> in Eaglecrest City.",
 			levelRequirement: 7,
 			questRequirements: ["Overdraft"],
-
-			rewards: {
-				xp: 100,
-				items: [
-					{item: Items.item[1]}, // mystery (get the helm the next day)
-					{item: Items.currency[2], quantity: 5,},
-				],
-			},
 		},
 		/*{
 			id: 17,

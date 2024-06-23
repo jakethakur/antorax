@@ -564,6 +564,8 @@ Dom.quests.active = function (quest) {
 			else if (completedObjectives >= objectives.length-1 && !Player.quests.canBeFinishedArray.includes(currentQuest.quest)) {
 				Player.quests.canBeFinishedArray.push(currentQuest.quest);
 			}
+
+			// set to whether or not this was completed last time this function was called (to track and announce if quest log is updated)
 			if (currentQuest.wasCompleted === undefined) {
 				currentQuest.wasCompleted = isCompleted;
 			}
@@ -653,6 +655,10 @@ Dom.closeNPCPages = function () {
 	Dom.currentNPC = {};
 }
 
+// these pages can be displayed even if an NPC page is also being shown (i.e. currentlyDisplayed isn't "")
+// therefore these pages won't set currentlyDisplayed or currentNPC
+const displayExceptionPages = ["leaderboardPage"];
+
 // I think notClose is set to true if the NPC is still being spoken to (i.e. another page is opened/still open) after this one is closed
 Dom.closePage = function (page, notClose) {
 	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
@@ -665,10 +671,11 @@ Dom.closePage = function (page, notClose) {
 		document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.marginTop = "12px";
 
 	}
-	else if (!notClose) {
+	else if (!notClose && !displayExceptionPages.includes(page)) {
 		Dom.currentlyDisplayed = "";
 		Dom.currentNPC = {};
 	}
+
 	if (page === "inventoryPage" && Dom.bank.active) {
 		Dom.closePage("bankPage");
 		Dom.bank.active = false;
@@ -679,12 +686,17 @@ Dom.closePage = function (page, notClose) {
 			Dom.trade.close();
 		}
 	}
+
 	document.getElementById(page).hidden = true;
+
 	Dom.checkProgress();
 }
 
+// open a page
 // returns true if the page was hidden and will now be shown
-Dom.changeBook = function (page, openClose) {
+// openClose means the page is closed if it is already open
+// npc is used to set currentNPC if one exists
+Dom.changeBook = function (page, npc, openClose) {
 	let bookmark = false;
 	let tab = page
 	let settingsOpen = false;
@@ -695,22 +707,35 @@ Dom.changeBook = function (page, openClose) {
 		page = Dom.settings.current;
 	}
 	if (document.getElementById(page).hidden && !settingsOpen) {
-
+		// check if page is a "bookmarked" one
 		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
 			bookmark = true;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
 			//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.marginTop = "0px";
+		}
 
+		if (!bookmark && Dom.currentlyDisplayed !== "" && !displayExceptionPages.includes(page)) {
+			// a page is already displayed
+			return false;
 		}
 
 		document.getElementById(page).hidden = false;
+
+		if (!bookmark && !displayExceptionPages.includes(page)) {
+			Dom.currentlyDisplayed = page;
+			if (typeof npc !== "undefined" && typeof npc.type !== "undefined") {
+				Dom.currentNPC = npc;
+			}
+		}
+
 		for (let x = 0; x < document.getElementsByClassName("DOM").length; x++) {
 			if (parseInt(document.getElementsByClassName("DOM")[x].style.zIndex) >= parseInt(document.getElementById(page).style.zIndex)) {
 				document.getElementsByClassName("DOM")[x].style.zIndex--;
 			}
 		}
 		document.getElementById(page).style.zIndex = 6+document.getElementsByClassName("DOM").length-1;
+
 		let left = 530;
 		let right = 0;
 		let next = 30;
@@ -753,6 +778,8 @@ Dom.changeBook = function (page, openClose) {
 		/*if (page === "chatPage") {
 			Dom.chat.page();
 		}*/
+
+		// preparation of pages
 		if (page === "reputationPage") {
 			Dom.reputation.update();
 		}
@@ -762,6 +789,7 @@ Dom.changeBook = function (page, openClose) {
 				Dom.elements.chatText.scrollTop = Dom.elements.chatText.scrollHeight;
 			}
 		}
+
 		return true;
 	}
 	else if (openClose) {
@@ -1241,103 +1269,108 @@ Dom.chat.timeoutTime = 20; // ms between each character being shown
 // optional properties of object inputs include "onFinish" (function) and "options" (see questdata for format)
 // skippable is whether the text can be skipped by pressing enter
 Dom.chat.npcBanner = function (npc, text, skippable) {
-	//skippable = true;
+	if (Dom.currentlyDisplayed === "") {
+		Dom.currentlyDisplayed = "npcBanner";
+		Dom.currentNPC = npc;
 
-	Dom.chat.npcBannerReadyToProgress = false;
-
-	// reinit
-	//Dom.elements.npcChatBanner1.style.height = "116px";
-	Dom.chat.npcBannerText = "";
-	Dom.chat.npcBannerArray = undefined;
-
-	let toShow;
-	if (Array.isArray(text)) {
-		if (text.length > 1) {
-			// still some text left to be shown after this
-			Dom.chat.upcomingBannerText = []; // used as parameter for successive npcBanner function calls
-			// deep copy text into upcomingBannerText:
-			for (let i = 0; i < text.length; i++) {
-				Dom.chat.upcomingBannerText.push(text[i]);
+		//skippable = true;
+	
+		Dom.chat.npcBannerReadyToProgress = false;
+	
+		// reinit
+		//Dom.elements.npcChatBanner1.style.height = "116px";
+		Dom.chat.npcBannerText = "";
+		Dom.chat.npcBannerArray = undefined;
+	
+		let toShow;
+		if (Array.isArray(text)) {
+			if (text.length > 1) {
+				// still some text left to be shown after this
+				Dom.chat.upcomingBannerText = []; // used as parameter for successive npcBanner function calls
+				// deep copy text into upcomingBannerText:
+				for (let i = 0; i < text.length; i++) {
+					Dom.chat.upcomingBannerText.push(text[i]);
+				}
+	
+				Dom.chat.upcomingBannerNpc = npc;
+	
+				// array of text parameters
+				toShow = Dom.chat.upcomingBannerText.shift();
 			}
-
-			Dom.chat.upcomingBannerNpc = npc;
-
-			// array of text parameters
-			toShow = Dom.chat.upcomingBannerText.shift();
+			else {
+				Dom.chat.upcomingBannerText = undefined;
+	
+				toShow = text[0];
+			}
 		}
 		else {
 			Dom.chat.upcomingBannerText = undefined;
-
-			toShow = text[0];
+	
+			toShow = text;
 		}
-	}
-	else {
-		Dom.chat.upcomingBannerText = undefined;
-
-		toShow = text;
-	}
-
-	Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
-
-	Dom.chat.npcBannerParams.skippable = skippable;
-
-	if (typeof toShow === "object") {
-		if (toShow.long) {
-			// show three lines
-			Dom.elements.npcChatBanner1.style.height = "142px";
+	
+		Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
+	
+		Dom.chat.npcBannerParams.skippable = skippable;
+	
+		if (typeof toShow === "object") {
+			if (toShow.long) {
+				// show three lines
+				Dom.elements.npcChatBanner1.style.height = "142px";
+			}
+			else {
+				// show two lines
+				Dom.elements.npcChatBanner1.style.height = "116px";
+			}
+	
+			Dom.chat.npcBannerText = toShow.text;
+	
+			Dom.chat.npcBannerParams.onFinish = toShow.onFinish; // function or undefined
+			Dom.chat.npcBannerParams.onFinishParams = toShow.onFinishParams; // array or undefined
+	
+			// these are just to be set by DOM functions
+			Dom.chat.npcBannerParams.onFinishDom = toShow.onFinishDom; // function or undefined
+			Dom.chat.npcBannerParams.onFinishDomParams = toShow.onFinishDomParams; // array or undefined
+	
+			Dom.chat.npcBannerParams.autoProgress = toShow.autoProgress;
+	
+			if (typeof toShow.progressIn !== "undefined") {
+				// in ms
+				setTimeout(this.npcChatProgress, toShow.progressIn, true);
+			}
+	
+			if (typeof toShow.options !== "undefined") {
+				// in ms
+				Dom.chat.npcBannerParams.options = toShow.options;
+			}
+		}
+		else if (typeof toShow === "string") {
+			Dom.chat.npcBannerText = toShow;
 		}
 		else {
-			// show two lines
-			Dom.elements.npcChatBanner1.style.height = "116px";
+			console.error("Unexpected type of text parameter for NPC chat banner", toShow);
+			return;
 		}
-
-		Dom.chat.npcBannerText = toShow.text;
-
-		Dom.chat.npcBannerParams.onFinish = toShow.onFinish; // function or undefined
-		Dom.chat.npcBannerParams.onFinishParams = toShow.onFinishParams; // array or undefined
-
-		// these are just to be set by DOM functions
-		Dom.chat.npcBannerParams.onFinishDom = toShow.onFinishDom; // function or undefined
-		Dom.chat.npcBannerParams.onFinishDomParams = toShow.onFinishDomParams; // array or undefined
-
-		Dom.chat.npcBannerParams.autoProgress = toShow.autoProgress;
-
-		if (typeof toShow.progressIn !== "undefined") {
-			// in ms
-			setTimeout(this.npcChatProgress, toShow.progressIn, true);
+	
+		// finish reinit
+		if (toShow.saidBy === "none" || npc === false) {
+			// i.e. an action rather than a person saying it
+			Dom.elements.npcChatBannerHeader1.innerHTML = "";
+			Dom.elements.npcChatImage.style.background = "none";
 		}
-
-		if (typeof toShow.options !== "undefined") {
-			// in ms
-			Dom.chat.npcBannerParams.options = toShow.options;
+		else {
+			// npc parameter is saying it
+			Dom.elements.npcChatImage.style.background = "";
+			Dom.elements.npcChatBannerHeader1.innerHTML = npc.name;
+			Dom.elements.npcChatImage.style.backgroundImage = "url('"+npc.imageSrc+"')";
 		}
+	
+		// show
+		Dom.elements.npcChatNext.src = "assets/icons/dialogueWait.png";
+		Dom.elements.npcChatBanner1.hidden = false;
+	
+		setTimeout(Dom.chat.npcBannerIterate, this.timeoutTime, 1);
 	}
-	else if (typeof toShow === "string") {
-		Dom.chat.npcBannerText = toShow;
-	}
-	else {
-		console.error("Unexpected type of text parameter for NPC chat banner", toShow);
-		return;
-	}
-
-	// finish reinit
-	if (toShow.saidBy === "none" || npc === false) {
-		// i.e. an action rather than a person saying it
-		Dom.elements.npcChatBannerHeader1.innerHTML = "";
-		Dom.elements.npcChatImage.style.background = "none";
-	}
-	else {
-		// npc parameter is saying it
-		Dom.elements.npcChatImage.style.background = "";
-		Dom.elements.npcChatBannerHeader1.innerHTML = npc.name;
-		Dom.elements.npcChatImage.style.backgroundImage = "url('"+npc.imageSrc+"')";
-	}
-
-	// show
-	Dom.elements.npcChatNext.src = "assets/icons/dialogueWait.png";
-	Dom.elements.npcChatBanner1.hidden = false;
-
-	setTimeout(Dom.chat.npcBannerIterate, this.timeoutTime, 1);
 }
 
 Dom.chat.npcBannerIterate = function (i) {
@@ -2320,26 +2353,6 @@ Dom.quest.startFromNpc = function (quest, npc) {
 	Dom.chat.npcBanner(npc, chat);
 }
 
-// format chat for npc chat banner, so the onFinishDom property can be given to it
-Dom.quest.formatBannerChat = function (chat) {
-	if (Array.isArray(chat)) {
-		if (typeof chat[chat.length-1] === "string") {
-			chat[chat.length-1] = {text: chat[chat.length-1]};
-		}
-	}
-	else if (typeof chat === "object") {
-		chat = [chat];
-	}
-	else if (typeof chat === "string") {
-		chat = [{text: chat}];
-	}
-	else {
-		console.error("Unknown type of chat", chat);
-	}
-
-	return chat;
-}
-
 // starts a quest without dialogue (assumes dialogue it has already been shown by startFromNpc)
 Dom.quest.start = function (quest, npc) {
 	if (quest.startRewards === undefined || quest.startRewards.items === undefined || Dom.inventory.requiredSpace(quest.startRewards.items)) {
@@ -2560,6 +2573,26 @@ Dom.quest.start = function (quest, npc) {
 	}
 }
 
+// format chat for npc chat banner, so the onFinishDom property can be given to it
+Dom.quest.formatBannerChat = function (chat) {
+	if (Array.isArray(chat)) {
+		if (typeof chat[chat.length-1] === "string") {
+			chat[chat.length-1] = {text: chat[chat.length-1]};
+		}
+	}
+	else if (typeof chat === "object") {
+		chat = [chat];
+	}
+	else if (typeof chat === "string") {
+		chat = [{text: chat}];
+	}
+	else {
+		console.error("Unknown type of chat", chat);
+	}
+
+	return chat;
+}
+
 Dom.quest.addReward = function (item, element, className, stackNum) {
 	if (item.condition === undefined || item.condition()) {
 		if (item.quantity !== undefined && item.quantity !== 1) {
@@ -2578,7 +2611,289 @@ Dom.quest.addReward = function (item, element, className, stackNum) {
 	}
 }
 
-Dom.quest.declineRewards = function () {
+//
+// quest progress / finish
+//
+
+// just spoken to an npc to start the quest - display chat then call dom.quest.progress
+// finish parameter refers to whether the quest is being finished or not
+Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
+	// first check the player has enough inventory space
+
+	// find the array of the rewards that you will be given
+	let rewards = quest.steps[step].rewards;
+	if (rewards !== undefined) {
+		Dom.quests.defaultRewards = Object.assign({}, rewards);
+
+		if (rewards.items === undefined) {
+			rewards.items = [];
+		}
+
+		// item rewards added from timesCompleted
+		if (rewards.timesCompleted !== undefined) {
+			let timesCompleted = Player.quests.timesCompleted[quest.questArea][quest.id];
+			rewards.items = rewards.items.concat(rewards.timesCompleted[timesCompleted]);
+		}
+
+		// item rewards added from table (if they haven't already been added)
+		/*if (!quest.addedRewardsFromTables) {
+			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
+				if (QuestRewardTables.globalAll[i].condition()) {
+					rewards.items.push(QuestRewardTables.globalAll[i]);
+				}
+			}
+
+			if (quest.repeatTime === "daily") {
+				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
+					if (QuestRewardTables.globalDaily[i].condition()) {
+						rewards.items.push(QuestRewardTables.globalDaily[i]);
+					}
+				}
+			}
+			quest.addedRewardsFromTables = true;
+		}*/ // removed system for now - maybe in the future it should just show the chance of getting the items
+	}
+	Dom.quest.currentRewards = rewards; // so the variable can be accessed in Dom.quest.progress
+
+	if (rewards === undefined || rewards.items === undefined || Dom.inventory.requiredSpace(rewards.items)) {
+		// sufficient space yey
+		let chat = quest.steps[step].chat;
+		chat = Dom.quest.formatBannerChat(chat);
+		chat[chat.length-1].onFinishDom = Dom.quest.progress;
+		chat[chat.length-1].onFinishDomParams = [quest, npc, step];
+		Dom.chat.npcBanner(npc, chat);
+	}
+	// not enough inventory space
+	else if (npc !== undefined) {
+		Dom.chat.npcBanner(npc, npc.chat.inventoryFull);
+	}
+}
+
+// called after quest NPC's dialogue
+// variable incrementing, removing items, showing page, etc
+// this function itself handles everything with the page; acceptRewards (which this calls) handles everything that's not to do with page
+// this is also called by quest.finish and quest.start
+Dom.quest.progress = function (quest, npc, step, finish) {
+	if (Dom.changeBook("questFinish", npc)) {//, true/*false*/, true)) {
+		if (finish) {
+			Dom.elements.questFinishQuest.innerHTML = "Quest finish: " + quest.quest;
+		}
+		else {
+			Dom.elements.questFinishQuest.innerHTML = "Quest progress: " + quest.quest;
+		}
+
+		/*let finishName = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
+		if (Array.isArray(finishName)) {
+			finishName = finishName[timesCompleted];
+		}
+
+		let finishChat = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
+		if (Array.isArray(finishChat)) {
+			finishChat = finishChat[timesCompleted];
+		}*/
+
+		// increment variables etc
+		this.acceptRewards(quest, npc, step, finish);
+
+		// display rewards
+		Dom.elements.questFinishItems.innerHTML = "";
+		Dom.elements.questFinishXP.hidden = true;
+		let rewards = Dom.quest.currentRewards;
+		if (rewards !== undefined) {
+			// xp rewards
+			if (rewards.xp > 0) {
+				Dom.elements.questFinishXP.hidden = false;
+				Dom.elements.questFinishXP.innerHTML = rewards.xp;
+			}
+			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
+
+			// service rewards
+			if (rewards.services !== undefined) {
+				for (let i = 0; i < rewards.services.length; i++) {
+					Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
+				}
+			}
+
+			// item rewards display
+			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
+			if (rewards.items !== undefined) {
+				for (let i = 0; i < rewards.items.length; i++) {
+					if (rewards.items[i].item.type !== "item" || rewards.items[i].item.id !== 1) {
+						Dom.quest.addReward(rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+					}
+					else {
+						rewards.items.splice(i, 1);
+						i--;
+					}
+				}
+
+				// display warning if there is not enough space to hold all possible rewards
+				if (Dom.inventory.requiredSpace(rewards.items, true)) {
+					Dom.elements.chanceImage.hidden = true;
+					Dom.elements.chance.hidden = true;
+				}
+				else {
+					Dom.elements.chanceImage.hidden = false;
+					Dom.elements.chance.hidden = false;
+				}
+
+			}
+			else {
+				Dom.elements.chanceImage.hidden = true;
+				Dom.elements.chance.hidden = true;
+			}
+		}
+		else {
+			Dom.elements.questFinishRewardsTitle.innerHTML = "";
+			//Dom.elements.questFinishStartItems.innerHTML = "";
+		}
+
+		// add mouseovers
+		let array = document.getElementsByClassName("theseQuestFinishServices");
+		if (array.length === 0) {
+			array = document.getElementsByClassName("theseQuestFinishOptions");
+		}
+		if (array.length === 0) {
+			array = [document.getElementById("questFinishXP")];
+		}
+		else {
+			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
+				rewards.services[x].type = "item";
+				rewards.services[x].name = "Service Reward";
+				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(rewards.services[x], undefined, "questFinish");
+				};
+				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
+			}
+		}
+		array[array.length-1].onload = function () {
+			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
+				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
+				};
+				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
+			}
+			for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
+				document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
+					Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
+				};
+				document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
+					Dom.expand("information");
+				};
+				document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
+				document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
+			}
+		}
+	}
+}
+
+// called by Dom.quest.progress (i.e. when npc dialogue has finished)
+// handles everything that's not to do with showing the page
+Dom.quest.acceptRewards = function (quest, npc, step, finish) {
+	// increment variables
+	Player.quests.stepProgress[quest.questArea][quest.id] = step;
+
+	// increment timesCompleted variable
+	if (quest.repeatTime === "daily" || quest.repeatTime === "repeatable" || quest.numberOfRepeats !== undefined) {
+		Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
+	}
+
+	// removeItems
+	// note that the quest step can still be completed even if this item is not in the player's inventory - this should instead be checked in an objective
+	if (typeof quest.steps[step].removeItems !== "undefined") {
+		for (let i = 0; i < quest.steps[step].removeItems.length; i++) {
+			Dom.inventory.removeById(quest.steps[step].removeItems[i].item.id, quest.steps[step].removeItems[i].item.type, quest.steps[step].removeItems[i].quantity);
+		}
+	}
+
+	// reputation
+	if (quest.steps[step].rewards.reputation !== undefined) {
+		for (let i = 0; i < Object.keys(quest.steps[step].rewards.reputation).length; i++) {
+			Dom.reputation.give(Object.keys(quest.steps[step].rewards.reputation)[i], quest.steps[step].rewards.reputation[Object.keys(quest.steps[step].rewards.reputation)[i]])
+		}
+	}
+
+	// if finishing quest, remove it from active quests array
+	if (finish) {
+		for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
+			if (Player.quests.activeQuestArray[i] === quest.quest) {
+				Player.quests.activeQuestArray.splice(i,1);
+			}
+		}
+
+		Dom.quests.completed(quest);
+	}
+
+	if (quest.repeatTime === "repeatable") {
+		User.progress.repeatableQuests = Increment(User.progress.repeatableQuests);
+		if (quest.randomGroup !== undefined) {
+			Player.quests.randomDailyQuests[quest.randomGroup] = undefined;
+		}
+	}
+	else if (Dom.currentlyDisplayed.repeatTime === "daily") {
+		User.progress.dailyQuests = Increment(User.progress.dailyQuests);
+	}
+	else {
+		User.progress.quests = Increment(User.progress.quests);
+	}
+
+	/*for (let i = 0; i < Player.quests.canBeFinishedArray.length; i++) {
+		if (Player.quests.canBeFinishedArray[i] === quest.quest) {
+			Player.quests.canBeFinishedArray.splice(i, 1);
+		}
+	}
+	*/
+
+	quest.wasCompleted = undefined; // for Dom.quests.active
+
+	Player.quests.questLastFinished[quest.questArea][quest.id] = GetFullDate();
+
+	Dom.adventure.update();
+
+	if (Dom.currentlyDisplayed === "questFinish") {
+		Dom.closePage('questFinish');
+	}
+	if (quest.steps[step].onFinish !== undefined) {
+		quest.steps[step].onFinish(npc);
+		/*if (Dom.currentNPC.type !== undefined) {
+			Dom.currentlyDisplayed.onQuestFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
+		}
+		else {
+			Dom.currentlyDisplayed.onQuestFinish();
+		}*/
+	}
+
+	Game.getXP(quest.steps[step].rewards.xp, false); // not affected by XP Bonus
+	Dom.checkProgress();
+
+	// last because it saves
+	if (quest.steps[step].rewards !== undefined && quest.steps[step].rewards.items !== undefined) {
+		for (let i = 0; i < quest.steps[step].rewards.items.length; i++) {
+			if (quest.steps[step].rewards.items[i].item.type !== "item" || quest.steps[step].rewards.items[i].item.id !== 1) {
+				if ((quest.steps[step].rewards.items[i].condition === undefined || quest.steps[step].rewards.items[i].condition()) && (quest.steps[step].rewards.items[i].chance === undefined || quest.steps[step].rewards.items[i].chance > Random(0, 99))) {
+					Dom.inventory.give(quest.steps[step].rewards.items[i].item, quest.steps[step].rewards.items[i].quantity);
+					if (quest.steps[step].rewards.items[i].chance !== undefined) {
+						if (quest.steps[step].rewards.items[i].quantity > 1) {
+							Dom.chat.insert("You earned "+quest.steps[step].rewards.items[i].quantity+" rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
+						}
+						else {
+							Dom.chat.insert("You earned a rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
+						}
+					}
+				}
+			}
+		}
+	}
+	quest.steps[step].rewards = Dom.quests.defaultRewards;
+}
+
+// called by quest finish DOM button, or navigating away from game
+// no longer required, as rewards are now accepted instantly on quest finish
+/*Dom.quest.declineRewards = function () {
 	let quest = Dom.currentlyDisplayed;
 	if (Player.quests.timesCompleted[quest.questArea][quest.id] === 1) {
 		Player.quests.timesCompleted[quest.questArea][quest.id] = null;
@@ -2588,214 +2903,7 @@ Dom.quest.declineRewards = function () {
 	}
 	quest.rewards = Dom.quests.defaultRewards;
 	Dom.closePage('questFinish');
-}
-
-//
-// quest progress
-//
-
-// just spoken to an npc to start the quest - display chat then call dom.quest.start
-Dom.quest.progressFromNpc = function (quest, npc, stage) {
-	// tbd needs to take into account currentlyDisplayed
-	let chat = quest["stepChat"+stage];
-	chat[chat.length-1].onFinishDom = Dom.quest.progress;
-	chat[chat.length-1].onFinishDomParams = [quest, npc, stage];
-	Dom.chat.npcBanner(npc, chat);
-}
-
-// just variable incrementing and removing items etc
-Dom.quest.progress = function (quest, npc, stage) {
-	// increment variable
-	Player.quests.npcProgress[questArea][quest] = stage;
-
-	// removeItems
-	if (quest["removeItemsStep"+stage] !== undefined) {
-		let itemsToRemove = quest["removeItemsStep"+stage];
-		for (let i = 0; i < Dom.currentlyDisplayed.removeItems.length; i++) {
-			Dom.inventory.removeById(Dom.currentlyDisplayed.removeItems[i].item.id, Dom.currentlyDisplayed.removeItems[i].item.type, Dom.currentlyDisplayed.removeItems[i].quantity);
-		}
-	}
-}
-
-//
-// quest finish
-//
-
-// just spoken to an npc to finish the quest - display chat then call dom.quest.finish
-Dom.quest.finishFromNpc = function (quest, npc) {
-	// tbd needs to take into account currentlyDisplayed
-	let chat = quest.finishChat;
-
-	// format chat so the onFinishDom property can be given to it
-	chat = Dom.quest.formatBannerChat(chat);
-
-	chat[chat.length-1].onFinishDom = Dom.quest.finish;
-	chat[chat.length-1].onFinishDomParams = [quest, npc];
-	Dom.chat.npcBanner(npc, chat);
-}
-
-// finishes a quest without dialogue (assumes dialogue it has already been shown by startFromNpc)
-Dom.quest.finish = function (quest, npc) {
-	let timesCompleted = Player.quests.timesCompleted[quest.questArea][quest.id]; // the number of times the player has completed this quest already (helpful for if the dialogue varies for each attempt for example
-	if (timesCompleted === null || timesCompleted === undefined)
-	{
-		timesCompleted = 0;
-	}
-
-	// first find the array of the rewards that you will be given
-	if (quest.rewards !== undefined) {
-		Dom.quests.defaultRewards = Object.assign({}, quest.rewards);
-
-		if (quest.rewards.items === undefined) {
-			quest.rewards.items = [];
-		}
-
-		// item rewards added from timesCompleted
-		if (quest.rewards.timesCompleted !== undefined) {
-			quest.rewards.items = quest.rewards.items.concat(quest.rewards.timesCompleted[timesCompleted]);
-		}
-
-		// item rewards added from table (if they haven't already been added)
-		/*if (!quest.addedRewardsFromTables) {
-			for (let i = 0; i < QuestRewardTables.globalAll.length; i++) {
-				if (QuestRewardTables.globalAll[i].condition()) {
-					quest.rewards.items.push(QuestRewardTables.globalAll[i]);
-				}
-			}
-
-			if (quest.repeatTime === "daily") {
-				for (let i = 0; i < QuestRewardTables.globalDaily.length; i++) {
-					if (QuestRewardTables.globalDaily[i].condition()) {
-						quest.rewards.items.push(QuestRewardTables.globalDaily[i]);
-					}
-				}
-			}
-			quest.addedRewardsFromTables = true;
-		}*/ // removed system for now - maybe in the future it should just show the chance of getting the items
-	}
-
-	// now generate dom menu
-
-	if (quest.rewards === undefined || quest.rewards.items === undefined || Dom.inventory.requiredSpace(quest.rewards.items)) {
-		if (Dom.changeBook("questFinish")) {//, true/*false*/, true)) {
-			Dom.elements.questFinishQuest.innerHTML = quest.quest;
-
-			/*let finishName = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
-			if (Array.isArray(finishName)) {
-				finishName = finishName[timesCompleted];
-			}
-
-			let finishChat = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
-			if (Array.isArray(finishChat)) {
-				finishChat = finishChat[timesCompleted];
-			}*/
-
-			if (quest.repeatTime === "daily" || quest.repeatTime === "repeatable" || quest.numberOfRepeats !== undefined) {
-				Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
-			}
-
-			// rewards
-			Dom.elements.questFinishItems.innerHTML = "";
-			Dom.elements.questFinishXP.hidden = true;
-			if (quest.rewards !== undefined) {
-				// xp rewards
-				if (quest.rewards.xp > 0) {
-					Dom.elements.questFinishXP.hidden = false;
-					Dom.elements.questFinishXP.innerHTML = quest.rewards.xp;
-				}
-				Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
-
-				// service rewards
-				if (quest.rewards.services !== undefined) {
-					for (let i = 0; i < quest.rewards.services.length; i++) {
-						Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + quest.rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
-					}
-				}
-
-				// item rewards display
-				Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
-				if (quest.rewards.items !== undefined) {
-					for (let i = 0; i < quest.rewards.items.length; i++) {
-						if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
-							Dom.quest.addReward(quest.rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
-						}
-						else {
-							quest.rewards.items.splice(i, 1);
-							i--;
-						}
-					}
-
-					// display warning if there is not enough space to hold all possible rewards
-					if (Dom.inventory.requiredSpace(quest.rewards.items, true)) {
-						Dom.elements.chanceImage.hidden = true;
-						Dom.elements.chance.hidden = true;
-					}
-					else {
-						Dom.elements.chanceImage.hidden = false;
-						Dom.elements.chance.hidden = false;
-					}
-
-				}
-				else {
-					Dom.elements.chanceImage.hidden = true;
-					Dom.elements.chance.hidden = true;
-				}
-			}
-			else {
-				Dom.elements.questFinishRewardsTitle.innerHTML = "";
-				//Dom.elements.questFinishStartItems.innerHTML = "";
-			}
-
-			let array = document.getElementsByClassName("theseQuestFinishServices");
-			if (array.length === 0) {
-				array = document.getElementsByClassName("theseQuestFinishOptions");
-			}
-			if (array.length === 0) {
-				array = [document.getElementById("questFinishXP")];
-			}
-			else {
-				for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
-					quest.rewards.services[x].type = "item";
-					quest.rewards.services[x].name = "Service Reward";
-					document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.rewards.services[x], undefined, "questFinish");
-					};
-					document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
-						Dom.expand("information");
-					};
-				}
-			}
-			array[array.length-1].onload = function () {
-				for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
-					document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
-					};
-					document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
-						Dom.expand("information");
-					};
-				}
-				for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
-					document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.rewards.items[x].item, quest.rewards.items[x].quantity, "questFinish");
-					};
-					document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
-						Dom.expand("information");
-					};
-					document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
-					document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
-				}
-			}
-
-			Dom.currentlyDisplayed = quest;
-		}
-	}
-	// not enough inventory space
-	else if (npc !== undefined) {
-		npc.say(npc.chat.inventoryFull, 0, true);
-		Dom.currentNPC = {};
-		Dom.currentlyDisplayed = "";
-	}
-}
+}*/
 
 Dom.quest.accept = function () {
 	if (Dom.currentlyDisplayed.resetVariables !== undefined) {
@@ -2839,81 +2947,6 @@ Dom.quest.accept = function () {
 			}
 		}
 	}
-}
-
-Dom.quest.acceptRewards = function () {
-	if (Dom.currentlyDisplayed.removeItems !== undefined) {
-		for (let i = 0; i < Dom.currentlyDisplayed.removeItems.length; i++) {
-			Dom.inventory.removeById(Dom.currentlyDisplayed.removeItems[i].item.id, Dom.currentlyDisplayed.removeItems[i].item.type, Dom.currentlyDisplayed.removeItems[i].quantity);
-		}
-	}
-	if (Dom.currentlyDisplayed.rewards.reputation !== undefined) {
-		for (let i = 0; i < Object.keys(Dom.currentlyDisplayed.rewards.reputation).length; i++) {
-			Dom.reputation.give(Object.keys(Dom.currentlyDisplayed.rewards.reputation)[i], Dom.currentlyDisplayed.rewards.reputation[Object.keys(Dom.currentlyDisplayed.rewards.reputation)[i]])
-		}
-	}
-	for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
-		if (Player.quests.activeQuestArray[i] === Dom.currentlyDisplayed.quest) {
-			Player.quests.activeQuestArray.splice(i,1);
-		}
-	}
-	Dom.quests.completed(Dom.currentlyDisplayed);
-	if (Dom.currentlyDisplayed.repeatTime === "repeatable") {
-		User.progress.repeatableQuests = Increment(User.progress.repeatableQuests);
-		if (Dom.currentlyDisplayed.randomGroup !== undefined) {
-			Player.quests.randomDailyQuests[Dom.currentlyDisplayed.randomGroup] = undefined;
-		}
-	}
-	else if (Dom.currentlyDisplayed.repeatTime === "daily") {
-		User.progress.dailyQuests = Increment(User.progress.dailyQuests);
-	}
-	else {
-		User.progress.quests = Increment(User.progress.quests);
-	}
-	for (let i = 0; i < Player.quests.canBeFinishedArray.length; i++) {
-		if (Player.quests.canBeFinishedArray[i] === Dom.currentlyDisplayed.quest) {
-			Player.quests.canBeFinishedArray.splice(i, 1);
-		}
-	}
-	Dom.currentlyDisplayed.wasCompleted = undefined;
-	Player.quests.questLastFinished[Dom.currentlyDisplayed.questArea][Dom.currentlyDisplayed.id] = GetFullDate();
-	Dom.adventure.update();
-	Player.quests.canBeFinishedArray.splice(Player.quests.canBeFinishedArray.findIndex(quest => quest === Dom.currentlyDisplayed.quest),1);
-	let quest = Dom.currentlyDisplayed;
-	if (Dom.currentlyDisplayed.onQuestFinish !== undefined) {
-		if (Dom.currentNPC.type !== undefined) {
-			Dom.currentlyDisplayed.onQuestFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
-		}
-		else {
-			Dom.currentlyDisplayed.onQuestFinish();
-		}
-	}
-	// if the onQuestFinish changed the page then don't change the page
-	if (Dom.currentlyDisplayed === quest) {
-		Dom.closePage('questFinish');
-	}
-	Game.getXP(quest.rewards.xp, false); // not affected by XP Bonus
-	Dom.checkProgress();
-
-	// last because it saves
-	if (quest.rewards !== undefined && quest.rewards.items !== undefined) {
-		for (let i = 0; i < quest.rewards.items.length; i++) {
-			if (quest.rewards.items[i].item.type !== "item" || quest.rewards.items[i].item.id !== 1) {
-				if ((quest.rewards.items[i].condition === undefined || quest.rewards.items[i].condition()) && (quest.rewards.items[i].chance === undefined || quest.rewards.items[i].chance > Random(0, 99))) {
-					Dom.inventory.give(quest.rewards.items[i].item, quest.rewards.items[i].quantity);
-					if (quest.rewards.items[i].chance !== undefined) {
-						if (quest.rewards.items[i].quantity > 1) {
-							Dom.chat.insert("You earned "+quest.rewards.items[i].quantity+" rare <strong>"+quest.rewards.items[i].item.name+"</strong> from completing this quest.");
-						}
-						else {
-							Dom.chat.insert("You earned a rare <strong>"+quest.rewards.items[i].item.name+"</strong> from completing this quest.");
-						}
-					}
-				}
-			}
-		}
-	}
-	quest.rewards = Dom.quests.defaultRewards
 }
 
 Dom.quests.possible = function () {
@@ -3065,9 +3098,8 @@ Dom.quests.other = function () {
 // npc and chat are for display purposes
 // the sold objects can contain a .buyButtonText property, which changes the "buy for x gold" text to some string
 Dom.merchant.page = function (npc, sold, chat) {
-	if (Dom.changeBook("merchantPage")) {//, true/*false*/, true);
-		//Dom.currentlyDisplayed = npc.name;
-		//Dom.changeBook("merchantPage", false); // stops close button being red
+	if (Dom.changeBook("merchantPage", npc)) {//, true/*false*/, true);
+		//Dom.changeBook("merchantPage", npc, false); // stops close button being red - TBD make more efficient lol
 
 		// init page
 		Dom.elements.merchantPageTitle.innerHTML = npc.name;
@@ -3261,7 +3293,7 @@ Dom.identifier.check = function () {
 // display the identifier page!
 // refresh is set to true if the page is already open but needs to be updated (i.e. called from identifier.left)
 Dom.identifier.page = function (npc, refresh) {
-	let pageOpened = Dom.changeBook("identifierPage");
+	let pageOpened = Dom.changeBook("identifierPage", npc);
 	if (pageOpened || refresh) { // check whether page's display actually needs to be refreshed, or whether the page has just been closed
 		Dom.elements.identifierPageChat.innerHTML = npc.chat.identifierGreeting;
 		Dom.elements.identifierPageOption.innerHTML = "<img src=" + Dom.identifier.unId[Dom.identifier.displayed].image + " class='theseOptions' style='padding: 0px; margin: 0px; border: 5px solid var(--border); height: 50px; width: 50px;'></img>";
@@ -3292,7 +3324,7 @@ Dom.identifier.identify = function (npc) {
 		// sufficient currency; identify th eitem
 		Dom.inventory.removeById(2,"currency",1);
 		Dom.closePage("identifierPage")//, true, true);
-		Dom.changeBook("identifiedPage")//, true, true);
+		Dom.changeBook("identifiedPage", npc)//, true, true);
 		Dom.currentlyDisplayed = npc.name;
 
 		for (let i = 0; i < Player.inventory.items.length; i++) {
@@ -4949,10 +4981,9 @@ Dom.inventory.hideHotbar = function (hide) {
 }
 
 Dom.loot.page = function (name, items) {
-	if (Dom.changeBook("lootPage")) {//, true/*false*/, true);
-		//Dom.currentlyDisplayed = name;
-		Dom.changeBook("lootPage");
-		Dom.changeBook("lootPage");
+	if (Dom.changeBook("lootPage", npc)) {//, true/*false*/, true);
+		//Dom.changeBook("lootPage");
+		//Dom.changeBook("lootPage");
 
 		// the format of Dom.loot.looted is the same as Dom.quest.rewards
 		Dom.loot.looted = items;
@@ -5048,8 +5079,8 @@ Dom.loot.page = function (name, items) {
 // text is the text displayed in the page - can be a function which returns the text displayed on the page alternatively
 // more documentation tbd : )
 // give parameter is just cosmetic, showing the item on the page as an "attached item". to actually give the item to the player, add this to the "functions" parameter
-Dom.text.page = function (name, text, close, buttons, functions, give) {
-	if (Dom.changeBook("textPage")) {//, true/*false*/, true);
+Dom.text.page = function (name, text, close, buttons, functions, give, npc) {
+	if (Dom.changeBook("textPage", npc)) {//, true/*false*/, true);
 		// text might be a function in which case the value taken is the value returned
 		if (typeof text === "function") {
 			text = text();
@@ -5139,7 +5170,7 @@ Dom.buyer.remove = function (i, all) {
 }
 
 Dom.buyer.page = function (npc) {
-	Dom.changeBook("buyerPage")//, true/*false*/, true);
+	Dom.changeBook("buyerPage", npc)//, true/*false*/, true);
 	// if the buyer page is being opened not refreshed
 	if (npc !== undefined) {0
 		Dom.elements.buyerPageChat.innerHTML = npc.chat.buyerGreeting;
@@ -5242,217 +5273,213 @@ Dom.choose.page = function (npcs) {
 
 	let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
 
-	if (Dom.currentlyDisplayed === "") {
-		Dom.currentlyDisplayed = name;
+	if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name) && npc.meetable && name !== "???") {
+		Player.metNPCs.push(name); // for achivements etc
+	}
 
-		if (npc.constructor.name === "NPC" && !Player.metNPCs.includes(name) && npc.meetable && name !== "???") {
-			Player.metNPCs.push(name); // for achivements etc
-		}
+	if (name !== npc) { // if name is npc, then npc has no .name property so isn't actually an npc
+		Dom.currentNPC.type = npc.type;
+		Dom.currentNPC.id = npc.id;
+	}
+	if (buttons.length > 1 || npcs.length > 1 || force) {
+		// show choose dialogue !
 
-		if (name !== npc) {
-			Dom.currentNPC.type = npc.type;
-			Dom.currentNPC.id = npc.id;
-		}
-		if (buttons.length > 1 || npcs.length > 1 || force) {
-			// show choose dialogue !
-
-			let chat;
-			if (typeof npc.chat !== "undefined" && typeof npc.chat.chooseChat !== "undefined") {
-				chat = npc.chat.chooseChat; // christmas chat messages etc are done in main, on creation of the npc
-			}
-			else {
-				chat = ". . ." // temp
-				console.warn("No choose chat for npc, please tell Jake", npc);
-			}
-
-			// format chat (so we can add properties to it)
-			chat = Dom.quest.formatBannerChat(chat);
-
-			chat[chat.length-1].options = [];
-			// populate the options:
-			for (let i = 0; i < buttons.length; i++) {
-				let func = function () {
-					if (typeof npcs[0].additionalOnClicks !== "undefined" && typeof npcs[0].additionalOnClicks[i] !== "undefined") {
-						npcs[0].additionalOnClicks[i](); // additional function to be called as well as opening the page
-					}
-					functions[i](...parameters[i]);
-					Dom.checkProgress();
-				};
-				chat[chat.length-1].options.push({
-					text: buttons[i],
-					action: "function",
-					function: functions[i],
-					params: parameters[i],
-				});
-			}
-			chat[chat.length-1].options.push({
-				text: "Goodbye",
-				action: "progress",
-			});
-
-			Dom.chat.npcBanner(npc, chat);
-
-
-			/*if (Dom.changeBook("choosePage")) {
-				Dom.elements.choosePageContent.innerHTML = "";
-				let total = 0;
-				for (let i = 0; i < npcs.length; i++) {
-
-					let npc = npcs[i].npc;
-					let buttons = npcs[i].buttons;
-					let functions = npcs[i].functions;
-					let parameters = npcs[i].parameters;
-					let force = npcs[i].force;
-					let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
-
-					if (npc.type === "players") {
-						// Player chooseDOM only
-						Dom.elements.choosePagePlayer.hidden = false;
-
-						// find the player in Dom.players
-						for (let i = 0; i < Dom.players.length; i++) {
-							if (npc.userID === Dom.players[i].userID) {
-								npc = Dom.players[i];
-								break;
-							}
-						}
-
-						// achievement points
-						Dom.elements.choosePageAchievementPoints.innerHTML = npc.achievementPoints;
-
-						// equipment slots
-
-						let array = ["helm", "chest", "greaves", "boots", "weapon", "mount", "bag"];//aaaaaaaaaaaaaa trinkets
-						for (let i = 0; i < array.length; i++) {
-							let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
-							if (npc.equipment[array[i]].image !== undefined) {
-								element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
-								element.style.backgroundImage = "none";
-								element.onmouseover = function () {
-									Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "trade", undefined, npc.equipment);
-								}
-								element.onmouseleave = function () {
-									Dom.expand("information");
-								}
-							}
-							// no item in slot
-							else {
-								element.innerHTML = "";
-								// armour slot
-								if (array[i] !== "weapon") {
-									element.style.backgroundImage = "url('assets/items/"+array[i]+"/1.png')";
-								}
-								// weapon slot
-								else {
-									element.innerHTML = "";
-									if (npc.class === "a") {
-										element.style.backgroundImage = "url('assets/items/bow/1.png')";
-									}
-									else if (npc.class === "m") {
-										element.style.backgroundImage = "url('assets/items/staff/1.png')";
-									}
-									else {
-										element.style.backgroundImage = "url('assets/items/sword/1.png')";
-									}
-								}
-							}
-						}
-
-						// greeting
-						let clss = "knight";
-						if (npc.class === "a") {
-							clss = "archer";
-						}
-						else if (npc.class === "m") {
-							clss = "mage";
-						}
-						Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1><p>Level "+npc.level+" "+clss;
-					}
-
-					// not players (normal)
-					else {
-						Dom.elements.choosePageContent.innerHTML += "<h1>"+name+"</h1>"+((npc.chat !== undefined && npc.chat.chooseChat !== undefined) ? "<p>"+npc.chat.chooseChat+"</p>" : "");
-						Dom.elements.choosePagePlayer.hidden = true;
-					}
-
-					// all (players and not players)
-					Dom.choose.HTML = "";
-					Dom.choose.sideHTML = "";
-					Dom.choose.dailyHTML = "";
-					for (let i = 0; i < buttons.length; i++) {
-						let imagenum = 2;
-						if (functions[i] === Dom.driver.page) {
-							imagenum = 0;
-						}
-						else if (functions[i] === Dom.identifier.page) {
-							imagenum = 3;
-						}
-						else if (functions[i] === Dom.buyer.page) {
-							imagenum = 4;
-						}
-						else if (functions[i] === Dom.merchant.page) {
-							imagenum = 5;
-						}
-						else if (functions[i] === Dom.quest.finish) {
-							imagenum = 6;
-						}
-						else if (functions[i] === Dom.quest.start) {
-							if (parameters[i][0].repeatTime === "daily" || parameters[i][0].repeatTime === "repeatable") {
-								imagenum = 1;
-							}
-							else {
-								imagenum = 7;
-							}
-						}
-						else if (functions[i] === Dom.text.page) {
-							if (parameters[i][0] === "Soul Healer") {
-								imagenum = 8;
-							}
-						}
-						if (imagenum === 6 || imagenum === 7) {
-							if (parameters[i][0].important === true) {
-								Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
-							}
-							else {
-								Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-							}
-						}
-						else if (imagenum === 0) {
-							Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-						}
-						else {
-							Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
-						}
-						total++;
-					}
-					Dom.elements.choosePageContent.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML +"<br><br>";
-				}
-
-				// after for loop so only one close button even if there are multiple npcs
-				Dom.elements.choosePageContent.innerHTML += '<center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>'
-
-				// after close button because functions reset
-				total = 0;
-				for (let x = 0; x < npcs.length; x++) {
-					for (let i = 0; i < npcs[x].buttons.length; i++) {
-						document.getElementById("choosePageButtons"+total).onclick = function () {
-							Dom.closePage("choosePage", true);
-							if (typeof npcs[x].additionalOnClicks !== "undefined" && typeof npcs[x].additionalOnClicks[i] !== "undefined") {
-								npcs[x].additionalOnClicks[i](); // additional function to be called as well as opening the page
-							}
-							npcs[x].functions[i](...npcs[x].parameters[i]);
-							Dom.checkProgress();
-						}
-						total++;
-					}
-				}
-
-			}*/
+		let chat;
+		if (typeof npc.chat !== "undefined" && typeof npc.chat.chooseChat !== "undefined") {
+			chat = npc.chat.chooseChat; // christmas chat messages etc are done in main, on creation of the npc
 		}
 		else {
-			functions[0](...parameters[0]);
-			Dom.checkProgress();
+			chat = ". . ." // temp
+			console.warn("No choose chat for npc, please tell Jake", npc);
 		}
+
+		// format chat (so we can add properties to it)
+		chat = Dom.quest.formatBannerChat(chat);
+
+		chat[chat.length-1].options = [];
+		// populate the options:
+		for (let i = 0; i < buttons.length; i++) {
+			let func = function () {
+				if (typeof npcs[0].additionalOnClicks !== "undefined" && typeof npcs[0].additionalOnClicks[i] !== "undefined") {
+					npcs[0].additionalOnClicks[i](); // additional function to be called as well as opening the page
+				}
+				functions[i](...parameters[i]);
+				Dom.checkProgress();
+			};
+			chat[chat.length-1].options.push({
+				text: buttons[i],
+				action: "function",
+				function: functions[i],
+				params: parameters[i],
+			});
+		}
+		chat[chat.length-1].options.push({
+			text: "Goodbye",
+			action: "progress",
+		});
+
+		Dom.chat.npcBanner(npc, chat);
+
+
+		/*if (Dom.changeBook("choosePage")) {
+			Dom.elements.choosePageContent.innerHTML = "";
+			let total = 0;
+			for (let i = 0; i < npcs.length; i++) {
+
+				let npc = npcs[i].npc;
+				let buttons = npcs[i].buttons;
+				let functions = npcs[i].functions;
+				let parameters = npcs[i].parameters;
+				let force = npcs[i].force;
+				let name = npc.name !== undefined ? npc.name : npc; // for cases like Goblin Torch
+
+				if (npc.type === "players") {
+					// Player chooseDOM only
+					Dom.elements.choosePagePlayer.hidden = false;
+
+					// find the player in Dom.players
+					for (let i = 0; i < Dom.players.length; i++) {
+						if (npc.userID === Dom.players[i].userID) {
+							npc = Dom.players[i];
+							break;
+						}
+					}
+
+					// achievement points
+					Dom.elements.choosePageAchievementPoints.innerHTML = npc.achievementPoints;
+
+					// equipment slots
+
+					let array = ["helm", "chest", "greaves", "boots", "weapon", "mount", "bag"];//aaaaaaaaaaaaaa trinkets
+					for (let i = 0; i < array.length; i++) {
+						let element = Dom.elements["choosePage"+array[i][0].toUpperCase()+array[i].substring(1)];
+						if (npc.equipment[array[i]].image !== undefined) {
+							element.innerHTML = "<img src='"+npc.equipment[array[i]].image+"'></img>";
+							element.style.backgroundImage = "none";
+							element.onmouseover = function () {
+								Dom.inventory.displayInformation(npc.equipment[array[i]], undefined, "tradePage", "trade", undefined, npc.equipment);
+							}
+							element.onmouseleave = function () {
+								Dom.expand("information");
+							}
+						}
+						// no item in slot
+						else {
+							element.innerHTML = "";
+							// armour slot
+							if (array[i] !== "weapon") {
+								element.style.backgroundImage = "url('assets/items/"+array[i]+"/1.png')";
+							}
+							// weapon slot
+							else {
+								element.innerHTML = "";
+								if (npc.class === "a") {
+									element.style.backgroundImage = "url('assets/items/bow/1.png')";
+								}
+								else if (npc.class === "m") {
+									element.style.backgroundImage = "url('assets/items/staff/1.png')";
+								}
+								else {
+									element.style.backgroundImage = "url('assets/items/sword/1.png')";
+								}
+							}
+						}
+					}
+
+					// greeting
+					let clss = "knight";
+					if (npc.class === "a") {
+						clss = "archer";
+					}
+					else if (npc.class === "m") {
+						clss = "mage";
+					}
+					Dom.elements.choosePageContent.innerHTML = "<h1>"+name+"</h1><p>Level "+npc.level+" "+clss;
+				}
+
+				// not players (normal)
+				else {
+					Dom.elements.choosePageContent.innerHTML += "<h1>"+name+"</h1>"+((npc.chat !== undefined && npc.chat.chooseChat !== undefined) ? "<p>"+npc.chat.chooseChat+"</p>" : "");
+					Dom.elements.choosePagePlayer.hidden = true;
+				}
+
+				// all (players and not players)
+				Dom.choose.HTML = "";
+				Dom.choose.sideHTML = "";
+				Dom.choose.dailyHTML = "";
+				for (let i = 0; i < buttons.length; i++) {
+					let imagenum = 2;
+					if (functions[i] === Dom.driver.page) {
+						imagenum = 0;
+					}
+					else if (functions[i] === Dom.identifier.page) {
+						imagenum = 3;
+					}
+					else if (functions[i] === Dom.buyer.page) {
+						imagenum = 4;
+					}
+					else if (functions[i] === Dom.merchant.page) {
+						imagenum = 5;
+					}
+					else if (functions[i] === Dom.quest.finish) {
+						imagenum = 6;
+					}
+					else if (functions[i] === Dom.quest.start) {
+						if (parameters[i][0].repeatTime === "daily" || parameters[i][0].repeatTime === "repeatable") {
+							imagenum = 1;
+						}
+						else {
+							imagenum = 7;
+						}
+					}
+					else if (functions[i] === Dom.text.page) {
+						if (parameters[i][0] === "Soul Healer") {
+							imagenum = 8;
+						}
+					}
+					if (imagenum === 6 || imagenum === 7) {
+						if (parameters[i][0].important === true) {
+							Dom.elements.choosePageContent.innerHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>"+buttons[i]+"</strong></p>";
+						}
+						else {
+							Dom.choose.sideHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+						}
+					}
+					else if (imagenum === 0) {
+						Dom.choose.dailyHTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+					}
+					else {
+						Dom.choose.HTML += "<p class='choosePageButtons' id='choosePageButtons"+total+"'><img src='assets/icons/choose.png' class='chooseIcon' style='clip: rect("+25*imagenum+"px, 25px, "+25*(imagenum+1)+"px, 0px); margin-top: -"+(25*imagenum+3)+"px'></img>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+buttons[i]+"</p>";
+					}
+					total++;
+				}
+				Dom.elements.choosePageContent.innerHTML += Dom.choose.sideHTML + Dom.choose.dailyHTML + Dom.choose.HTML +"<br><br>";
+			}
+
+			// after for loop so only one close button even if there are multiple npcs
+			Dom.elements.choosePageContent.innerHTML += '<center><div id="choosePageClose" class="closeClass" onclick="Dom.closePage(\'choosePage\')">Close</div></center>'
+
+			// after close button because functions reset
+			total = 0;
+			for (let x = 0; x < npcs.length; x++) {
+				for (let i = 0; i < npcs[x].buttons.length; i++) {
+					document.getElementById("choosePageButtons"+total).onclick = function () {
+						Dom.closePage("choosePage", true);
+						if (typeof npcs[x].additionalOnClicks !== "undefined" && typeof npcs[x].additionalOnClicks[i] !== "undefined") {
+							npcs[x].additionalOnClicks[i](); // additional function to be called as well as opening the page
+						}
+						npcs[x].functions[i](...npcs[x].parameters[i]);
+						Dom.checkProgress();
+					}
+					total++;
+				}
+			}
+
+		}*/
+	}
+	else {
+		functions[0](...parameters[0]);
+		Dom.checkProgress();
 	}
 }
 
@@ -5515,22 +5542,22 @@ Dom.settings.hotkeys = function (ev) {
 	}
 	// normal hotkey - not being changed
 	else if (keyName === User.settings.keyboard.CHAT && Player.unlockedTabs.includes("chat")) {
-		Dom.changeBook("chatPage", true);
+		Dom.changeBook("chatPage", undefined, true);
 	}
 	else if (keyName === User.settings.keyboard.INVENTORY && Player.unlockedTabs.includes("inventory")) {
-		Dom.changeBook("inventoryPage", true);
+		Dom.changeBook("inventoryPage", undefined, true);
 	}
 	else if (keyName === User.settings.keyboard.QUESTS && Player.unlockedTabs.includes("quests")) {
-		Dom.changeBook("questsPage", true);
+		Dom.changeBook("questsPage", undefined, true);
 	}
 	else if (keyName === User.settings.keyboard.ADVENTURE) {
-		Dom.changeBook("adventurePage", true);
+		Dom.changeBook("adventurePage", undefined, true);
 	}
 	else if (keyName === User.settings.keyboard.REPUTATION && Player.unlockedTabs.includes("reputation")) {
-		Dom.changeBook("reputationPage", true);
+		Dom.changeBook("reputationPage", undefined, true);
 	}
 	else if (keyName === User.settings.keyboard.SETTINGS) {
-		Dom.changeBook("settingsPage", true);
+		Dom.changeBook("settingsPage", undefined, true);
 	}
 }
 
@@ -5540,10 +5567,10 @@ Dom.settings.page = function (page) {
 		// change to a specific settings page
 		Dom.closePage(Dom.settings.current);
 		Dom.settings.current = page;
-		Dom.changeBook(page, true);
+		Dom.changeBook(page, undefined, true);
 	}else {
 		// change to the last settings page that was open
-		Dom.changeBook(Dom.settings.current, true);
+		Dom.changeBook(Dom.settings.current, undefined, true);
 	}
 }
 
@@ -5655,9 +5682,9 @@ Dom.inventory.inOut = function (direction, num, other) {
 	}
 }
 
-Dom.bank.page = function () {
+Dom.bank.page = function (npc) {
 	Dom.changeBook("inventoryPage");
-	Dom.changeBook("bankPage");
+	Dom.changeBook("bankPage", npc);
 	Dom.bank.active = true;
 
 	Dom.instructions.page(16); // open if they haven't already seen them
@@ -5729,7 +5756,7 @@ Dom.bank.page = function () {
 }
 
 Dom.driver.page = function (npc, destinations) {
-	if (Dom.changeBook("driverPage")) {//, true/*false*/, true);
+	if (Dom.changeBook("driverPage", npc)) {//, true/*false*/, true);
 		Dom.elements.driverPageBuy.style.display = "none";
 		Dom.elements.driverPageMain.innerHTML = "<br><h1>"+npc.name+"</h1>";
 		Dom.elements.driverPageMain.innerHTML += "<p>"+npc.chat.driverText+"<p><br>";
@@ -5784,7 +5811,7 @@ Dom.elements.closeDriver.onclick = function () {
 
 // uses the same page as Dom.driver.page (see above) but with slightly different code
 Dom.spellChoice.page = function (npc, spells) {
-	if (Dom.changeBook("driverPage")) {//, true/*false*/, true);
+	if (Dom.changeBook("driverPage", npc)) {//, true/*false*/, true);
 		Dom.elements.driverPageBuy.style.display = "none";
 		Dom.elements.driverPageMain.innerHTML = "<br><h1>"+npc.name+"</h1>";
 		Dom.elements.driverPageMain.innerHTML += "<p>"+npc.chat.spellChoiceText+"<p><br>";
@@ -6542,6 +6569,7 @@ Dom.trade.items = [{},{},{},{},{},{},{},{},
 Dom.trade.other = [{},{},{},{},{},{},{},{},
 					{},{},{},{},{},{},{},{},
 					{},{},{},{},{},{},{},{},];
+
 Dom.trade.page = function () {
 	Dom.changeBook("inventoryPage");
 	Dom.changeBook("tradePage");
