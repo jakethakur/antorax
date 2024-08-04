@@ -1,5 +1,5 @@
 var Quests = {
-	eaglecrestLoggingCamp: [
+	loggingCampNew: [
 		{
 			id: 0,
 			quest: "To the Logging Camp",
@@ -7,50 +7,64 @@ var Quests = {
 
 			important: true, // appears at top of quest log and choose dom
 
-			//startName: "Cart Driver",
-			startChat: [{
-				text: `That's it, we're here!`,
-			},{
-				text: `I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> on your own from here. `,
-			},{
-				text: `If you walk down a bit to the west you should see the entrance to the camp.`,
-			},{
-				text: `Oh, and you should probably buy a weapon on your way there...`,
-			},],
+			questType: "storyline",
 
-			//finishName: "Marshall Teper",
-			finishChat: [{
-				text: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.`,
-			},{
-				text: `Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers.`,
-			},{
-				text: `Feel free to have a look around the camp and buy anything you want, but not for too long. We've got work to be done.`,
-			},],
-
-			objectives: [
-				"Buy a weapon from a nearby weaponsmith.",
-				"Speak to <strong>Marshall Teper</strong>.",
+			steps: [
+				{
+					stepNum: 0,
+					chat: [{
+						text: `That's it, we're here!`,
+					},{
+						text: `I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> on your own from here. `,
+					},{
+						text: `If you walk down a bit to the west you should see the entrance to the camp.`,
+					},{
+						text: `Oh, and you should probably buy a weapon on your way there...`,
+					},],
+				},
+				{
+					stepNum: 1,
+					chat: [{
+						text: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.`,
+					},{
+						text: `Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers.`,
+					},{
+						text: `Now, you'll need to learn how to fight if you can be of any worth here - there are goblins out there, and they'll want you dead.`,
+					},{
+						text: `Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here.`,
+					},],
+					rewards: {
+						xp: 10,
+						items: [
+							{item: Items.boots[2],},
+							{item: Items.currency[2], quantity: 2,},
+						],
+					},
+					onFinish: function () {
+						Dom.instructions.page(6);
+					}
+				},
 			],
 
-			isCompleted: function() {
-				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1));
-
-				if (completed[0]) {
-					// tutorial
-					Game.setTimeout(function () {
-						if (Player.tutorialProgress === 3 && Game.areaName === "tutorial") {
-							Dom.instructions.page(4);
+			objectivesList: [
+				{id: 0, text: "Buy a weapon from a nearby weaponsmith.",
+					isCompleted: function () {
+						let completed = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1)
+						if (completed) {
+							// tutorial
+							Game.setTimeout(function () {
+								if (Player.tutorialProgress === 3 && Game.areaName === "tutorial") {
+									Dom.instructions.page(4);
+								}
+							}, 2000);
 						}
-					}, 2000);
-				}
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+						return completed;
+					}
+				},
+				{id: 1, text: "Speak to <strong>Marshall Teper</strong>.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+			],
 
 			howToStart: "Speak to the <strong>Cart Driver</strong>.",
 			levelRequirement: 1,
@@ -59,20 +73,87 @@ var Quests = {
 				return Player.tutorialProgress === 1 || Player.skipTutorial;
 			},
 
-			rewards: {
-				xp: 10,
-				items: [
-					{item: Items.boots[2],},
-					{item: Items.currency[2], quantity: 2,},
-				],
+			onQuestStart: function() {
+				Dom.instructions.page(2);
+			},
+		},
+	],
+	eaglecrestLoggingCamp: [ // old quests - should be moved over to loggingCampNew
+		{
+			id: 0,
+			quest: "To the Logging Camp",
+			questArea: "eaglecrestLoggingCamp", // name of the array this is contained in
+
+			important: true, // appears at top of quest log and choose dom
+
+			questType: "storyline",
+
+			steps: [
+				{
+					stepNum: 0,
+					chat: [{
+						text: `That's it, we're here!`,
+					},{
+						text: `I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> on your own from here. `,
+					},{
+						text: `If you walk down a bit to the west you should see the entrance to the camp.`,
+					},{
+						text: `Oh, and you should probably buy a weapon on your way there...`,
+					},],
+				},
+				{
+					stepNum: 1,
+					chat: [{
+						text: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.`,
+					},{
+						text: `Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers.`,
+					},{
+						text: `Now, you'll need to learn how to fight if you can be of any worth here - there are goblins out there, and they'll want you dead.`,
+					},{
+						text: `Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here.`,
+					},],
+					rewards: {
+						xp: 10,
+						items: [
+							{item: Items.boots[2],},
+							{item: Items.currency[2], quantity: 2,},
+						],
+					},
+					onFinish: function () {
+						Dom.instructions.page(6);
+					}
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Buy a weapon from a nearby weaponsmith.",
+					isCompleted: function () {
+						let completed = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1)
+						if (completed) {
+							// tutorial
+							Game.setTimeout(function () {
+								if (Player.tutorialProgress === 3 && Game.areaName === "tutorial") {
+									Dom.instructions.page(4);
+								}
+							}, 2000);
+						}
+						return completed;
+					}
+				},
+				{id: 1, text: "Speak to <strong>Marshall Teper</strong>.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+			],
+
+			howToStart: "Speak to the <strong>Cart Driver</strong>.",
+			levelRequirement: 1,
+			questRequirements: [],
+			requirement: function () {
+				return Player.tutorialProgress === 1 || Player.skipTutorial;
 			},
 
 			onQuestStart: function() {
 				Dom.instructions.page(2);
-			},
-
-			onQuestFinish: function() {
-				Dom.instructions.page(6);
 			},
 		},
 
@@ -82,13 +163,10 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			important: true,
+			questType: "storyline",
 
 			startName: "Mashall Teper",
-			startChat: [{
-				text: `You'll need to learn how to fight if you can be of any worth here - there are goblins out there, and they'll want you dead.`,
-			},{
-				text: `Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here.`,
-			},],
+			startChat: [],
 
 			finishName: "Combat Trainer Saral",
 			finishChat: [{
@@ -3565,6 +3643,8 @@ var Quests = {
 			id: 21,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
+
+			questType: "mini",
 
 			steps: [
 				{

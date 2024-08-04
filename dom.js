@@ -659,7 +659,8 @@ Dom.closeNPCPages = function () {
 // therefore these pages won't set currentlyDisplayed or currentNPC
 const displayExceptionPages = ["leaderboardPage"];
 
-// I think notClose is set to true if the NPC is still being spoken to (i.e. another page is opened/still open) after this one is closed
+//  notClose is set to true if currentlyDisplayed and currentNPC shoudl not be changed when the page is closed
+// i.e. if the NPC is still being spoken to (i.e. another page is opened/still open) after this one is closed
 Dom.closePage = function (page, notClose) {
 	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
 		let tab = page
