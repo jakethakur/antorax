@@ -908,7 +908,7 @@ var map = {
 	// animates tiles based on this.animateTiles
 	// called by intervals set by initTileAnimation
 	// parameter is the index to be animated of the array map.animateTimes
-	animateTilesFunction: function(animateIndex) {
+	animateTilesFunction: function(animateIndex) {//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 		// finding startCol etc is exactly the same as in drawLayer - tbd mayb try to generalise into a fn
 		let startCol, endCol, startRow, endRow;
 
@@ -1328,14 +1328,12 @@ class Entity {
 		this.area = Game.areaName;
 
 		this.map = properties.map;
-		this.x = properties.x;
-		this.y = properties.y;
+		if (typeof properties.x !== "undefined") {
+			this.x = Math.round(properties.x);
+			this.y = Math.round(properties.y);
+		}
 		this.width = properties.width;
 		this.height = properties.height;
-
-		this.roundPosition = properties.roundPosition; // set to true if its coordinates should be rounded to the nearest integer on rendering
-		// by default this does not happen, however in some tilemap situations (i.e. tall grass and fences), due to limitations of canvas (in 2023), this can lead to white/black lines around the object
-		// if this is set to true, the above problem is avoided, but the item can appear juddery when the player is moving diagonally.
 
 		// optional function for when space is pressed when touching
 		this.onInteract = properties.onInteract;
@@ -4090,7 +4088,7 @@ class Hero extends Attacker {
 		let maxX = Game.camera.maxX + Game.camera.width;
 		let maxY = Game.camera.maxY + Game.camera.height;
 		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
-		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
+		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY)); //temp aaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 		// round player position, otherwise screen judders
 		// tbd readd - unfortunately this currently significantly slows the hero down in two directions
@@ -7271,7 +7269,7 @@ class Camera extends Entity {
 			// screen shake overrides clamping
 			this.x += this.offsetX;
 			this.y += this.offsetY;
-
+			
 			if (this.following !== undefined) {
 			    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
 
@@ -12713,8 +12711,11 @@ Game.drawImageRotated = function (ctx, img, cropX, cropY, cropWidth, cropHeight,
 // update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
 // screenX and screenY are the CENTRE of the object (hence width/2 or height/2 are subtracted when drawing images to get the top left), as are x and y
 Game.updateScreenPosition = function (entity) {
-	entity.screenX = (entity.x) - this.camera.x + this.viewportOffsetX;
-	entity.screenY = (entity.y) - this.camera.y + this.viewportOffsetY;
+	let renderX = entity.x;
+	let renderY = entity.y;
+
+	entity.screenX = Math.round((renderX) - this.camera.x + this.viewportOffsetX);
+	entity.screenY = Math.round((renderY) - this.camera.y + this.viewportOffsetY);
 
 	if (typeof entity.adjust !== "undefined") { // adjust postiion
 		let angle = this.bearing(entity, entity.adjust.towards);
@@ -12726,10 +12727,6 @@ Game.updateScreenPosition = function (entity) {
 		entity.hitbox.screenX = (entity.hitbox.x) - this.camera.x + this.viewportOffsetX;
 		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y + this.viewportOffsetY;
 	}
-
-	// not ideal because it makes objects a bit juddery, but without it tiles (i.e. long grass in plains) sometimes have white gaps between them :(
-	entity.screenX = Round(entity.screenX, 1);
-	entity.screenY = Round(entity.screenY, 1);
 }
 
 // draw character health bar, name etc. in correct place
@@ -13538,8 +13535,8 @@ Game.renderObject = function (objectToRender) {
 	let drawX = objectToRender.screenX - objectToRender.width / 2;
 	let drawY = objectToRender.screenY - objectToRender.height / 2;
 	if (objectToRender.roundPosition) { // see entity class for explanation
-		drawX = Round(drawX, 0);
-		drawY = Round(drawY, 0);
+		drawX = Math.round(drawX);
+		drawY = Math.round(drawY);
 	}
 
 
