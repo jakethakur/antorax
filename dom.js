@@ -42,11 +42,11 @@ let Dom = {
 		canvasSend: document.getElementById("canvasSend"),
 		chance: document.getElementById("chance"),
 		chanceImage: document.getElementById("chanceImage"),
-		changeAdventure: document.getElementById("changeAdventure"),
+		changeSpellbook: document.getElementById("changeSpellbook"),
 		changeChat: document.getElementById("changeChat"),
 		changeInventory: document.getElementById("changeInventory"),
 		changeQuests: document.getElementById("changeQuests"),
-		changeReputation: document.getElementById("changeReputation"),
+		changeAdventure: document.getElementById("changeAdventure"),
 		changeSettings: document.getElementById("changeSettings"),
 		charges: document.getElementById("charges"),
 		chat: document.getElementById("chat"),
@@ -105,6 +105,8 @@ let Dom = {
 		interact: document.getElementById("interact"),
 		inventoryGoldXP: document.getElementById("inventoryGoldXP"),
 		inventoryPage: document.getElementById("inventoryPage"),
+		itemDescriptionText: document.getElementById("itemDescriptionText"),
+		itemTier: document.getElementById("itemTier"),
 		itemIdentification: document.getElementById("itemIdentification"),
 		itemInventory: document.getElementById("itemInventory"),
 		leaderboardPage: document.getElementById("leaderboardPage"),
@@ -181,6 +183,8 @@ let Dom = {
 		settingsTwoPage: document.getElementById("settingsTwoPage"),
 		settingTutorialHolder: document.getElementById("settingTutorialHolder"),
 		speedOn: document.getElementById("speedOn"),
+		spellArsenal: document.getElementById("spellArsenal"),
+		spellsEquipped: document.getElementById("spellsEquipped"),
 		stats: document.getElementById("stats"),
 		textPage: document.getElementById("textPage"),
 		them: document.getElementById("them"),
@@ -241,6 +245,7 @@ let Dom = {
 	infoBar: {},
 	achievements: {},
 	spellChoice: {},
+	spellbook: {},
 };
 
 //
@@ -662,7 +667,7 @@ const displayExceptionPages = ["leaderboardPage"];
 //  notClose is set to true if currentlyDisplayed and currentNPC shoudl not be changed when the page is closed
 // i.e. if the NPC is still being spoken to (i.e. another page is opened/still open) after this one is closed
 Dom.closePage = function (page, notClose) {
-	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
+	if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "spellbookPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
 		let tab = page
 		if (page === "settingsTwoPage" || page === "creditsPage") {
 			tab = "settingsPage";
@@ -709,7 +714,7 @@ Dom.changeBook = function (page, npc, openClose) {
 	}
 	if (document.getElementById(page).hidden && !settingsOpen) {
 		// check if page is a "bookmarked" one
-		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "reputationPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
+		if (page === "chatPage" || page === "inventoryPage" || page === "questsPage" || page === "adventurePage" || page === "spellbookPage" || page === "settingsPage" || page === "settingsTwoPage" || page === "creditsPage") {
 			bookmark = true;
 			document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.opacity = 1;
 			//document.getElementById("change"+tab.substring(0,1).toUpperCase()+tab.substring(1,tab.length-4)).style.bottom = "0px";
@@ -878,7 +883,7 @@ Dom.elements.tutorialOn.onclick = function () {
 	Dom.instructions.unlockTab("quests", true);
 	Dom.instructions.unlockTab("chat", true);
 	Dom.instructions.unlockTab("inventory", true);
-	Dom.instructions.unlockTab("reputation", true);
+	Dom.instructions.unlockTab("adventure", true);
 	Player.skipTutorial = true;
 }
 
@@ -1864,7 +1869,7 @@ Dom.inventory.displayIdentification = function (display) {
 	Dom.elements.itemIdentification.style.width = Dom.elements.innerStats.offsetWidth+"px";
 }
 
-// returns what should be displayed of a stat on an item
+// returns what should be displayed of a stat on an item or spell (inventory/spellbook item/spell hoverover)
 // stat = string of what the stat is
 // stat should be in Title Case
 // value = value of the stat
@@ -1922,7 +1927,25 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Number Of Projectiles") {
 		return "Number of Projectiles: "+value+"<br>";
 	}
-	else {
+	//
+	// spell stats (no plus sign)
+	//
+	else if (stat === "Mana Cost" || stat === "Range") {
+		return stat+": "+value+"<br>";
+	}
+	else if (stat === "Channel Time" || stat === "Cooldown" || stat === "Duration Of Effect" || stat === "Stun Time") {
+		return stat+": "+(value/1000)+"s<br>";
+	}
+	else if (stat === "Mana Per Second") {
+		return stat+": "+value+"/s<br>";
+	}
+	else if (stat === "Velocity") {
+		return stat+": "+(value/1000)+"/s<br>";
+	}
+	else if (stat === "Defence Multiplier" || stat === "Damage Multiplier") {
+		return stat+": "+value+"%<br>";
+	}
+	else { 
 		return "";
 	}
 };
@@ -1969,92 +1992,88 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				Dom.elements.name.style.color = "var(--text)";
 			}
 
+			// display item's stats
+			Dom.elements.stats.innerHTML = "";
+			Dom.elements.conditionalStats.innerHTML = "";
+			Dom.elements.chooseStats.innerHTML = "";
+			Dom.elements.conditionalChooseStats.innerHTML = "";
+			if (item.stats !== undefined) {
+
+				// look for chosen stat from choose stats (if there is one)
+				for (let i = 0; i < Object.keys(item.stats).length; i++) {
+					if (Object.keys(item.stats)[i] !== item.chosenStat) {
+
+						Dom.elements.stats.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
+					}
+				}
+
+				// choose stats (stats that can be chosen from)
+				if (item.chooseStats !== undefined) {
+					if (Object.keys(item.chooseStats).length > 0) {
+						if (!item.allChooseStats) {
+							Dom.elements.chooseStats.innerHTML = "Click to choose stat:<br>";
+						}
+						else {
+							Dom.elements.chooseStats.innerHTML = "";
+						}
+					}
+					for (let i = 0; i < Object.keys(item.chooseStats).length; i++) {
+						let color = "gray";
+						if (Object.keys(item.chooseStats)[i] === item.chosenStat || item.allChooseStats) {
+							color = "var(--text)";
+						}
+						Dom.elements.chooseStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
+					}
+				}
+				else {
+					Dom.elements.chooseStats.innerHTML = "";
+				}
+
+				// conditional choose stats (choose stats that require a condition)
+				if (item.conditionalChooseStats !== undefined) {
+					if (item.chooseStats === undefined) {
+						item.chooseStats = [];
+					}
+					if (Object.keys(item.conditionalChooseStats).length > Object.keys(item.chooseStats).length) {
+						Dom.elements.conditionalChooseStats.innerHTML = "Locked stats:<br>";
+					}
+					for (let i = 0; i < Object.keys(item.conditionalChooseStats).length; i++) {
+						if (!Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
+							Dom.elements.conditionalChooseStats.innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
+						}
+					}
+				}
+				else {
+					Dom.elements.conditionalChooseStats.innerHTML = "";
+				}
+
+				// conditional stats (stats that require a condition to be true to be active; otherwise they are displayed in grey)
+				if (item.conditionalStats !== undefined) {
+					for (let x = 0; x < item.conditionalStats.length; x++) {
+						Dom.elements.conditionalStats.innerHTML = item.conditionalStats[x].text+"<br>";
+						for (let i = 0; i < Object.keys(item.conditionalStats[x].stats).length; i++) {
+							let color = "gray";
+							if (Items[item.type][item.id].conditionalStats[x].condition()) {
+								color = "var(--text)";
+							}
+							Dom.elements.conditionalStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
+						}
+					}
+				}
+				else {
+					Dom.elements.conditionalStats.innerHTML = "";
+				}
+			}
+
 			// weapon, armour, rod or tool
-			if (item.type !== "item" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && item.type !== "dev") {
+			if (item.type !== "item" && item.type !== "spell" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && item.type !== "dev") {
 
 				// weapons used to attack have tiers that should be displayed
 				if (item.type !== "rod" && item.type !== "tool") {
-					Dom.elements.stats.innerHTML = "Tier: "+item.tier+"<br>";
+					Dom.elements.itemTier.innerHTML = "Tier: "+item.tier+"<br>";
 				}
 				else {
-					Dom.elements.stats.innerHTML = "";
-				}
-
-				// display item's stats
-				if (item.stats !== undefined) {
-
-					// look for chosen stat from choose stats (if there is one)
-					for (let i = 0; i < Object.keys(item.stats).length; i++) {
-						if (Object.keys(item.stats)[i] !== item.chosenStat) {
-
-							Dom.elements.stats.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
-						}
-					}
-
-					// choose stats (stats that can be chosen from)
-					if (item.chooseStats !== undefined) {
-						if (Object.keys(item.chooseStats).length > 0) {
-							if (!item.allChooseStats) {
-								Dom.elements.chooseStats.innerHTML = "Click to choose stat:<br>";
-							}
-							else {
-								Dom.elements.chooseStats.innerHTML = "";
-							}
-						}
-						for (let i = 0; i < Object.keys(item.chooseStats).length; i++) {
-							let color = "gray";
-							if (Object.keys(item.chooseStats)[i] === item.chosenStat || item.allChooseStats) {
-								color = "var(--text)";
-							}
-							Dom.elements.chooseStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
-						}
-					}
-					else {
-						Dom.elements.chooseStats.innerHTML = "";
-					}
-
-					// conditional choose stats (choose stats that require a condition)
-					if (item.conditionalChooseStats !== undefined) {
-						if (item.chooseStats === undefined) {
-							item.chooseStats = [];
-						}
-						if (Object.keys(item.conditionalChooseStats).length > Object.keys(item.chooseStats).length) {
-							Dom.elements.conditionalChooseStats.innerHTML = "Locked stats:<br>";
-						}
-						for (let i = 0; i < Object.keys(item.conditionalChooseStats).length; i++) {
-							if (!Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
-								Dom.elements.conditionalChooseStats.innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
-							}
-						}
-					}
-					else {
-						Dom.elements.conditionalChooseStats.innerHTML = "";
-					}
-
-					// conditional stats (stats that require a condition to be true to be active; otherwise they are displayed in grey)
-					if (item.conditionalStats !== undefined) {
-						for (let x = 0; x < item.conditionalStats.length; x++) {
-							Dom.elements.conditionalStats.innerHTML = item.conditionalStats[x].text+"<br>";
-							for (let i = 0; i < Object.keys(item.conditionalStats[x].stats).length; i++) {
-								let color = "gray";
-								if (Items[item.type][item.id].conditionalStats[x].condition()) {
-									color = "var(--text)";
-								}
-								Dom.elements.conditionalStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
-							}
-						}
-					}
-					else {
-						Dom.elements.conditionalStats.innerHTML = "";
-					}
-				}
-
-				// no stats... probably a tool (eg. lead)
-				else {
-					Dom.elements.stats.innerHTML = "";
-					Dom.elements.conditionalStats.innerHTML = "";
-					Dom.elements.chooseStats.innerHTML = "";
-					Dom.elements.conditionalChooseStats.innerHTML = "";
+					Dom.elements.itemTier.innerHTML = "";
 				}
 
 				if (item.set !== undefined) {
@@ -2175,10 +2194,7 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 			}
 			else {
 				Dom.elements.set.innerHTML = "";
-				Dom.elements.stats.innerHTML = "";
-				Dom.elements.conditionalStats.innerHTML = "";
-				Dom.elements.chooseStats.innerHTML = "";
-				Dom.elements.conditionalChooseStats.innerHTML = "";
+				Dom.elements.itemTier.innerHTML = "";
 			}
 			if (item.type === "bag") {
 				Dom.elements.stats.innerHTML = "Capacity: "+item.size;
@@ -2193,6 +2209,11 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
 				else {
 					Dom.elements.name.innerHTML = "1 " + Dom.elements.name.innerHTML;
 				}
+			}
+
+			// spells
+			if (item.type === "spell") {
+				Dom.elements.itemDescriptionText.innerHTML = item.description;
 			}
 
 			// length of fish
@@ -3776,7 +3797,7 @@ Dom.inventory.disposeConfirm = function (all) {
 	Game.equipmentUpdate();
 }
 
-// called upon dropping an item on the canvas or inventory/loot/bank/trade page
+// called upon dropping an item/spell on the canvas or inventory/loot/bank/trade page
 // note that this also calls when dropping on something on that page (i.e. on an inventory slot) hence the if statements
 Dom.inventory.dispose = function (ev) {
 
@@ -4009,7 +4030,7 @@ Dom.canvas.moveDom = function (object, page, scroll, scrollObject) {
 		object.style.top = window.mouseY - Dom.canvas.dragPageY + "px";
 
 		// All NPC DOMs have the same position
-		if (page !== "chatPage" && page !== "inventoryPage" && page !== "questsPage" && page !== "adventurePage" && page !== "reputationPage" && page !== "settingsPage" && page !== "settingsTwoPage" && page !== "creditsPage") {
+		if (page !== "chatPage" && page !== "inventoryPage" && page !== "questsPage" && page !== "adventurePage" && page !== "spellbookPage" && page !== "settingsPage" && page !== "settingsTwoPage" && page !== "creditsPage") {
 			Dom.canvas.npcLeft = object.style.left;
 			Dom.canvas.npcTop = object.style.top;
 		}
@@ -4364,7 +4385,7 @@ Dom.inventory.validateSwap = function () {
 	return true;
 }
 
-// from is not required for drag-n-drop cases
+// from is not required for drag-n-drop cases - it will have been previously set as Dom.inventory.fromX in Dom.inventory.drag
 // tableElement and stackNums are only for right click
 // element refers to the DOM element object; array refers to the itemdata item object (misnomer); Id refers to the id in Player.inventory
 Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray, fromId, toTableElement, fromTableElement, fromStackNum, toStackNum) {
@@ -4908,6 +4929,103 @@ else {
 	Dom.elements.weapon.style.backgroundImage = "url('./assets/items/sword/1.png'), url('assets/interface/gearBackground.png')";
 	Dom.elements.choosePageWeapon.style.backgroundImage = "url('./assets/items/sword/1.png'), url('assets/interface/gearBackground.png')";
 }
+
+
+// 
+// SPELLBOOK : spell arsenal 
+//
+
+Dom.spellbook.init = function () {
+	this.drawEquipped();
+	this.drawArsenal();
+}
+
+// draws the equipped spells in the spellbook
+// should be called on game initiation
+Dom.spellbook.drawEquipped = function () {
+	let elements = Dom.elements.spellsEquipped.getElementsByTagName("td");
+	for (let i = 0; i < Player.spells.length; i++) {
+		if (Player.spells[i].image !== undefined) {
+			elements[i].innerHTML = '<img src="'+Player.spells[i].image+'" id="spellEquippedImg'+i+'" draggable="true" ondragstart="Dom.spellbook.drag(event, Player.spells, '+i+')"></img>';
+		}
+		else if (typeof elements[i] !== "undefined") {
+			elements[i].innerHTML = "";
+		}
+	}
+}
+
+// draws the arsenal (spell inventory) in the spellbook
+// should be called on game initiation, or on a new spell / spell slot being unlocked
+// similar to inventory.bagCases
+Dom.spellbook.drawArsenal = function () {
+	// redraw the spell arsenal (inventory) if a new spell has been unlocked
+	Dom.elements.spellArsenal.innerHTML = "";
+	for (let i = 0; i < Player.spellArsenal.length; i+=6) {
+		let str = "<tr>";
+		for (let inv = i; inv < i+6; inv++) {
+			str += '<td ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.spellArsenal['+inv+'], undefined, \'spellbookPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')"></td>';
+		}
+		Dom.elements.spellArsenal.innerHTML += str+"</tr>";
+	}
+	let elements = Dom.elements.spellArsenal.getElementsByTagName("td");
+	for (let i = 0; i < Player.spellArsenal.length; i++) {
+		if (Player.spellArsenal[i].image !== undefined) {
+			elements[i].innerHTML = '<img src="'+Player.spellArsenal[i].image+'" id="spellArsenalImg'+i+'" draggable="true" ondragstart="Dom.spellbook.drag(event, Player.spellArsenal, '+i+')"></img>';
+			// grey out spell if it's equipped
+			for (let j = 0; j < Player.spells.length; j++) {
+				if (Player.spells[j].id === Player.spellArsenal[i].id && Player.spells[j].class === Player.spellArsenal[i].class) {
+					// the spell is equipped
+					document.getElementById("spellArsenalImg"+i).style.filter = "grayscale(100%) contrast(0%)";
+				}
+			}
+			// could use the below to represent tier of spells ?
+			/*if (Player.inventory.items[i].stacked !== undefined && Player.inventory.items[i].stacked !== 1) {
+				elements[i].innerHTML += "<div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
+			}*/
+		}
+		else if (typeof elements[i] !== "undefined") {
+			elements[i].innerHTML = "";
+		}
+	}
+}
+
+// called upon dragging a spell from spell arsenal / equipped spells
+// fromElement is set to event (not used)
+// sets information for use in Dom.spellbook.equip
+Dom.spellbook.drag = function (fromElement, fromArray, fromId) {
+	Dom.spellbook.fromArray = fromArray;
+	Dom.spellbook.fromId = fromId;
+
+	Dom.expand("information");
+}
+
+// for dropping onto equipped spell slot
+// toId is spell slot being dropped onto (i.e. Player.spells[toId])
+// fromId is spell arsenal slot being dropped from (i.e. Player.spellArsenal[fromid])
+Dom.spellbook.equip = function (toId) {
+	let fromId = Dom.spellbook.fromId; // set in Dom.spellbook.drag
+	// unequip old spell 
+	let arsenalId = Player.spellArsenal.findIndex(spell => spell.id === Player.spells[toId].id && spell.class === Player.spells[toId].class)
+	if (arsenalId >= 0) {
+		// there was an old spell equipped in this id slot
+		document.getElementById("spellArsenalImg"+arsenalId).style.filter = ""; // ungrey
+	}
+	// check this spell wasn't equipped anywhere else; if it was then unequip it
+	for (let i = 0; i < Player.spells.length; i++) {
+		if (Player.spells[i].id === Player.spellArsenal[fromId].id && Player.spells[i].class === Player.spellArsenal[fromId].class) {
+			// it's equipped as spell i
+			Player.spells[i] = {};
+		}
+	}
+	// equip new spell
+	Player.spells[toId] = Player.spellArsenal[fromId];
+	document.getElementById("spellArsenalImg"+fromId).style.filter = "grayscale(100%) contrast(0%)";
+	// update equipped spells display
+	Dom.spellbook.drawEquipped();
+}
+
+
+
 
 //Dom.elements.inventoryGoldXP.style.backgroundImage = 'url("./selection/assets/'+Player.class+Player.skin+'/f.png")';
 //Dom.elements.inventoryGoldXP.style.right = 20 - Skins[Player.class][Player.skin].headAdjust.x + "px";
@@ -5551,11 +5669,11 @@ Dom.settings.hotkeys = function (ev) {
 	else if (keyName === User.settings.keyboard.QUESTS && Player.unlockedTabs.includes("quests")) {
 		Dom.changeBook("questsPage", undefined, true);
 	}
-	else if (keyName === User.settings.keyboard.ADVENTURE) {
+	else if (keyName === User.settings.keyboard.ADVENTURE && Player.unlockedTabs.includes("adventure")) {
 		Dom.changeBook("adventurePage", undefined, true);
 	}
-	else if (keyName === User.settings.keyboard.REPUTATION && Player.unlockedTabs.includes("reputation")) {
-		Dom.changeBook("reputationPage", undefined, true);
+	else if (keyName === User.settings.keyboard.SPELLBOOK && Player.unlockedTabs.includes("adventure")) {
+		Dom.changeBook("spellbookPage", undefined, true);
 	}
 	else if (keyName === User.settings.keyboard.SETTINGS) {
 		Dom.changeBook("settingsPage", undefined, true);
@@ -5822,8 +5940,8 @@ Dom.spellChoice.page = function (npc, spells) {
 			let tier = spells[i].spellTier;
 
 			// tbd pg make it show channel time and mana cost (see commented line below)
-			//om.elements.driverPageMain.innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./"+spell.img+"\")'></div><div class='mailTitle'><strong>"+spell.name+"</strong></div><div class='driverDescription'> <b>Difficulty</b>: "+spell.difficulty+"<br><b>Channel time</b>: "+spell.channelTime[tier]+"<br><b>Mana cost</b>: "+spell.manaCost[tier]+"<br>"+spell.description[tier]+"</div><div class='driverDescription2'></div></div>";
-			Dom.elements.driverPageMain.innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./"+spell.img+"\")'></div><div class='mailTitle'><strong>"+spell.name+"</strong></div><div class='driverDescription'> <b>Difficulty</b>: "+spell.difficulty+"<br>"+spell.description[tier]+"</div><div class='driverDescription2'></div></div>";
+			//om.elements.driverPageMain.innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./"+spell.image+"\")'></div><div class='mailTitle'><strong>"+spell.name+"</strong></div><div class='driverDescription'> <b>Difficulty</b>: "+spell.difficulty+"<br><b>Channel time</b>: "+spell.channelTime[tier]+"<br><b>Mana cost</b>: "+spell.manaCost[tier]+"<br>"+spell.description[tier]+"</div><div class='driverDescription2'></div></div>";
+			Dom.elements.driverPageMain.innerHTML += "<div class='driver' ><div class='driverImage' style='background-image: url(\"./"+spell.image+"\")'></div><div class='mailTitle'><strong>"+spell.name+"</strong></div><div class='driverDescription'> <b>Difficulty</b>: "+spell.difficulty+"<br>"+spell.description[tier]+"</div><div class='driverDescription2'></div></div>";
 
 			while (document.getElementsByClassName("driverDescription")[i].scrollHeight > document.getElementsByClassName("driverDescription")[i].offsetHeight) {
 				document.getElementsByClassName("driverDescription2")[i].innerHTML = document.getElementsByClassName("driverDescription")[i].innerHTML.substring(document.getElementsByClassName("driverDescription")[i].innerHTML.lastIndexOf(" ")) + document.getElementsByClassName("driverDescription2")[i].innerHTML;
@@ -7240,6 +7358,9 @@ Dom.init = function () {
 	document.getElementById("changeAdventure").style.bottom = "-12px";
 	document.getElementById("changeSettings").style.bottom = "-12px";
 	for (let i = 0; i < Player.unlockedTabs.length; i++) {
+		if (Player.unlockedTabs[i] === "reputation") {
+			Player.unlockedTabs[i] = "spellbook"; // fixes save progress for old pages
+		}
 		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.display = "block";
 		document.getElementById("change"+Player.unlockedTabs[i][0].toUpperCase()+Player.unlockedTabs[i].slice(1)).style.bottom = "-12px";
 	}
@@ -7791,7 +7912,7 @@ Dom.init = function () {
 	}
 
 	// dom bookmark hotkeys
-	array = ["CHAT", "INVENTORY", "QUESTS", "ADVENTURE", "REPUTATION", "SETTINGS"];
+	array = ["CHAT", "INVENTORY", "QUESTS", "ADVENTURE", "SPELLBOOK", "SETTINGS"];
 	for (let i = 0; i < 6; i++) {
 		Keyboard.upFunctions[array[i]] = Dom.settings.hotkeys;
 		Keyboard.listenForKey(User.settings.keyboard[array[i]], undefined, Keyboard.upFunctions[array[i]]);

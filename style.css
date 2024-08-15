@@ -130,12 +130,12 @@ thead:after { /* space after bags in bank */
 	height: 600px;
 }
 
-#questsPage, #settingsTwoPage, #adventurePage, #leaderboardPage, #creditsPage{
+#questsPage, #settingsTwoPage, #leaderboardPage, #creditsPage{
 	overflow-y: auto;
 	overflow-x: hidden;
 }
 
-#questsPage, #settingsPage, #chatPage, #inventoryPage, #reputationPage, #adventurePage{
+#questsPage, #settingsPage, #chatPage, #inventoryPage, #adventurePage, #spellbookPage{
 	padding-left: 10px;
 	padding-right: 10px;
 	overflow: hidden;
@@ -265,6 +265,34 @@ thead:after { /* space after bags in bank */
 
 .questStackNum, .questFinishStackNum, .questStartStackNum, .textStackNum{
 	position: absolute;
+}
+
+
+
+/*							*/
+/*		SPELLBOOK			*/
+/*							*/
+
+#spellsEquipped, #spellArsenal {
+	border-spacing: 0px;
+	border-bottom: 5px solid var(--border);
+	border-right: 5px solid var(--border);
+}
+
+/* positioning */
+#spellsEquipped {
+	position: absolute;
+	top: 48px;
+	left: 40px;
+	margin-top: 10px;
+	font-size: 0px;
+}
+#spellArsenal {
+	position: absolute;
+	top: 154px;
+	left: 40px;
+	margin-top: 10px;
+	font-size: 0px;
 }
 
 /*							*/
@@ -671,10 +699,6 @@ overflow-x: visible;
 	top: 10px;
 }
 
-#adventurePage {
-
-}
-
 /*					*/
 /*		REPUTATION	*/
 /*					*/
@@ -689,9 +713,6 @@ overflow-x: visible;
 	height: auto;
     width: auto;
 	z-index: -1;
-}
-
-#reputationPage {
 }
 
 #reputationWrapper {

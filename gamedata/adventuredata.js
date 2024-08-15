@@ -146,7 +146,7 @@ const Tutorial = [
 			Dom.alert.page("Welcome to Antorax!<br><br>Use the <b>WSAD</b> keys to move.", 0);
 		},
 		altFunc: function () {
-			Dom.alert.page("Purchase a weapon from the weaponsmith north of here!", 2, undefined, undefined, {
+			Dom.alert.page("Do you want to skip the tutorial? You can always re-enable it in settings.", 2, undefined, undefined, {
 				target: function () {
 					Dom.chat.insert(`Good luck on your travels!`, 500);
 					document.getElementById("tutorialOn").checked = true;
@@ -157,9 +157,7 @@ const Tutorial = [
 				},
 				targetNo: function () {
 					// same as func
-					Dom.chat.insert(`Good luck on your travels!`, 500);
-					document.getElementById("tutorialOn").checked = true;
-					document.getElementById("tutorialOn").onclick();
+					Tutorial[0].func();
 					// allow player to move again
 					Dom.instructions.decidingToSkip = false;
 					Game.hero.cleanse("Tutorial", "title");

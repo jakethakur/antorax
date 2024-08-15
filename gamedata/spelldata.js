@@ -1,7 +1,208 @@
 
 // arrays in a spell object have their index correspond to the spell tier
 
-Spells = [
+const SpellsTemp = {
+	knight: [
+		//
+		// knight base spells
+		//
+		{
+			name: "Charge",
+			id: 0,
+			type: "spell", // all spells should have this type, to distinguish them from items
+			class: "knight", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
+			image: "assets/runes/knight/0.png",
+			description: "Leap towards your mouse location.",
+			difficulty: "Medium",
+	
+			func: function (caster, target) {
+				let dist = Game.distance(caster, target);
+				if (dist >= this.stats.range) {
+					dist = this.stats.range;
+				}
+	
+				let velocity = this.stats.velocity;
+				let time = dist / velocity;
+				let bear = Game.bearing(caster, target);
+				caster.displace(0, velocity, time, bear); // start displacement
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 10,
+				cooldown: 10000,
+				// the following stats are specific to this spell
+				range: 500,
+				velocity: 400,
+			},
+		},
+
+		{
+			name: "Parade",
+			id: 1,
+			type: "spell",
+			class: "knight",
+			image: "assets/runes/knight/1.png",
+			description: "Gain bonus defence for a very short period of time.",
+			difficulty: "Hard",
+	
+			func: function (caster, target) {
+				Game.statusEffects.defence({
+					target: caster,
+					effectTitle: "Parade",
+					defenceIncrease: this.stats.defenceMultiplier,
+					time: this.stats.durationOfEffect,
+				});
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 4,
+				cooldown: 1500,
+				// the following stats are specific to this spell
+				defenceMultiplier: 200,
+				durationOfEffect: 500,
+			},
+		},
+
+		{
+			name: "Seismic Wave",
+			id: 2,
+			type: "spell",
+			class: "knight",
+			image: "assets/runes/knight/2.png",
+			description: "Deal attack damage to all enemies in the current location, and stun them.",
+			difficulty: "Easy",
+	
+			func: function (caster) {
+				for (let i = 0; i < Game.enemies.length; i++) {
+					Game.enemies[i].takeDamage(caster.stats.damage * this.stats.damageMultiplier / 100);
+					Game.statusEffects.stun({
+						effectTitle: "Seismic Slam!",
+						target: Game.enemies[i],
+						time: this.stats.stunTime / 1000,
+					});
+				}
+	
+				Game.camera.initScreenShake(10,2500);
+			},
+
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 1000,
+				manaCost: 15,
+				cooldown: 10000,
+				// the following stats are specific to this spell
+				damageMultiplier: 150,
+				stunTime: 3000,
+			},
+		},
+	],
+	mage: [
+		//
+		// mage base spells
+		//
+		{
+			name: "Arcane Aura",
+			id: 3,
+			type: "spell", // all spells should have this type, to distinguish them from items
+			class: "mage", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
+			image: "assets/runes/mage/0.png",
+			description: "Can be toggled to deal a percentage of your maximum damage to nearby enemies every second, draining mana per second.",
+			difficulty: "Medium",
+	
+			func: function (caster) {
+				if (!caster.stats.arcaneAura) {
+					// toggle on
+					caster.stats.arcaneAura = true;
+					caster.auraInterval = Game.setInterval(this.tickFunc.bind(this), 100, caster); // only works with hero currently
+				}
+				else {
+					// toggle off
+					caster.stats.arcaneAura = false;
+					Game.clearInterval(caster.auraInterval);
+				}
+			},
+
+			// called when the aura is active!
+			// called every 100ms
+			tickFunc: function (caster) {
+				if (caster.mana >= this.stats.manaPerSecond * 0.1) {
+					// remove mana
+					caster.mana -= this.stats.manaPerSecond * 0.1;
+					// damage all nearby enemies
+					// (only works for player currently! can add an else statement if you want it to work with enemies)
+					Game.damageableByPlayer.forEach(function (enemy) {
+						if (Game.distance(caster, enemy) < caster.stats.range) {
+							enemy.takeDamage(caster.stats.maxDamage * this.stats.damagePercentage * 0.01 * 0.1);
+						}
+					});
+				}
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 0,
+				cooldown: 1000,
+				// the following stats are specific to this spell
+				manaPerSecond: 3,
+				damagePercentage: 25,
+			},
+		},
+	],
+	archer: [
+		//
+		// archer base spells
+		//
+		{
+			name: "Charge",
+			id: 0,
+			type: "spell", // all spells should have this type, to distinguish them from items
+			class: "knight", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
+			image: "assets/runes/knight/0.png",
+			description: "Leap towards your mouse location.",
+			difficulty: "Medium",
+	
+			func: function (caster, target) {
+				let dist = Game.distance(caster, target);
+				if (dist >= spellObj.stats.range) {
+					dist = spellObj.stats.range;
+				}
+	
+				let velocity = spellObj.stats.velocity;
+				let time = dist / velocity;
+				let bear = Game.bearing(caster, target);
+				caster.displace(0, velocity, time, bear); // start displacement
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 10,
+				cooldown: 10000,
+				// the following stats are specific to this spell
+				range: 500,
+				velocity: 400,
+			},
+		},
+	],
+	item: [
+
+	],
+	enemy: [
+
+	],
+}
+
+var Spells = [
 	//
 	// Knight tier 1
 	//
@@ -9,8 +210,8 @@ Spells = [
 	{
 		name: "Heroic Charge",
 		id: 0,
-		img: "assets/runes/0.png",
-		imgIconNum: 0,
+		image: "assets/runes/0.png",
+		imageIconNum: 0,
 		class: "k",
 		description: ["", "Leap towards your mouse location, up to 500 pixels."],
 		difficulty: "Medium",
@@ -57,8 +258,8 @@ Spells = [
 	{
 		name: "Parade",
 		id: 1,
-		img: "assets/runes/1.png",
-		imgIconNum: 1,
+		image: "assets/runes/1.png",
+		imageIconNum: 1,
 		class: "k",
 		description: ["", "Gain +200% defence for 0.5 seconds."],
 		difficulty: "Hard",
@@ -102,8 +303,8 @@ Spells = [
 	{
 		name: "Seismic Wave",
 		id: 2,
-		img: "assets/runes/2.png",
-		imgIconNum: 2,
+		image: "assets/runes/2.png",
+		imageIconNum: 2,
 		class: "k",
 		description: ["", "Deal 150% of your attack damage to all enemies in the area, and stun them for 3 seconds."],
 		difficulty: "Easy",
@@ -155,8 +356,8 @@ Spells = [
 	{
 		name: "Arcane Aura",
 		id: 3,
-		img: "assets/runes/3.png",
-		imgIconNum: 3,
+		image: "assets/runes/3.png",
+		imageIconNum: 3,
 		class: "m",
 		description: ["", "Can be toggled to deal 25% of your maximum damage to nearby enemies every second, draining 3 mana per second."],
 		difficulty: "Easy",
@@ -221,8 +422,8 @@ Spells = [
 	{
 		name: "Icebolt",
 		id: 4,
-		img: "assets/runes/4.png",
-		imgIconNum: 4,
+		image: "assets/runes/4.png",
+		imageIconNum: 4,
 		class: "m",
 		description: ["", "Launch an icicle towards your mouse pointer that deals 150% of your maximum attack damage to the first target hit, stunning them for 1 second."],
 		difficulty: "Hard",
@@ -273,8 +474,8 @@ Spells = [
 	{
 		name: "Fire Barrage",
 		id: 5,
-		img: "assets/runes/5.png",
-		imgIconNum: 5,
+		image: "assets/runes/5.png",
+		imageIconNum: 5,
 		class: "m",
 		description: ["", "Launch an fireball towards your mouse pointer that deals 150% of your maximum attack damage to all targets hit, also setting them on fire."],
 		difficulty: "Medium",
@@ -330,8 +531,8 @@ Spells = [
 	{
 		name: "Arrowspeed",
 		id: 6,
-		img: "assets/runes/6.png",
-		imgIconNum: 6,
+		image: "assets/runes/6.png",
+		imageIconNum: 6,
 		class: "a",
 		description: ["", "Increase your movement speed by 100% and attack damage by 25% for 5 seconds."],
 		difficulty: "Easy",
@@ -387,8 +588,8 @@ Spells = [
 	{
 		name: "Shadow Cloak",
 		id: 7,
-		img: "assets/runes/7.png",
-		imgIconNum: 7,
+		image: "assets/runes/7.png",
+		imageIconNum: 7,
 		class: "a",
 		description: ["", "Gain stealth. Your next attack deals +400% damage."],
 		difficulty: "Medium",
@@ -433,8 +634,8 @@ Spells = [
 	{
 		name: "Bamboozle",
 		id: 8,
-		img: "assets/runes/8.png",
-		imgIconNum: 8,
+		image: "assets/runes/8.png",
+		imageIconNum: 8,
 		class: "a",
 		description: ["", "Your next attack swaps locations with the enemy hit and deals 40% more damage."],
 		difficulty: "Hard",
@@ -746,8 +947,8 @@ Spells = [
 	{
 		name: "Pounce",
 		id: 17,
-		img: "assets/runes/0.png", // tbd make a unique image for this?
-		imgIconNum: 0,
+		image: "assets/runes/0.png", // tbd make a unique image for this?
+		imageIconNum: 0,
 		class: "cat",
 		description: ["", "Leap towards your mouse location, up to 150 pixels."],
 
@@ -1073,8 +1274,8 @@ Spells = [
 	{
 		name: "Reflux",
 		id: 24,
-		img: "assets/runes/6.png", // tbd
-		imgIconNum: 6, // tbd
+		image: "assets/runes/6.png", // tbd
+		imageIconNum: 6, // tbd
 		class: "m",
 		description: ["", "Reverse the direction of all projectiles on the map, and allow them to deal damage to targets they have already damaged."],
 		difficulty: "Easy",
@@ -1349,8 +1550,8 @@ Spells = [
 	{
 		name: "OP Arrowspeed (dev spell)",
 		id: 28,
-		img: "assets/runes/6.png",
-		imgIconNum: 6,
+		image: "assets/runes/6.png",
+		imageIconNum: 6,
 		class: "a",
 		description: ["", "Increase your movement speed by 150% and attack damage by 500% for 10 seconds."],
 		difficulty: "Easy",
@@ -1407,8 +1608,8 @@ Spells = [
 	{
 		name: "Eternal Bell Ring", // thlock's helm
 		id: 29,
-		img: "assets/items/helm/32.png",
-		imgIconNum: 9,
+		image: "assets/items/helm/32.png",
+		imageIconNum: 9,
 		class: "helm",
 		description: ["", "Stun all enemies within 2 tiles from you for 4 seconds."],
 
@@ -1449,8 +1650,8 @@ Spells = [
 	{
 		name: "Seeking Eye", // soulcrusher's chestplate
 		id: 30,
-		img: "assets/items/chest/20.png",
-		imgIconNum: 10,
+		image: "assets/items/chest/20.png",
+		imageIconNum: 10,
 		class: "chest",
 		description: ["", "In 3 seconds, fire a projectile dealing damage equal to 50% of your damage taken over that period."],
 
@@ -1486,8 +1687,8 @@ Spells = [
 	{
 		name: "tbd", // sciron's greaves
 		id: 31,
-		img: "assets/items/greaves/19.png",
-		imgIconNum: 11,
+		image: "assets/items/greaves/19.png",
+		imageIconNum: 11,
 		class: "greaves",
 		description: ["", "tbd"],
 
@@ -1513,8 +1714,8 @@ Spells = [
 	{
 		name: "tbd", // behemoth's crushers
 		id: 32,
-		img: "assets/items/boots/22.png",
-		imgIconNum: 12,
+		image: "assets/items/boots/22.png",
+		imageIconNum: 12,
 		class: "boots",
 		description: ["", "tbd"],
 
@@ -1540,8 +1741,8 @@ Spells = [
 	{
 		name: "tbd", // orzoth set
 		id: 33,
-		img: "assets/items/chest/20.png",//tbd
-		imgIconNum: 13,
+		image: "assets/items/chest/20.png",//tbd
+		imageIconNum: 13,
 		class: "set",
 		description: ["", "tbd."],
 

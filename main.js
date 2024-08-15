@@ -13112,19 +13112,21 @@ Game.drawSpells = function (ctx, character, x, y, height, alignment) {
 
 	// iterate through character's spells
 	for (let i = 0; i < character.spells.length; i++) {
-		// get number of image in spell image tileset
-		let iconNum = Spells[character.spells[i].id].imgIconNum;
-
-		// draw the image
-		ctx.drawImage(this.spellImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);
-
-		// draw time remaining (if the spell has one)
-		ctx.fillStyle = "black";
-		ctx.font = fontSize + "px El Messiri";
-		ctx.textAlign = "right";
-
-		if (typeof character.spells[i].onCooldown !== "undefined" && character.spells[i].onCooldown > 0) {
-			ctx.fillText(Round(character.spells[i].onCooldown/1000), (startX+height*0.9) + i * (height*1.2), y+height);
+		if (typeof character.spells[i].id !== "undefined") {
+			// get number of image in spell image tileset
+			let iconNum = Spells[character.spells[i].id].imageIconNum;
+	
+			// draw the image
+			ctx.drawImage(this.spellImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);
+	
+			// draw time remaining (if the spell has one)
+			ctx.fillStyle = "black";
+			ctx.font = fontSize + "px El Messiri";
+			ctx.textAlign = "right";
+	
+			if (typeof character.spells[i].onCooldown !== "undefined" && character.spells[i].onCooldown > 0) {
+				ctx.fillText(Round(character.spells[i].onCooldown/1000), (startX+height*0.9) + i * (height*1.2), y+height);
+			}
 		}
 	}
 

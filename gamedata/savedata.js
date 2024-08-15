@@ -335,8 +335,9 @@ var Player = {
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 
 	// spells
-	spells: [], // array of objects. objects are in form {id: 0, tier: 1, onCooldown: 100}
-	// currently only one spell is supported, and cannot be upgraded. in the future, make a spell upgrade tree and a way to cast multiple spells!
+	// these are arrays of objects. objects are in form {id: 0, tier: 1, onCooldown: 100}
+	spells: [{}, {}, {}, {}, {}, {}], 
+	spellArsenal: [],
 };
 
 // template object for all stats and their default values
@@ -449,7 +450,7 @@ var User = {
 			INVENTORY: "I",
 			QUESTS: "Q",
 			ADVENTURE: "L",
-			REPUTATION: "R",
+			SPELLBOOK: "R",
 			SETTINGS: "Z",
 			ONE: "1",
 			TWO: "2",
