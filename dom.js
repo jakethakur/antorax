@@ -1933,8 +1933,11 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Mana Cost" || stat === "Range") {
 		return stat+": "+value+"<br>";
 	}
-	else if (stat === "Channel Time" || stat === "Cooldown" || stat === "Duration Of Effect" || stat === "Stun Time") {
+	else if (stat === "Channel Time" || stat === "Cooldown" || stat === "Effect Duration") {
 		return stat+": "+(value/1000)+"s<br>";
+	}
+	else if (stat === "Stun Time") {
+		return stat+": "+value+"s<br>";
 	}
 	else if (stat === "Mana Per Second") {
 		return stat+": "+value+"/s<br>";
@@ -1942,7 +1945,7 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Velocity") {
 		return stat+": "+(value/1000)+"/s<br>";
 	}
-	else if (stat === "Defence Multiplier" || stat === "Damage Multiplier") {
+	else if (stat === "Defence Multiplier" || stat === "Damage Multiplier" || stat === "Movement Multiplier") {
 		return stat+": "+value+"%<br>";
 	}
 	else { 
@@ -7231,7 +7234,10 @@ Dom.init = function () {
 		Dom.elements.itemInventory.innerHTML += str+"</tr>";
 	}
 
+	//
 	// prepare the item inventory
+	// (this should probably have its own function and not all be init)
+	//
 	for (let i = 0; i < Player.inventory.items.length; i++) {
 		// check if the item should be removed according to its deleteIf
 		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()) {
@@ -7327,6 +7333,9 @@ Dom.init = function () {
 			Dom.inventory.prepare(Player.bank.items, i, Dom.elements.bankPageInventory.getElementsByTagName("td")[i]);
 		}
 	}
+
+	// prepare the spellbook
+	Dom.spellbook.init();
 
 	// if any reputation has changed set the reputation page to the main reputation page
 	if (Player.reputationReady) {

@@ -25,6 +25,8 @@ const SpellsTemp = {
 				let time = dist / velocity;
 				let bear = Game.bearing(caster, target);
 				caster.displace(0, velocity, time, bear); // start displacement
+
+				// tbd stun (if they have the upgrade ofc)
 			},
 			
 			// base stat values
@@ -37,6 +39,51 @@ const SpellsTemp = {
 				range: 500,
 				velocity: 400,
 			},
+
+			upgrades: [
+				{
+					id: 0,
+					name: "More range",
+					statIncrease: ["range"],
+					increaseAmount: [500],
+					spellShardCost: 1,
+					children: [
+						{
+							id: 2,
+							name: "Stun",
+							statIncrease: ["stunTime"], // needs to make the stat a thing, since it doesn't exist yet
+							increaseAmount: [0.5],
+							spellShardCost: 3,
+							children: [
+								{
+									id: 3,
+									name: "Wheeee",
+									statIncrease: ["range", "cooldown"],
+									increaseAmount: [1000, -2000],
+									spellShardCost: 4,
+									starNexusCost: 1, 
+								}
+							]
+						}
+					]
+				},
+				{
+					id: 0,
+					name: "Mana efficiency",
+					statIncrease: ["manaCost"],
+					increaseAmount: [-5],
+					spellShardCost: 1,
+					children: [
+						{
+							id: 1,
+							name: "Speediness",
+							statIncrease: ["velocity"],
+							increaseAmount: [1200],
+							spellShardCost: 8,
+						}
+					]
+				},
+			]
 		},
 
 		{
@@ -53,7 +100,7 @@ const SpellsTemp = {
 					target: caster,
 					effectTitle: "Parade",
 					defenceIncrease: this.stats.defenceMultiplier,
-					time: this.stats.durationOfEffect,
+					time: this.stats.effectDuration,
 				});
 			},
 			
@@ -65,7 +112,7 @@ const SpellsTemp = {
 				cooldown: 1500,
 				// the following stats are specific to this spell
 				defenceMultiplier: 200,
-				durationOfEffect: 500,
+				effectDuration: 500,
 			},
 		},
 
@@ -84,7 +131,7 @@ const SpellsTemp = {
 					Game.statusEffects.stun({
 						effectTitle: "Seismic Slam!",
 						target: Game.enemies[i],
-						time: this.stats.stunTime / 1000,
+						time: this.stats.stunTime,
 					});
 				}
 	
@@ -99,7 +146,7 @@ const SpellsTemp = {
 				cooldown: 10000,
 				// the following stats are specific to this spell
 				damageMultiplier: 150,
-				stunTime: 3000,
+				stunTime: 3,
 			},
 		},
 	],
@@ -109,7 +156,7 @@ const SpellsTemp = {
 		//
 		{
 			name: "Arcane Aura",
-			id: 3,
+			id: 0,
 			type: "spell", // all spells should have this type, to distinguish them from items
 			class: "mage", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
 			image: "assets/runes/mage/0.png",
@@ -139,7 +186,7 @@ const SpellsTemp = {
 					// (only works for player currently! can add an else statement if you want it to work with enemies)
 					Game.damageableByPlayer.forEach(function (enemy) {
 						if (Game.distance(caster, enemy) < caster.stats.range) {
-							enemy.takeDamage(caster.stats.maxDamage * this.stats.damagePercentage * 0.01 * 0.1);
+							enemy.takeDamage(caster.stats.maxDamage * this.stats.damageMultiplier * 0.01 * 0.1);
 						}
 					});
 				}
@@ -153,7 +200,90 @@ const SpellsTemp = {
 				cooldown: 1000,
 				// the following stats are specific to this spell
 				manaPerSecond: 3,
-				damagePercentage: 25,
+				damageMultiplier: 25,
+			},
+		},
+		{
+			name: "Icebolt",
+			id: 1,
+			type: "spell", 
+			class: "mage",
+			image: "assets/runes/mage/1.png",
+			description: "Launch an icicle towards your mouse pointer that deals a percentage of your maximum attack damage to the first target hit, also stunning them.",
+			difficulty: "Hard",
+	
+			func: function (caster, target) {
+				// summon icicle projectile
+				// currently only works for hero; easily tweaked to change this
+				Game.projectiles.push(new Projectile({
+					map: map,
+					x: caster.x,
+					y: caster.y,
+					stats: {
+						damage: caster.stats.maxDamage * this.stats.damageMultiplier / 100,
+						stun: this.stats.stunTime,
+					},
+					attacker: caster,
+					targets: [Game.damageableByPlayer],
+					image: "icebolt",
+					moveDirection: Game.bearing(caster, target),
+					stopMovingOnDamage: true,
+					moveSpeed: 500,
+					type: "projectiles",
+				}));
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 400,
+				manaCost: 5,
+				cooldown: 2000,
+				// the following stats are specific to this spell
+				damageMultiplier: 150,
+				stunTime: 1,
+			},
+		},
+		{
+			name: "Fireball",
+			id: 2,
+			type: "spell", 
+			class: "mage",
+			image: "assets/runes/mage/2.png",
+			description: "Launch a huge fireball towards your mouse pointer that deals a percentage of your maximum attack damage to all targets hit, also setting them on fire.",
+			difficulty: "Easy",
+	
+			func: function (caster, target) {
+				// summon fireball projectile
+				// currently only works for hero; easily tweaked to change this
+				Game.projectiles.push(new Projectile({
+					map: map,
+					x: caster.x,
+					y: caster.y,
+					stats: {
+						damage: caster.stats.maxDamage * this.stats.damageMultiplier / 100,
+						flaming: this.stats.flaming,
+					},
+					attacker: caster,
+					targets: [Game.damageableByPlayer],
+					image: "fireBarrage",
+					moveDirection: Game.bearing(caster, target),
+					moveSpeed: 250,
+					type: "projectiles",
+					damageAllHit: true,
+					transparency: 0.8,
+				}));
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 1000,
+				manaCost: 15,
+				cooldown: 10000,
+				// the following stats are specific to this spell
+				damageMultiplier: 150,
+				flaming: 1,
 			},
 		},
 	],
@@ -162,24 +292,28 @@ const SpellsTemp = {
 		// archer base spells
 		//
 		{
-			name: "Charge",
+			name: "Arrowspeed",
 			id: 0,
 			type: "spell", // all spells should have this type, to distinguish them from items
-			class: "knight", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
-			image: "assets/runes/knight/0.png",
-			description: "Leap towards your mouse location.",
-			difficulty: "Medium",
+			class: "archer", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
+			image: "assets/runes/archer/0.png",
+			description: "Increase your movement speed and attack damage for a brief period of time.",
+			difficulty: "Easy",
 	
-			func: function (caster, target) {
-				let dist = Game.distance(caster, target);
-				if (dist >= spellObj.stats.range) {
-					dist = spellObj.stats.range;
-				}
-	
-				let velocity = spellObj.stats.velocity;
-				let time = dist / velocity;
-				let bear = Game.bearing(caster, target);
-				caster.displace(0, velocity, time, bear); // start displacement
+			func: function (caster) {
+				Game.statusEffects.walkSpeed({
+					target: caster,
+					effectTitle: "Arrowspeed!",
+					speedIncrease: this.stats.movementMultiplier-100,
+					time: this.stats.effectDuration/1000,
+				});
+				Game.statusEffects.attackDamage({
+					target: caster,
+					effectTitle: "Arrowspeed! (attack damage)",
+					damageIncrease: this.stats.damageMultiplier-100,
+					time: this.stats.effectDuration/1000,
+					hidden: true,
+				});
 			},
 			
 			// base stat values
@@ -187,10 +321,80 @@ const SpellsTemp = {
 				// the following stats are required for all spells
 				channelTime: 0,
 				manaCost: 10,
-				cooldown: 10000,
+				cooldown: 15000,
 				// the following stats are specific to this spell
-				range: 500,
-				velocity: 400,
+				damageMultiplier: 125,
+				movementMultiplier: 200,
+				effectDuration: 5000,
+			},
+		},
+		{
+			name: "Shadow Cloak",
+			id: 1,
+			type: "spell",
+			class: "archer",
+			image: "assets/runes/archer/1.png",
+			description: "Gain stealth. Your next attack deals significantly increased damage.",
+			difficulty: "Medium",
+	
+			func: function (caster) {
+				Game.statusEffects.stealth({
+					target: caster,
+					effectTitle: "Shadow Cloaked",
+				});
+				Game.statusEffects.attackDamage({
+					target: caster,
+					effectTitle: "Shadow Strike",
+					effectDescription: "Your next attack deals more damage.",
+					damageIncrease: this.stats.damageMultiplier[properties.tier],
+					removeOnAttack: true,
+					hidden: true,
+				});
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 1000,
+				manaCost: 10,
+				cooldown: 7000,
+				// the following stats are specific to this spell
+				damageMultiplier: 500,
+			},
+		},
+		{
+			name: "Bamboozle",
+			id: 2,
+			type: "spell", 
+			class: "archer",
+			image: "assets/runes/archer/2.png",
+			description: "Your next attack swaps locations with the enemy hit and deals increased damage.",
+			difficulty: "Hard",
+	
+			func: function (caster) {
+				Game.statusEffects.walkSpeed({
+					target: caster,
+					effectTitle: "Arrowspeed!",
+					speedIncrease: this.movementMultiplier-100,
+					time: this.effectDuration/1000,
+				});
+				Game.statusEffects.attackDamage({
+					target: caster,
+					effectTitle: "Arrowspeed! (attack damage)",
+					damageIncrease: this.damageMultiplier-100,
+					time: this.effectDuration/1000,
+					hidden: true,
+				});
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 3,
+				cooldown: 2000,
+				// the following stats are specific to this spell
+				damageMultiplier: 140,
 			},
 		},
 	],
