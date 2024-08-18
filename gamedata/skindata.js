@@ -258,7 +258,7 @@ var Skins = {
 			src: "knightHat",
 			series:	"Classic",
 			base: true,
-			class: "m", 
+			class: "k", 
 		},
 		{
 			id: 4,

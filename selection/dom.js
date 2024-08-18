@@ -223,8 +223,14 @@ bowEl.onclick = function(){
 	clearInterval(swordAnimInterval);
 	swordAnimInterval = null;
 
+	if (customisationDisp === "mageClothing" || customisationDisp === "knightClothing") {
+		customisationDisp = "archerClothing";
+		imageDirectory = "clothing/archer/";
+	}
+
 	save();
 	arrange();
+	populateSelectionMenu();
 }
 
 staffEl.onclick = function(){
@@ -245,9 +251,14 @@ staffEl.onclick = function(){
 	clearInterval(swordAnimInterval);
 	swordAnimInterval = null;
 
+	if (customisationDisp === "archerClothing" || customisationDisp === "knightClothing") {
+		customisationDisp = "mageClothing";
+		imageDirectory = "clothing/mage/";
+	}
 
 	save();
 	arrange();
+	populateSelectionMenu();
 }
 
 swordEl.onclick = function(){
@@ -268,8 +279,14 @@ swordEl.onclick = function(){
 
 	swordEl.style.backgroundImage = 'url("./assets/swordAnim/hoverSelect.png")';
 
+	if (customisationDisp === "mageClothing" || customisationDisp === "archerClothing") {
+		customisationDisp = "knightClothing";
+		imageDirectory = "clothing/knight/";
+	}
+
 	save();
 	arrange();
+	populateSelectionMenu();
 }
 
 // animations
@@ -438,7 +455,7 @@ function display () {
 		"<br><span style='font-size: 22px;'>"+JSON.parse(localStorage.getItem(selected.class)).displayAreaName+"</span>";
 	}
 	else {
-		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
+		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 22px;'>Not Started</span>";
 	}
 
 	// update player image
@@ -536,31 +553,40 @@ function populateSelectionMenu () {
 		let skindataId = unlocked[customisationDisp][j]; // id in skindata
 		let skin = Skins[customisationDisp][skindataId]; // object in skindata
 
-		let colour;
-		if (customisationDisp === "hair") {
-			colour = Skins.hairColours[0]; // default colour
+		// check this is for the correct class (i.e. for hats)
+		if (typeof skin.class === "undefined" || skin.class === selected.class) {
+			let colour;
+			if (customisationDisp === "hair") {
+				colour = Skins.hairColours[0]; // default colour
+			}
+			else if (typeof skin.colours !== "undefined") {
+				colour = skin.colours[0]; // default colour
+			}
+			else {
+				colour = {name: ""}; // no colours available for this
+			}
+	
+			// add an el for each item
+			document.getElementById("customisationSelect").innerHTML += "<div class='customisationSelection' id='"+customisationDisp+j+"'>";
+			document.getElementById(customisationDisp+j).style.backgroundImage = 'url("../assets/playerCustom/'+imageDirectory+skin.src+colour.name+'.png")';
+			// adjust (legacy)
+			//document.getElementById("outfit"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
+			//document.getElementById("outfit"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";
 		}
-		else if (typeof skin.colours !== "undefined") {
-			colour = skin.colours[0]; // default colour
-		}
-		else {
-			colour = {name: ""}; // no colours available for this
-		}
-
-		// add an el for each item
-		document.getElementById("customisationSelect").innerHTML += "<div class='customisationSelection' id='"+customisationDisp+j+"'>";
-		document.getElementById(customisationDisp+j).style.backgroundImage = 'url("../assets/playerCustom/'+imageDirectory+skin.src+colour.name+'.png")';
-		// adjust (legacy)
-		//document.getElementById("outfit"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
-		//document.getElementById("outfit"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";
 	}
 
 	// now add onclicks
+	// needs to be done now, otherwise they get reset as innerhtml is updated
 	for (let j = 0; j < unlocked[customisationDisp].length; j++) {
-		document.getElementById(customisationDisp+j).onclick = function () {
-			selected[selected.class][customisationDisp] = unlocked[customisationDisp][j];
-			save();
-			display();
+		let skindataId = unlocked[customisationDisp][j]; // id in skindata
+		let skin = Skins[customisationDisp][skindataId]; // object in skindata
+		// check this is actually displayed in the menu
+		if (typeof skin.class === "undefined" || skin.class === selected.class) {
+			document.getElementById(customisationDisp+j).onclick = function () {
+				selected[selected.class][customisationDisp] = unlocked[customisationDisp][j];
+				save();
+				display();
+			}
 		}
 	}
 
