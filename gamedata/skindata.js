@@ -236,8 +236,38 @@ var Skins = {
 			series:	"Classic",
 			base: true,
 		},
+		{
+			id: 1,
+			name: "Archer Hat",
+			src: "archerHat",
+			series:	"Classic",
+			base: true,
+			class: "a", // for archers only
+		},
+		{
+			id: 2,
+			name: "Mage Hat",
+			src: "mageHat",
+			series:	"Classic",
+			base: true,
+			class: "m", 
+		},
+		{
+			id: 3,
+			name: "Knight Hat",
+			src: "knightHat",
+			series:	"Classic",
+			base: true,
+			class: "m", 
+		},
+		{
+			id: 4,
+			name: "Ginger Cat Hat",
+			src: "catHatGinger",
+			series:	"Classic",
+			base: true,
+		},
 	],
-
 	// old skins below:
 	a: [
 		{

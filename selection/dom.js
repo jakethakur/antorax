@@ -4,6 +4,7 @@
 let unlocked = {
 	skinTone: [],
 	hair: [],
+	hat: [],
 	mageClothing: [],
 	archerClothing: [],
 	knightClothing: [],
@@ -48,7 +49,7 @@ else {
 }
 
 let previewDirection = 0;
-let selected = { // default values
+let selected = { // default values (tbd randomise these)
 	a: {
 		skinTone: 0,
 		hair: 0,
@@ -85,11 +86,10 @@ if(localStorageSelected !== null){
 	if (typeof localStorageSelected.m !== "object") {
 		localStorageSelected.m = {};
 	}
-	Object.assign(localStorageSelected.k, selected.k);
-	Object.assign(localStorageSelected.a, selected.a);
-	Object.assign(localStorageSelected.m, selected.m);
-
-	selected = localStorageSelected;
+	Object.assign(selected.k, localStorageSelected.k);
+	Object.assign(selected.a, localStorageSelected.a);
+	Object.assign(selected.m, localStorageSelected.m);
+	selected.class = localStorageSelected.class;
 }
 else {
 	selected.class = Object.keys(selected)[Math.floor(Math.random()*3)];
@@ -464,8 +464,9 @@ function display () {
 	let hairSrc = Skins.hair[selected[selected.class].hair].src + selected[selected.class].hairColour;
 	document.getElementById("hairPreview").src = "../assets/playerCustom/hair/" + hairSrc + ".png";
 
-	// hat, ears, face tbd
-
+	// hat
+	let hatSrc = Skins.hat[selected[selected.class].hat].src;
+	document.getElementById("hatPreview").src = "../assets/playerCustom/hat/" + hatSrc + ".png";
 }
 
 var customisationDisp;
