@@ -74,7 +74,7 @@ Loader.getImage = function (key) {
 		return this.images[key].img;
 	}
 	else {
-		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");
+		console.error("Image " + key + " could not be retrieved. Is it misspelt or not yet loaded in?");
 		return null;
 	}
 };
@@ -85,7 +85,7 @@ Loader.getImageInfo = function (key) {
 		return this.images[key];
 	}
 	else {
-		console.error("Image " + key + " could not be loaded. Is it misspelt or not already loaded in?");
+		console.error("Image " + key + " could not be retrieved. Is it misspelt or not yet loaded in?");
 		return null;
 	}
 };

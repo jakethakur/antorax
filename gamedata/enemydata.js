@@ -600,14 +600,10 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
+			        class: "enemy", // most enemy spells are of this type
 					id: 9,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {
-							target: Game.hero,
-						};
-					},
-					interval: 10000,
+					// target is assumed to be hero
 				},
 			],
 			xpGiven: 250,

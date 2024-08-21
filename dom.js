@@ -4949,7 +4949,7 @@ Dom.spellbook.drawEquipped = function () {
 	let elements = Dom.elements.spellsEquipped.getElementsByTagName("td");
 	for (let i = 0; i < Player.spells.length; i++) {
 		if (Player.spells[i].image !== undefined) {
-			elements[i].innerHTML = '<img src="'+Player.spells[i].image+'" id="spellEquippedImg'+i+'" draggable="true" ondragstart="Dom.spellbook.drag(event, Player.spells, '+i+')"></img>';
+			elements[i].innerHTML = '<img src="'+Player.spells[i].image+'" id="spellEquippedImg'+i+'" draggable="true" ondragstart="Dom.spellbook.drag(event, \'equipped\', '+i+')"></img>';
 		}
 		else if (typeof elements[i] !== "undefined") {
 			elements[i].innerHTML = "";
@@ -4973,7 +4973,7 @@ Dom.spellbook.drawArsenal = function () {
 	let elements = Dom.elements.spellArsenal.getElementsByTagName("td");
 	for (let i = 0; i < Player.spellArsenal.length; i++) {
 		if (Player.spellArsenal[i].image !== undefined) {
-			elements[i].innerHTML = '<img src="'+Player.spellArsenal[i].image+'" id="spellArsenalImg'+i+'" draggable="true" ondragstart="Dom.spellbook.drag(event, Player.spellArsenal, '+i+')"></img>';
+			elements[i].innerHTML = '<img src="'+Player.spellArsenal[i].image+'" id="spellArsenalImg'+i+'" draggable="true" ondragstart="Dom.spellbook.drag(event, \'arsenal\', '+i+')"></img>';
 			// grey out spell if it's equipped
 			for (let j = 0; j < Player.spells.length; j++) {
 				if (Player.spells[j].id === Player.spellArsenal[i].id && Player.spells[j].class === Player.spellArsenal[i].class) {
@@ -4993,6 +4993,7 @@ Dom.spellbook.drawArsenal = function () {
 }
 
 // called upon dragging a spell from spell arsenal / equipped spells
+// fromArray is set to a WORD: "equipped" or "arsenal"
 // fromElement is set to event (not used)
 // sets information for use in Dom.spellbook.equip
 Dom.spellbook.drag = function (fromElement, fromArray, fromId) {
@@ -5007,22 +5008,47 @@ Dom.spellbook.drag = function (fromElement, fromArray, fromId) {
 // fromId is spell arsenal slot being dropped from (i.e. Player.spellArsenal[fromid])
 Dom.spellbook.equip = function (toId) {
 	let fromId = Dom.spellbook.fromId; // set in Dom.spellbook.drag
-	// unequip old spell 
-	let arsenalId = Player.spellArsenal.findIndex(spell => spell.id === Player.spells[toId].id && spell.class === Player.spells[toId].class)
-	if (arsenalId >= 0) {
-		// there was an old spell equipped in this id slot
-		document.getElementById("spellArsenalImg"+arsenalId).style.filter = ""; // ungrey
-	}
-	// check this spell wasn't equipped anywhere else; if it was then unequip it
-	for (let i = 0; i < Player.spells.length; i++) {
-		if (Player.spells[i].id === Player.spellArsenal[fromId].id && Player.spells[i].class === Player.spellArsenal[fromId].class) {
-			// it's equipped as spell i
-			Player.spells[i] = {};
-		}
-	}
-	// equip new spell
-	Player.spells[toId] = Player.spellArsenal[fromId];
-	document.getElementById("spellArsenalImg"+fromId).style.filter = "grayscale(100%) contrast(0%)";
+	let fromArray = Dom.spellbook.fromArray; // set in Dom.spellbook.drag
+	if (fromArray === "arsenal") {
+        // unequip old spell
+        let arsenalId = Player.spellArsenal.findIndex(spell => spell.id === Player.spells[toId].id && spell.class === Player.spells[toId].class)
+        if (arsenalId >= 0) {
+            // there was an old spell equipped in this id slot
+            document.getElementById("spellArsenalImg"+arsenalId).style.filter = ""; // ungrey
+        }
+        // check this spell wasn't equipped anywhere else; if it was then unequip it
+        for (let i = 0; i < Player.spells.length; i++) {
+            if (Player.spells[i].id === Player.spellArsenal[fromId].id && Player.spells[i].class === Player.spellArsenal[fromId].class) {
+                // it's equipped as spell i
+                Player.spells[i] = {};
+            }
+        }
+        // equip new spell
+        Player.spells[toId] = Player.spellArsenal[fromId];
+        document.getElementById("spellArsenalImg"+fromId).style.filter = "grayscale(100%) contrast(0%)";
+        // load in image of new spell in main
+        Game.playerSpellImages[toId] = "Loading";
+        Loader.deleteImage("playerSpellRune"+toId, true);
+        let p = Loader.loadImage("playerSpellRune"+toId, Player.spells[toId].image, false);
+        p.then(function (loaded) {
+            Game.playerSpellImages[toId] = Loader.getImage("playerSpellRune"+toId);
+        }.bind(this)).catch(function (err) {
+            // error for if the image didn't load
+            console.error("Your spell image did not load correctly.", err);
+        });
+    }
+    else if (fromArray === "equipped") {
+        let swapSpell = Player.spells[toId]; // this might not actually have a spell in it, but this is fine
+        Player.spells[toId] = Player.spells[fromId];
+        Player.spells[fromId] = swapSpell;
+        // swap around loaded images
+        let tempImage = Game.playerSpellImages[toId];
+        Game.playerSpellImages[toId] = Game.playerSpellImages[fromId];
+        Game.playerSpellImages[fromId] = tempImage;
+    }
+    else {
+        console.error("Unexpected fromArray value in spellbook", fromArray);
+    }
 	// update equipped spells display
 	Dom.spellbook.drawEquipped();
 }
@@ -5675,7 +5701,7 @@ Dom.settings.hotkeys = function (ev) {
 	else if (keyName === User.settings.keyboard.ADVENTURE && Player.unlockedTabs.includes("adventure")) {
 		Dom.changeBook("adventurePage", undefined, true);
 	}
-	else if (keyName === User.settings.keyboard.SPELLBOOK && Player.unlockedTabs.includes("adventure")) {
+	else if (keyName === User.settings.keyboard.SPELLBOOK && Player.unlockedTabs.includes("spellbook")) {
 		Dom.changeBook("spellbookPage", undefined, true);
 	}
 	else if (keyName === User.settings.keyboard.SETTINGS) {
@@ -7912,7 +7938,7 @@ Dom.init = function () {
 					if (typeof Game.hero.spells[i].onCooldown === "undefined" || Game.hero.spells[i].onCooldown === 0) {
 						let targetX = Game.camera.x + Game.previousMousePosition.x - Game.viewportOffsetX; // mouseX (tbd should probably be made into a function)
 						let targetY = Game.camera.y + Game.previousMousePosition.y - Game.viewportOffsetX; // mouseY
-						Game.hero.channelSpell(Game.hero.spells[i].id, Game.hero.spells[i].tier, {target: {x: targetX, y: targetY}});
+						Game.hero.channelSpell(Game.hero.spells[i], {x: targetX, y: targetY});
 					}
 				}
 			}

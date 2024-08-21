@@ -8,3 +8,4 @@ package-lock.json
 *.pdn
 *.pdf
 *.docx
+*.idea/

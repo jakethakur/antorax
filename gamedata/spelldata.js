@@ -1,7 +1,7 @@
 
 // arrays in a spell object have their index correspond to the spell tier
 
-const SpellsTemp = {
+const Spells = {
 	knight: [
 		//
 		// knight base spells
@@ -402,11 +402,261 @@ const SpellsTemp = {
 
 	],
 	enemy: [
+		{
+			name: "Unholy Strike",
+			id: 0,
+			type: "spell", // all spells should have this type, to distinguish them from items
+			class: "enemy", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
+			//image: "assets/runes/archer/0.png", // no image required currently
+			description: ".",
+			difficulty: "Easy",
 
+			func: function (caster, target) {
+                Game.statusEffects.stun({
+                    effectTitle: "Unholy Strike",
+                    target: target,
+                    time: this.stunTime[properties.tier],
+                });
+			},
+
+			// stat values
+			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
+			// values not in an array remain constant for all tiers
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 1500,
+				manaCost: 0,
+				cooldown: 10000,
+				// the following stats are specific to this spell
+				stunTime: [3, 6],
+			},
+		},
+        {
+            name: "Sawblade",
+            id: 10,
+            class: "k",
+            description: "",
+            enemyOnly: true, // sheridan
+
+            // properties should contain tier (as int value), caster, target
+            func: function (properties) {
+                // summon projectile (note its image should have already been loaded in)
+                Game.projectiles.push(new Projectile({
+                    map: map,
+                    x: properties.caster.x,
+                    y: properties.caster.y,
+                    stats: {
+                        damage: 20,
+                        stun: 3,
+                    },
+                    attacker: properties.caster,
+                    targets: [Game.allCharacters],
+                    exceptTargets: [properties.caster],
+                    image: "sawblade",
+                    moveDirection: Game.bearing(properties.caster, properties.target),
+                    moveSpeed: 400,
+                    doNotRotate: true,
+                    damageAllHit: true,
+                    type: "projectiles",
+                    /*animation: {
+                        type: "spritesheet",
+                        frameTime: 200,
+                        imagesPerRow: 3,
+                        totalImages: 3,
+                    },*/ // tbd add new image
+                }));
+            },
+
+            channelTime: [
+                0,
+                2000,	// tier 1
+            ],
+        },
+
+        {
+            name: "Animate",
+            id: 11,
+            class: "m",
+            description: "",
+            enemyOnly: true, // nkkja
+
+            // properties should contain:
+                // number (number to be animated)
+                // location (array of objects with x y width and height of possible spawn areas) - random object and location in object is picked for each
+                // all properties of animation (properties is passed into the Enemy constructor!)
+            func: function (properties) {
+                properties.source = "spell";
+                for (let i = 0; i < properties.number; i++) {
+                    // pick location
+                    let location = properties.location[Random(0, properties.location.length-1)];
+                    properties.x = Random(location.x, location.x+location.width);
+                    properties.y = Random(location.y, location.y+location.height);
+                    // create enemy!
+                    let preparedNPC = Game.prepareNPC(properties, "enemies");
+                    if (preparedNPC) {
+                        Game.enemies.push(new Enemy(preparedNPC));
+                    }
+                }
+            },
+
+            channelTime: [
+                0,
+                2000,	// tier 1
+            ],
+        },
+
+        {
+            name: "Lightning",
+            id: 12,
+            class: "m",
+            description: "Strike an enemy with lightning, setting them on fire and stunning them!",
+            enemyOnly: true, // nkkja
+
+            // properties should contain target
+            // doesn't yet work with tier
+            func: function (properties) {
+                Weather.commenceLightningStrike();
+                // status effects
+                Game.statusEffects.fire({
+                    target: properties.target,
+                    tier: 1,
+                });
+                Game.statusEffects.stun({
+                    target: properties.target,
+                    time: 1,
+                });
+            },
+
+            channelTime: [
+                0,
+                1000,	// tier 1
+            ],
+        },
+
+        {
+            name: "Aeromancy",
+            id: 13,
+            class: "m",
+            description: "Harness the power of the wind!",
+            enemyOnly: true, // nkkja
+
+            // properties should contain:
+                // speed (of wind movement)
+                // direction (of wind movement)
+                // time (for wind to last for)
+            func: function (properties) {
+                let movex = Math.cos(properties.direction) * properties.speed;
+                let movey = Math.sin(properties.direction) * properties.speed;
+
+                Game.wind = {};
+                Game.wind.movex = movex;
+                Game.wind.movey = movey;
+
+                Game.setTimeout(function () {
+                    Game.wind = undefined;
+                }, properties.time)
+            },
+
+            channelTime: [
+                0,
+                2000,	// tier 1
+            ],
+        },
+
+        {
+            name: "Hippity Hop",
+            id: 14,
+            class: "k",
+            description: "Ribbit",
+            enemyOnly: true, // toads in plains
+
+            // properties should contain tier (as int value), caster, target
+            func: function (properties) {
+                let velocity = Spells[14].velocity[properties.tier];
+                let dist = Math.min(Game.distance(properties.caster, properties.target), Spells[14].distance[properties.tier]);
+                let time = dist / velocity;
+                let bear = Game.bearing(properties.caster, properties.target);
+                properties.caster.displace(0, velocity, time, bear); // start displacement
+            },
+
+            velocity: [
+                0,
+                500,    // tier 1
+            ],
+
+            distance: [
+                0,
+                120,    // tier 1
+            ],
+
+            channelTime: [
+                0,
+                500,    // tier 1
+            ],
+        },
+
+        {
+            name: "Cut Purse",
+            id: 15,
+            class: "a",
+            description: "Snippity snip",
+            enemyOnly: true, // cutpurses in plains
+
+            // target always assumed to be hero
+            func: function (properties) {
+                let targetGold = Dom.inventory.count(2, "currency");
+                let chatMessage = "";
+                let goldStolen = 0;
+                if (targetGold === 0) {
+                    chatMessage = "<i>You had nothing for the cutpurse to steal!</i>";
+                }
+                else if (targetGold < 6) {
+                    chatMessage = "<i>The Cutpurse stole 1 Gold from you!</i>";
+                    goldStolen = 1;
+                }
+                else if (targetGold < 15) {
+                    chatMessage = "<i>The Cutpurse stole 2 Gold from you!</i>";
+                    goldStolen = 2;
+                }
+                else {
+                    chatMessage = "<i>The Cutpurse stole 3 Gold from you!</i>";
+                    goldStolen = 3;
+                }
+
+                Dom.chat.insert(chatMessage);
+                Dom.inventory.removeById(2, "currency", goldStolen);
+                // tbd add it to the loot
+            },
+
+            channelTime: [
+                0,
+                1000,    // tier 1
+            ],
+        },
+
+        {
+            name: "Telepathic Link",
+            id: 16,
+            class: "m",
+            description: "",
+            enemyOnly: true, // zararanath
+
+            // properties should contain tier (as int value), caster, target
+            func: function (properties) {
+                properties.caster.x = properties.target.x;
+                properties.caster.y = properties.target.y;
+                Dom.chat.insert(Dom.chat.say(properties.caster.name, "<i>This</i> telepathic link <b>will</b> hurt.")); // zararanath
+            },
+
+            channelTime: [
+                0,
+                1600,    // tier 1
+            ],
+        },
 	],
 }
 
-var Spells = [
+var SpellsOld = [
 	//
 	// Knight tier 1
 	//

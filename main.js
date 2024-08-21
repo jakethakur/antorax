@@ -2,7 +2,7 @@
 
 //
 // Realms of Antorax canvas code
-// Jake Thakur 2018-2023
+// Jake Thakur 2018-2024
 //
 
 // initially based on https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
@@ -82,6 +82,9 @@ Game.loadPlayer = function () {
 			Player.inventory.bag = Player.inventory.items[5];
 			Player.inventory.items[5] = {};
 		}
+		// assign spells their functions (which will not have been saved in the json)
+		// TBD make saving only save the id and type, and load everything from spelldata/itemdata here
+		
 
         Player = Object.assign(Player, savedPlayer);
     }
@@ -3607,18 +3610,24 @@ class Attacker extends Character {
 		// spells
 		this.spells = properties.spells || [];
 		if (this.constructor.name !== "Hero") {
-			this.spells = this.spells.map(a => Object.assign({}, a)); // deep copy objects in array
+			this.spells = this.spells.map(a => {
+			    let tier = a.tier;
+			    let castCondition = a.castCondition; // used for enemy ai; not a mandatory property
+			    a = Spells[a.class][a.id];
+			    a.stats = Object.assign({}, a.stats); // deep copy stats
+			    a.castCondition = castCondition;
+			    // set spell's stats based on chosen tier
+			    for (const stat in a.stats) {
+			        if (Array.isArray(a.stats[stat])) {
+			            // the stat depends on tier
+			            a.stats[stat] = a.stats[stat][tier-1];
+			        }
+			    }
+			    return Object.assign({}, a) // deep copy whole spell object
+			});
 			for (let i = 0; i < this.spells.length; i++) {
-				if (this.spells[i].interval !== undefined) {
-					this.spells[i].ready = false; // cannot be used until interval has finished (just for ai, not player)
-					// set initial cooldown
-					let initialCooldown = this.spells[i].interval; // default initial cooldown
-					if (typeof this.spells[i].initialCooldown !== "undefined") {
-						initialCooldown = this.spells[i].initialCooldown;
-					}
-					Game.setTimeout(function (i) {
-						this.spells[i].ready = true;
-					}.bind(this), initialCooldown, [i]);
+				if (this.spells[i].stats.cooldown !== undefined) {
+					this.spells[i].onCooldown = this.spells[i].stats.cooldown;
 				}
 				else {
 					this.spells[i].ready = true;
@@ -3634,19 +3643,17 @@ class Attacker extends Character {
 		}
 	}
 
-	// a simpler channel for spells
-	channelSpell (spellId, spellTier, parameters) {
+	// always called instead of Game.castSpell - deals with channelling that may need to be done beforehand
+	channelSpell (spellObj, target, additionalParameters) {
 		// add implicit parameters
-		parameters.caster = this;
-		parameters.tier = spellTier;
-		// because parameters is always an object for spells, it is turned into an array for the function call
+		let caster = this;
 		// Game.castSpell calls the function and deducts mana and sets cooldown
-		if (typeof Spells[spellId].channelTime === "undefined" || Spells[spellId].channelTime[spellTier] === 0) {
+		if (typeof spellObj.stats.channelTime === "undefined") {
 			// no channel required
-			Game.castSpell(spellId, parameters);
+			Game.castSpell(spellObj, caster, target, additionalParameters);
 		}
 		else {
-			this.channel(Game.castSpell, [spellId, parameters], Spells[spellId].channelTime[spellTier], Spells[spellId].name);
+			this.channel(Game.castSpell, [spellObj, caster, target, additionalParameters], spellObj.stats.channelTime, spellObj.name);
 		}
 	}
 }
@@ -6609,26 +6616,20 @@ class NonPlayerAttacker extends Attacker {
 					let spellIndex = -1;
 					if (this.spells.length !== 0) {
 						// enemy has some spells
-						spellIndex = this.spells.findIndex(spell => spell.ready &&
+						spellIndex = this.spells.findIndex(spell => (typeof spell.onCooldown === "undefined" || spell.onCooldown === 0) &&
 							(spell.castCondition === undefined || spell.castCondition.call(this, this))); // this is passed in as a parameter and as the object calling the function
 					}
 
 					if (spellIndex !== -1) {
 						// a spell has been found that can be cast
 						let spell = this.spells[spellIndex];
-						// no longer ready
-						spell.ready = false;
 						// get spell parameters
-						let params = {};
-						if (typeof spell.parameters !== "undefined") {
-							params = spell.parameters.call(this);
+						let additionalParams = {};
+						if (typeof spell.additionalParameters !== "undefined") {
+							additionalParams = spell.additionalParameters.call(this);
 						}
 						// cast the spell
-						this.channelSpell(spell.id, spell.tier, params);
-						// spell interval (how often it is cast by enemy)
-						Game.setTimeout(function (spellIndex) {
-							this.spells[spellIndex].ready = true;
-						}.bind(this), spell.interval, [spellIndex]);
+						this.channelSpell(spell, target, additionalParams);
 					}
 
 					else if (typeof target !== "undefined") {
@@ -8236,12 +8237,12 @@ Game.getStatusIconNumber = function (statusEffect) {
 
 // only called by entity.channelSpell
 // deducts mana, sets cooldown if it's a player, etc.
-// parameters should be an object
-Game.castSpell = function (id, parameters) {
+// additionalParameters should be an object if required
+Game.castSpell = function (spellObj, caster, target, additionalParameters) {
 	// mana
-	if (parameters.caster.constructor.name === "Hero") {
-		if (Game.hero.mana >= Spells[id].manaCost[parameters.tier]) {
-			Game.hero.mana -= Spells[id].manaCost[parameters.tier];
+	if (caster.constructor.name === "Hero") {
+		if (Game.hero.mana >= spellObj.stats.manaCost) {
+			Game.hero.mana -= spellObj.stats.manaCost;
 		}
 		else {
 			// not enough mana
@@ -8254,18 +8255,11 @@ Game.castSpell = function (id, parameters) {
 	}
 
 	// cooldown
-	if (parameters.caster.constructor.name === "Hero") {
-		// find index of spell in hero's spall array
-		let index = parameters.caster.spells.findIndex(spell => spell.id === id);
-		parameters.caster.spells[index].onCooldown = Spells[id].cooldown[parameters.tier];
-	}
-	else {
-		// enemies' spells use a different system (for now), so don't worry about that
-	}
+	spellObj.onCooldown = spellObj.stats.cooldown;
 
-	Spells[id].func(parameters);
+	spellObj.func(caster, target, additionalParameters);
 
-	parameters.caster.spellCasts++; // tracks total number of spell casts by character
+	caster.spellCasts++; // tracks total number of spell casts by character
 }
 
 // see also spelldata.js
@@ -8763,7 +8757,12 @@ Game.loadDefaultImages = function () {
 
 	toLoad.push(Loader.loadImage("status", "./assets/icons/status.png", false));
 
-	toLoad.push(Loader.loadImage("spells", "./assets/icons/spells.png", false));
+    // load player spells
+    for (let i = 0; i < Player.spells.length; i++) {
+        if (typeof Player.spells[i].image !== "undefined") {
+	        toLoad.push(Loader.loadImage("playerSpellRune"+i, Player.spells[i].image, false));
+        }
+    }
 
 	// maybe this should just be done if the player has a fishing rod? - tbd
 	toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
@@ -9632,9 +9631,15 @@ Game.init = function () {
 	// set player projectile
 	this.projectileImageUpdate();
 
-	// set loaded status and spell images
+	// set loaded status icons image
 	this.statusImage = Loader.getImage("status");
-	this.spellImage = Loader.getImage("spells");
+	// set loaded spell rune icon images
+	this.playerSpellImages = [];
+	for (let i = 0; i < Player.spells.length; i++) {
+	    if (typeof Player.spells[i].image !== "undefined") {
+	        this.playerSpellImages[i] = Loader.getImage("playerSpellRune"+i);
+	    }
+	}
 
 	// stun hero if they need to make a decision at the start of the game via dom alert
 	// decidingToSkip would have been set to true via Dom.init calling Tutorial in adventuredata
@@ -10534,6 +10539,19 @@ Game.update = function (delta) {
 			}
 		}
 	}
+    for (let x = 0; x < this.allAttackers.length; x++) {
+        let attacker = this.allAttackers[x];
+        if (typeof attacker.spells !== "undefined") {
+            for (let i = 0; i < attacker.spells.length; i++) {
+                if (typeof attacker.spells[i].onCooldown !== "undefined" && attacker.spells[i].onCooldown > 0) {
+                    attacker.spells[i].onCooldown -= delta*1000;
+                    if (attacker.spells[i].onCooldown < 0) {
+                        attacker.spells[i].onCooldown = 0;
+                    }
+                }
+            }
+        }
+    }
 
 	//
 	// User movement
@@ -13112,12 +13130,9 @@ Game.drawSpells = function (ctx, character, x, y, height, alignment) {
 
 	// iterate through character's spells
 	for (let i = 0; i < character.spells.length; i++) {
-		if (typeof character.spells[i].id !== "undefined") {
-			// get number of image in spell image tileset
-			let iconNum = Spells[character.spells[i].id].imageIconNum;
-	
+		if (typeof character.spells[i].id !== "undefined" && this.playerSpellImages[i] !== "Loading") {
 			// draw the image
-			ctx.drawImage(this.spellImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);
+			ctx.drawImage(this.playerSpellImages[i], 0, 0, 50, 50, startX + i * (height*1.2), y, height, height);
 	
 			// draw time remaining (if the spell has one)
 			ctx.fillStyle = "black";
