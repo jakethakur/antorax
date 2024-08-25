@@ -408,8 +408,7 @@ const Spells = {
 			type: "spell", // all spells should have this type, to distinguish them from items
 			class: "enemy", // "knight", "mage", "archer", "item" or "enemy" - refers to the array this spell is in
 			//image: "assets/runes/archer/0.png", // no image required currently
-			description: ".",
-			difficulty: "Easy",
+			description: "Stuns target.",
 
 			func: function (caster, target) {
                 Game.statusEffects.stun({
@@ -431,29 +430,28 @@ const Spells = {
 				stunTime: [3, 6],
 			},
 		},
-        {
-            name: "Sawblade",
-            id: 10,
-            class: "k",
-            description: "",
-            enemyOnly: true, // sheridan
+		{
+			name: "Sawblade",
+			id: 1,
+			type: "spell",
+			class: "enemy", 
+			description: "Sends out a sawblade projectile which stuns.",
 
-            // properties should contain tier (as int value), caster, target
-            func: function (properties) {
+			func: function (caster, target) {
                 // summon projectile (note its image should have already been loaded in)
                 Game.projectiles.push(new Projectile({
                     map: map,
-                    x: properties.caster.x,
-                    y: properties.caster.y,
+                    x: caster.x,
+                    y: caster.y,
                     stats: {
                         damage: 20,
                         stun: 3,
                     },
-                    attacker: properties.caster,
+                    attacker: caster,
                     targets: [Game.allCharacters],
-                    exceptTargets: [properties.caster],
+                    exceptTargets: [caster],
                     image: "sawblade",
-                    moveDirection: Game.bearing(properties.caster, properties.target),
+                    moveDirection: Game.bearing(caster, target),
                     moveSpeed: 400,
                     doNotRotate: true,
                     damageAllHit: true,
@@ -465,86 +463,99 @@ const Spells = {
                         totalImages: 3,
                     },*/ // tbd add new image
                 }));
-            },
+			},
 
-            channelTime: [
-                0,
-                2000,	// tier 1
-            ],
-        },
+			// stat values
+			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
+			// values not in an array remain constant for all tiers
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 2000,
+				manaCost: 0,
+				cooldown: 7000,
+				// the following stats are specific to this spell
+			},
+		},
+		{
+			name: "Animate",
+			id: 2,
+			type: "spell",
+			class: "enemy", 
+			description: "Summons enemies.",
 
-        {
-            name: "Animate",
-            id: 11,
-            class: "m",
-            description: "",
-            enemyOnly: true, // nkkja
+			// properties should contain:
+			// number (number to be animated)
+			// location (array of objects with x y width and height of possible spawn areas) - random object and location in object is picked for each
+			// all properties of animation (properties is passed into the Enemy constructor!)
+			func: function (caster, target, properties) {
+				properties.source = "spell";
+				for (let i = 0; i < properties.number; i++) {
+					// pick location
+					let location = properties.location[Random(0, properties.location.length-1)];
+					properties.x = Random(location.x, location.x+location.width);
+					properties.y = Random(location.y, location.y+location.height);
+					// create enemy!
+					let preparedNPC = Game.prepareNPC(properties, "enemies");
+					if (preparedNPC) {
+						Game.enemies.push(new Enemy(preparedNPC));
+					}
+				}
+			},
 
-            // properties should contain:
-                // number (number to be animated)
-                // location (array of objects with x y width and height of possible spawn areas) - random object and location in object is picked for each
-                // all properties of animation (properties is passed into the Enemy constructor!)
-            func: function (properties) {
-                properties.source = "spell";
-                for (let i = 0; i < properties.number; i++) {
-                    // pick location
-                    let location = properties.location[Random(0, properties.location.length-1)];
-                    properties.x = Random(location.x, location.x+location.width);
-                    properties.y = Random(location.y, location.y+location.height);
-                    // create enemy!
-                    let preparedNPC = Game.prepareNPC(properties, "enemies");
-                    if (preparedNPC) {
-                        Game.enemies.push(new Enemy(preparedNPC));
-                    }
-                }
-            },
+			// stat values
+			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
+			// values not in an array remain constant for all tiers
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 2000,
+				manaCost: 0,
+				cooldown: 17000,
+				// the following stats are specific to this spell
+			},
+		},
+		{
+			name: "Lightning",
+			id: 3,
+			type: "spell",
+			class: "enemy", 
+            description: "Strikes an enemy with lightning, setting them on fire and stunning them!",
 
-            channelTime: [
-                0,
-                2000,	// tier 1
-            ],
-        },
-
-        {
-            name: "Lightning",
-            id: 12,
-            class: "m",
-            description: "Strike an enemy with lightning, setting them on fire and stunning them!",
-            enemyOnly: true, // nkkja
-
-            // properties should contain target
-            // doesn't yet work with tier
-            func: function (properties) {
+			func: function (caster, target) {
                 Weather.commenceLightningStrike();
                 // status effects
                 Game.statusEffects.fire({
-                    target: properties.target,
+                    target: target,
                     tier: 1,
                 });
                 Game.statusEffects.stun({
-                    target: properties.target,
+                    target: target,
                     time: 1,
-                });
-            },
+				});
+			},
 
-            channelTime: [
-                0,
-                1000,	// tier 1
-            ],
-        },
-
-        {
-            name: "Aeromancy",
-            id: 13,
-            class: "m",
-            description: "Harness the power of the wind!",
-            enemyOnly: true, // nkkja
+			// stat values
+			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
+			// values not in an array remain constant for all tiers
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 1000,
+				manaCost: 0,
+				cooldown: 9000,
+				// the following stats are specific to this spell
+			},
+		},
+		{
+			name: "Aeromancy",
+			id: 4,
+			type: "spell",
+			class: "enemy", 
+            description: "Harnesses the power of the wind!",
 
             // properties should contain:
                 // speed (of wind movement)
                 // direction (of wind movement)
                 // time (for wind to last for)
-            func: function (properties) {
+			func: function (caster, target, properties) {
                 let movex = Math.cos(properties.direction) * properties.speed;
                 let movey = Math.sin(properties.direction) * properties.speed;
 
@@ -555,47 +566,49 @@ const Spells = {
                 Game.setTimeout(function () {
                     Game.wind = undefined;
                 }, properties.time)
-            },
+			},
 
-            channelTime: [
-                0,
-                2000,	// tier 1
-            ],
-        },
-
-        {
-            name: "Hippity Hop",
-            id: 14,
-            class: "k",
+			// stat values
+			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
+			// values not in an array remain constant for all tiers
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 2000,
+				manaCost: 0,
+				cooldown: 40000,
+				// the following stats are specific to this spell
+			},
+		},
+		{
+			name: "Hippity Hop",
+			id: 5,
+			type: "spell",
+			class: "enemy", 
             description: "Ribbit",
-            enemyOnly: true, // toads in plains
 
-            // properties should contain tier (as int value), caster, target
-            func: function (properties) {
-                let velocity = Spells[14].velocity[properties.tier];
-                let dist = Math.min(Game.distance(properties.caster, properties.target), Spells[14].distance[properties.tier]);
+			func: function (caster, target) {
+                let velocity = this.stats.velocity[properties.tier];
+                let dist = Math.min(Game.distance(caster, target), Spells[14].distance[properties.tier]);
                 let time = dist / velocity;
-                let bear = Game.bearing(properties.caster, properties.target);
-                properties.caster.displace(0, velocity, time, bear); // start displacement
-            },
+                let bear = Game.bearing(caster, target);
+                caster.displace(0, velocity, time, bear); // start displacement
+			},
 
-            velocity: [
-                0,
-                500,    // tier 1
-            ],
+			// stat values
+			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
+			// values not in an array remain constant for all tiers
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 500,
+				manaCost: 0,
+				cooldown: 1000,
+				// the following stats are specific to this spell
+				velocity: 500,
+				distance: 120
+			},
+		},
 
-            distance: [
-                0,
-                120,    // tier 1
-            ],
-
-            channelTime: [
-                0,
-                500,    // tier 1
-            ],
-        },
-
-        {
+        /*{
             name: "Cut Purse",
             id: 15,
             class: "a",
@@ -632,7 +645,7 @@ const Spells = {
                 0,
                 1000,    // tier 1
             ],
-        },
+        },*/
 
         {
             name: "Telepathic Link",
@@ -643,9 +656,9 @@ const Spells = {
 
             // properties should contain tier (as int value), caster, target
             func: function (properties) {
-                properties.caster.x = properties.target.x;
-                properties.caster.y = properties.target.y;
-                Dom.chat.insert(Dom.chat.say(properties.caster.name, "<i>This</i> telepathic link <b>will</b> hurt.")); // zararanath
+                caster.x = target.x;
+                caster.y = target.y;
+                Dom.chat.insert(Dom.chat.say(caster.name, "<i>This</i> telepathic link <b>will</b> hurt.")); // zararanath
             },
 
             channelTime: [
@@ -672,15 +685,15 @@ var SpellsOld = [
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
-			let dist = Game.distance(properties.caster, properties.target);
+			let dist = Game.distance(caster, target);
 			if (dist >= Spells[0].range[properties.tier]) {
 				dist = Spells[0].range[properties.tier];
 			}
 
 			let velocity = Spells[0].velocity[properties.tier];
 			let time = dist / velocity;
-			let bear = Game.bearing(properties.caster, properties.target);
-			properties.caster.displace(0, velocity, time, bear); // start displacement
+			let bear = Game.bearing(caster, target);
+			caster.displace(0, velocity, time, bear); // start displacement
 		},
 
 		range: [
@@ -721,7 +734,7 @@ var SpellsOld = [
 		// properties should contain tier (as int value), caster
 		func: function (properties) {
 			Game.statusEffects.defence({
-				target: properties.caster,
+				target: caster,
 				effectTitle: "Parade",
 				defenceIncrease: Spells[1].defenceMultiplier[properties.tier],
 				time: Spells[1].paradeLength[properties.tier],
@@ -818,14 +831,14 @@ var SpellsOld = [
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
-			if (!properties.caster.stats.arcaneAura) {
+			if (!caster.stats.arcaneAura) {
 				// toggle on
-				properties.caster.stats.arcaneAura = true;
+				caster.stats.arcaneAura = true;
 				Game.hero.auraInterval = Game.setInterval(Spells[3].tickFunc, 100, properties); // only works with hero currently
 			}
 			else {
 				// toggle off
-				properties.caster.stats.arcaneAura = false;
+				caster.stats.arcaneAura = false;
 				Game.clearInterval(Game.hero.auraInterval);
 			}
 		},
@@ -834,9 +847,9 @@ var SpellsOld = [
 		// called every 100ms
 		// same params as func
 		tickFunc: function (properties) {
-			if (properties.caster.mana >= Spells[3].manaPerSecond[properties.tier] * 0.1) {
+			if (caster.mana >= Spells[3].manaPerSecond[properties.tier] * 0.1) {
 				// remove mana
-				properties.caster.mana -= Spells[3].manaPerSecond[properties.tier] * 0.1;
+				caster.mana -= Spells[3].manaPerSecond[properties.tier] * 0.1;
 				// damage all nearby enemies
 				// (only works for player currently! can add an else statement if you want it to work with enemies)
 				Game.damageableByPlayer.forEach(function (enemy) {
@@ -894,10 +907,10 @@ var SpellsOld = [
 					damage: Game.hero.stats.maxDamage * Spells[4].damageMultiplier[properties.tier] / 100,
 					stun: 1,
 				},
-				attacker: properties.caster,
+				attacker: caster,
 				targets: [Game.damageableByPlayer],
 				image: "icebolt",
-				moveDirection: Game.bearing(properties.caster, properties.target),
+				moveDirection: Game.bearing(caster, target),
 				stopMovingOnDamage: true,
 				moveSpeed: 500,
 				type: "projectiles",
@@ -946,10 +959,10 @@ var SpellsOld = [
 					damage: Game.hero.stats.maxDamage * Spells[5].damageMultiplier[properties.tier] / 100,
 					flaming: 1,
 				},
-				attacker: properties.caster,
+				attacker: caster,
 				targets: [Game.damageableByPlayer],
 				image: "fireBarrage",
-				moveDirection: Game.bearing(properties.caster, properties.target),
+				moveDirection: Game.bearing(caster, target),
 				moveSpeed: 250,
 				type: "projectiles",
 				damageAllHit: true,
@@ -1153,7 +1166,7 @@ var SpellsOld = [
 		func: function (properties) {
 			Game.statusEffects.stun({
 				effectTitle: "Unholy Strike",
-				target: properties.target,
+				target: target,
 				time: Spells[9].stunTime[properties.tier],
 			});
 		},
@@ -1187,17 +1200,17 @@ var SpellsOld = [
 			// summon projectile (note its image should have already been loaded in)
 			Game.projectiles.push(new Projectile({
 				map: map,
-				x: properties.caster.x,
-				y: properties.caster.y,
+				x: caster.x,
+				y: caster.y,
 				stats: {
 					damage: 20,
 					stun: 3,
 				},
-				attacker: properties.caster,
+				attacker: caster,
 				targets: [Game.allCharacters],
-				exceptTargets: [properties.caster],
+				exceptTargets: [caster],
 				image: "sawblade",
-				moveDirection: Game.bearing(properties.caster, properties.target),
+				moveDirection: Game.bearing(caster, target),
 				moveSpeed: 400,
 				doNotRotate: true,
 				damageAllHit: true,
@@ -1262,11 +1275,11 @@ var SpellsOld = [
 			Weather.commenceLightningStrike();
 			// status effects
 			Game.statusEffects.fire({
-				target: properties.target,
+				target: target,
 				tier: 1,
 			});
 			Game.statusEffects.stun({
-				target: properties.target,
+				target: target,
 				time: 1,
 			});
 		},
@@ -1317,10 +1330,10 @@ var SpellsOld = [
         // properties should contain tier (as int value), caster, target
 		func: function (properties) {
             let velocity = Spells[14].velocity[properties.tier];
-            let dist = Math.min(Game.distance(properties.caster, properties.target), Spells[14].distance[properties.tier]);
+            let dist = Math.min(Game.distance(caster, target), Spells[14].distance[properties.tier]);
             let time = dist / velocity;
-            let bear = Game.bearing(properties.caster, properties.target);
-            properties.caster.displace(0, velocity, time, bear); // start displacement
+            let bear = Game.bearing(caster, target);
+            caster.displace(0, velocity, time, bear); // start displacement
         },
 
         velocity: [
@@ -1387,9 +1400,9 @@ var SpellsOld = [
 
         // properties should contain tier (as int value), caster, target
 		func: function (properties) {
-			properties.caster.x = properties.target.x;
-			properties.caster.y = properties.target.y;
-			Dom.chat.insert(Dom.chat.say(properties.caster.name, "<i>This</i> telepathic link <b>will</b> hurt.")); // zararanath
+			caster.x = target.x;
+			caster.y = target.y;
+			Dom.chat.insert(Dom.chat.say(caster.name, "<i>This</i> telepathic link <b>will</b> hurt.")); // zararanath
         },
 
         channelTime: [
@@ -1408,15 +1421,15 @@ var SpellsOld = [
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
-			let dist = Game.distance(properties.caster, properties.target);
+			let dist = Game.distance(caster, target);
 			if (dist >= Spells[17].range[properties.tier]) {
 				dist = Spells[17].range[properties.tier];
 			}
 
 			let velocity = Spells[17].velocity[properties.tier];
 			let time = dist / velocity;
-			let bear = Game.bearing(properties.caster, properties.target);
-			properties.caster.displace(0, velocity, time, bear); // start displacement
+			let bear = Game.bearing(caster, target);
+			caster.displace(0, velocity, time, bear); // start displacement
 		},
 
 		range: [
@@ -1455,7 +1468,7 @@ var SpellsOld = [
         // properties should contain tier (as int value), caster, target
 		func: function (properties) {
 			Game.statusEffects.stun({
-				target: Game.properties.target,
+				target: Game.target,
 				time: 2,
 				effectTitle: "Knocked out",
 				effectDescription: "Zzz",
@@ -1479,15 +1492,15 @@ var SpellsOld = [
 		func: function (properties) {
 			let projectileSpeed = 150; // default
 
-			if (properties.caster.hasStatusEffect("Empowered")) {
+			if (caster.hasStatusEffect("Empowered")) {
 				projectileSpeed *= 1.6;
 			}
 
 			Game.projectiles.push(new Projectile({
 				map: map,
-				x: properties.caster.x,
-				y: properties.caster.y,
-				attacker: properties.caster,
+				x: caster.x,
+				y: caster.y,
+				attacker: caster,
 				stats: {
 					damage: 5,
 					stun: 1,
@@ -1524,7 +1537,7 @@ var SpellsOld = [
 						intensity: 1, // no. of particles every 100ms
 					});
 				},
-				targets: [[properties.target]],
+				targets: [[target]],
 				image: "jaws",
 				crop: {
 					x: 47,
@@ -1532,7 +1545,7 @@ var SpellsOld = [
 					width: 61,
 					height: 66,
 				},
-				moveDirection: Game.bearing(properties.caster, properties.target),
+				moveDirection: Game.bearing(caster, target),
 				moveSpeed: projectileSpeed,
 				type: "projectiles",
 				animation: {
@@ -1641,8 +1654,8 @@ var SpellsOld = [
 		func: function (properties) {
 			// summon projectile (note its image should have already been loaded in)
 			for (let i = 0; i < Spells[22].numberSummoned[properties.tier]; i++) {
-				let x = properties.caster.x + Random(-75, 75);
-				let y = properties.caster.y + Random(-75, 75);
+				let x = caster.x + Random(-75, 75);
+				let y = caster.y + Random(-75, 75);
 				let preparedEnemy = Game.prepareNPC({
 					x: x,
 					y: y,
@@ -1820,15 +1833,15 @@ var SpellsOld = [
 			for(let direction = 0; direction < Math.PI*2; direction += radianIncrement) {
 				Game.projectiles.push(new Projectile({
 					map: map,
-					x: properties.caster.x,
-					y: properties.caster.y,
+					x: caster.x,
+					y: caster.y,
 					stats: {
 						damage: Spells[25].damage[properties.tier],
 						slowAmount: 65,
 						slowTime: 10,
 					},
-					attacker: properties.caster,
-					targets: [properties.target],
+					attacker: caster,
+					targets: [target],
 					image: "waterball",
 					moveDirection: direction,
 					stopMovingOnDamage: true,
@@ -1863,7 +1876,7 @@ var SpellsOld = [
 
 		// properties should contain tier (as int value), caster, target
 		func: function (properties) {
-			let boss = properties.caster;
+			let boss = caster;
 
 			//boss.setImage("foxgloveSunken");
 			boss.transform({
@@ -1931,9 +1944,9 @@ var SpellsOld = [
 
 			Game.projectiles.push(new Projectile({
 				map: map,
-				x: properties.caster.x,
-				y: properties.caster.y,
-				attacker: properties.caster,
+				x: caster.x,
+				y: caster.y,
+				attacker: caster,
 				stats: {
 					damage: 8,
 					stun: 1.5,
@@ -1970,7 +1983,7 @@ var SpellsOld = [
 						intensity: 1, // no. of particles every 100ms
 					});
 				},
-				targets: [[properties.target]],
+				targets: [[target]],
 				image: "jaws",
 				crop: {
 					x: 47,
@@ -1978,7 +1991,7 @@ var SpellsOld = [
 					width: 61,
 					height: 66,
 				},
-				moveTowards: properties.target,
+				moveTowards: target,
 				moveSpeed: projectileSpeed,
 				type: "projectiles",
 				animation: {
@@ -2070,7 +2083,7 @@ var SpellsOld = [
 		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
 		func: function (properties) {
 			for (let i = 0; i < Game.enemies.length; i++) {
-				if (Game.distance(Game.enemies[i], properties.caster) <= 120) {
+				if (Game.distance(Game.enemies[i], caster) <= 120) {
 					Game.statusEffects.stun({
 						target: this,
 						time: Spells[28].stunLength[properties.tier],
@@ -2112,7 +2125,7 @@ var SpellsOld = [
 		// properties should contain tier (as int value), caster (tho caster is presumed to be hero)
 		func: function (properties) {
 			for (let i = 0; i < Game.enemies.length; i++) {
-				if (Game.distance(Game.enemies[i], properties.caster) <= 120) {
+				if (Game.distance(Game.enemies[i], caster) <= 120) {
 					Game.statusEffects.stun({
 						target: this,
 						time: Spells[28].stunLength[properties.tier],
@@ -2230,9 +2243,9 @@ var SpellsOld = [
 		func: function (properties) {
 			for (let i = 0; i < Spells[34].dynamiteNumber[properties.tier]; i++) {
 				let range = Spells[34].range[properties.tier];
-				let x = properties.caster.x + Random(-range, range);
-				let y = properties.caster.y + Random(-range, range);
-				ItemFunctions.placeDynamite(x, y, properties.caster, 10, 1);
+				let x = caster.x + Random(-range, range);
+				let y = caster.y + Random(-range, range);
+				ItemFunctions.placeDynamite(x, y, caster, 10, 1);
 			}
 		},
 
@@ -2265,9 +2278,9 @@ var SpellsOld = [
 		//description: ["", ""],
 
 		func: function (properties) {
-			properties.caster.moveTowards = {
-				x: properties.target.x,
-				y: properties.target.y,
+			caster.moveTowards = {
+				x: target.x,
+				y: target.y,
 				speedScalar: Spells[34].moveSpeedMultipler[properties.tier],
 				continueUntilCollide: true,
 			}

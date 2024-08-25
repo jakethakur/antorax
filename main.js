@@ -84,8 +84,18 @@ Game.loadPlayer = function () {
 		}
 		// assign spells their functions (which will not have been saved in the json)
 		// TBD make saving only save the id and type, and load everything from spelldata/itemdata here
+		for (let i = 0; i < Player.spells.length; i++) {
+			let spellObj = Player.spells[i];
+			if (typeof spellObj.class !== "undefined") {
+				// spell exists
+				spellObj.func = Spells[spellObj.class][spellObj.id].func;
+			}
+		}
+		for (let i = 0; i < Player.spellArsenal.length; i++) {
+			let spellObj = Player.spellArsenal[i];
+			spellObj.func = Spells[spellObj.class][spellObj.id].func;
+		}
 		
-
         Player = Object.assign(Player, savedPlayer);
     }
 
@@ -3613,9 +3623,13 @@ class Attacker extends Character {
 			this.spells = this.spells.map(a => {
 			    let tier = a.tier;
 			    let castCondition = a.castCondition; // used for enemy ai; not a mandatory property
+				let additionalParameters = a.additionalParameters;
+				let onCast = a.onCast; // e.g. for additional cast behavior specific to this enemy
 			    a = Spells[a.class][a.id];
 			    a.stats = Object.assign({}, a.stats); // deep copy stats
 			    a.castCondition = castCondition;
+				a.additionalParameters = additionalParameters;
+				a.onCast = onCast;
 			    // set spell's stats based on chosen tier
 			    for (const stat in a.stats) {
 			        if (Array.isArray(a.stats[stat])) {
@@ -8257,6 +8271,10 @@ Game.castSpell = function (spellObj, caster, target, additionalParameters) {
 	// cooldown
 	spellObj.onCooldown = spellObj.stats.cooldown;
 
+	// trigger spell
+	if (typeof spell.onCast !== "undefined") {
+		spell.onCast(caster, target, additionalParameters); // e.g. for behaviour of this spell specific to the entity casting it
+	}
 	spellObj.func(caster, target, additionalParameters);
 
 	caster.spellCasts++; // tracks total number of spell casts by character

@@ -601,7 +601,7 @@ const EnemyTemplates = {
 			spells: [
 				{
 			        class: "enemy", // most enemy spells are of this type
-					id: 9,
+					id: 0,
 					tier: 1,
 					// target is assumed to be hero
 				},
@@ -641,18 +641,13 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					id: 10,
+			        class: "enemy", // most enemy spells are of this type
+					id: 1,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {
-							target: Game.hero,
-						};
-					},
 					castCondition: function (caster) {
 						// has picked up all logs
 						return caster.logsRemaining === 0;
 					},
-					interval: 7000,
 				},
 			],
 			xpGiven: 250, // tbc?
@@ -753,10 +748,13 @@ const EnemyTemplates = {
 			spells: [
 				// ordered in order of boss priority to spells
 				{
-					id: 13, // aeromancy
+					class: "enemy",
+					id: 4, // aeromancy
 					tier: 1,
-					parameters: function () { // returns array of parameters
+					onCast: function () {
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The wind obeys me!"));
+					},
+					additionalParameters: function () { // returns array of parameters
 						return {
 							speed: 60,
 							direction: ToRadians(Random(1, 360)),
@@ -768,13 +766,15 @@ const EnemyTemplates = {
 						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Wind");
 						return cauldronIndex !== -1;
 					},
-					interval: 40000,
 				},
 				{
-					id: 11, // animate
+					class: "enemy",
+					id: 2, // animate
 					tier: 1,
-					parameters: function () { // returns array of parameters
+					onCast: function () {
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The mud of this bog is mine!"));
+					},
+					additionalParameters: function () { // returns array of parameters
 						return {
 							number: 2,
 							location: [
@@ -861,23 +861,19 @@ const EnemyTemplates = {
 						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Earth");
 						return cauldronIndex !== -1;
 					},
-					interval: 17000,
 				},
 				{
-					id: 12, // lightning
+					class: "enemy",
+					id: 3, // lightning
 					tier: 1,
-					parameters: function () { // returns array of parameters
+					onCast: function () {
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The sky belongs to me!"));
-						return {
-							target: this.calculateTarget(),
-						};
 					},
 					castCondition: function (caster) {
 						// cauldron not destroyed
 						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Lightning");
 						return cauldronIndex !== -1;
 					},
-					interval: 9000,
 				},
 			],
 			xpGiven: 250, // tbc?
