@@ -143,7 +143,7 @@ var Villagers = [
         image: {
 			skinTone: "humanLight1",
 			clothing: "robertHendman",
-			hair: "short2Brown", // tbd
+			hair: "bedheadBrown",
 			// tbd facial hair
 			// ears done automatically,, everything other than skin tone is optional
 		},
@@ -171,8 +171,7 @@ var Villagers = [
         image: {
 			skinTone: "humanLight1",
 			clothing: "wilmaRedding",
-			hair: "bobBrown", // tbd
-			// tbd facial hair
+			hair: "bobBrown",
 			// ears done automatically,, everything other than skin tone is optional
 		},
         name: "Wilma Redding",
@@ -672,7 +671,13 @@ var Villagers = [
 	},
 	{
         id: 17,
-        images: {demolitionist: {normal: "assets/npcs/demolitionist.png"}},
+        image: {
+			skinTone: "humanTan1",
+			clothing: "demolitionistDarrow",
+			hair: "shortBrown",
+			// facial hair tbd
+			// ears done automatically,, everything other than skin tone is optional
+		},
 		name: "Demolitionist Darrow",
 		hostility: "friendly",
 		level: 20,

@@ -106,6 +106,28 @@ var Skins = {
 			src: "penguin",
 			series:	"Dev",
 		},
+		{
+			id: 13,
+			race: "Panda",
+			colour: "White",
+			src: "panda",
+			series:	"Dev",
+		},
+		{
+			id: 14,
+			race: "Slug",
+			colour: "Brown",
+			src: "slug",
+			series:	"Dev",
+		},
+		{
+			id: 15,
+			race: "Human",
+			colour: "Tan1",
+			src: "humanTan1",
+			series:	"Classic",
+			base: true,
+		},
 	],
 	mageClothing: [
 		{
@@ -239,6 +261,13 @@ var Skins = {
 			name: "Bob",
 			src: "bob", // colour is appended to the end of this
 			series:	"NPCs", // wilma, but also available for player !
+			base: true,
+		},
+		{
+			id: 8,
+			name: "Bedhead",
+			src: "bedhead", // colour is appended to the end of this
+			series:	"NPCs", // robert hendman, but also available for player !
 			base: true,
 		},
 	],
