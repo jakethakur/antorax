@@ -140,7 +140,13 @@ var Villagers = [
     },
     {
         id: 5,
-        images: {robertHendman: {normal: "assets/npcs/robertHendman.png"}},
+        image: {
+			skinTone: "humanLight1",
+			clothing: "robertHendman",
+			hair: "short2Brown", // tbd
+			// tbd facial hair
+			// ears done automatically,, everything other than skin tone is optional
+		},
         name: "Robert Hendman",
         level: 12,
         stats: {
@@ -162,7 +168,13 @@ var Villagers = [
     },
     {
         id: 6,
-        images: {wilmaRedding: {normal: "assets/npcs/wilmaRedding.png"}},
+        image: {
+			skinTone: "humanLight1",
+			clothing: "wilmaRedding",
+			hair: "bobBrown", // tbd
+			// tbd facial hair
+			// ears done automatically,, everything other than skin tone is optional
+		},
         name: "Wilma Redding",
         level: 12,
         stats: {
@@ -795,7 +807,12 @@ var Villagers = [
 	},
 	{
         id: 22,
-        images: {othmar: {normal: "assets/npcs/othmar.png"}},
+        image: {
+			skinTone: "elfLight1",
+			clothing: "othmar",
+			hair: "short2Brown",
+			// ears done automatically,, everything other than skin tone is optional
+		},
 		name: "Othmar",
 		hostility: "friendly",
 		level: 15,

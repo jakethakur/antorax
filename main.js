@@ -616,7 +616,8 @@ Game.addPlayer = function (player) {
 					imagesPerRow: 4,
 					totalImages: 4,
 					animateBasis: "walk"
-				},
+				}
+				copiedPlayer.spritesheetRotate = true,
 
 				// add the player
 				// tbd the images should be loaded first THEN the player object should be added ??
@@ -2491,6 +2492,8 @@ class Character extends Thing {
 
 		this.direction = properties.direction || 0; // used for rotation image
 
+		this.spritesheetRotate = properties.spritesheetRotate; // spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. i.e. same as player
+
 		this.statusEffects = [];
 		this.numberOfHiddenStatusEffects = 0; // number of status effects that aren't shown (for displaying status effects)
 
@@ -3376,6 +3379,31 @@ class Character extends Thing {
 		}
 	}
 
+	setDirection (dirx, diry) {
+		if (Math.abs(diry) > Math.abs(dirx)) { // there is more up down movement than left right
+			// up down movement
+			if (diry < 0) {
+				// up movement
+				this.direction = 1;
+			}
+			else {
+				// down movement
+				this.direction = 3;
+			}
+		}
+		else {
+			// left right movement
+			if (dirx > 0) {
+				// right movement
+				this.direction = 4;
+			}
+			else {
+				// left movement
+				this.direction = 2;
+			}
+		}
+	}
+
 	// rotation image names saved in character
 	// these are the key names of the images in loader
 	// not all of these need to exist - the best one will be picked (see below in this function)
@@ -3432,36 +3460,71 @@ class Character extends Thing {
 
 	// set image based on direction of movement if there are multiple rotation images
 	// note this system is not used for player, since their images are in tilesets instead (however it would be used if they were hexed etc)
-	setRotationImage (dirx, diry) {
+	setRotationImage () {
 		if (this.rotationImageChange !== "none") {
 			if (this.rotationImageChange === "upDown" || // only up down images exist for this NPC
 			(this.rotationImageChange === "all" && // OR all images exist AND...
-			Math.abs(diry) > Math.abs(dirx))) { //...there is more up down movement than left right
+			(this.direction === 1 || this.direction === 3))) { // ...there is more up down movement than left right
 				// up down movement
-				if (diry < 0) {
+				if (this.direction === 1) {
 					// up movement
 					this.setImageMovement(this.rotationImages.up, this.crop, this.width, this.height);
-					this.direction = 1;
 				}
 				else {
 					// down movement
 					this.setImageMovement(this.rotationImages.down, this.crop, this.width, this.height);
-					this.direction = 3;
 				}
 			}
 			else {
 				// left right movement
-				if (dirx > 0) {
+				if (this.direction === 4) {
 					// right movement
 					this.setImageMovement(this.rotationImages.right, this.crop, this.width, this.height);
-					this.direction = 4;
 				}
 				else {
 					// left movement
 					this.setImageMovement(this.rotationImages.left, this.crop, this.width, this.height);
-					this.direction = 2;
 				}
 			}
+		}
+	}
+
+	updateRotation (dirx, diry) {
+		// first update direction
+		this.setDirection(dirx, diry);
+
+		if (typeof this.rotationImages === "undefined" && this.spritesheetRotate) {
+			// spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. i.e. same as player
+			if (this.direction === 1) { // facing up
+				this.crop.y = this.baseHeight*2;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = this.baseHeight*2;
+				}
+			}
+	
+			else if (this.direction === 2) { // facing left
+				this.crop.y = this.baseHeight*3;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = this.baseHeight*3;
+				}
+			}
+	
+			else if (this.direction === 3) { // facing down
+				this.crop.y = 0;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = 0;
+				}
+			}
+	
+			else if (this.direction === 4) { // facing right
+				this.crop.y = this.baseHeight;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = this.baseHeight;
+				}
+			}
+		}
+		else if (typeof this.rotationImages !== "undefined") { // changes images upon rotation
+			this.setRotationImage();
 		}
 	}
 
@@ -3800,30 +3863,6 @@ class UserControllable extends Attacker {
 		loadObj[hatKeyName] = {normal: "./assets/playerCustom/hat/" + this.hat + ".png"};
 		return Loader.loadMultipleImages(loadObj, false);
 	}
-
-	// called after this.direction is updated
-	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
-	updateRotation () {
-		if (this.direction === 1) { // facing up
-			this.crop.y = this.baseHeight*2;
-			this.animation.baseCrop.y = this.baseHeight*2;
-		}
-
-		else if (this.direction === 2) { // facing left
-			this.crop.y = this.baseHeight*3;
-			this.animation.baseCrop.y = this.baseHeight*3;
-		}
-
-		else if (this.direction === 3) { // facing down
-			this.crop.y = 0;
-			this.animation.baseCrop.y = 0;
-		}
-
-		else if (this.direction === 4) { // facing right
-			this.crop.y = this.baseHeight;
-			this.animation.baseCrop.y = this.baseHeight;
-		}
-	}
 }
 
 // player of the game - similar to Player global variable in saveData.js, but only contains necessary information (also has some cool functions)
@@ -3890,6 +3929,8 @@ class Hero extends Attacker {
 		// temporary transformations, i.e. into cat
 		// note that hex etc are NOT included under this, since your base stats, spells, etc. still remain
 		this.transformed = false;
+
+		this.spritesheetRotate = true; // spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. always the case for the hero unless transformed
 	}
 
 	// new properties are added to this as required
@@ -4116,24 +4157,7 @@ class Hero extends Attacker {
 		//this.x = Round(this.x, 0);
 		//this.y = Round(this.y, 0);
 
-		// set direction based on dirx and diry
-		if (Math.abs(dirx) > Math.abs(diry)) {
-			if (dirx > 0) {
-				this.direction = 4;
-			}
-			else {
-				this.direction = 2;
-			}
-		}
-		else {
-			if (diry > 0) {
-				this.direction = 3;
-			}
-			else {
-				this.direction = 1;
-			}
-		}
-		this.updateRotation();
+		this.updateRotation(dirx, diry); // sets this.direction and rotates imagee
 	}
 
 	// start channeling basic attack
@@ -5328,38 +5352,6 @@ class Hero extends Attacker {
 		}
 	}
 
-	// called after this.direction is updated
-	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
-	// this is just default behaviour for player, i.e. overriden if rotationImages is set (in which case it works like a standard character)
-	// (this system should probably be updated in the future)
-	updateRotation () {
-		if (typeof this.rotationImages === "undefined") {
-			// no overriding of standard behaviour
-			if (this.direction === 1) { // facing up
-				this.crop.y = this.baseHeight*2;
-				this.animation.baseCrop.y = this.baseHeight*2;
-			}
-	
-			else if (this.direction === 2) { // facing left
-				this.crop.y = this.baseHeight*3;
-				this.animation.baseCrop.y = this.baseHeight*3;
-			}
-	
-			else if (this.direction === 3) { // facing down
-				this.crop.y = 0;
-				this.animation.baseCrop.y = 0;
-			}
-	
-			else if (this.direction === 4) { // facing right
-				this.crop.y = this.baseHeight;
-				this.animation.baseCrop.y = this.baseHeight;
-			}
-		}
-		else { // work like normal characters
-			this.setRotationImage();
-		}
-	}
-
 	// update weapon being held (called on weapon being changed)
 	weaponUpdate () {
 		// check weapon has acc been changed
@@ -6203,8 +6195,8 @@ class Mount extends Character {
 			this.velocity = maxVelocity;
 		}
 
-		// set rotation image
-		this.setRotationImage(this.speedX, this.speedY);
+		// set rotation image, and this.direction
+		this.updateRotation(this.speedX, this.speedY);
 
 		this.x += this.speedX*delta;
 		this.y += this.speedY*delta;
@@ -6392,7 +6384,7 @@ class Villager extends NPC {
 					this.y += diry * exceededDistance;
 
 					// set image based on direction of movement if there are multiple rotation images
-					this.setRotationImage(dirx, diry);
+					this.updateRotation(dirx, diry);
 
 					if (this.ai.intelligentMovement) {
 						// wait instantly (rather than trying to move to location but "failing")
@@ -6450,7 +6442,7 @@ class Villager extends NPC {
 		}
 
 		// set image based on direction of movement if there are multiple rotation images
-		this.setRotationImage(dirx, diry);
+		this.updateRotation(dirx, diry);
 
 		// update foot hitbox position (required here because it doesn't collide)
 		this.updateFootHitbox();
@@ -6745,7 +6737,7 @@ class NonPlayerAttacker extends Attacker {
 			diry = Math.sin(this.bearing);
 
 			// set image based on direction of movement if there are multiple rotation images
-			this.setRotationImage(dirx, diry);
+			this.updateRotation(dirx, diry);
 		}
 
 		// wind
@@ -6810,7 +6802,7 @@ class NonPlayerAttacker extends Attacker {
 
 		// set image based on direction of projectile (if there are multiple rotation images for this character)
 		// sin and cos wrong direction because pi/2 was added to it
-		this.setRotationImage(Math.sin(projectileRotate), Math.cos(projectileRotate));
+		this.updateRotation(Math.sin(projectileRotate), Math.cos(projectileRotate));
 
 		this.channellingProjectileId = Game.nextEntityId;
 
@@ -8852,6 +8844,32 @@ Game.loadArea = function (areaName, destination) {
 	// p = array of promises of images being loaded
     let p = Loader.loadMultipleImages(Areas[areaName].images);
 
+	// also add npc layered images (like the hero) - these don't need to be loaded in in areadata as their addresses are obvious
+	// tbd iterate through additional entity types that might have layered images like this
+	let load = {};
+	if (typeof Areas[areaName].npcs !== "undefined") {
+		for (let i = 0; i < Areas[areaName].npcs.length; i++) {
+			let npc = Areas[areaName].npcs[i];
+			let loadForThisNpc = this.formatNpcImages(npc); // prepares the NPC images for adding, as well as returning the images that need to be loaded in
+			load = Object.assign(load, loadForThisNpc);
+		}
+	}
+	if (typeof Areas[areaName].enemies !== "undefined") {
+		for (let i = 0; i < Areas[areaName].enemies.length; i++) {
+			let npc = Areas[areaName].enemies[i];
+			let loadForThisNpc = this.formatNpcImages(npc);
+			load = Object.assign(load, loadForThisNpc);
+		}
+	}
+	if (typeof Areas[areaName].villagers !== "undefined") {
+		for (let i = 0; i < Areas[areaName].villagers.length; i++) {
+			let npc = Areas[areaName].villagers[i];
+			let loadForThisNpc = this.formatNpcImages(npc);
+			load = Object.assign(load, loadForThisNpc);
+		}
+	}
+    p = p.concat(Loader.loadMultipleImages(load));
+
 	// load in randomly generated villagers if the area has data for them
 
 	let possibleVillagers, villagersToAdd;
@@ -9536,6 +9554,112 @@ Game.loadArea = function (areaName, destination) {
 		// error for if the images didn't load
 	    console.error("Your images did not load correctly, or there was an error in the Game.loadArea function...", err);
 	});
+}
+
+// used in loadArea for when NPC image is in a deconstructed format like the player's
+// the properties of the NPC that are passed in are edited by this
+// returns an object of images to be loaded
+Game.formatNpcImages = function (properties) {
+	// if image is an object that specifies at least a skinTone, construct the entity from the images in assets/playerCustom
+	// (i.e. how hero is constructed)
+	if (typeof properties.image === "object" && !Array.isArray(properties.image && typeof properties.image.skinTone !== "undefined")) {
+		properties.images = [];
+		let loadObj = {}; // to be loaded in; returned by the function
+		// skin tone
+		let imgName = "playerSkin_"+properties.image.skinTone;
+		properties.images.push({imageName: imgName});
+		loadObj[imgName] = {normal: "assets/playerCustom/skinTone/" + properties.image.skinTone + ".png"};
+		// face
+		if (typeof properties.image.face !== "undefined") {
+			imgName = "playerFace_"+properties.image.face;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/" + properties.image.face + ".png"};
+		}
+		else {
+			// base face, unless they're an orc
+			if (properties.image.skinTone.substring(0,3) === "orc") {
+				imgName = "playerFace_baseOrc";
+				properties.images.push({imageName: imgName, doNotAnimate: true});
+				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/baseOrc.png"};
+			}
+			else {
+				imgName = "playerFace_base";
+				properties.images.push({imageName: imgName, doNotAnimate: true});
+				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/base.png"};
+			}
+		}
+		// clothing - might be all in one, or separated (tbd)
+		if (typeof properties.image.clothing !== "undefined") {
+			let clothingClass = "npc"; // folder the clothing appears in (defaults to npc)
+			if (typeof properties.image.clothingClass !== "undefined") {
+				clothingClass = properties.image.clothingClass;
+			}
+			imgName = "playerClothing_"+properties.image.clothing;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothing/" + clothingClass + "/" + properties.image.clothing + ".png"};
+		}
+		// hair (optional if they're bald)
+		if (typeof properties.image.hair !== "undefined") {
+			imgName = "playerHair_"+properties.image.hair;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/hair/" + properties.image.hair + ".png"};
+		}
+		// facial hair (optional)
+		if (typeof properties.image.beard !== "undefined") {
+			imgName = "playerBeard_"+properties.image.beard;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/beard/" + properties.image.beard + ".png"};
+		}
+		// ears - usually done to match skin tone, but can be customised ig
+		if (typeof properties.image.ears !== "undefined") {
+			imgName = "playerEars_"+properties.image.ears;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/ears/" + properties.image.ears + ".png"};
+		}
+		else {
+			imgName = "playerEars_"+properties.image.skinTone;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/ears/" + properties.image.skinTone + ".png"};
+		}
+		// hat - optional
+		if (typeof properties.image.hat !== "undefined") {
+			imgName = "playerHat_"+properties.image.hat;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/hat/" + properties.image.hat + ".png"};
+		}
+		// accessories - optional
+		if (typeof properties.image.accessories !== "undefined") {
+			imgName = "playerAccessories_"+properties.images.accessories;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/accessories/" + properties.image.accessories + ".png"};
+		}
+
+		properties.image = undefined;
+
+		if (typeof properties.crop !== "undefined") {
+			console.warn("Crop of npc is overwritten by Game.formatNpcImages", properties);
+		}
+		if (typeof properties.animation !== "undefined") {
+			console.warn("Animation of npc is overwritten by Game.formatNpcImages", properties);
+		}
+		properties.crop = {
+			x: 0,
+			y: 0,
+			width: 52,
+			height: 127
+		};
+		properties.animation = {
+			type: "spritesheet",
+			frameTime: 18,
+			imagesPerRow: 4,
+			totalImages: 4,
+			animateBasis: "walk",
+		};
+		properties.spritesheetRotate = true;
+
+		return loadObj;
+	}
+	return false;
 }
 
 // viewportOffset and canvasArea variables
@@ -10288,6 +10412,7 @@ Game.generateVillagers = function (data, areaName) {
 	let villagersToAdd = []; // array of indexes of villagers to add
 	let images = {}; // images to be loaded (same format as in areadata)
 
+	// iterate through all the villagers
 	for (let numberAdded = 0; numberAdded < numberToAdd; numberAdded++) {
 		let villagerIndex = (numberAdded+startValue) % possibleVillagers.length;
 
@@ -10295,13 +10420,22 @@ Game.generateVillagers = function (data, areaName) {
 
 		let villager = possibleVillagers[villagerIndex];
 
+		let formattedImages = this.formatNpcImages(villager);
+
 		// images to be added
 		// note that, for duplicate keys, initial ones will be overritten
-		Object.assign(images, villager.images);
+		if (formattedImages === false) {
+			// villager has standard images
+			Object.assign(images, villager.images);
 
-		// set image name, if one was not already set, from first image loading key
-		if (villager.image === undefined && villager.rotationImages === undefined) {
-			villager.image = Object.keys(villager.images)[0];
+			// set image name, if one was not already set, from first image loading key
+			if (villager.image === undefined && villager.rotationImages === undefined) {
+				villager.image = Object.keys(villager.images)[0];
+			}
+		}
+		else {
+			// villager has layered images, like the player
+			Object.assign(images, formattedImages);
 		}
 	}
 
@@ -12937,7 +13071,7 @@ Game.drawManaBar = function (ctx, character, x, y, width, height) {
 			else {
 				// default
 				ctx.fillStyle = "#8f34eb";
-				console.warn("No dedicated health bar colour for bar size " + barValue);
+				console.warn("No dedicated mana bar colour for bar size " + barValue);
 			}
 
 			// health bar body

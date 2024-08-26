@@ -6284,7 +6284,7 @@ animation: {
 							{item: Items.food[4], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Sandwich
 							{item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Mince Pie
 							{item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Christmas Pudding
-							{item: Items.food[11], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
+							{item: Items.food[12], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -6304,7 +6304,7 @@ animation: {
 							{item: Items.consumable[16], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mulled Wine
 							{item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
 							{item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
-							{item: Items.food[11], cost: 8, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
+							{item: Items.food[12], cost: 8, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
 							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
 							{item: Items.food[0], cost: 2,}, // Bread
 							{item: Items.food[4], cost: 4,}, // Sandwich

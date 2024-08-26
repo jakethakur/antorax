@@ -227,6 +227,20 @@ var Skins = {
 			series:	"Classic",
 			base: true,
 		},
+		{
+			id: 6,
+			name: "Short 2",
+			src: "short2", // colour is appended to the end of this
+			series:	"NPCs", // othmar, but also available for player !
+			base: true,
+		},
+		{
+			id: 7,
+			name: "Bob",
+			src: "bob", // colour is appended to the end of this
+			series:	"NPCs", // wilma, but also available for player !
+			base: true,
+		},
 	],
 	hat: [
 		{
