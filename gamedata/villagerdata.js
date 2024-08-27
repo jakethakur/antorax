@@ -772,7 +772,11 @@ var Villagers = [
 	},
 	{
         id: 20,
-        images: {necta: {normal: "assets/npcs/babii.png"}},
+        image: {
+			skinTone: "humanLight1",
+			clothing: "babii",
+			hair: "babii",
+		},
 		name: "Babii, Dune Surveyor",
 		hostility: "friendly",
 		level: 35,

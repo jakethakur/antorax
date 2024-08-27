@@ -4939,6 +4939,151 @@ var Quests = {
 			],
 		},
 	],
+
+	caves: [
+		{
+			id: 0,
+			quest: "Dig Base Alfa",
+			questArea: "caves",
+
+			questType: "storyline",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Recruiter Sylvie",
+					chat: [{
+						text: `${Player.name}!.....`,
+					},{
+						text: `...`,
+					},{
+						text: `..CONGRATULATIONS ON LEVEL TEN!!!`,
+					},{
+						text: `The city is truly thourishing, with many thanks to your help around the area.`,
+					},{
+						text: `Hey, I've even heard the frog problem has been sorted! Those exterminators I ordered were rather effective..`,
+					},{
+						text: `But ${Player.name}, what is the point of such a marvellous city if not the work produced by it?`,
+					},{
+						text: `That's why I need you to report to <b>Field Director Lyn</b> at <b>Eaglecrest Dig Base Alfa</b> immediately.`,
+					},{
+						text: `It's unfortunate, but as an archaeological city we need as much energy put into the <b>Caves excavation effort</b> as possible.`,
+					},{
+						text: `After all,<br><b>Eaglecrest needs you!</b>`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Field Director Lyn",
+					chat: [{
+						text: `—dron sent IMMEDIATELY to the lower schist plateau, -1087.21, 546.66.`,
+					},{
+						text: `DIGBETH, we need prompt backup against Palatine AND Vomer!`,
+					},{
+						text: `No JERICHO, it's the LOWER-UPWARD-CRYSTALLINE bridge that needs immediate reinforcement against—`,
+					},{
+						text: `Ah! You must be one of the new archeaologists I ordered from Sylvie. I was hoping there'd be more of you, though it was hard enough to get Sylvie to send backup in the first place...`,
+					},{
+						text: `I hope you had a pleasant journey! I'm Archaeologist Lin, the head of command here at <b>Dig Base Alfa</b>.`
+					},{
+						text: `Not a second to be wasted - please report to <b>P.I. Jericho</b> for further orders.`
+					},{
+						text: `DIGBETH, request services from Sylvie AT ONCE! Yes, AGAIN!`
+					},],
+					rewards: {
+						xp: 20,
+						items: [
+							{item: Items.currency[2], quantity: 4,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Report to <b>Field Director Lyn</b> at <b>Dig Base Alfa</b>, which can be found to the east of the plains, through the coyote field.",
+				},
+			],
+
+			howToStart: "Speak to <b>Recruiter Sylvie</b> in Eaglecrest City.",
+			levelRequirement: 10,
+			questRequirements: ["Last frog quest"],
+		},
+		{
+			id: 1,
+			quest: "The Caves Awaken",
+			questArea: "caves",
+
+			questType: "storyline",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Principal Investigator Jericho",
+					chat: [{
+						text: `Hello! Greetings! Salutations! It's a busy time here at Base Camp Alfa I'm afraid, but no time better for your arrival! What's your name?`,
+						options: [
+							{
+								text: `${Player.name}`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Well great to meet you ${Player.name}! Wonderful name that! I once had a dead cat called ${Player.name}! Well, not dead when I had it- you know what I mean...`,
+					},{
+						text: `Yes, anyway, your, erm, orders. Dig Base Alfa's primary goal is excavation of the upper cave schists, which you'll be sent into.`
+					},{
+						text: `However, the majority of our dig effort in this area comes from the <b>chests</b> that populate the area. A <b>chest</b> is, well, a sort of box-`,
+					},{
+						text: `Sorry. I'm quite nervous. In fact, it's my first day on the job, and... erm...`,
+						options: [
+							{
+								text: `...Yes?`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `The caves they're... Coming alive...`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Principal Investigator Jericho",
+					chat: [{
+						text: `Ouch, looked like the living rock gave you a hard time...`,
+					},{
+						text: `How was your expedition? Did you find anything of value?`,
+						options: [
+							{
+								text: `<i>Show Jericho the book</i>`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Hmmm... Interesting! From a glance this book looks like this could have originated over a thousand years ago.`,
+					},{
+						text: `Let me analyse this book and get back to you soon, see you!`,
+					},{
+						text: `Oh, also, I'm pretty sure there's other archaeologists around that need a hand. Don't be afraid to offer your services!`
+					},],
+					removeItems: [], // tbd
+					rewards: {
+						xp: 50,
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Open and loot five chests from the Upper Schists",
+				},
+				{id: 1, text: "Bring your findings to <b>P.I. Jericho</b>",
+				},
+			],
+
+			howToStart: "Report to <b>P.I. Jericho</b> at <b>Dig Base Alfa</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Dig Base Alfa"],
+		},
+	],
 };
 
 // check if all of the contents of the array are true
