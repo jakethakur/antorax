@@ -743,7 +743,12 @@ var Villagers = [
 	},
 	{
         id: 19,
-        images: {crazyCatLady: {normal: "assets/npcs/crazyCatLady.png"}},
+        image: {
+			skinTone: "humanDark1",
+			clothing: "crazyCatLady",
+			hair: "crazyWhite",
+			hat: "catHatGinger",
+		},
 		name: "Crazy Cat Lady", // tbd give cat leads (sometimes?)
 		hostility: "friendly",
 		level: 20,
@@ -791,7 +796,7 @@ var Villagers = [
 		chat: {
             notUnlockedRoles: "Who's the lead archaeologiist? ii've just returned from the dunes.",
 			chooseChat: "ii once met an angel made from a drop of golden blood.",
-	        receiveTavernGood: "ii love iit here!",
+	        receiveTavernGood: "Fanks! ii love iit here!",
 		},
 	},
 	{

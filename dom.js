@@ -496,112 +496,6 @@ Dom.achievements.update = function () {
 	}
 }
 
-Dom.quests.active = function (quest) {
-	if (quest !== undefined) {
-		Player.quests.activeQuestArray.push(quest.quest);
-	}
-	Dom.elements.activeQuestBox.style.textAlign = "left";
-	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
-	for (let x = 0; x < Player.quests.activeQuestArray.length; x++) {
-		let currentQuest = "";
-		for (let i = 0; i < Object.keys(Quests).length; i++) {
-			for (let y = 0; y < Quests[Object.keys(Quests)[i]].length; y++) {
-				if (Quests[Object.keys(Quests)[i]][y].quest === Player.quests.activeQuestArray[x]) {
-					if (Quests[Object.keys(Quests)[i]][y].repeatTime === "daily") {
-						Quests[Object.keys(Quests)[i]][y].important = "daily";
-					}
-					// the quest Object is worked out by the name saved in the activeQuestArray
-					currentQuest = Quests[Object.keys(Quests)[i]][y];
-				}
-			}
-		}
-		if (currentQuest === "") {
-			console.error("Quest: "+Player.quests.activeQuestArray[x]+" could not be found.");
-			Player.quests.activeQuestArray.splice(x, 1);
-		}
-		else if (currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Event.event) {
-			let isCompleted = currentQuest.isCompleted();
-			let isHidden = [];
-			if (currentQuest.isHidden !== undefined) {
-				isHidden = currentQuest.isHidden();
-			}
-			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
-
-			let completedObjectives = 0;
-			let objectives = currentQuest.objectives || currentQuest[Player.quests.questProgress[currentQuest.quest]].objectives;
-
-			if (Array.isArray(objectives[0]) &&
-			(objectives.length > Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] ||
-			Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] === null ||
-			Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] === undefined)) {
-				objectives = objectives[Player.quests.timesCompleted[currentQuest.questArea][currentQuest.id] || 0];
-			}
-
-			for (let i = 0; i < objectives.length; i++) {
-
-				// display the objective
-				if (!isHidden[i]) {
-					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
-					if (isCompleted[i] === true && i !== objectives.length-1) {
-						Dom.quests.activeHTML[currentQuest.important] += "&#10004;";
-					}
-					else if (isCompleted[i] !== false && typeof isCompleted[i] !== "undefined" && i !== objectives.length-1) {
-						Dom.quests.activeHTML[currentQuest.important] += " " + isCompleted[i];
-					}
-				}
-
-				// complete the objective in the code
-				if (isCompleted[i] === true && i !== objectives.length) {
-					completedObjectives++;
-				}
-
-			}
-			if (currentQuest.autofinish && completedObjectives >= objectives.length) {
-				// quest should finish once all objectives are done (wothout needing to speak directly to npc), and all objectives are done
-				let npcName = currentQuest.finishName || currentQuest[Player.quests.questProgress[currentQuest.quest]].finishName;
-				Dom.choose.page([{
-					npc:npcName,
-					buttons: ["Quest Finish: " + currentQuest.quest],
-					functions: [Dom.quest.finishFromNpc],
-					parameters: [[currentQuest, {name: npcName, imageSrc: currentQuest.finishNpcSrc}]], // finishNpcSrc is optional src to image of npc to be shown
-				}]);
-			}
-			else if (completedObjectives >= objectives.length-1 && !Player.quests.canBeFinishedArray.includes(currentQuest.quest)) {
-				Player.quests.canBeFinishedArray.push(currentQuest.quest);
-			}
-
-			// set to whether or not this was completed last time this function was called (to track and announce if quest log is updated)
-			if (currentQuest.wasCompleted === undefined) {
-				currentQuest.wasCompleted = isCompleted;
-			}
-			else {
-				for (let i = 0; i < currentQuest.wasCompleted.length; i++) {
-					if (currentQuest.wasCompleted[i] !== true && isCompleted[i] === true) {
-						Dom.chat.insert("Quest log updated");
-						currentQuest.wasCompleted = isCompleted;
-						break;
-					}
-				}
-			}
-			if (isCompleted[isCompleted.length - 1]) {
-				currentQuest.completed = true;
-			}
-			else {
-				currentQuest.completed = false;
-			}
-		}
-		else {
-			Player.quests.activeQuestArray.splice(x, 1);
-		}
-	}
-	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
-	Dom.elements.activeQuestBox.innerHTML = Dom.quests.activeHTML.true.substring(8);
-	if (Player.quests.activeQuestArray.length === 0) {
-		Dom.elements.activeQuestBox.style.textAlign = "center";
-		Dom.elements.activeQuestBox.innerText = "You have no active quests";
-	}
-}
-
 // called to update all player quest etc. progress
 Dom.checkProgress = function () {
 	Dom.achievements.update();
@@ -2370,26 +2264,7 @@ Dom.currentNPC = {};
 // finish parameter refers to whether the quest is being finished on this step or not
 Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 	// prepare quest object
-	let ourQuest = {}; 
-	// shallow clone
-	Object.assign(ourQuest, quest);
-
-	// first deal with quests that might have different information depending on the npc that takes the quest
-	if (typeof ourQuest.differsOnNpc !== "undefined" && typeof ourQuest.differsOnNpc[ToObjectKey(npc.name)] !== "undefined") {
-		// quest.differsOnNpc[npcName] contains some or all of the quest information
-		Object.assign(ourQuest, ourQuest.differsOnNpc[ToObjectKey(npc.name)]);
-	}
-
-	// next deal with quests that might have different information depending on the number of times that the quest has been completed
-	let timesCompleted = Player.quests.timesCompleted[ourQuest.questArea][ourQuest.id]; // the number of times the player has completed this quest already (helpful for if the dialogue varies for each attempt for example
-	if (timesCompleted === null || timesCompleted === undefined)
-	{
-		timesCompleted = 0;
-	}
-	if (typeof ourQuest.differsOnTimesCompleted !== "undefined" && typeof ourQuest.differsOnTimesCompleted[timesCompleted] !== "undefined") {
-		// quest.differsOnTimesCompleted[timesCompleted] contains some or all of the quest information
-		Object.assign(ourQuest, ourQuest.differsOnTimesCompleted[timesCompleted]);
-	}
+	ourQuest = this.prepareQuestObject(quest, npc);
 
 	// now finished with preparing quest object. yay.
 
@@ -2418,8 +2293,42 @@ Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 	}
 }
 
+// shallow copies and prepares a quest object by consolidating all the relevant information
+// quest is the object as appears in questdata
+// npc is the npc that the quest is being started from (optional - retrieved from Player.quests.startedFromNpc otherwise)
+Dom.quest.prepareQuestObject = function (quest, npc) {
+	let ourQuest = {}; 
+	// shallow clone
+	Object.assign(ourQuest, quest);
+
+	// first deal with quests that might have different information depending on the npc that takes the quest
+	if (typeof npc === "undefined") {
+		npc = Player.quests.startedFromNpc[quest.area][quest.id];
+	}
+	if (typeof ourQuest.differsOnNpc !== "undefined" && typeof ourQuest.differsOnNpc[ToObjectKey(npc.name)] !== "undefined") {
+		// quest.differsOnNpc[npcName] contains some or all of the quest information
+		Object.assign(ourQuest, ourQuest.differsOnNpc[ToObjectKey(npc.name)]);
+	}
+
+	// next deal with quests that might have different information depending on the number of times that the quest has been completed
+	let timesCompleted = Player.quests.timesCompleted[ourQuest.questArea][ourQuest.id]; // the number of times the player has completed this quest already (helpful for if the dialogue varies for each attempt for example
+	if (timesCompleted === null || timesCompleted === undefined)
+	{
+		timesCompleted = 0;
+	}
+	if (typeof ourQuest.differsOnTimesCompleted !== "undefined" && typeof ourQuest.differsOnTimesCompleted[timesCompleted] !== "undefined") {
+		// quest.differsOnTimesCompleted[timesCompleted] contains some or all of the quest information
+		Object.assign(ourQuest, ourQuest.differsOnTimesCompleted[timesCompleted]);
+	}
+
+	// note that none of the above preparation stuff should affect any conditions of the quest starting, as Dom.quests.possible doesn't work with this 
+	// tbd make a way to verify that quests aren't doing this?
+
+	return ourQuest;
+}
+
 // shows quest start plage
-// without dialogue (assumes dialogue it has already been shown by startFromNpc)
+// without dialogue (assumes dialogue it has already been shown by progressFromNpc)
 Dom.quest.start = function (quest, npc) {
 	// check AGAIN (in case they updated their inventory during dialogue) if player has enough inventory space for any start rewards
 	if (typeof quest.steps[0].rewards === "undefined" || typeof quest.steps[0].rewards.items === "undefined" || Dom.inventory.requiredSpace(quest.steps[0].rewards.items)) {
@@ -2728,23 +2637,13 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 			Dom.elements.questFinishQuest.innerHTML = "Quest progress: " + quest.quest;
 		}
 
-		/*let finishName = quest.finishName || quest[ToObjectKey(npc.name)].finishName;
-		if (Array.isArray(finishName)) {
-			finishName = finishName[timesCompleted];
-		}
-
-		let finishChat = quest.finishChat || quest[ToObjectKey(npc.name)].finishChat;
-		if (Array.isArray(finishChat)) {
-			finishChat = finishChat[timesCompleted];
-		}*/
-
 		// increment variables etc
 		this.acceptRewards(quest, npc, step, finish);
 
 		// display rewards
 		Dom.elements.questFinishItems.innerHTML = "";
 		Dom.elements.questFinishXP.hidden = true;
-		let rewards = Dom.quest.currentRewards;
+		let rewards = quest.steps[step].rewards;
 		if (rewards !== undefined) {
 			// xp rewards
 			if (rewards.xp > 0) {
@@ -2774,6 +2673,7 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 				}
 
 				// display warning if there is not enough space to hold all possible rewards
+				// (only applies to items given by chance, which is not currently used)
 				if (Dom.inventory.requiredSpace(rewards.items, true)) {
 					Dom.elements.chanceImage.hidden = true;
 					Dom.elements.chance.hidden = true;
@@ -2866,7 +2766,7 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	// if finishing quest, remove it from active quests array
 	if (finish) {
 		for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
-			if (Player.quests.activeQuestArray[i] === quest.quest) {
+			if (Player.quests.activeQuestArray[i] === quest.quest) { // checks if they have the same name
 				Player.quests.activeQuestArray.splice(i,1);
 			}
 		}
@@ -2874,6 +2774,7 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		Dom.quests.completed(quest);
 	}
 
+	// user.progress variables (i.e. for achivements)
 	if (quest.repeatTime === "repeatable") {
 		User.progress.repeatableQuests = Increment(User.progress.repeatableQuests);
 		if (quest.randomGroup !== undefined) {
@@ -2887,22 +2788,12 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		User.progress.quests = Increment(User.progress.quests);
 	}
 
-	/*for (let i = 0; i < Player.quests.canBeFinishedArray.length; i++) {
-		if (Player.quests.canBeFinishedArray[i] === quest.quest) {
-			Player.quests.canBeFinishedArray.splice(i, 1);
-		}
-	}
-	*/
-
 	quest.wasCompleted = undefined; // for Dom.quests.active
 
 	Player.quests.questLastFinished[quest.questArea][quest.id] = GetFullDate();
 
 	Dom.adventure.update();
 
-	if (Dom.currentlyDisplayed === "questFinish") {
-		Dom.closePage('questFinish');
-	}
 	if (quest.steps[step].onFinish !== undefined) {
 		quest.steps[step].onFinish(npc);
 		/*if (Dom.currentNPC.type !== undefined) {
@@ -2913,7 +2804,7 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		}*/
 	}
 
-	Game.getXP(quest.steps[step].rewards.xp, false); // not affected by XP Bonus
+	Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
 	Dom.checkProgress();
 
 	// last because it saves
@@ -2922,6 +2813,8 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 			if (quest.steps[step].rewards.items[i].item.type !== "item" || quest.steps[step].rewards.items[i].item.id !== 1) {
 				if ((quest.steps[step].rewards.items[i].condition === undefined || quest.steps[step].rewards.items[i].condition()) && (quest.steps[step].rewards.items[i].chance === undefined || quest.steps[step].rewards.items[i].chance > Random(0, 99))) {
 					Dom.inventory.give(quest.steps[step].rewards.items[i].item, quest.steps[step].rewards.items[i].quantity);
+
+					// items with probability (not used currently)
 					if (quest.steps[step].rewards.items[i].chance !== undefined) {
 						if (quest.steps[step].rewards.items[i].quantity > 1) {
 							Dom.chat.insert("You earned "+quest.steps[step].rewards.items[i].quantity+" rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
@@ -2934,7 +2827,7 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 			}
 		}
 	}
-	quest.steps[step].rewards = Dom.quests.defaultRewards;
+	//quest.steps[step].rewards = Dom.quests.defaultRewards;
 }
 
 // called by quest finish DOM button, or navigating away from game
@@ -2951,43 +2844,51 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	Dom.closePage('questFinish');
 }*/
 
+// called from onclick button on quest start page
 Dom.quest.accept = function () {
-	if (Dom.currentlyDisplayed.resetVariables !== undefined) {
-		for (let i = 0; i < Dom.currentlyDisplayed.resetVariables.length; i++) {
-			Player.quests.questProgress[Dom.currentlyDisplayed.resetVariables[i]] = undefined;
+	let quest = Dom.currentlyDisplayed;
+
+	// resetting of Player.quests.progress[quest.area][quest.id] variables on quest start
+	if (quest.resetVariables !== undefined) {
+		for (let i = 0; i < quest.resetVariables.length; i++) {
+			Player.quests.progress[quest.area][quest.id][quest.resetVariables[i]] = undefined;
 		}
 	}
 
-	let quest = Dom.currentlyDisplayed;
-	if (Dom.currentlyDisplayed.onQuestStart !== undefined) {
-		if (Dom.currentNPC.type !== undefined) {
-			Dom.currentlyDisplayed.onQuestStart(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
+	// set the npc that the player started the quest from, in case the quest differsOnNpc
+	Player.quests.startedFromNpc[quest.area][quest.id] = Dom.currentNPC;
+
+	// quest start function
+	if (quest.steps[0].onFinish !== undefined) {
+		if (Dom.currentNPC.type !== undefined) { // pass in the currentNPC if poss :)
+			quest.steps[0].onFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
 		}
 		else {
-			Dom.currentlyDisplayed.onQuestStart();
+			quest.steps[0].onFinish();
 		}
 	}
 
-	// after onQuestStart because tavern clean-up sets variables in onQuestStart needed for this
+	// after onQuestStart because (e.g.) tavern clean-up sets variables in onQuestStart needed for this
 	Dom.quests.active(quest);
 	Dom.quests.possible();
 
-	// if the onQuestStart changed the page then don't change the page
+	// close the quest start page
+	// BUG if the onQuestStart changed the page then don't change the page
 	if (Dom.currentlyDisplayed === quest) {
 		Dom.closePage('questStart');
 	}
 
 	// last because it saves
-	if (quest.startRewards !== undefined && quest.startRewards.items !== undefined) {
-		for (let i = 0; i < quest.startRewards.items.length; i++) {
-			if (quest.startRewards.items[i].condition === undefined || quest.startRewards.items[i].condition() && (quest.startRewards.items[i].chance === undefined || quest.startRewards.items[i].chance > Random(0, 99))) {
-				Dom.inventory.give(quest.startRewards.items[i].item, quest.startRewards.items[i].quantity);
-				if (quest.startRewards.items[i].chance !== undefined) {
-					if (quest.startRewards.items[i].quantity > 1) {
-						Dom.chat.insert("You earned "+quest.startRewards.items[i].quantity+" rare <strong>"+quest.startRewards.items[i].item.name+"</strong> from completing this quest.");
+	if (quest.steps[0].rewards !== undefined && quest.steps[0].rewards.items !== undefined) {
+		for (let i = 0; i < quest.steps[0].rewards.items.length; i++) {
+			if (quest.steps[0].rewards.items[i].condition === undefined || quest.steps[0].rewards.items[i].condition() && (quest.steps[0].rewards.items[i].chance === undefined || quest.steps[0].rewards.items[i].chance > Random(0, 99))) {
+				Dom.inventory.give(quest.steps[0].rewards.items[i].item, quest.steps[0].rewards.items[i].quantity);
+				if (quest.steps[0].rewards.items[i].chance !== undefined) {
+					if (quest.steps[0].rewards.items[i].quantity > 1) {
+						Dom.chat.insert("You earned "+quest.steps[0].rewards.items[i].quantity+" rare <strong>"+quest.steps[0].rewards.items[i].item.name+"</strong> from completing this quest.");
 					}
 					else {
-						Dom.chat.insert("You earned a rare <strong>"+quest.startRewards.items[i].item.name+"</strong> from completing this quest.");
+						Dom.chat.insert("You earned a rare <strong>"+quest.steps[0].rewards.items[i].item.name+"</strong> from completing this quest.");
 					}
 				}
 			}
@@ -2999,6 +2900,193 @@ Dom.quest.accept = function () {
 // quest log
 //
 
+// update progress of currently active quests
+// a parameter being passed in means this has been called from Dom.quest.accept, and this quest should be added to Player.quests.activeQuestArray
+// the parameter should be the quest object, as appears in questdata.js 
+Dom.quests.active = function (quest) {
+	if (quest !== undefined) {
+		Player.quests.activeQuestArray.push(quest.quest);
+	}
+
+	Dom.elements.activeQuestBox.style.textAlign = "left";
+
+	// classification of quests
+	Dom.quests.activeHTML = {true: "", undefined: "", daily: "",};
+
+	for (let x = 0; x < Player.quests.activeQuestArray.length; x++) {
+		let currentQuest = "";
+
+		// find Player.quests.activeQuestArray[x] in questdata, to get properties from it (as Player.quests.activeQuestArray[x] is just the name of the quest)
+		for (let i = 0; i < Object.keys(Quests).length; i++) {
+			for (let y = 0; y < Quests[Object.keys(Quests)[i]].length; y++) {
+				if (Quests[Object.keys(Quests)[i]][y].quest === Player.quests.activeQuestArray[x]) {
+					// found the quest :)
+
+					// classification of quests
+					if (Quests[Object.keys(Quests)[i]][y].repeatTime === "daily") {
+						Quests[Object.keys(Quests)[i]][y].important = "daily";
+					}
+
+					// the quest Object is worked out by the name saved in the activeQuestArray
+					currentQuest = Quests[Object.keys(Quests)[i]][y];
+				}
+			}
+		}
+
+		if (currentQuest === "") {
+			console.error("Quest: "+Player.quests.activeQuestArray[x]+" could not be found.");
+			Player.quests.activeQuestArray.splice(x, 1);
+		}
+
+		else if (currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Event.event) {
+			// prepare the quest object by consolidating all the relevant information
+			currentQuest = Dom.quest.prepareQuestObject(currentQuest);
+
+			Dom.quests.activeHTML[currentQuest.important] += "<br><br><strong>" + currentQuest.quest + "</strong>";
+
+			let completedObjectives = 0;
+			let objectives = currentQuest.objectivesList;
+
+			for (let i = 0; i < objectives.length; i++) {
+				// see if the objective is hidden
+				let hidden = true;
+				if (typeof objectives[i].isHidden === "undefined" && typeof objectives[i].revealStep === "undefined") {
+					// never hidden
+					hidden = false;
+				}
+				if (typeof objectives[i].revealStep !== "undefined") {
+					// objective is always revealed if this step is completed, otherwise it may be hidden
+					if (Player.quests.stepProgress[currentQuest.area][currentQuest.id][objectives[i].revealStep]) {
+						// the required step has been completed
+						hidden = false;
+					}
+				}
+				if (hidden && typeof objectives[i].isHidden !== "undefined") {
+					hidden = objectives[i].isHidden(); // doesn't override revealStep
+				}
+
+				// display the objective if it's not hidden
+				if (!hidden) {
+					// see if the objective is completed / what the progress is
+					let completed = false;
+					if (typeof objectives[i].completeStep !== "undefined") {
+						// objective is always completed if this step is completed
+						if (!Player.quests.stepProgress[currentQuest.area][currentQuest.id][objectives[i].completeStep]) {
+							// the required step has not been completed
+							completed = true;
+						}
+					}
+					if (!completed && typeof objectives[i].isCompleted !== "undefined") {
+						completed = objectives[i].isCompleted(); // gives the progress (as a number or symbol to be displayed, or as true/false)
+					}
+					else if (!completed && typeof objectives[i].associatedVariable !== "undefined") { // associated variable with this objective - usually Dom.quests.active is called whenever this var is updated
+						completed = Player.quests.progress[currentQuest.area][currentQuest.id][objectives[i].associatedVariable];
+					}
+
+					if (completed === 0) {
+						completed = false; // no point displaying it as the player has no progress yet
+					}
+
+					// if the progress is a number, and there's an outOf value, display it as "x/y"
+					if (typeof objectives[i].outOf !== "undefined" && !isNaN(completed) && completed !== true && completed !== false) {
+						if (objectives[i].outOf <= completed) {
+							// reached objective - completed!
+							completed = true;
+						}
+						else {
+							completed = completed + "/" + objectives[i].outOf;
+						}
+					}
+
+					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
+					// now display the progress of this objective
+					if (completed === true && i !== objectives.length-1) {
+						// objective completed (and it's not the last objective, as this is the turn-in objective)
+						Dom.quests.activeHTML[currentQuest.important] += "&#10004;"; // tick
+					}
+					else if (completed !== false && typeof completed !== "undefined" && i !== objectives.length-1) {
+						// objective has progress to be displayed
+						Dom.quests.activeHTML[currentQuest.important] += " " + completed;
+					}
+
+					// save progress information in Player.quests.objectiveProgress, so it can be eaisly accessed by Game when checking quest finish
+					if (completed === true) {
+						Player.quests.objectiveProgress[currentQuest.area][currentQuest.id][i] = true;
+					}
+					else {
+						Player.quests.objectiveProgress[currentQuest.area][currentQuest.id][i] = false;
+					}
+
+					// complete the objective in the code
+					if (completed === true && i !== objectives.length) {
+						completedObjectives++;
+					}
+				}
+
+			}
+			if (currentQuest.autofinish && completedObjectives >= objectives.length) {
+				// quest should finish once all objectives are done (wothout needing to speak directly to npc), and all objectives are done
+				let npcName = currentQuest.steps[currentQuest.steps.length-1].name;
+				Dom.choose.page([{
+					npc:npcName,
+					buttons: ["Quest Finish: " + currentQuest.quest],
+					functions: [Dom.quest.progressFromNpc],
+					parameters: [[currentQuest, {name: npcName, imageSrc: currentQuest.finishNpcSrc}]], // finishNpcSrc is optional src to image of npc to be shown
+				}]);
+			}
+
+			let objectiveProgress = Player.quests.objectiveProgress[currentQuest.area][currentQuest.id];
+
+			// set to whether or not this was completed last time this function was called (to track and announce if quest log is updated)
+			if (currentQuest.wasCompleted === undefined) {
+				currentQuest.wasCompleted = objectiveProgress;
+			}
+			else {
+				for (let i = 0; i < currentQuest.wasCompleted.length; i++) {
+					if (currentQuest.wasCompleted[i] !== true && objectiveProgress[i] === true) {
+						Dom.chat.insert("Quest log updated");
+						currentQuest.wasCompleted = objectiveProgress;
+						break;
+					}
+				}
+			}
+			if (objectiveProgress[objectiveProgress.length - 1]) {
+				currentQuest.completed = true; // not sure the point of this - might be able to remove it 
+			}
+			else {
+				currentQuest.completed = false;
+			}
+		}
+		else {
+			// event required for the quest has expired - remove it from the activeQuestArray (effectively abandoning it), and move on
+			Dom.chat.insert("Your quest '" + currentQuest.quest + "' has expired.");
+			Player.quests.activeQuestArray.splice(x, 1);
+		}
+	}
+	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
+	Dom.elements.activeQuestBox.innerHTML = Dom.quests.activeHTML.true.substring(8);
+	if (Player.quests.activeQuestArray.length === 0) {
+		Dom.elements.activeQuestBox.style.textAlign = "center";
+		Dom.elements.activeQuestBox.innerText = "You have no active quests";
+	}
+}
+
+// removes a quest from your active quest array
+// quest parameter should be the name of the quest
+Dom.quests.abandon = function (quest) {
+	for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
+		if (Player.quests.activeQuestArray[i] === quest) {
+			Player.quests.activeQuestArray.splice(i, 1);
+			Dom.chat.insert("You abandoned your quest '" + quest + "'.");
+			break;
+		}
+	}
+	Dom.quests.possible();
+	Dom.quests.active();
+}
+
+// updates Player.quests.possibleQuestArray, an array of quests that are possible to be started
+// then uses this to update all possible quests (quests that can be started) in the quest log
 Dom.quests.possible = function () {
 	let previousPossible = Player.quests.possibleQuestArray;
 	let newPossible = [];
@@ -3009,6 +3097,7 @@ Dom.quests.possible = function () {
 		for (let x = 0; x < Quests[Object.keys(Quests)[i]].length; x++) {
 			let questCanBeStarted = true;
 			let quest = Quests[Object.keys(Quests)[i]][x];
+			// note that none of the following properties should change depending on the npc/timesCompleted ! they should be constant for all versions of this quest
 			if (Player.quests.activeQuestArray.includes(quest.quest)) { // quest is already active
 				questCanBeStarted = false;
 			}
@@ -3082,7 +3171,7 @@ Dom.quests.possible = function () {
 					if (quest.repeatTime === "daily") {
 						quest.important = "daily";
 					}
-					Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + quest.quest + "</strong><br>" + quest.howToStart;
+					Dom.quests.possibleHTML[quest.important] += "<br><br><strong>" + quest.quest + "</strong><br>" + quest.howToStart; // tbc when the new quest log is implemented
 				}
 				Player.quests.possibleQuestArray.push(quest.quest);
 				if (!previousPossible.includes(quest.quest)) {
@@ -3104,6 +3193,9 @@ Dom.quests.possible = function () {
 	return newPossible;
 }
 
+// updates Player.quests.completedQuestArray, an array of quests that have been completed
+// then uses this to update all completed quests in the quest log
+// parameter is a quest that was completed right before this function was called. parameter should be a quest object (i.e. as appears in questdata)
 Dom.quests.completed = function (quest) {
 	let first = true;
 	for (let i = 0; i < Player.quests.completedQuestArray.length; i++) {
@@ -3113,8 +3205,11 @@ Dom.quests.completed = function (quest) {
 		}
 	}
 	if (quest !== undefined && first) {
+		// first time completing the quest which was passed in, so add it to completedQuestArray
 		Player.quests.completedQuestArray.push(quest.quest);
 	}
+
+	// questbook page styling
 	if (Player.quests.completedQuestArray.length > 0) {
 		Dom.elements.completedQuestBox.style.textAlign = "left";
 		Dom.elements.completedQuestBox.innerText = "";
@@ -3124,6 +3219,7 @@ Dom.quests.completed = function (quest) {
 	}
 }
 
+// updates the quest log list of all quests that are not possible, active or completed
 Dom.quests.other = function () {
 	Dom.elements.otherQuestBox.innerHTML = "";
 	for (let i = 0; i < Object.keys(Quests).length; i++) {

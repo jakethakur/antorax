@@ -228,6 +228,8 @@ var Player = {
 		timesCompleted: {}, // number of times a player has completed a repeatable quest (e.g. hide and seek)
 
 		randomDailyQuests: {}, // the random daily quest of the day (for NPCs with a random daily quest)
+
+		startedFromNpc: {}, // for each quest started with differsOnNpc property, this contains the npc that it was most recently started from.  startedfromnpc[area][id]
 	},
 
 	// overall progress, checked by DOM etc

@@ -270,6 +270,13 @@ var Skins = {
 			series:	"NPCs", // robert hendman, but also available for player !
 			base: true,
 		},
+		{
+			id: 9,
+			name: "Crazy",
+			src: "crazy", // colour is appended to the end of this
+			series:	"NPCs", // crazy cat lady, but also available for player !
+			base: true,
+		},
 	],
 	hat: [
 		{

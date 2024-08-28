@@ -4976,7 +4976,7 @@ var Quests = {
 					stepNum: 1,
 					name: "Field Director Lyn",
 					chat: [{
-						text: `—dron sent IMMEDIATELY to the lower schist plateau, -1087.21, 546.66.`,
+						text: `—search squadron sent IMMEDIATELY to the lower schist plateau, -1087.21, 546.66.`,
 					},{
 						text: `DIGBETH, we need prompt backup against Palatine AND Vomer!`,
 					},{
