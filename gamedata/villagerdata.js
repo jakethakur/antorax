@@ -801,7 +801,12 @@ var Villagers = [
 	},
 	{
         id: 21,
-        images: {espi: {normal: "assets/npcs/iglooghost.png"}},
+        image: {
+			skinTone: "humanLight1",
+			clothing: "iglooghost",
+			hair: "microfringeGinger",
+			hat: "iglooghost",
+		},
 		name: "Iglooghost, Ley Musician",
 		hostility: "friendly",
 		level: 35,

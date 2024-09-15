@@ -7356,16 +7356,9 @@ Dom.updateScreenSize = function (init) {
 Dom.init = function () {
 
 	// SAVEDATA FIXES
-	if (Player.version === undefined) {
-		let object = {};
-		for (let i = 0; i < Object.keys(Quests).length; i++) {
-			object[Object.keys(Quests)[i]] = [];
-		}
-		let array = ["npcProgress", "timesCompleted"];
-		for (let i = 0; i < array.length; i++) {
-			Player.quests[array[i]] = object;
-		}
-		Player.version = 1;
+	if (Player.version < CurrentVersion) {
+		// put any required updates here
+		Player.version = CurrentVersion;
 	}
 
 	//document.body.style.zoom = "1.0";
@@ -7536,16 +7529,16 @@ Dom.init = function () {
 		}
 	}
 
-	if (Object.keys(Quests).length > Object.keys(Player.quests.npcProgress).length) {
-		let object = {};
-		for (let i = 0; i < Object.keys(Quests).length; i++) {
-			if (!Object.keys(Player.quests.npcProgress).includes(Object.keys(Quests)[i])) {
-				object[Object.keys(Quests)[i]] = [];
+	// make sure Player.quests variables are up to date
+	let varNames = ["progress", "questLastFinished", "timesCompleted", "startedFromNpc", "objectiveProgress", "stepProgress"];
+	for (let i = 0; i < array.length; i++) {
+		let obj = Player.quests[varNames[i]];
+		if (Object.keys(Quests).length > Object.keys(obj).length) {
+			for (let j = 0; j < Object.keys(Quests).length; j++) {
+				if (!Object.keys(obj).includes(Object.keys(Quests)[j])) {
+					obj[Object.keys(Quests)[j]] = [];
+				}
 			}
-		}
-		let array = ["npcProgress", "questLastFinished", "timesCompleted"];
-		for (let i = 0; i < array.length; i++) {
-			Player.quests[array[i]] = Object.assign(Player.quests[array[i]], object);
 		}
 	}
 
@@ -7575,6 +7568,7 @@ Dom.init = function () {
 
 			Dom.instructions.page(0);
 
+			// initiate Player.quest variables
 			let object = {};
 			for (let i = 0; i < Object.keys(Quests).length; i++) {
 				object[Object.keys(Quests)[i]] = [];

@@ -2140,7 +2140,7 @@ var Quests = {
 				hidden.push(false);
 				hidden.push(false);
 				hidden.push(false);
-				hidden.push(!Player.quests.npcProgress.eaglecrest[5]); // feather objective
+				hidden.push(!Player.quests.npcProgress.eaglecrest[5]); // feather objective // tbd update because npcProgress no longer exists :)
 				hidden.push(false);
 				hidden.push(false);
 

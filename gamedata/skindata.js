@@ -277,6 +277,13 @@ var Skins = {
 			series:	"NPCs", // crazy cat lady, but also available for player !
 			base: true,
 		},
+		{
+			id: 10,
+			name: "Microfringe",
+			src: "microfringe", // colour is appended to the end of this
+			series:	"NPCs", // iglooghost, but also available for player !
+			base: true,
+		},
 	],
 	hat: [
 		{
@@ -316,6 +323,16 @@ var Skins = {
 			src: "catHatGinger",
 			series:	"Classic",
 			base: true,
+		},
+		{
+			id: 4,
+			name: "Neo Hat",
+			src: "iglooghost",
+			series:	"NPC",
+			offset: {
+				//tbd
+			},
+			// npc only - iglooghost
 		},
 	],
 	// old skins below:

@@ -1,3 +1,5 @@
+const CurrentVersion = 1; // for ensureing the player is up to date (if Player.version < CurrentVersion, Player.version is updated, and Player object updates may be made)
+
 let playerName = sessionStorage.getItem("name");
 let playerClass = sessionStorage.getItem("class");
 // customisation
@@ -220,9 +222,11 @@ var Player = {
 		canBeFinishedArray: [], // array of quests that can be finished (for use in main)
 
 		questProgress: {}, // OLD QUESTS ONLY - don't use for new quests ! stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
+
 		progress: {}, // same as questProgress, but now divided into areas and their quest ids à la npcProgress. for anything that npcProgress can't track
-		npcProgress: {}, // stores the number of NPCs spoken to for that quest (the key name is the quest area followed by the quest id, i.e. eaglecrest[10])
-		// npcProgress is incremented automatically by quest progress steps, so there should be no need to increment manually
+
+		objectiveProgress: {}, // set by Dom.quests.active to true/false for each objective of the quest
+		stepProgress: {}, // tbd
 
 		questLastFinished: {}, // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 		timesCompleted: {}, // number of times a player has completed a repeatable quest (e.g. hide and seek)
