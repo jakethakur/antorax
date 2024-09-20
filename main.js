@@ -107,6 +107,7 @@ Game.loadPlayer = function () {
 	// replaces the skindata ids (stored in the variable customisation, which is set in savedata) with the file addresses from skindata
 	Player.skinTone = Skins.skinTone[customisation.skinTone].src;
 	Player.clothing = Skins[playerClassName+"Clothing"][customisation.clothing].src;
+	Player.beard = Skins.beard[customisation.beard].src + customisation.hairColour;
 	Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
 	Player.hat = Skins.hat[customisation.hat].src;
 	// face is hard coded for now
@@ -171,6 +172,7 @@ Game.initWebSocket = function () {
 				face: Player.face,
 				clothing: Player.clothing,
 				hair: Player.hair,
+				beard: Player.beard,
 				//ears: Player.skinTone,
 				hat: Player.hat,
 			}));
@@ -633,7 +635,7 @@ Game.addPlayer = function (player) {
 						width: 52,
 						height: 127
 					});
-					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.face, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
+					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.face, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerBeard_"+addedPlayer.beard, doNotAnimate: true}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
 
 					addedPlayer.updateRotation();
 
@@ -3840,6 +3842,7 @@ class UserControllable extends Attacker {
 		// these should be the id in skindata
 		this.skinTone = properties.skinTone;
 		this.clothing = properties.clothing;
+		this.beard = properties.beard;
 		this.hair = properties.hair;
 		this.face = properties.face;
 		this.hat = properties.hat;
@@ -3851,6 +3854,7 @@ class UserControllable extends Attacker {
 		let skinKeyName = "playerSkin_"+this.skinTone;
 		let earsKeyName = "playerEars_"+this.skinTone;
 		let clothingKeyName = "playerClothing_"+this.clothing;
+		let beardKeyName = "playerBeard_"+this.beard;
 		let hairKeyName = "playerHair_"+this.hair;
 		let faceKeyName = "playerFace_"+this.face;
 		let hatKeyName = "playerHat_"+this.hat;
@@ -3858,6 +3862,7 @@ class UserControllable extends Attacker {
 		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
 		loadObj[faceKeyName] = {normal: "./assets/playerCustom/facialExpression/" + this.face + ".png"};
 		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"}; // tbd get from skindata
+		loadObj[beardKeyName] = {normal: "./assets/playerCustom/berad/" + this.beard + ".png"};
 		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
 		loadObj[earsKeyName] = {normal: "./assets/playerCustom/ears/" + this.skinTone + ".png"};
 		loadObj[hatKeyName] = {normal: "./assets/playerCustom/hat/" + this.hat + ".png"};
@@ -8731,23 +8736,27 @@ Game.loadDefaultImages = function () {
 		Player.skinTone = "fish"
 		Player.ears = "null";
 		Player.hair = "null";
+		Player.beard = "null";
 	}
 
 	if (Player.name === "Pingu") {
 		Player.skinTone = "penguin"
 		Player.ears = "null";
 		Player.hair = "null";
+		Player.beard = "null";
 	}
 
 	if (Player.name === "James") {
 		Player.skinTone = "slug"
 		Player.ears = "null";
 		Player.hair = "null";
+		Player.beard = "null";
 	}
 	if (Player.name === "Axparagus") {
 		Player.skinTone = "humanDark2"
 		Player.hair = "skinFade";
 		Player.hat = "null";
+		Player.beard = "null";
 	}
 
 	// load player images
@@ -8755,6 +8764,7 @@ Game.loadDefaultImages = function () {
 	//toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
 	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
 	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
+	toLoad.push(Loader.loadImage("playerBeard_"+Player.beard, "./assets/playerCustom/beard/" + Player.beard + ".png", false));
 	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
 	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
 	toLoad.push(Loader.loadImage("playerHat_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
@@ -9598,17 +9608,17 @@ Game.formatNpcImages = function (properties) {
 			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothing/" + clothingClass + "/" + properties.image.clothing + ".png"};
 		}
-		// hair (optional if they're bald)
-		if (typeof properties.image.hair !== "undefined") {
-			imgName = "playerHair_"+properties.image.hair;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
-			loadObj[imgName] = {normal: "assets/playerCustom/hair/" + properties.image.hair + ".png"};
-		}
 		// facial hair (optional)
 		if (typeof properties.image.beard !== "undefined") {
 			imgName = "playerBeard_"+properties.image.beard;
 			properties.images.push({imageName: imgName, doNotAnimate: true});
 			loadObj[imgName] = {normal: "assets/playerCustom/beard/" + properties.image.beard + ".png"};
+		}
+		// hair (optional if they're bald)
+		if (typeof properties.image.hair !== "undefined") {
+			imgName = "playerHair_"+properties.image.hair;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/hair/" + properties.image.hair + ".png"};
 		}
 		// ears - usually done to match skin tone, but can be customised ig
 		if (typeof properties.image.ears !== "undefined") {
@@ -9896,6 +9906,7 @@ Game.heroBaseProperties = function () {
 			{imageName: "playerSkin_"+Player.skinTone},
 			{imageName: "playerFace_"+Player.face, doNotAnimate: true},
 			{imageName: "playerClothing_"+Player.clothing},
+			{imageName: "playerBeard_"+Player.beard, doNotAnimate: true},
 			{imageName: "playerHair_"+Player.hair, doNotAnimate: true},
 			{imageName: "playerEars_"+Player.skinTone, doNotAnimate: true},
 			{imageName: "playerHat_"+Player.hat, doNotAnimate: true} // tbd add weapon here

@@ -144,7 +144,7 @@ var Villagers = [
 			skinTone: "humanLight1",
 			clothing: "robertHendman",
 			hair: "bedheadBrown",
-			// tbd facial hair
+			beard: "beardBrown",
 			// ears done automatically,, everything other than skin tone is optional
 		},
         name: "Robert Hendman",

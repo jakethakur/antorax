@@ -245,6 +245,7 @@ var Skins = {
 			id: 5,
 			name: "No Hair",
 			src: "null", // colour is appended to the end of this
+			null: true,
 			colourless: true,
 			series:	"Classic",
 			base: true,
@@ -284,12 +285,48 @@ var Skins = {
 			series:	"NPCs", // iglooghost, but also available for player !
 			base: true,
 		},
+		{
+			id: 11,
+			name: "Orc Ponytail",
+			src: "orcPonytail", // colour is appended to the end of this
+			series:	"Classic 2",
+			base: true,
+		},
+	],
+	beard: [
+		{
+			id: 0,
+			name: "No Facial Hair",
+			src: "null",
+			null: true,
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 1,
+			name: "beard",
+			src: "beard", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
+			],
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 2,
+			name: "Mutton Chops",
+			src: "muttonChops", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
+			],
+			series:	"Classic 2",
+			base: true,
+		},
 	],
 	hat: [
 		{
 			id: 0,
 			name: "No Hat",
 			src: "null",
+			null: true,
 			series:	"Classic",
 			base: true,
 		},
