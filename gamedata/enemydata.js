@@ -1585,12 +1585,11 @@ palatine: {
 
                 // coyote wrangler killed achievement
                 User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
-
                 // coyote wrangler killed achievement
                 Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
 
-                // resetable achievement for quest
-                Player.quests.questProgress.coyoteWranglersQuest = Increment(Player.quests.questProgress.coyoteWranglersQuest);
+                // resettable variables for quest
+                Player.quests.progress.eaglecrest[11].coyoteWranglers = Increment(Player.quests.progress.eaglecrest[11].coyoteWranglers);
             }
 		},
 

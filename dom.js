@@ -2279,7 +2279,7 @@ Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 			chat[chat.length-1].onFinishDom = Dom.quest.start; // quest.start gets called once the npc dialogue is finished
 		}
 		else {
-			chat[chat.length-1].onFinishDom = Dom.quest.progress; // quest.start gets called once the npc dialogue is finished
+			chat[chat.length-1].onFinishDom = Dom.quest.progress; // quest.progress gets called once the npc dialogue is finished
 		}
 		chat[chat.length-1].onFinishDomParams = [ourQuest, npc, step, finish];
 
@@ -2329,12 +2329,13 @@ Dom.quest.prepareQuestObject = function (quest, npc) {
 
 // shows quest start plage
 // without dialogue (assumes dialogue it has already been shown by progressFromNpc)
+// note this isn't for the quest actually being accepted - they still have the option to decline. accepting the quest is done in Dom.quest.accept
 Dom.quest.start = function (quest, npc) {
 	// check AGAIN (in case they updated their inventory during dialogue) if player has enough inventory space for any start rewards
 	if (typeof quest.steps[0].rewards === "undefined" || typeof quest.steps[0].rewards.items === "undefined" || Dom.inventory.requiredSpace(quest.steps[0].rewards.items)) {
 		if (Dom.changeBook("questStart")) {
 			if (quest.multipleAreas) {
-				Player.quests.questProgress[quest.quest] = ToObjectKey(npc.name); // aaaaaaaaaaaaaaaaaaaaaa tbd
+				Player.quests.questProgress[quest.quest] = ToObjectKey(npc.name); // aaaaaaaaaaaaaaaaaaaaaa tbd don't use questProgress, instead make a separate variable just for this (like with startedFromNpc)
 			}
 
 			Dom.elements.questStartQuest.innerHTML = quest.quest;
@@ -2367,6 +2368,7 @@ Dom.quest.start = function (quest, npc) {
 
 			let objectives = quest.objectivesList;
 
+			// display objectives on quest start page
 			Dom.elements.questStartObjectives.innerHTML = "";
 			for (let i = 0; i < objectives.length; i++) {
 				if (typeof objectives[i].revealStep === "undefined" && (objectives[i].isHidden === "undefined" || !objectives[i].isHidden())) {
@@ -2624,10 +2626,9 @@ Dom.quest.addReward = function (item, element, className, stackNum) {
 	}
 }
 
-// called after quest NPC's dialogue
+// called after quest NPC's dialogue for everything other than starting quest (where quest.start is instead called)
 // variable incrementing, removing items, showing page, etc
 // this function itself handles everything with the page; acceptRewards (which this calls) handles everything that's not to do with page
-// this is also called by quest.finish and quest.start
 Dom.quest.progress = function (quest, npc, step, finish) {
 	if (Dom.changeBook("questFinish", npc)) {//, true/*false*/, true)) {
 		if (finish) {
@@ -2737,11 +2738,12 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 	}
 }
 
+// they've just completed step number "step".
 // called by Dom.quest.progress (i.e. when npc dialogue has finished)
 // handles everything that's not to do with showing the page
 Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	// increment variables
-	Player.quests.stepProgress[quest.questArea][quest.id] = step;
+	Player.quests.stepProgress[quest.questArea][quest.id][step] = true;
 
 	// increment timesCompleted variable
 	if (quest.repeatTime === "daily" || quest.repeatTime === "repeatable" || quest.numberOfRepeats !== undefined) {
@@ -2795,13 +2797,8 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	Dom.adventure.update();
 
 	if (quest.steps[step].onFinish !== undefined) {
+		// pass in the npc
 		quest.steps[step].onFinish(npc);
-		/*if (Dom.currentNPC.type !== undefined) {
-			Dom.currentlyDisplayed.onQuestFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
-		}
-		else {
-			Dom.currentlyDisplayed.onQuestFinish();
-		}*/
 	}
 
 	Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
@@ -2854,6 +2851,10 @@ Dom.quest.accept = function () {
 			Player.quests.progress[quest.area][quest.id][quest.resetVariables[i]] = undefined;
 		}
 	}
+
+	// reset objectiveProgress and stepProgress
+	Player.quests.objectiveProgress[quest.area][quest.id] = [];
+	Player.quests.stepProgress[quest.area][quest.id] = [];
 
 	// set the npc that the player started the quest from, in case the quest differsOnNpc
 	Player.quests.startedFromNpc[quest.area][quest.id] = Dom.currentNPC;
@@ -4943,6 +4944,7 @@ Dom.inventory.addEquipment = function (array, noSet) {
 }
 
 // returns array of inventory positions
+// calledByCheck instead returns the amount of this item in your inventory (not sure why inventory.count isn't used instead - tbd.)
 Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array, quest) {
 	if (array === undefined) {
 		array = Player.inventory.items;
@@ -5007,8 +5009,8 @@ Dom.inventory.find = function (ID, type, notEquipped, calledByCheck, name, array
 	}
 }
 
-// returns true or false depending on if an item (specified by id and type) is in player's inventory or not
-// num checks for AT LEAST certain number of them (defaults to 1)
+// returns number of an item (specified by id and type) in player's inventory or not
+// num parameter checks for AT LEAST certain number of them, and returns true/false instead.
 // notEquipped means it must not be equipped (defaults to false)
 Dom.inventory.check = function (ID, type, num, notEquipped, array, quest) {
 	let completed = Dom.inventory.find(ID, type, notEquipped, true, array, undefined, quest);
@@ -7052,9 +7054,9 @@ window.onbeforeunload = function() {
 	if (Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
 		Areas[Game.areaName].onAreaLeave(true);
 	}
-	if (!Array.isArray(Dom.currentlyDisplayed) && typeof Dom.currentlyDisplayed === "object" && Dom.currentlyDisplayed !== null) {
+	/*if (!Array.isArray(Dom.currentlyDisplayed) && typeof Dom.currentlyDisplayed === "object" && Dom.currentlyDisplayed !== null) {
 		Dom.quest.declineRewards();
-	}
+	}*/
 
 	// save the game (last)
 	if (!Dom.settings.deleted) {
@@ -7209,15 +7211,13 @@ Dom.quest.abandon = function (quest) {
 			}
 		}
 
-		// remove from canBeFinishedArray so when it is next started it can't be compelted instantly
-		for (let i = 0; i < Player.quests.canBeFinishedArray.length; i++) {
-			if (Player.quests.canBeFinishedArray[i] === quest.quest) {
-				Player.quests.canBeFinishedArray.splice(i, 1);
+		if (typeof quest.callQuestFinishOnAbandon !== "undefined") { // this specifies the step's finish function that should be called (even if that step has not been unlocked yet!!!)
+			if (Dom.currentNPC.type !== undefined) { // pass in the currentNPC if poss :)
+				quest.steps[quest.callQuestFinishOnAbandon].onFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
 			}
-		}
-
-		if (quest.callQuestFinishOnAbandon) {
-			quest.onQuestFinish();
+			else {
+				quest.steps[quest.callQuestFinishOnAbandon].onFinish();
+			}
 		}
 
 		// update boxes
@@ -7531,7 +7531,7 @@ Dom.init = function () {
 
 	// make sure Player.quests variables are up to date
 	let varNames = ["progress", "questLastFinished", "timesCompleted", "startedFromNpc", "objectiveProgress", "stepProgress"];
-	for (let i = 0; i < array.length; i++) {
+	for (let i = 0; i < varNames.length; i++) {
 		let obj = Player.quests[varNames[i]];
 		if (Object.keys(Quests).length > Object.keys(obj).length) {
 			for (let j = 0; j < Object.keys(Quests).length; j++) {
@@ -7567,16 +7567,6 @@ Dom.init = function () {
 	        );
 
 			Dom.instructions.page(0);
-
-			// initiate Player.quest variables
-			let object = {};
-			for (let i = 0; i < Object.keys(Quests).length; i++) {
-				object[Object.keys(Quests)[i]] = [];
-			}
-			let array = ["npcProgress", "questLastFinished", "timesCompleted"];
-			for (let i = 0; i < array.length; i++) {
-				Player.quests[array[i]] = object;
-			}
 
 		}
 
@@ -7735,12 +7725,12 @@ Dom.init = function () {
 				);
 			}
 
-			else if (Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.questProgress.hasSkeletonKey) {
+			else if (Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.questProgress.hasSkeletonKey) { // aaaaaaaaaaaaaaaaaaaaaa tbd don't use questProgress
 				let name = "???";
 				if (Player.quests.completedQuestArray.includes("Snaking Bad")) {
 					name = "The Soothsssayer";
 				}
-				Player.quests.questProgress.hasSkeletonKey = true;
+				Player.quests.questProgress.hasSkeletonKey = true; // aaaaaaaaaaaaaaaaaaaaaa tbd don't use questProgress
 				Dom.mail.give(
 				    "Sssssurprise Return",
 				    name,

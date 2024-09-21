@@ -20,6 +20,7 @@ if (customisation === null || typeof customisation.clothing === "undefined") {
 	customisation.hair = QueryStringParams.get("hair");
 	customisation.hairColour = QueryStringParams.get("hairColour");
 	customisation.hat = QueryStringParams.get("hat");
+	customisation.beard = QueryStringParams.get("beard");
 }
 
 // customisation validation (probs unnecessary)
@@ -219,14 +220,14 @@ var Player = {
 		activeQuestArray: [],
 		possibleQuestArray: [],
 		completedQuestArray: [],
-		canBeFinishedArray: [], // array of quests that can be finished (for use in main)
-
-		questProgress: {}, // OLD QUESTS ONLY - don't use for new quests ! stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 
 		progress: {}, // same as questProgress, but now divided into areas and their quest ids à la npcProgress. for anything that npcProgress can't track
 
+		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
+		// this is used either for OLD QUESTS or objectives that aren't just relevant to one quest (since this object does not have proper structure)
+
 		objectiveProgress: {}, // set by Dom.quests.active to true/false for each objective of the quest
-		stepProgress: {}, // tbd
+		stepProgress: {}, // for each [questArea][questId], index i is to true if step i has been completed
 
 		questLastFinished: {}, // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 		timesCompleted: {}, // number of times a player has completed a repeatable quest (e.g. hide and seek)

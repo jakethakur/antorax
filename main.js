@@ -107,8 +107,20 @@ Game.loadPlayer = function () {
 	// replaces the skindata ids (stored in the variable customisation, which is set in savedata) with the file addresses from skindata
 	Player.skinTone = Skins.skinTone[customisation.skinTone].src;
 	Player.clothing = Skins[playerClassName+"Clothing"][customisation.clothing].src;
-	Player.beard = Skins.beard[customisation.beard].src + customisation.hairColour;
-	Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
+	if (!Skins.beard[customisation.beard].blank) {
+		Player.beard = Skins.beard[customisation.beard].src + customisation.hairColour;
+	}
+	else {
+		Player.beard = Skins.beard[customisation.beard].src; // src is "null", so don't include colour
+		// tbd maybe don't draw the beard image at all if it's null?
+	}
+	if (!Skins.hair[customisation.hair].blank) {
+		Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
+	}
+	else {
+		Player.hair = Skins.hair[customisation.hair].src; // src is "null", so don't include colour
+		// tbd maybe don't draw the hair image at all if it's null?
+	}
 	Player.hat = Skins.hat[customisation.hat].src;
 	// face is hard coded for now
 	if (Skins.skinTone[customisation.skinTone].race === "Orc") {
@@ -10991,15 +11003,19 @@ Game.update = function (delta) {
 									// quest is currently active
 									// loop through each possible step of the quest and see if it's been done or not
 									for (let stepIndex = 0; stepIndex < stepArray.length; stepIndex++) {
-										let step = stepArray[stepIndex];
+										let step = stepArray[stepIndex]; // the actual step number
 										
-										let stepDone = false;
+										let stepDone = true;
 
 										if (Player.quests.stepProgress[quest.questArea][quest.id][step]) {
 											// step already been completed
 											stepDone = false;
 										}
-										if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
+										else if (typeof quest.steps[checkStep].availableUntilStepDone !== "undefined" && Player.quests.stepProgress[quest.questArea][quest.id][quest.steps[checkStep].availableUntilStepDone]) {
+											// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
+											stepDone = false;
+										}
+										else if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
 											// quest's steps must all be completed in order (other than optional steps)
 											let checkStep = step-1;
 											while (quest.steps[checkStep].optional && checkStep >= 0) {
@@ -11011,19 +11027,21 @@ Game.update = function (delta) {
 											}
 										}
 
-										if (typeof quest.steps[step].objectiveRequirement === "undefined") {
-											// no objectives need to be completed for this step
-											stepDone = true;
-										}
-										else {
-											// there are objectives that need to be completed for this step
-											stepDone = true;
-											for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
-												let obj = quest.steps[step].objectiveRequirement[objIndex];
-												if (Player.quests.objectiveProgress[quest.questArea][quest.id] !== true) {
-													// objective is not done
-													stepDone = false;
-													break;
+										if (stepDone) {
+											// keep checking ..
+											if (typeof quest.steps[step].objectiveRequirement === "undefined") {
+												// no objectives need to be completed for this step
+												stepDone = true;
+											}
+											else {
+												// there are objectives that need to be completed for this step
+												for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
+													let obj = quest.steps[step].objectiveRequirement[objIndex];
+													if (Player.quests.objectiveProgress[quest.questArea][quest.id] !== true) {
+														// objective is not done
+														stepDone = false;
+														break;
+													}
 												}
 											}
 										}
@@ -11040,7 +11058,10 @@ Game.update = function (delta) {
 												}
 											}
 
-											if (questFinish) {
+											if (typeof quest.steps[step].chooseText !== "undefined") {
+												textArray.push(quest.steps[step].chooseText);
+											}
+											else if (questFinish) {
 												// quest is to be finished
 												textArray.push(role.chooseText || "Quest finish: " + quest.quest);
 											}
@@ -11051,6 +11072,10 @@ Game.update = function (delta) {
 											functionArray.push(Dom.quest.progressFromNpc);
 											additionalOnClickArray.push(role.additionalOnClick);
 											// (inventory space is checked by choose DOM)
+
+											if (quest.steps[step].forceChoose) {
+												forceChoose = true;
+											}
 
 											break; // don't check any other steps - this npc just progresses the first available step in the steps array
 										}
@@ -11280,6 +11305,15 @@ Game.update = function (delta) {
 							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
 							parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions, role.give]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// npc chat banner - better to use than "text" usually
+						else if (role.role === "chatBanner") {
+							// npc chat banner appears as an option in choose DOM
+							textArray.push(role.chooseText);
+							functionArray.push(Dom.chat.npcBanner);
+							parameterArray.push([npc, role.chat]);
 							additionalOnClickArray.push(role.additionalOnClick);
 						}
 

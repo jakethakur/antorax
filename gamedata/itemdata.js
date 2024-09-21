@@ -7633,15 +7633,15 @@ unidentifiedArea: ["caves"],
 			rarity: "junk",
 			image: "assets/items/fish/37.png",
 			lore: "Probably the oddest thing in the universe.",
-			stack: 1,
+			stack: 1, 
 			consumption: false,
 			areas: ["loggingCamp"],
 			catchRequirement: function () {
-				return (Player.quests.questProgress.troubledWaters2Progress === 5);
+				return (Player.quests.stepProgress.eaglecrest[12][5]);
 			},
 			onCatch: function()
 			{
-				Player.quests.questProgress.troubledWaters2Progress = 6;
+				Player.quests.progress.eaglecrest[12].translatorFishedUp = true;
 				Dom.quests.active();
 				Dom.chat.npcBanner({name: "Fisherman Tobenam", imageSrc: "assets/npcs/tobenam.png"}, "Heheheh, you found one. I'll see you around then, heheh.");
 			},
