@@ -1521,6 +1521,7 @@ palatine: {
 			},
 			spells: [
 	            {
+					class: "enemy",
 	                id: 8, // mend pets
 	                tier: 1,
 	                additionalParameters: function () { // returns array of parameters
@@ -1531,6 +1532,7 @@ palatine: {
 	                },
 	            },
 	            {
+					class: "enemy",
 	                id: 9, // empower pets
 	                tier: 1,
 	                additionalParameters: function () { // returns array of parameters
@@ -2435,9 +2437,10 @@ stoneElemental: {
 				doesNotAttack: true,
 			},
 			spells: {
-				id: 11, // animate
+				class: "enemy",
+				id: 11, 
 				tier: 1,
-				parameters: function () { // returns array of parameters
+				additionalParameters: function () { // returns array of parameters
 					return {
 						number: 1,
 						location: [
@@ -2474,7 +2477,6 @@ stoneElemental: {
 						xpGiven: 100,
 					};
 				},
-				interval: 10000,
 			},
 			respawnOnDeath: false,
 			corpseOnDeath: false,

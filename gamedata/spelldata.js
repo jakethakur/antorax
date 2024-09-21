@@ -372,19 +372,25 @@ const Spells = {
 			difficulty: "Hard",
 	
 			func: function (caster) {
-				Game.statusEffects.walkSpeed({
-					target: caster,
-					effectTitle: "Arrowspeed!",
-					speedIncrease: this.movementMultiplier-100,
-					time: this.effectDuration/1000,
-				});
-				Game.statusEffects.attackDamage({
-					target: caster,
-					effectTitle: "Arrowspeed! (attack damage)",
-					damageIncrease: this.damageMultiplier-100,
-					time: this.effectDuration/1000,
-					hidden: true,
-				});
+				// tbd - maybe should be changed to an onAttack status effect?
+				if (!Game.hero.hasStatusEffect("Bamboozle")) {
+					Game.statusEffects.generic({
+						target: Game.hero,
+						effectTitle: "Bamboozle",
+						effectDescription: "Your next attack swaps locations with the enemy hit and deals more damage.",
+						imageName: "bamboozle",
+						removeOnAttack: true
+					});
+					Game.statusEffects.attackDamage({
+						target: Game.hero,
+						effectTitle: "Bamboozle (damage increase)",
+						effectDescription: "Your next attack swaps locations with the enemy hit and deals more damage.",
+						damageIncrease: this.stats.damageMultiplier,
+						imageName: "bamboozle",
+						removeOnAttack: true,
+						hidden: true,
+					});
+				}
 			},
 			
 			// base stat values
@@ -450,7 +456,7 @@ const Spells = {
                 Game.statusEffects.stun({
                     effectTitle: "Unholy Strike",
                     target: target,
-                    time: this.stunTime[properties.tier],
+                    time: this.stats.stunTime,
                 });
 			},
 
@@ -629,8 +635,8 @@ const Spells = {
             description: "Ribbit",
 
 			func: function (caster, target) {
-                let velocity = this.stats.velocity[properties.tier];
-                let dist = Math.min(Game.distance(caster, target), Spells[14].distance[properties.tier]);
+                let velocity = this.stats.velocity;
+                let dist = Math.min(Game.distance(caster, target), this.stats.distance);
                 let time = dist / velocity;
                 let bear = Game.bearing(caster, target);
                 caster.displace(0, velocity, time, bear); // start displacement
@@ -769,7 +775,7 @@ const Spells = {
 			class: "enemy", 
             description: "Health is good",
 
-            func: function (caster, target, pets) {
+            func: function (caster, target, properties) {
 				for (let i = 0; i < properties.pets.length; i++) {
 					Game.restoreHealth(properties.pets[i], this.stats.healthRestored);
 	
@@ -917,7 +923,7 @@ const Spells = {
 	],
 }
 
-/*var SpellsOld = [
+var SpellsOld = [
 	//
 	// Knight tier 1
 	//
@@ -2550,4 +2556,4 @@ const Spells = {
 		],
 
 	},
-];*/
+];

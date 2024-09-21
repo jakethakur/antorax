@@ -2581,7 +2581,7 @@ var Quests = {
 						return Dom.inventory.check(59, "item");
 					}, outOf: 4,
 				},
-				{id: 3, "Find The Jester's three <b>Juggling Balls</b> in the Eaglecrest Plains.",
+				{id: 3, text: "Find The Jester's three <b>Juggling Balls</b> in the Eaglecrest Plains.",
 					isCompleted: function () {
 						return Dom.inventory.check(57, "item");
 					}, outOf: 4,

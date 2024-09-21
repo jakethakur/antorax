@@ -936,7 +936,7 @@ var map = {
 	// animates tiles based on this.animateTiles
 	// called by intervals set by initTileAnimation
 	// parameter is the index to be animated of the array map.animateTimes
-	animateTilesFunction: function(animateIndex) {//aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+	animateTilesFunction: function(animateIndex) {
 		// finding startCol etc is exactly the same as in drawLayer - tbd mayb try to generalise into a fn
 		let startCol, endCol, startRow, endRow;
 
@@ -8282,8 +8282,8 @@ Game.castSpell = function (spellObj, caster, target, additionalParameters) {
 	spellObj.onCooldown = spellObj.stats.cooldown;
 
 	// trigger spell
-	if (typeof spell.onCast !== "undefined") {
-		spell.onCast(caster, target, additionalParameters); // e.g. for behaviour of this spell specific to the entity casting it
+	if (typeof spellObj.onCast !== "undefined") {
+		spellObj.onCast(caster, target, additionalParameters); // e.g. for behaviour of this spell specific to the entity casting it
 	}
 	spellObj.func(caster, target, additionalParameters);
 
@@ -9585,7 +9585,7 @@ Game.loadArea = function (areaName, destination) {
 Game.formatNpcImages = function (properties) {
 	// if image is an object that specifies at least a skinTone, construct the entity from the images in assets/playerCustom
 	// (i.e. how hero is constructed)
-	if (typeof properties.image === "object" && !Array.isArray(properties.image && typeof properties.image.skinTone !== "undefined")) {
+	if (typeof properties.image === "object" && !Array.isArray(properties.image) && typeof properties.image.skinTone !== "undefined") {
 		properties.images = [];
 		let loadObj = {}; // to be loaded in; returned by the function
 		// skin tone
@@ -10381,7 +10381,7 @@ Game.positionLoot = function (items, space) {
 // Villagers
 //
 
-// generate and add villagers from villagerData (in areadata)
+// generate and add villagers from villagerData
 // all random values are based on time (like weather)
 Game.generateVillagers = function (data, areaName) {
 	// designed to change by 1 every 50 minutes
@@ -10413,7 +10413,19 @@ Game.generateVillagers = function (data, areaName) {
 			(this.canBeShown(villager));
 	});
 
-	// loop through possible villagers, picking them based the number of possible villagers in the area
+	for (let i = 0; i < possibleVillagers.length; i++) {
+		let villager = possibleVillagers[i];
+		// deep copy
+		let newVillager = Object.assign({}, villager);
+		newVillager.stats = Object.assign({}, villager.stats);
+		if (typeof villager.image === "object") {
+			newVillager.image = Object.assign({}, villager.image);
+		}
+		possibleVillagers[i] = newVillager;
+	}
+
+
+	// now loop through possible villagers, picking them based the number of possible villagers in the area
 
 	// starting index, increase value, and number to add vary with time (thus villagers picked varies with time)
 
@@ -10444,6 +10456,10 @@ Game.generateVillagers = function (data, areaName) {
 
 		let villager = possibleVillagers[villagerIndex];
 
+		if (villager.name === "Robert Hendman") {
+			console.log("hi");
+		}
+
 		let formattedImages = this.formatNpcImages(villager);
 
 		// images to be added
@@ -10462,6 +10478,8 @@ Game.generateVillagers = function (data, areaName) {
 			Object.assign(images, formattedImages);
 		}
 	}
+
+	console.log(images);
 
 	// load the images
 	let p = Loader.loadMultipleImages(images);
@@ -13531,7 +13549,7 @@ Game.render = function (delta) {
 		}
 	}
 	// gnomesort - used because it is fast on mostly sorted data (which this will be because NPCs don't move)
-	let i = 0;
+	let i = 1;
 	while (i < this.allVisibles.length) {
 		if (i === 0 || this.allVisibles[i].sortValue >= this.allVisibles[i-1].sortValue) {
 			// nothing to swap

@@ -2303,7 +2303,7 @@ Dom.quest.prepareQuestObject = function (quest, npc) {
 
 	// first deal with quests that might have different information depending on the npc that takes the quest
 	if (typeof npc === "undefined") {
-		npc = Player.quests.startedFromNpc[quest.area][quest.id];
+		npc = Player.quests.startedFromNpc[quest.questArea][quest.id];
 	}
 	if (typeof ourQuest.differsOnNpc !== "undefined" && typeof ourQuest.differsOnNpc[ToObjectKey(npc.name)] !== "undefined") {
 		// quest.differsOnNpc[npcName] contains some or all of the quest information
@@ -2848,16 +2848,16 @@ Dom.quest.accept = function () {
 	// resetting of Player.quests.progress[quest.area][quest.id] variables on quest start
 	if (quest.resetVariables !== undefined) {
 		for (let i = 0; i < quest.resetVariables.length; i++) {
-			Player.quests.progress[quest.area][quest.id][quest.resetVariables[i]] = undefined;
+			Player.quests.progress[quest.questArea][quest.id][quest.resetVariables[i]] = undefined;
 		}
 	}
 
 	// reset objectiveProgress and stepProgress
-	Player.quests.objectiveProgress[quest.area][quest.id] = [];
-	Player.quests.stepProgress[quest.area][quest.id] = [];
+	Player.quests.objectiveProgress[quest.questArea][quest.id] = [];
+	Player.quests.stepProgress[quest.questArea][quest.id] = [];
 
 	// set the npc that the player started the quest from, in case the quest differsOnNpc
-	Player.quests.startedFromNpc[quest.area][quest.id] = Dom.currentNPC;
+	Player.quests.startedFromNpc[quest.questArea][quest.id] = Dom.currentNPC;
 
 	// quest start function
 	if (quest.steps[0].onFinish !== undefined) {
