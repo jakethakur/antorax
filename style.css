@@ -272,17 +272,15 @@ thead:after { /* space after bags in bank */
 /*							*/
 
 .npcChatBanner {
-	border: 1px solid black; /* can go soon */
-	width: 700px;
-	height: 116px;
+	width: 735px;
+	height: 150px;
 	padding-left: 10px;
 	padding-right: 10px;
-	background-color: var(--page); /* can go soon */
+	background-image: url("./assets/interface/npcDialogue1.png"); /* can go soon */
 	overflow: visible; /* for image popping out */
 	position: relative;
-	top: 50px;
+	top: 125px;
 	zoom: var(--zoom);
-	/* background-image: url("assets/dom/bookBackground.png"); */
 	text-align: left;
 	margin: auto;
 	opacity: var(--opacity);
@@ -296,21 +294,49 @@ thead:after { /* space after bags in bank */
 	width: 100px;
 	height: 80px;
 	position: absolute;
-	top: -33px;
+	top: -50px;
+	left: 35px;
+}
+
+#npcChatHeaderBox {
+	background-color: #672800;
+	width: max-content;
+	height: 31px;
+	position: relative;
+	left: 137px;
+	float: left;
 }
 
 .npcChatBannerHeader {
-	margin-top: 20px;
+	position: relative;
+	margin-top: -3px;
 	margin-bottom: 15px;
-	margin-left: 80px;
+	margin-left: 10px;
 	font-weight: bold;
-	font-size: 32px;
+	font-size: 27px;
+	top: 10px;
+	margin-right: 10px;
+	color: #ada978;
 }
 
+
+#npcChatHeaderEdge {
+	background-image: url("./assets/interface/npcDialogueHeaderEdge.png");
+	width:24px;
+	height:24px;
+	float: left;
+	position: relative;
+	margin-left: 137px;
+	margin-top: 7px;
+}
+
+.clear {clear: both;}
+
 .npcChatBannerText {
-	margin-top: 10px;
-	margin-bottom: 10px;
+	margin-top: 8px;
 	margin-right: 26px; /* so it doesn't overlap the dialogueNext image */
+	margin-left: 20px;
+	position: relative;
 
 	font-size: 22px;
 	line-height: 26px;
@@ -320,42 +346,48 @@ thead:after { /* space after bags in bank */
 	height: 22px;
 
 	position: absolute;
-	right: 7px;
-	bottom: 7px;
+	right: 20px;
+	bottom: 20px;
 
 	z-index: 50;
 }
 
 #chatBannerOptions {
-	border: 1px solid black; /* can go soon */
+
 	width: 260px;
-	padding-left: 10px;
-	padding-right: 10px;
-	background-color: var(--page); /* can go soon */
 	overflow: visible; /* for image popping out */
 	position: relative;
-	top: 49px;
-	left: 220px;
+	top: 109px;
+	left: 177px;
 	zoom: var(--zoom);
 	text-align: left;
 	margin: auto;
 	opacity: var(--opacity);
 
 	z-index: 50;
+
 }
 
 #chatBannerOptionList {
-	margin-top: 5px;
-	margin-bottom: 5px;
-	padding-left: 22px;
+	background-color: #ACA181;
+	padding-top: 15px;
+	padding-bottom: 5px;
+	position: relative;
+	background-clip: padding-box;
+	border-left: 22px solid transparent;
+	border-right: 22px solid transparent;
+	border-bottom: 32px solid transparent;
+	border-image: url("./assets/interface/scroll.png") 68 round;
+	width: 207px;
+	padding-inline-start: 30px;
+	background-image: url("./assets/interface/scrollBackground.png");
+
 }
 
 .chatBannerOption {
 
 	 list-style-image: url(assets/icons/dialogueChoiceBullet.png);
-
 	 font-size: 22px;
-
 	 padding-bottom: 5px;
 	padding-top: 5px;
 }
