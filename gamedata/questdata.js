@@ -3709,8 +3709,6 @@ var Quests = {
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 
-			questType: "mini",
-
 			steps: [
 				{
 					stepNum: 0,
@@ -3906,7 +3904,7 @@ var Quests = {
 
 			howToStart: "Speak to <b>Peto the Pyromancer</b> in Eaglecrest City.",
 			levelRequirement: 7,
-			questRequirements: ["Overdraft"],
+			questRequirements: ["to be added"],
 		},
 		/*{
 			id: 17,
