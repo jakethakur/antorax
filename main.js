@@ -3718,7 +3718,7 @@ class Attacker extends Character {
 			});
 			for (let i = 0; i < this.spells.length; i++) {
 				if (this.spells[i].stats.cooldown !== undefined) {
-					this.spells[i].onCooldown = this.spells[i].stats.cooldown;
+					this.spells[i].onCooldown = this.spells[i].stats.initialCooldown || this.spells[i].stats.cooldown;
 				}
 				else {
 					this.spells[i].ready = true;
@@ -6640,7 +6640,8 @@ class NonPlayerAttacker extends Attacker {
 					if (this.spells.length !== 0) {
 						// enemy has some spells
 						spellIndex = this.spells.findIndex(spell => (typeof spell.onCooldown === "undefined" || spell.onCooldown === 0) &&
-							(spell.castCondition === undefined || spell.castCondition.call(this, this))); // this is passed in as a parameter and as the object calling the function
+							(!spell.targetRequired || typeof target !== "undefined") && // if the spell requires a target, a target has been found.
+							(spell.castCondition === undefined || spell.castCondition.call(this, this, target))); // this is passed in as a parameter and as the object calling the function
 					}
 
 					if (spellIndex !== -1) {

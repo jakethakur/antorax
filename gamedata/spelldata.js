@@ -398,6 +398,42 @@ const Spells = {
 			},
 		},
 	],
+	transform: [
+		// player transforms
+		{
+			name: "Pounce",
+			id: 0,
+			type: "spell", 
+			class: "transform", 
+			image: "assets/runes/knight/0.png", // tbd make a unique image for this?
+			description: "Leap towards your mouse location.",
+	
+			func: function (caster, target) {
+				let dist = Game.distance(caster, target);
+				if (dist >= this.stats.range) {
+					dist = this.stats.range;
+				}
+	
+				let velocity = this.stats.velocity;
+				let time = dist / velocity;
+				let bear = Game.bearing(caster, target);
+				caster.displace(0, velocity, time, bear); // start displacement
+
+				// tbd stun?
+			},
+			
+			// base stat values
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 4,
+				cooldown: 1000,
+				// the following stats are specific to this spell
+				range: 150,
+				velocity: 400,
+			},
+		},
+	],
 	item: [
 
 	],
@@ -417,6 +453,8 @@ const Spells = {
                     time: this.stunTime[properties.tier],
                 });
 			},
+
+			targetRequired: true, // doesn't cast without a target
 
 			// stat values
 			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
@@ -464,6 +502,8 @@ const Spells = {
                     },*/ // tbd add new image
                 }));
 			},
+
+			targetRequired: true, // doesn't cast without a target
 
 			// stat values
 			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
@@ -533,6 +573,8 @@ const Spells = {
 				});
 			},
 
+			targetRequired: true, // doesn't cast without a target
+
 			// stat values
 			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
 			// values not in an array remain constant for all tiers
@@ -594,6 +636,8 @@ const Spells = {
                 caster.displace(0, velocity, time, bear); // start displacement
 			},
 
+			targetRequired: true, // doesn't cast without a target
+
 			// stat values
 			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
 			// values not in an array remain constant for all tiers
@@ -607,69 +651,273 @@ const Spells = {
 				distance: 120
 			},
 		},
-
-        /*{
-            name: "Cut Purse",
-            id: 15,
-            class: "a",
-            description: "Snippity snip",
-            enemyOnly: true, // cutpurses in plains
-
-            // target always assumed to be hero
-            func: function (properties) {
-                let targetGold = Dom.inventory.count(2, "currency");
-                let chatMessage = "";
-                let goldStolen = 0;
-                if (targetGold === 0) {
-                    chatMessage = "<i>You had nothing for the cutpurse to steal!</i>";
-                }
-                else if (targetGold < 6) {
-                    chatMessage = "<i>The Cutpurse stole 1 Gold from you!</i>";
-                    goldStolen = 1;
-                }
-                else if (targetGold < 15) {
-                    chatMessage = "<i>The Cutpurse stole 2 Gold from you!</i>";
-                    goldStolen = 2;
-                }
-                else {
-                    chatMessage = "<i>The Cutpurse stole 3 Gold from you!</i>";
-                    goldStolen = 3;
-                }
-
-                Dom.chat.insert(chatMessage);
-                Dom.inventory.removeById(2, "currency", goldStolen);
-                // tbd add it to the loot
-            },
-
-            channelTime: [
-                0,
-                1000,    // tier 1
-            ],
-        },*/
-
         {
             name: "Telepathic Link",
-            id: 16,
-            class: "m",
+            id: 6,
+			type: "spell",
+			class: "enemy", 
             description: "",
-            enemyOnly: true, // zararanath
 
             // properties should contain tier (as int value), caster, target
-            func: function (properties) {
+            func: function (caster, target) {
                 caster.x = target.x;
                 caster.y = target.y;
                 Dom.chat.insert(Dom.chat.say(caster.name, "<i>This</i> telepathic link <b>will</b> hurt.")); // zararanath
             },
 
-            channelTime: [
-                0,
-                1600,    // tier 1
-            ],
+			targetRequired: true, // doesn't cast without a target
+
+            stats: {
+				// the following stats are required for all spells
+				channelTime: 1600,
+				manaCost: 0,
+				cooldown: 1000,
+			},
         },
+        {
+            name: "Seek Prey",
+            id: 7,
+			type: "spell",
+			class: "enemy", 
+            description: "Jaws",
+
+            // properties should contain tier (as int value), caster, target
+            func: function (caster, target) {
+
+				let projectileSpeed = 150; // default
+	
+				if (caster.hasStatusEffect("Empowered")) {
+					projectileSpeed *= 1.6;
+				}
+	
+				Game.projectiles.push(new Projectile({
+					map: map,
+					x: caster.x,
+					y: caster.y,
+					attacker: caster,
+					stats: {
+						damage: 5,
+						stun: 1,
+					},
+					onHit: function (target, caster) {
+						// reduce enemy's defence
+						Game.statusEffects.defence({
+							target: target,
+							effectTitle: "Target Acquired",
+							defenceIncrease: -100,
+							time: 8,
+							effectStack: "multiply",
+							// end blood effect when this effect expires
+							onExpire: "removeTrail",
+							callExpireOnRemove: true,
+							onExpireParams: ["coyoteBlood"]
+						});
+	
+						// caster should charge towrards location
+						let dist = Game.distance(caster, target);
+						let velocity = 600;
+						let time = dist / velocity;
+						let bear = Game.bearing(caster, target);
+						caster.displace(0, velocity, time, bear); // start displacement
+	
+						// blood on target
+						target.addTrail("coyoteBlood", {
+							width: 3,
+							height: 3,
+							colour: ["#880808", "#8a0303"], // class Particle chooses random colour from array
+							removeIn: 1500,
+							rotation: 0,
+							variance: 50, // variance in position (in x/y axis in one direction from player)
+							intensity: 1, // no. of particles every 100ms
+						});
+					},
+					targets: [[target]],
+					image: "jaws",
+					crop: {
+						x: 47,
+						y: 42,
+						width: 61,
+						height: 66,
+					},
+					moveDirection: Game.bearing(caster, target),
+					moveSpeed: projectileSpeed,
+					type: "projectiles",
+					animation: {
+						type: "spritesheet",
+						imagesPerRow: 3,
+						frameTime: 90,
+						totalImages: 7,
+					},
+					transparency: 0.7,
+					stopMovingOnDamage: true,
+				}));            
+			},
+
+			targetRequired: true, // doesn't cast without a target
+
+            stats: {
+				// the following stats are required for all spells
+				channelTime: 1000,
+				manaCost: 0,
+				cooldown: 5000,
+			},
+        },
+        {
+            name: "Mend Pets",
+            id: 8,
+			type: "spell",
+			class: "enemy", 
+            description: "Health is good",
+
+            func: function (caster, target, pets) {
+				for (let i = 0; i < properties.pets.length; i++) {
+					Game.restoreHealth(properties.pets[i], this.stats.healthRestored);
+	
+					properties.pets[i].addTrail("mended", {
+						width: 3,
+						colour: ["#2CE831"],
+						removeIn: 1000,
+						variance: 50,
+						intensity: 4,
+						duration: 2.5,
+					});
+				}
+			},
+
+            stats: {
+				// the following stats are required for all spells
+				channelTime: 4000,
+				manaCost: 0,
+				cooldown: 13000,
+				// optional stats
+				healthRestored: 25,
+			},
+        },
+        {
+            name: "Empower Pets",
+            id: 9,
+			type: "spell",
+			class: "enemy", 
+            description: "",
+
+            func: function (caster, target, properties) {
+				for (let i = 0; i < properties.pets.length; i++) {
+					Game.statusEffects.attackDamage({
+						target: properties.pets[i],
+						effectTitle: "Empowered",
+						damageIncrease: this.stats.damageIncrease,
+						time: this.stats.duration,
+					});
+	
+					properties.pets[i].addTrail("empowered", {
+						width: 3,
+						colour: ["#cc0404"],
+						removeIn: 1000,
+						variance: 50,
+						intensity: 2,
+						duration: this.stats.duration,
+					});
+				}
+			},
+
+            stats: {
+				// the following stats are required for all spells
+				channelTime: 4000,
+				manaCost: 0,
+				cooldown: 13000,
+				// optional stats
+				initialCooldown: 6000,
+				damageIncrease: 50,
+				duration: 6
+			},
+        },
+        {
+            name: "Bees!!!!!!!!",
+            id: 10,
+			type: "spell",
+			class: "enemy", 
+            description: "",
+
+            func: function (caster) {
+				// summon projectile (note its image should have already been loaded in)
+				for (let i = 0; i < this.stats.numberSummoned; i++) {
+					let x = caster.x + Random(-75, 75);
+					let y = caster.y + Random(-75, 75);
+					let preparedEnemy = Game.prepareNPC({
+						x: x,
+						y: y,
+						template: EnemyTemplates.eaglecrest.bumblebee,
+					}, "enemies");
+					Game.enemies.push(new Enemy(preparedEnemy));
+				}
+			},
+
+			targetRequired: true, // doesn't cast without a target
+
+            stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 0,
+				cooldown: 2000,
+				// optional stats
+				numberSummoned: [3, 5], // depends on tier
+			},
+        },
+        {
+            name: "Goblin Reinforcements",
+            id: 11,
+			type: "spell",
+			class: "enemy", 
+            description: "",
+
+            func: function (caster) {
+				// summon projectile (note its image should have already been loaded in)
+				for (let i = 0; i < this.stats.numberSummoned; i++) {
+					Game.setTimeout(function () {
+						let template;
+						if (Random(0,1) === 1) {
+							template = "goblinCrusader";
+						}
+						else {
+							template = "goblinTowerkeeper";
+						}
+	
+						let preparedEnemy = Game.prepareNPC({
+							//x: 90,
+							//y: 560,
+							x: 15,
+							y: 520,
+							template: EnemyTemplates.nilbog[template],
+							/*moveTowards: { // walk up stairs
+								x: 15,
+								y: 520,
+								speedScalar: 0.6,
+							},*/
+							attackBehaviour: {
+								baseAggro: 100, // always aggroed on player
+							},
+							respawnOnDeath: false,
+						}, "enemies");
+						Game.enemies.push(new Enemy(preparedEnemy));
+					}, this.stats.timeSpacing * i);
+				}
+			},
+
+            stats: {
+				// the following stats are required for all spells
+				channelTime: 3000,
+				manaCost: 0,
+				cooldown: 5000,
+				// optional stats
+				numberSummoned: [2, 4], // depends on tier
+				timeSpacing: [3000, 2000]
+			},
+        },
+	
 	],
 }
 
-var SpellsOld = [
+/*var SpellsOld = [
 	//
 	// Knight tier 1
 	//
@@ -2302,4 +2550,4 @@ var SpellsOld = [
 		],
 
 	},
-];
+];*/

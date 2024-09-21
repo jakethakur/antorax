@@ -493,28 +493,22 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
+					class: "enemy",
 					id: 23, // summon more goblins
 					tier: 1,
-					parameters: function () {
-						return {};
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
 						return caster.spellCasts === 0 && healthProportion < 0.67;
 					},
-					interval: 5000, // n/a
 				},
 				{
+					class: "enemy",
 					id: 23, // summon more goblins
 					tier: 2,
-					parameters: function () {
-						return {};
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
-						return caster.spellCasts === 1 && healthProportion < 0.33;
+						return caster.spellCasts === 0 && healthProportion < 0.67;
 					},
-					interval: 5000, // n/a
 				},
 			],
 			updateStats: function () { // choose attack based on distance
@@ -971,20 +965,14 @@ const EnemyTemplates = {
 				image: "waterball",
 			},
 			spells: [
-	            {
-	                id: 14,
-	                tier: 1,
-	                parameters: function () { // returns array of parameters
-	                    return {
-	                        target: this.calculateTarget(),
-	                    };
+				{
+			        class: "enemy",
+					id: 5,
+					tier: 1,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > caster.stats.range - 25;
 	                },
-					castCondition: function (caster) {
-						let target = caster.calculateTarget();
-	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-	                },
-	                interval: 1000,
-	            },
+				},
 	        ],
 			lootTableTemplate: [EnemyLootTables.plainsToad],
 			inventorySpace: 8,
@@ -1019,20 +1007,14 @@ const EnemyTemplates = {
 				image: "waterball",
 			},
 			spells: [
-	            {
-	                id: 14,
-	                tier: 1,
-	                parameters: function () { // returns array of parameters
-	                    return {
-	                        target: this.calculateTarget(),
-	                    };
+				{
+			        class: "enemy",
+					id: 5,
+					tier: 1,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > caster.stats.range - 25;
 	                },
-					castCondition: function (caster) {
-						let target = caster.calculateTarget();
-	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-	                },
-	                interval: 1000,
-	            },
+				},
 	        ],
 			lootTableTemplate: [EnemyLootTables.plainsToad],
 			lootTable: [
@@ -1140,14 +1122,9 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					id: 16,
+			        class: "enemy",
+					id: 6,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {
-							target: Game.hero,
-						};
-					},
-					interval: 10000,
 					castCondition: function (caster) {
 						return caster.health < 100;
 					}
@@ -1266,20 +1243,14 @@ const EnemyTemplates = {
 				return aggroList;
 			},
 			spells: [
-	            {
-	                id: 19, // seek prey
-	                tier: 1,
-	                parameters: function () { // returns array of parameters
-	                    return {
-	                        target: this.calculateTarget(),
-	                    };
+				{
+			        class: "enemy",
+					id: 7,
+					tier: 1,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > caster.stats.range - 25;
 	                },
-					castCondition: function (caster) {
-						let target = caster.calculateTarget();
-	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-	                },
-	                interval: 5000,
-	            },
+				},
 	        ],
 			lootTableTemplate: [EnemyLootTables.coyote],
 			inventorySpace: 8,
@@ -1550,28 +1521,24 @@ palatine: {
 			},
 			spells: [
 	            {
-	                id: 20, // mend pets
+	                id: 8, // mend pets
 	                tier: 1,
-	                parameters: function () { // returns array of parameters
+	                additionalParameters: function () { // returns array of parameters
 						let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
 	                },
-	                interval: 13000,
-					initialCooldown: 13000
 	            },
 	            {
-	                id: 21, // incite pets
+	                id: 9, // empower pets
 	                tier: 1,
-	                parameters: function () { // returns array of parameters
+	                additionalParameters: function () { // returns array of parameters
 						let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
 	                },
-	                interval: 13000,
-					initialCooldown: 6000
 	            },
 	        ],
 			lootTableTemplate: [EnemyLootTables.coyoteWrangler],
@@ -1620,26 +1587,22 @@ palatine: {
 			},
 			spells: [
 				{
-					id: 22,
+			        class: "enemy",
+					id: 10,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {}
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
-						return typeof caster.calculateTarget() !== "undefined" && healthProportion > 0.3;
+						return healthProportion > 0.3;
 					},
 					interval: 2000,
 				},
 				{
-					id: 22,
+			        class: "enemy",
+					id: 10,
 					tier: 2, // tier 2 instead
-					parameters: function () { // returns array of parameters
-						return {}
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
-						return typeof caster.calculateTarget() !== "undefined" && healthProportion <= 0.3;
+						return healthProportion <= 0.3;
 					},
 					interval: 2000,
 				},
