@@ -2939,6 +2939,12 @@ Dom.quests.active = function (quest) {
 			Player.quests.activeQuestArray.splice(x, 1);
 		}
 
+		else if (typeof currentQuest.steps === "undefined") {
+			// can be removed in the future (added 21/09/2024 because of new quest system)
+			console.warn("Quest: "+Player.quests.activeQuestArray[x]+" has not yet been updated to the new quest system, so was abandoned.");
+			Player.quests.activeQuestArray.splice(x, 1);
+		}
+
 		else if (currentQuest.eventRequirement === undefined || currentQuest.eventRequirement === Event.event) {
 			// prepare the quest object by consolidating all the relevant information
 			currentQuest = Dom.quest.prepareQuestObject(currentQuest);
