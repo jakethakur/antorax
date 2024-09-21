@@ -250,6 +250,32 @@ const EnemyTemplates = {
 			maxHealth: 1090,
 		},
 	},
+
+	item: {
+		jarAnt : {
+			image: "jarAnt",
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			name: "Ant",
+			hostility: "hostile",
+			level: 1,
+			stats: {
+				damage: 3,
+				walkSpeed: 50,
+				swimSpeed: 25,
+				iceSpeed: 100,
+				maxHealth: 1,
+				range: 40,
+				healthRegen: 0.3,
+				reloadTime: 3000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+		}
+	},
+
 	nilbog: {
 		goblinRockthrower: {
 			speciesTemplate: SpeciesTemplates.nilbogGoblin,
@@ -467,28 +493,22 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
+					class: "enemy",
 					id: 23, // summon more goblins
 					tier: 1,
-					parameters: function () {
-						return {};
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
 						return caster.spellCasts === 0 && healthProportion < 0.67;
 					},
-					interval: 5000, // n/a
 				},
 				{
+					class: "enemy",
 					id: 23, // summon more goblins
 					tier: 2,
-					parameters: function () {
-						return {};
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
-						return caster.spellCasts === 1 && healthProportion < 0.33;
+						return caster.spellCasts === 0 && healthProportion < 0.67;
 					},
-					interval: 5000, // n/a
 				},
 			],
 			updateStats: function () { // choose attack based on distance
@@ -574,14 +594,10 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					id: 9,
+			        class: "enemy", // most enemy spells are of this type
+					id: 0,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {
-							target: Game.hero,
-						};
-					},
-					interval: 10000,
+					// target is assumed to be hero
 				},
 			],
 			xpGiven: 250,
@@ -619,18 +635,13 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					id: 10,
+			        class: "enemy", // most enemy spells are of this type
+					id: 1,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {
-							target: Game.hero,
-						};
-					},
 					castCondition: function (caster) {
 						// has picked up all logs
 						return caster.logsRemaining === 0;
 					},
-					interval: 7000,
 				},
 			],
 			xpGiven: 250, // tbc?
@@ -731,10 +742,13 @@ const EnemyTemplates = {
 			spells: [
 				// ordered in order of boss priority to spells
 				{
-					id: 13, // aeromancy
+					class: "enemy",
+					id: 4, // aeromancy
 					tier: 1,
-					parameters: function () { // returns array of parameters
+					onCast: function () {
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The wind obeys me!"));
+					},
+					additionalParameters: function () { // returns array of parameters
 						return {
 							speed: 60,
 							direction: ToRadians(Random(1, 360)),
@@ -746,13 +760,15 @@ const EnemyTemplates = {
 						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Wind");
 						return cauldronIndex !== -1;
 					},
-					interval: 40000,
 				},
 				{
-					id: 11, // animate
+					class: "enemy",
+					id: 2, // animate
 					tier: 1,
-					parameters: function () { // returns array of parameters
+					onCast: function () {
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The mud of this bog is mine!"));
+					},
+					additionalParameters: function () { // returns array of parameters
 						return {
 							number: 2,
 							location: [
@@ -839,23 +855,19 @@ const EnemyTemplates = {
 						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Earth");
 						return cauldronIndex !== -1;
 					},
-					interval: 17000,
 				},
 				{
-					id: 12, // lightning
+					class: "enemy",
+					id: 3, // lightning
 					tier: 1,
-					parameters: function () { // returns array of parameters
+					onCast: function () {
 						Dom.chat.insert(Dom.chat.say("'Barebones' Nkkja", "The sky belongs to me!"));
-						return {
-							target: this.calculateTarget(),
-						};
 					},
 					castCondition: function (caster) {
 						// cauldron not destroyed
 						let cauldronIndex = Game.characters.findIndex(character => character.name === "Nkkja's Cauldron of Lightning");
 						return cauldronIndex !== -1;
 					},
-					interval: 9000,
 				},
 			],
 			xpGiven: 250, // tbc?
@@ -953,20 +965,14 @@ const EnemyTemplates = {
 				image: "waterball",
 			},
 			spells: [
-	            {
-	                id: 14,
-	                tier: 1,
-	                parameters: function () { // returns array of parameters
-	                    return {
-	                        target: this.calculateTarget(),
-	                    };
+				{
+			        class: "enemy",
+					id: 5,
+					tier: 1,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > caster.stats.range - 25;
 	                },
-					castCondition: function (caster) {
-						let target = caster.calculateTarget();
-	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-	                },
-	                interval: 1000,
-	            },
+				},
 	        ],
 			lootTableTemplate: [EnemyLootTables.plainsToad],
 			inventorySpace: 8,
@@ -1001,20 +1007,14 @@ const EnemyTemplates = {
 				image: "waterball",
 			},
 			spells: [
-	            {
-	                id: 14,
-	                tier: 1,
-	                parameters: function () { // returns array of parameters
-	                    return {
-	                        target: this.calculateTarget(),
-	                    };
+				{
+			        class: "enemy",
+					id: 5,
+					tier: 1,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > caster.stats.range - 25;
 	                },
-					castCondition: function (caster) {
-						let target = caster.calculateTarget();
-	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-	                },
-	                interval: 1000,
-	            },
+				},
 	        ],
 			lootTableTemplate: [EnemyLootTables.plainsToad],
 			lootTable: [
@@ -1122,14 +1122,9 @@ const EnemyTemplates = {
 			},
 			spells: [
 				{
-					id: 16,
+			        class: "enemy",
+					id: 6,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {
-							target: Game.hero,
-						};
-					},
-					interval: 10000,
 					castCondition: function (caster) {
 						return caster.health < 100;
 					}
@@ -1248,20 +1243,14 @@ const EnemyTemplates = {
 				return aggroList;
 			},
 			spells: [
-	            {
-	                id: 19, // seek prey
-	                tier: 1,
-	                parameters: function () { // returns array of parameters
-	                    return {
-	                        target: this.calculateTarget(),
-	                    };
+				{
+			        class: "enemy",
+					id: 7,
+					tier: 1,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > caster.stats.range - 25;
 	                },
-					castCondition: function (caster) {
-						let target = caster.calculateTarget();
-	                    return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-	                },
-	                interval: 5000,
-	            },
+				},
 	        ],
 			lootTableTemplate: [EnemyLootTables.coyote],
 			inventorySpace: 8,
@@ -1532,28 +1521,26 @@ palatine: {
 			},
 			spells: [
 	            {
-	                id: 20, // mend pets
+					class: "enemy",
+	                id: 8, // mend pets
 	                tier: 1,
-	                parameters: function () { // returns array of parameters
+	                additionalParameters: function () { // returns array of parameters
 						let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
 	                },
-	                interval: 13000,
-					initialCooldown: 13000
 	            },
 	            {
-	                id: 21, // incite pets
+					class: "enemy",
+	                id: 9, // empower pets
 	                tier: 1,
-	                parameters: function () { // returns array of parameters
+	                additionalParameters: function () { // returns array of parameters
 						let petArray = Game.enemies.filter(enemy => enemy.name === "Pack Coyote" && enemy.association === "coyotePack");
 	                    return {
 							pets: petArray,
 	                    };
 	                },
-	                interval: 13000,
-					initialCooldown: 6000
 	            },
 	        ],
 			lootTableTemplate: [EnemyLootTables.coyoteWrangler],
@@ -1567,12 +1554,11 @@ palatine: {
 
                 // coyote wrangler killed achievement
                 User.progress.coyoteWranglers = Increment(User.progress.coyoteWranglers);
-
                 // coyote wrangler killed achievement
                 Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
 
-                // resetable achievement for quest
-                Player.quests.questProgress.coyoteWranglersQuest = Increment(Player.quests.questProgress.coyoteWranglersQuest);
+                // resettable variables for quest
+                Player.quests.progress.eaglecrest[11].coyoteWranglers = Increment(Player.quests.progress.eaglecrest[11].coyoteWranglers);
             }
 		},
 
@@ -1603,26 +1589,22 @@ palatine: {
 			},
 			spells: [
 				{
-					id: 22,
+			        class: "enemy",
+					id: 10,
 					tier: 1,
-					parameters: function () { // returns array of parameters
-						return {}
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
-						return typeof caster.calculateTarget() !== "undefined" && healthProportion > 0.3;
+						return healthProportion > 0.3;
 					},
 					interval: 2000,
 				},
 				{
-					id: 22,
+			        class: "enemy",
+					id: 10,
 					tier: 2, // tier 2 instead
-					parameters: function () { // returns array of parameters
-						return {}
-					},
 					castCondition: function (caster) {
 						let healthProportion = caster.health / caster.stats.maxHealth;
-						return typeof caster.calculateTarget() !== "undefined" && healthProportion <= 0.3;
+						return healthProportion <= 0.3;
 					},
 					interval: 2000,
 				},
@@ -2455,9 +2437,10 @@ stoneElemental: {
 				doesNotAttack: true,
 			},
 			spells: {
-				id: 11, // animate
+				class: "enemy",
+				id: 11, 
 				tier: 1,
-				parameters: function () { // returns array of parameters
+				additionalParameters: function () { // returns array of parameters
 					return {
 						number: 1,
 						location: [
@@ -2494,7 +2477,6 @@ stoneElemental: {
 						xpGiven: 100,
 					};
 				},
-				interval: 10000,
 			},
 			respawnOnDeath: false,
 			corpseOnDeath: false,

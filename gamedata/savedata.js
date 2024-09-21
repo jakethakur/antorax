@@ -1,3 +1,5 @@
+const CurrentVersion = 1; // for ensureing the player is up to date (if Player.version < CurrentVersion, Player.version is updated, and Player object updates may be made)
+
 let playerName = sessionStorage.getItem("name");
 let playerClass = sessionStorage.getItem("class");
 // customisation
@@ -18,6 +20,7 @@ if (customisation === null || typeof customisation.clothing === "undefined") {
 	customisation.hair = QueryStringParams.get("hair");
 	customisation.hairColour = QueryStringParams.get("hairColour");
 	customisation.hat = QueryStringParams.get("hat");
+	customisation.beard = QueryStringParams.get("beard");
 }
 
 // customisation validation (probs unnecessary)
@@ -217,17 +220,21 @@ var Player = {
 		activeQuestArray: [],
 		possibleQuestArray: [],
 		completedQuestArray: [],
-		canBeFinishedArray: [], // array of quests that can be finished (for use in main)
 
-		questProgress: {}, // OLD QUESTS ONLY - don't use for new quests ! stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		progress: {}, // same as questProgress, but now divided into areas and their quest ids à la npcProgress. for anything that npcProgress can't track
-		npcProgress: {}, // stores the number of NPCs spoken to for that quest (the key name is the quest area followed by the quest id, i.e. eaglecrest[10])
-		// npcProgress is incremented automatically by quest progress steps, so there should be no need to increment manually
+
+		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
+		// this is used either for OLD QUESTS or objectives that aren't just relevant to one quest (since this object does not have proper structure)
+
+		objectiveProgress: {}, // set by Dom.quests.active to true/false for each objective of the quest
+		stepProgress: {}, // for each [questArea][questId], index i is to true if step i has been completed
 
 		questLastFinished: {}, // stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 		timesCompleted: {}, // number of times a player has completed a repeatable quest (e.g. hide and seek)
 
 		randomDailyQuests: {}, // the random daily quest of the day (for NPCs with a random daily quest)
+
+		startedFromNpc: {}, // for each quest started with differsOnNpc property, this contains the npc that it was most recently started from.  startedfromnpc[area][id]
 	},
 
 	// overall progress, checked by DOM etc
@@ -335,8 +342,9 @@ var Player = {
 	statusEffects: [], // updated by saved data / main [function Game.hero.updateStatusEffects()]
 
 	// spells
-	spells: [], // array of objects. objects are in form {id: 0, tier: 1, onCooldown: 100}
-	// currently only one spell is supported, and cannot be upgraded. in the future, make a spell upgrade tree and a way to cast multiple spells!
+	// these are arrays of objects. objects are in form {id: 0, tier: 1, onCooldown: 100}
+	spells: [{}, {}, {}, {}, {}, {}], 
+	spellArsenal: [],
 };
 
 // template object for all stats and their default values
@@ -449,7 +457,7 @@ var User = {
 			INVENTORY: "I",
 			QUESTS: "Q",
 			ADVENTURE: "L",
-			REPUTATION: "R",
+			SPELLBOOK: "R",
 			SETTINGS: "Z",
 			ONE: "1",
 			TWO: "2",

@@ -2,7 +2,7 @@
 
 //
 // Realms of Antorax canvas code
-// Jake Thakur 2018-2023
+// Jake Thakur 2018-2024
 //
 
 // initially based on https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps
@@ -82,7 +82,20 @@ Game.loadPlayer = function () {
 			Player.inventory.bag = Player.inventory.items[5];
 			Player.inventory.items[5] = {};
 		}
-
+		// assign spells their functions (which will not have been saved in the json)
+		// TBD make saving only save the id and type, and load everything from spelldata/itemdata here
+		for (let i = 0; i < Player.spells.length; i++) {
+			let spellObj = Player.spells[i];
+			if (typeof spellObj.class !== "undefined") {
+				// spell exists
+				spellObj.func = Spells[spellObj.class][spellObj.id].func;
+			}
+		}
+		for (let i = 0; i < Player.spellArsenal.length; i++) {
+			let spellObj = Player.spellArsenal[i];
+			spellObj.func = Spells[spellObj.class][spellObj.id].func;
+		}
+		
         Player = Object.assign(Player, savedPlayer);
     }
 
@@ -94,7 +107,20 @@ Game.loadPlayer = function () {
 	// replaces the skindata ids (stored in the variable customisation, which is set in savedata) with the file addresses from skindata
 	Player.skinTone = Skins.skinTone[customisation.skinTone].src;
 	Player.clothing = Skins[playerClassName+"Clothing"][customisation.clothing].src;
-	Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
+	if (!Skins.beard[customisation.beard].blank) {
+		Player.beard = Skins.beard[customisation.beard].src + customisation.hairColour;
+	}
+	else {
+		Player.beard = Skins.beard[customisation.beard].src; // src is "null", so don't include colour
+		// tbd maybe don't draw the beard image at all if it's null?
+	}
+	if (!Skins.hair[customisation.hair].blank) {
+		Player.hair = Skins.hair[customisation.hair].src + customisation.hairColour;
+	}
+	else {
+		Player.hair = Skins.hair[customisation.hair].src; // src is "null", so don't include colour
+		// tbd maybe don't draw the hair image at all if it's null?
+	}
 	Player.hat = Skins.hat[customisation.hat].src;
 	// face is hard coded for now
 	if (Skins.skinTone[customisation.skinTone].race === "Orc") {
@@ -158,6 +184,7 @@ Game.initWebSocket = function () {
 				face: Player.face,
 				clothing: Player.clothing,
 				hair: Player.hair,
+				beard: Player.beard,
 				//ears: Player.skinTone,
 				hat: Player.hat,
 			}));
@@ -603,7 +630,8 @@ Game.addPlayer = function (player) {
 					imagesPerRow: 4,
 					totalImages: 4,
 					animateBasis: "walk"
-				},
+				}
+				copiedPlayer.spritesheetRotate = true,
 
 				// add the player
 				// tbd the images should be loaded first THEN the player object should be added ??
@@ -619,7 +647,7 @@ Game.addPlayer = function (player) {
 						width: 52,
 						height: 127
 					});
-					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.face, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
+					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.face, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerBeard_"+addedPlayer.beard, doNotAnimate: true}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
 
 					addedPlayer.updateRotation();
 
@@ -1328,14 +1356,12 @@ class Entity {
 		this.area = Game.areaName;
 
 		this.map = properties.map;
-		this.x = properties.x;
-		this.y = properties.y;
+		if (typeof properties.x !== "undefined") {
+			this.x = Math.round(properties.x);
+			this.y = Math.round(properties.y);
+		}
 		this.width = properties.width;
 		this.height = properties.height;
-
-		this.roundPosition = properties.roundPosition; // set to true if its coordinates should be rounded to the nearest integer on rendering
-		// by default this does not happen, however in some tilemap situations (i.e. tall grass and fences), due to limitations of canvas (in 2023), this can lead to white/black lines around the object
-		// if this is set to true, the above problem is avoided, but the item can appear juddery when the player is moving diagonally.
 
 		// optional function for when space is pressed when touching
 		this.onInteract = properties.onInteract;
@@ -2480,6 +2506,8 @@ class Character extends Thing {
 
 		this.direction = properties.direction || 0; // used for rotation image
 
+		this.spritesheetRotate = properties.spritesheetRotate; // spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. i.e. same as player
+
 		this.statusEffects = [];
 		this.numberOfHiddenStatusEffects = 0; // number of status effects that aren't shown (for displaying status effects)
 
@@ -3365,6 +3393,31 @@ class Character extends Thing {
 		}
 	}
 
+	setDirection (dirx, diry) {
+		if (Math.abs(diry) > Math.abs(dirx)) { // there is more up down movement than left right
+			// up down movement
+			if (diry < 0) {
+				// up movement
+				this.direction = 1;
+			}
+			else {
+				// down movement
+				this.direction = 3;
+			}
+		}
+		else {
+			// left right movement
+			if (dirx > 0) {
+				// right movement
+				this.direction = 4;
+			}
+			else {
+				// left movement
+				this.direction = 2;
+			}
+		}
+	}
+
 	// rotation image names saved in character
 	// these are the key names of the images in loader
 	// not all of these need to exist - the best one will be picked (see below in this function)
@@ -3421,36 +3474,71 @@ class Character extends Thing {
 
 	// set image based on direction of movement if there are multiple rotation images
 	// note this system is not used for player, since their images are in tilesets instead (however it would be used if they were hexed etc)
-	setRotationImage (dirx, diry) {
+	setRotationImage () {
 		if (this.rotationImageChange !== "none") {
 			if (this.rotationImageChange === "upDown" || // only up down images exist for this NPC
 			(this.rotationImageChange === "all" && // OR all images exist AND...
-			Math.abs(diry) > Math.abs(dirx))) { //...there is more up down movement than left right
+			(this.direction === 1 || this.direction === 3))) { // ...there is more up down movement than left right
 				// up down movement
-				if (diry < 0) {
+				if (this.direction === 1) {
 					// up movement
 					this.setImageMovement(this.rotationImages.up, this.crop, this.width, this.height);
-					this.direction = 1;
 				}
 				else {
 					// down movement
 					this.setImageMovement(this.rotationImages.down, this.crop, this.width, this.height);
-					this.direction = 3;
 				}
 			}
 			else {
 				// left right movement
-				if (dirx > 0) {
+				if (this.direction === 4) {
 					// right movement
 					this.setImageMovement(this.rotationImages.right, this.crop, this.width, this.height);
-					this.direction = 4;
 				}
 				else {
 					// left movement
 					this.setImageMovement(this.rotationImages.left, this.crop, this.width, this.height);
-					this.direction = 2;
 				}
 			}
+		}
+	}
+
+	updateRotation (dirx, diry) {
+		// first update direction
+		this.setDirection(dirx, diry);
+
+		if (typeof this.rotationImages === "undefined" && this.spritesheetRotate) {
+			// spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. i.e. same as player
+			if (this.direction === 1) { // facing up
+				this.crop.y = this.baseHeight*2;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = this.baseHeight*2;
+				}
+			}
+	
+			else if (this.direction === 2) { // facing left
+				this.crop.y = this.baseHeight*3;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = this.baseHeight*3;
+				}
+			}
+	
+			else if (this.direction === 3) { // facing down
+				this.crop.y = 0;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = 0;
+				}
+			}
+	
+			else if (this.direction === 4) { // facing right
+				this.crop.y = this.baseHeight;
+				if (typeof this.animation !== "undefined" && typeof this.animation.baseCrop !== "undefined") {
+					this.animation.baseCrop.y = this.baseHeight;
+				}
+			}
+		}
+		else if (typeof this.rotationImages !== "undefined") { // changes images upon rotation
+			this.setRotationImage();
 		}
 	}
 
@@ -3609,18 +3697,28 @@ class Attacker extends Character {
 		// spells
 		this.spells = properties.spells || [];
 		if (this.constructor.name !== "Hero") {
-			this.spells = this.spells.map(a => Object.assign({}, a)); // deep copy objects in array
+			this.spells = this.spells.map(a => {
+			    let tier = a.tier;
+			    let castCondition = a.castCondition; // used for enemy ai; not a mandatory property
+				let additionalParameters = a.additionalParameters;
+				let onCast = a.onCast; // e.g. for additional cast behavior specific to this enemy
+			    a = Spells[a.class][a.id];
+			    a.stats = Object.assign({}, a.stats); // deep copy stats
+			    a.castCondition = castCondition;
+				a.additionalParameters = additionalParameters;
+				a.onCast = onCast;
+			    // set spell's stats based on chosen tier
+			    for (const stat in a.stats) {
+			        if (Array.isArray(a.stats[stat])) {
+			            // the stat depends on tier
+			            a.stats[stat] = a.stats[stat][tier-1];
+			        }
+			    }
+			    return Object.assign({}, a) // deep copy whole spell object
+			});
 			for (let i = 0; i < this.spells.length; i++) {
-				if (this.spells[i].interval !== undefined) {
-					this.spells[i].ready = false; // cannot be used until interval has finished (just for ai, not player)
-					// set initial cooldown
-					let initialCooldown = this.spells[i].interval; // default initial cooldown
-					if (typeof this.spells[i].initialCooldown !== "undefined") {
-						initialCooldown = this.spells[i].initialCooldown;
-					}
-					Game.setTimeout(function (i) {
-						this.spells[i].ready = true;
-					}.bind(this), initialCooldown, [i]);
+				if (this.spells[i].stats.cooldown !== undefined) {
+					this.spells[i].onCooldown = this.spells[i].stats.initialCooldown || this.spells[i].stats.cooldown;
 				}
 				else {
 					this.spells[i].ready = true;
@@ -3636,19 +3734,17 @@ class Attacker extends Character {
 		}
 	}
 
-	// a simpler channel for spells
-	channelSpell (spellId, spellTier, parameters) {
+	// always called instead of Game.castSpell - deals with channelling that may need to be done beforehand
+	channelSpell (spellObj, target, additionalParameters) {
 		// add implicit parameters
-		parameters.caster = this;
-		parameters.tier = spellTier;
-		// because parameters is always an object for spells, it is turned into an array for the function call
+		let caster = this;
 		// Game.castSpell calls the function and deducts mana and sets cooldown
-		if (typeof Spells[spellId].channelTime === "undefined" || Spells[spellId].channelTime[spellTier] === 0) {
+		if (typeof spellObj.stats.channelTime === "undefined") {
 			// no channel required
-			Game.castSpell(spellId, parameters);
+			Game.castSpell(spellObj, caster, target, additionalParameters);
 		}
 		else {
-			this.channel(Game.castSpell, [spellId, parameters], Spells[spellId].channelTime[spellTier], Spells[spellId].name);
+			this.channel(Game.castSpell, [spellObj, caster, target, additionalParameters], spellObj.stats.channelTime, spellObj.name);
 		}
 	}
 }
@@ -3758,6 +3854,7 @@ class UserControllable extends Attacker {
 		// these should be the id in skindata
 		this.skinTone = properties.skinTone;
 		this.clothing = properties.clothing;
+		this.beard = properties.beard;
 		this.hair = properties.hair;
 		this.face = properties.face;
 		this.hat = properties.hat;
@@ -3769,6 +3866,7 @@ class UserControllable extends Attacker {
 		let skinKeyName = "playerSkin_"+this.skinTone;
 		let earsKeyName = "playerEars_"+this.skinTone;
 		let clothingKeyName = "playerClothing_"+this.clothing;
+		let beardKeyName = "playerBeard_"+this.beard;
 		let hairKeyName = "playerHair_"+this.hair;
 		let faceKeyName = "playerFace_"+this.face;
 		let hatKeyName = "playerHat_"+this.hat;
@@ -3776,34 +3874,11 @@ class UserControllable extends Attacker {
 		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
 		loadObj[faceKeyName] = {normal: "./assets/playerCustom/facialExpression/" + this.face + ".png"};
 		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"}; // tbd get from skindata
+		loadObj[beardKeyName] = {normal: "./assets/playerCustom/berad/" + this.beard + ".png"};
 		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
 		loadObj[earsKeyName] = {normal: "./assets/playerCustom/ears/" + this.skinTone + ".png"};
 		loadObj[hatKeyName] = {normal: "./assets/playerCustom/hat/" + this.hat + ".png"};
 		return Loader.loadMultipleImages(loadObj, false);
-	}
-
-	// called after this.direction is updated
-	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
-	updateRotation () {
-		if (this.direction === 1) { // facing up
-			this.crop.y = this.baseHeight*2;
-			this.animation.baseCrop.y = this.baseHeight*2;
-		}
-
-		else if (this.direction === 2) { // facing left
-			this.crop.y = this.baseHeight*3;
-			this.animation.baseCrop.y = this.baseHeight*3;
-		}
-
-		else if (this.direction === 3) { // facing down
-			this.crop.y = 0;
-			this.animation.baseCrop.y = 0;
-		}
-
-		else if (this.direction === 4) { // facing right
-			this.crop.y = this.baseHeight;
-			this.animation.baseCrop.y = this.baseHeight;
-		}
 	}
 }
 
@@ -3871,6 +3946,8 @@ class Hero extends Attacker {
 		// temporary transformations, i.e. into cat
 		// note that hex etc are NOT included under this, since your base stats, spells, etc. still remain
 		this.transformed = false;
+
+		this.spritesheetRotate = true; // spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. always the case for the hero unless transformed
 	}
 
 	// new properties are added to this as required
@@ -4090,31 +4167,14 @@ class Hero extends Attacker {
 		let maxX = Game.camera.maxX + Game.camera.width;
 		let maxY = Game.camera.maxY + Game.camera.height;
 		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
-		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
+		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY)); //temp aaaaaaaaaaaaaaaaaaaaaaaaaaaa
 
 		// round player position, otherwise screen judders
 		// tbd readd - unfortunately this currently significantly slows the hero down in two directions
 		//this.x = Round(this.x, 0);
 		//this.y = Round(this.y, 0);
 
-		// set direction based on dirx and diry
-		if (Math.abs(dirx) > Math.abs(diry)) {
-			if (dirx > 0) {
-				this.direction = 4;
-			}
-			else {
-				this.direction = 2;
-			}
-		}
-		else {
-			if (diry > 0) {
-				this.direction = 3;
-			}
-			else {
-				this.direction = 1;
-			}
-		}
-		this.updateRotation();
+		this.updateRotation(dirx, diry); // sets this.direction and rotates imagee
 	}
 
 	// start channeling basic attack
@@ -4631,6 +4691,10 @@ class Hero extends Attacker {
 							// game won
 							// <=> fish caught
 
+							if (typeof this.channelling.name === "undefined") {
+								console.error("No fish has been set to channelling", this.channelling);
+							}
+
 							// quest progress
 							Player.quests.questProgress.itemsFishedUp = Increment(Player.quests.questProgress.itemsFishedUp);
 
@@ -5029,7 +5093,7 @@ class Hero extends Attacker {
 			}
 			else if (Player.stats.fishingSkill === 0) {
 				// tutorial
-				fish = Items.fish[9]; // tbd make depend on area
+				filteredFish = Items.fish[14]; // tbd make depend on area ?
 				itemRarity = "tutorial";
 
 				// close prev alert if it's still open
@@ -5302,38 +5366,6 @@ class Hero extends Attacker {
 
 		if (document.getElementById("nametagOn").checked) { // show nametag if player wants
 			Game.drawCharacterInformation(Game.ctx, this);
-		}
-	}
-
-	// called after this.direction is updated
-	// +1 or +3 are because of padding in spritesheet (see comment at top of skindata.js)
-	// this is just default behaviour for player, i.e. overriden if rotationImages is set (in which case it works like a standard character)
-	// (this system should probably be updated in the future)
-	updateRotation () {
-		if (typeof this.rotationImages === "undefined") {
-			// no overriding of standard behaviour
-			if (this.direction === 1) { // facing up
-				this.crop.y = this.baseHeight*2;
-				this.animation.baseCrop.y = this.baseHeight*2;
-			}
-	
-			else if (this.direction === 2) { // facing left
-				this.crop.y = this.baseHeight*3;
-				this.animation.baseCrop.y = this.baseHeight*3;
-			}
-	
-			else if (this.direction === 3) { // facing down
-				this.crop.y = 0;
-				this.animation.baseCrop.y = 0;
-			}
-	
-			else if (this.direction === 4) { // facing right
-				this.crop.y = this.baseHeight;
-				this.animation.baseCrop.y = this.baseHeight;
-			}
-		}
-		else { // work like normal characters
-			this.setRotationImage();
 		}
 	}
 
@@ -6180,8 +6212,8 @@ class Mount extends Character {
 			this.velocity = maxVelocity;
 		}
 
-		// set rotation image
-		this.setRotationImage(this.speedX, this.speedY);
+		// set rotation image, and this.direction
+		this.updateRotation(this.speedX, this.speedY);
 
 		this.x += this.speedX*delta;
 		this.y += this.speedY*delta;
@@ -6369,7 +6401,7 @@ class Villager extends NPC {
 					this.y += diry * exceededDistance;
 
 					// set image based on direction of movement if there are multiple rotation images
-					this.setRotationImage(dirx, diry);
+					this.updateRotation(dirx, diry);
 
 					if (this.ai.intelligentMovement) {
 						// wait instantly (rather than trying to move to location but "failing")
@@ -6427,7 +6459,7 @@ class Villager extends NPC {
 		}
 
 		// set image based on direction of movement if there are multiple rotation images
-		this.setRotationImage(dirx, diry);
+		this.updateRotation(dirx, diry);
 
 		// update foot hitbox position (required here because it doesn't collide)
 		this.updateFootHitbox();
@@ -6607,26 +6639,21 @@ class NonPlayerAttacker extends Attacker {
 					let spellIndex = -1;
 					if (this.spells.length !== 0) {
 						// enemy has some spells
-						spellIndex = this.spells.findIndex(spell => spell.ready &&
-							(spell.castCondition === undefined || spell.castCondition.call(this, this))); // this is passed in as a parameter and as the object calling the function
+						spellIndex = this.spells.findIndex(spell => (typeof spell.onCooldown === "undefined" || spell.onCooldown === 0) &&
+							(!spell.targetRequired || typeof target !== "undefined") && // if the spell requires a target, a target has been found.
+							(spell.castCondition === undefined || spell.castCondition.call(this, this, target))); // this is passed in as a parameter and as the object calling the function
 					}
 
 					if (spellIndex !== -1) {
 						// a spell has been found that can be cast
 						let spell = this.spells[spellIndex];
-						// no longer ready
-						spell.ready = false;
 						// get spell parameters
-						let params = {};
-						if (typeof spell.parameters !== "undefined") {
-							params = spell.parameters.call(this);
+						let additionalParams = {};
+						if (typeof spell.additionalParameters !== "undefined") {
+							additionalParams = spell.additionalParameters.call(this);
 						}
 						// cast the spell
-						this.channelSpell(spell.id, spell.tier, params);
-						// spell interval (how often it is cast by enemy)
-						Game.setTimeout(function (spellIndex) {
-							this.spells[spellIndex].ready = true;
-						}.bind(this), spell.interval, [spellIndex]);
+						this.channelSpell(spell, target, additionalParams);
 					}
 
 					else if (typeof target !== "undefined") {
@@ -6728,7 +6755,7 @@ class NonPlayerAttacker extends Attacker {
 			diry = Math.sin(this.bearing);
 
 			// set image based on direction of movement if there are multiple rotation images
-			this.setRotationImage(dirx, diry);
+			this.updateRotation(dirx, diry);
 		}
 
 		// wind
@@ -6793,7 +6820,7 @@ class NonPlayerAttacker extends Attacker {
 
 		// set image based on direction of projectile (if there are multiple rotation images for this character)
 		// sin and cos wrong direction because pi/2 was added to it
-		this.setRotationImage(Math.sin(projectileRotate), Math.cos(projectileRotate));
+		this.updateRotation(Math.sin(projectileRotate), Math.cos(projectileRotate));
 
 		this.channellingProjectileId = Game.nextEntityId;
 
@@ -7267,7 +7294,7 @@ class Camera extends Entity {
 			// screen shake overrides clamping
 			this.x += this.offsetX;
 			this.y += this.offsetY;
-
+			
 			if (this.following !== undefined) {
 			    // in map corners, the sprite cannot be placed in the center of the screen and we have to change its screen coordinates
 
@@ -8234,12 +8261,12 @@ Game.getStatusIconNumber = function (statusEffect) {
 
 // only called by entity.channelSpell
 // deducts mana, sets cooldown if it's a player, etc.
-// parameters should be an object
-Game.castSpell = function (id, parameters) {
+// additionalParameters should be an object if required
+Game.castSpell = function (spellObj, caster, target, additionalParameters) {
 	// mana
-	if (parameters.caster.constructor.name === "Hero") {
-		if (Game.hero.mana >= Spells[id].manaCost[parameters.tier]) {
-			Game.hero.mana -= Spells[id].manaCost[parameters.tier];
+	if (caster.constructor.name === "Hero") {
+		if (Game.hero.mana >= spellObj.stats.manaCost) {
+			Game.hero.mana -= spellObj.stats.manaCost;
 		}
 		else {
 			// not enough mana
@@ -8252,18 +8279,15 @@ Game.castSpell = function (id, parameters) {
 	}
 
 	// cooldown
-	if (parameters.caster.constructor.name === "Hero") {
-		// find index of spell in hero's spall array
-		let index = parameters.caster.spells.findIndex(spell => spell.id === id);
-		parameters.caster.spells[index].onCooldown = Spells[id].cooldown[parameters.tier];
-	}
-	else {
-		// enemies' spells use a different system (for now), so don't worry about that
-	}
+	spellObj.onCooldown = spellObj.stats.cooldown;
 
-	Spells[id].func(parameters);
+	// trigger spell
+	if (typeof spellObj.onCast !== "undefined") {
+		spellObj.onCast(caster, target, additionalParameters); // e.g. for behaviour of this spell specific to the entity casting it
+	}
+	spellObj.func(caster, target, additionalParameters);
 
-	parameters.caster.spellCasts++; // tracks total number of spell casts by character
+	caster.spellCasts++; // tracks total number of spell casts by character
 }
 
 // see also spelldata.js
@@ -8725,23 +8749,27 @@ Game.loadDefaultImages = function () {
 		Player.skinTone = "fish"
 		Player.ears = "null";
 		Player.hair = "null";
+		Player.beard = "null";
 	}
 
 	if (Player.name === "Pingu") {
 		Player.skinTone = "penguin"
 		Player.ears = "null";
 		Player.hair = "null";
+		Player.beard = "null";
 	}
 
 	if (Player.name === "James") {
 		Player.skinTone = "slug"
 		Player.ears = "null";
 		Player.hair = "null";
+		Player.beard = "null";
 	}
 	if (Player.name === "Axparagus") {
 		Player.skinTone = "humanDark2"
 		Player.hair = "skinFade";
 		Player.hat = "null";
+		Player.beard = "null";
 	}
 
 	// load player images
@@ -8749,6 +8777,7 @@ Game.loadDefaultImages = function () {
 	//toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
 	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
 	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
+	toLoad.push(Loader.loadImage("playerBeard_"+Player.beard, "./assets/playerCustom/beard/" + Player.beard + ".png", false));
 	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
 	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
 	toLoad.push(Loader.loadImage("playerHat_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
@@ -8761,7 +8790,12 @@ Game.loadDefaultImages = function () {
 
 	toLoad.push(Loader.loadImage("status", "./assets/icons/status.png", false));
 
-	toLoad.push(Loader.loadImage("spells", "./assets/icons/spells.png", false));
+    // load player spells
+    for (let i = 0; i < Player.spells.length; i++) {
+        if (typeof Player.spells[i].image !== "undefined") {
+	        toLoad.push(Loader.loadImage("playerSpellRune"+i, Player.spells[i].image, false));
+        }
+    }
 
 	// maybe this should just be done if the player has a fishing rod? - tbd
 	toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
@@ -8832,6 +8866,32 @@ Game.loadArea = function (areaName, destination) {
 	// load images
 	// p = array of promises of images being loaded
     let p = Loader.loadMultipleImages(Areas[areaName].images);
+
+	// also add npc layered images (like the hero) - these don't need to be loaded in in areadata as their addresses are obvious
+	// tbd iterate through additional entity types that might have layered images like this
+	let load = {};
+	if (typeof Areas[areaName].npcs !== "undefined") {
+		for (let i = 0; i < Areas[areaName].npcs.length; i++) {
+			let npc = Areas[areaName].npcs[i];
+			let loadForThisNpc = this.formatNpcImages(npc); // prepares the NPC images for adding, as well as returning the images that need to be loaded in
+			load = Object.assign(load, loadForThisNpc);
+		}
+	}
+	if (typeof Areas[areaName].enemies !== "undefined") {
+		for (let i = 0; i < Areas[areaName].enemies.length; i++) {
+			let npc = Areas[areaName].enemies[i];
+			let loadForThisNpc = this.formatNpcImages(npc);
+			load = Object.assign(load, loadForThisNpc);
+		}
+	}
+	if (typeof Areas[areaName].villagers !== "undefined") {
+		for (let i = 0; i < Areas[areaName].villagers.length; i++) {
+			let npc = Areas[areaName].villagers[i];
+			let loadForThisNpc = this.formatNpcImages(npc);
+			load = Object.assign(load, loadForThisNpc);
+		}
+	}
+    p = p.concat(Loader.loadMultipleImages(load));
 
 	// load in randomly generated villagers if the area has data for them
 
@@ -9519,6 +9579,112 @@ Game.loadArea = function (areaName, destination) {
 	});
 }
 
+// used in loadArea for when NPC image is in a deconstructed format like the player's
+// the properties of the NPC that are passed in are edited by this
+// returns an object of images to be loaded
+Game.formatNpcImages = function (properties) {
+	// if image is an object that specifies at least a skinTone, construct the entity from the images in assets/playerCustom
+	// (i.e. how hero is constructed)
+	if (typeof properties.image === "object" && !Array.isArray(properties.image) && typeof properties.image.skinTone !== "undefined") {
+		properties.images = [];
+		let loadObj = {}; // to be loaded in; returned by the function
+		// skin tone
+		let imgName = "playerSkin_"+properties.image.skinTone;
+		properties.images.push({imageName: imgName});
+		loadObj[imgName] = {normal: "assets/playerCustom/skinTone/" + properties.image.skinTone + ".png"};
+		// face
+		if (typeof properties.image.face !== "undefined") {
+			imgName = "playerFace_"+properties.image.face;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/" + properties.image.face + ".png"};
+		}
+		else {
+			// base face, unless they're an orc
+			if (properties.image.skinTone.substring(0,3) === "orc") {
+				imgName = "playerFace_baseOrc";
+				properties.images.push({imageName: imgName, doNotAnimate: true});
+				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/baseOrc.png"};
+			}
+			else {
+				imgName = "playerFace_base";
+				properties.images.push({imageName: imgName, doNotAnimate: true});
+				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/base.png"};
+			}
+		}
+		// clothing - might be all in one, or separated (tbd)
+		if (typeof properties.image.clothing !== "undefined") {
+			let clothingClass = "npc"; // folder the clothing appears in (defaults to npc)
+			if (typeof properties.image.clothingClass !== "undefined") {
+				clothingClass = properties.image.clothingClass;
+			}
+			imgName = "playerClothing_"+properties.image.clothing;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothing/" + clothingClass + "/" + properties.image.clothing + ".png"};
+		}
+		// facial hair (optional)
+		if (typeof properties.image.beard !== "undefined") {
+			imgName = "playerBeard_"+properties.image.beard;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/beard/" + properties.image.beard + ".png"};
+		}
+		// hair (optional if they're bald)
+		if (typeof properties.image.hair !== "undefined") {
+			imgName = "playerHair_"+properties.image.hair;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/hair/" + properties.image.hair + ".png"};
+		}
+		// ears - usually done to match skin tone, but can be customised ig
+		if (typeof properties.image.ears !== "undefined") {
+			imgName = "playerEars_"+properties.image.ears;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/ears/" + properties.image.ears + ".png"};
+		}
+		else {
+			imgName = "playerEars_"+properties.image.skinTone;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/ears/" + properties.image.skinTone + ".png"};
+		}
+		// hat - optional
+		if (typeof properties.image.hat !== "undefined") {
+			imgName = "playerHat_"+properties.image.hat;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/hat/" + properties.image.hat + ".png"};
+		}
+		// accessories - optional
+		if (typeof properties.image.accessories !== "undefined") {
+			imgName = "playerAccessories_"+properties.images.accessories;
+			properties.images.push({imageName: imgName, doNotAnimate: true});
+			loadObj[imgName] = {normal: "assets/playerCustom/accessories/" + properties.image.accessories + ".png"};
+		}
+
+		properties.image = undefined;
+
+		if (typeof properties.crop !== "undefined") {
+			console.warn("Crop of npc is overwritten by Game.formatNpcImages", properties);
+		}
+		if (typeof properties.animation !== "undefined") {
+			console.warn("Animation of npc is overwritten by Game.formatNpcImages", properties);
+		}
+		properties.crop = {
+			x: 0,
+			y: 0,
+			width: 52,
+			height: 127
+		};
+		properties.animation = {
+			type: "spritesheet",
+			frameTime: 18,
+			imagesPerRow: 4,
+			totalImages: 4,
+			animateBasis: "walk",
+		};
+		properties.spritesheetRotate = true;
+
+		return loadObj;
+	}
+	return false;
+}
+
 // viewportOffset and canvasArea variables
 // called by loadArea and canvas resize
 Game.updateCanvasViewport = function () {
@@ -9630,9 +9796,15 @@ Game.init = function () {
 	// set player projectile
 	this.projectileImageUpdate();
 
-	// set loaded status and spell images
+	// set loaded status icons image
 	this.statusImage = Loader.getImage("status");
-	this.spellImage = Loader.getImage("spells");
+	// set loaded spell rune icon images
+	this.playerSpellImages = [];
+	for (let i = 0; i < Player.spells.length; i++) {
+	    if (typeof Player.spells[i].image !== "undefined") {
+	        this.playerSpellImages[i] = Loader.getImage("playerSpellRune"+i);
+	    }
+	}
 
 	// stun hero if they need to make a decision at the start of the game via dom alert
 	// decidingToSkip would have been set to true via Dom.init calling Tutorial in adventuredata
@@ -9747,6 +9919,7 @@ Game.heroBaseProperties = function () {
 			{imageName: "playerSkin_"+Player.skinTone},
 			{imageName: "playerFace_"+Player.face, doNotAnimate: true},
 			{imageName: "playerClothing_"+Player.clothing},
+			{imageName: "playerBeard_"+Player.beard, doNotAnimate: true},
 			{imageName: "playerHair_"+Player.hair, doNotAnimate: true},
 			{imageName: "playerEars_"+Player.skinTone, doNotAnimate: true},
 			{imageName: "playerHat_"+Player.hat, doNotAnimate: true} // tbd add weapon here
@@ -10208,7 +10381,7 @@ Game.positionLoot = function (items, space) {
 // Villagers
 //
 
-// generate and add villagers from villagerData (in areadata)
+// generate and add villagers from villagerData
 // all random values are based on time (like weather)
 Game.generateVillagers = function (data, areaName) {
 	// designed to change by 1 every 50 minutes
@@ -10240,7 +10413,19 @@ Game.generateVillagers = function (data, areaName) {
 			(this.canBeShown(villager));
 	});
 
-	// loop through possible villagers, picking them based the number of possible villagers in the area
+	for (let i = 0; i < possibleVillagers.length; i++) {
+		let villager = possibleVillagers[i];
+		// deep copy
+		let newVillager = Object.assign({}, villager);
+		newVillager.stats = Object.assign({}, villager.stats);
+		if (typeof villager.image === "object") {
+			newVillager.image = Object.assign({}, villager.image);
+		}
+		possibleVillagers[i] = newVillager;
+	}
+
+
+	// now loop through possible villagers, picking them based the number of possible villagers in the area
 
 	// starting index, increase value, and number to add vary with time (thus villagers picked varies with time)
 
@@ -10263,6 +10448,7 @@ Game.generateVillagers = function (data, areaName) {
 	let villagersToAdd = []; // array of indexes of villagers to add
 	let images = {}; // images to be loaded (same format as in areadata)
 
+	// iterate through all the villagers
 	for (let numberAdded = 0; numberAdded < numberToAdd; numberAdded++) {
 		let villagerIndex = (numberAdded+startValue) % possibleVillagers.length;
 
@@ -10270,15 +10456,30 @@ Game.generateVillagers = function (data, areaName) {
 
 		let villager = possibleVillagers[villagerIndex];
 
+		if (villager.name === "Robert Hendman") {
+			console.log("hi");
+		}
+
+		let formattedImages = this.formatNpcImages(villager);
+
 		// images to be added
 		// note that, for duplicate keys, initial ones will be overritten
-		Object.assign(images, villager.images);
+		if (formattedImages === false) {
+			// villager has standard images
+			Object.assign(images, villager.images);
 
-		// set image name, if one was not already set, from first image loading key
-		if (villager.image === undefined && villager.rotationImages === undefined) {
-			villager.image = Object.keys(villager.images)[0];
+			// set image name, if one was not already set, from first image loading key
+			if (villager.image === undefined && villager.rotationImages === undefined) {
+				villager.image = Object.keys(villager.images)[0];
+			}
+		}
+		else {
+			// villager has layered images, like the player
+			Object.assign(images, formattedImages);
 		}
 	}
+
+	console.log(images);
 
 	// load the images
 	let p = Loader.loadMultipleImages(images);
@@ -10532,6 +10733,19 @@ Game.update = function (delta) {
 			}
 		}
 	}
+    for (let x = 0; x < this.allAttackers.length; x++) {
+        let attacker = this.allAttackers[x];
+        if (typeof attacker.spells !== "undefined") {
+            for (let i = 0; i < attacker.spells.length; i++) {
+                if (typeof attacker.spells[i].onCooldown !== "undefined" && attacker.spells[i].onCooldown > 0) {
+                    attacker.spells[i].onCooldown -= delta*1000;
+                    if (attacker.spells[i].onCooldown < 0) {
+                        attacker.spells[i].onCooldown = 0;
+                    }
+                }
+            }
+        }
+    }
 
 	//
 	// User movement
@@ -10641,7 +10855,7 @@ Game.update = function (delta) {
 			// hero not touching npc
 			canSpeak = false;
 		}
-		else if (Dom.currentlyDisplayed === npc.name) {
+		else if (Dom.currentlyDisplayed === npc.name) { // tbd this isn't always the case even if we are speaking to the npc... change to currentNPC check ?
 			// it is already currently displayed
 			canSpeak = false;
 		}
@@ -10679,154 +10893,242 @@ Game.update = function (delta) {
 					let role = npc.roles[x];
 
 					if (role.roleRequirement === undefined || role.roleRequirement()) {
-						// quest starts
-						if (role.role === "questStart" || role.role === "questStartFinish") {
-							// quest is ready to be accepted
-
+						// quest starts and step finishes
+						// the exact step(s) are specified in the role.step integer/array
+						if (role.role === "questProgress") {
 							let questCanBeStarted = true; // set to false if the quest cannot be started
-							let questToBeStarted = role.quest;
 
-							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
-								// quest is an array (hence a random one is picked each questing time period)
-								// all of these quests are daily quests or jobs (repeatable)
-								if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.quest))) {
-									// one of the quests is currently active
-									questCanBeStarted = false;
-									questActive = true; // for npc dialogue
-								}
-								else if (role.newQuestFrequency === "daily" && role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate())) {
-									// daily quest and one of the quests has already been done today (or after today o.O)
-									questCanBeStarted = false;
-									questComplete = true; // for npc dialogue
-								}
-								else {
-									// pick a quest to be started
-									if (Player.quests.randomDailyQuests[role.questVariable] !== undefined) {
-										// a quest has already been chosen for the player today
-										// note the same system is used for daily and repeatable, because at the moment the chosen repeatable quest is reset every day
-										questToBeStarted = questToBeStarted.find(quest => quest.quest === Player.quests.randomDailyQuests[role.questVariable]);
-									}
-									else {
-										// a quest has not been chosen for the player today
-										questToBeStarted = questToBeStarted.filter(quest => Player.quests.possibleQuestArray.includes(quest.quest));
-										if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
-											// pick random quest
-											questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)];
-
-											// set variable so future quests today are the same
-											Player.quests.randomDailyQuests[role.questVariable] = questToBeStarted.quest;
-										}
-										else {
-											questCanBeStarted = false;
-											notUnlockedRoles = true;
-										}
-									}
-								}
-							}
-							else {
-								// single quest
-								if (!Player.quests.possibleQuestArray.includes(role.quest.quest)) {
-									// quest is not possible
-									questCanBeStarted = false;
-
-									// figure out what NPC should say to the player
-									if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
+							if (role.step === 0 || (Array.isArray(role.step) && role.step.includes(0))) {
+								// check if quest is ready to be started
+								let questToBeStarted = role.quest;
+	
+								if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
+									// quest is an array (hence a random one is picked each questing time period)
+									// all of these quests are daily quests or jobs (repeatable)
+									if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.quest))) {
+										// one of the quests is currently active
+										questCanBeStarted = false;
 										questActive = true; // for npc dialogue
 									}
+									else if (role.newQuestFrequency === "daily" && role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate())) {
+										// daily quest and one of the quests has already been done today (or after today o.O)
+										questCanBeStarted = false;
+										questComplete = true; // for npc dialogue
+									}
 									else {
-										// check if it is daily or one time
-										if (role.quest.repeatTime === undefined) {
-											// one time
-											if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-												// quest has already been completed
-												questComplete = true; // for npc dialogue
-											}
-											else {
-												// quest not unlocked at all (is in "other quests")
-												notUnlockedRoles = true;
-											}
+										// pick a quest to be started
+										if (Player.quests.randomDailyQuests[role.questVariable] !== undefined) {
+											// a quest has already been chosen for the player today
+											// note the same system is used for daily and repeatable, because at the moment the chosen repeatable quest is reset every day
+											questToBeStarted = questToBeStarted.find(quest => quest.quest === Player.quests.randomDailyQuests[role.questVariable]);
 										}
-										else if (role.quest.repeatTime === "daily") {
-											// daily
-											if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
-												// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
-												questComplete = true; // for npc dialogue
+										else {
+											// a quest has not been chosen for the player today
+											questToBeStarted = questToBeStarted.filter(quest => Player.quests.possibleQuestArray.includes(quest.quest));
+											if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
+												// pick random quest
+												questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)];
+	
+												// set variable so future quests today are the same
+												Player.quests.randomDailyQuests[role.questVariable] = questToBeStarted.quest;
 											}
 											else {
-												// quest not unlocked at all (is in "other quests")
+												questCanBeStarted = false;
 												notUnlockedRoles = true;
 											}
 										}
 									}
-
 								}
-							}
-
-							if (questCanBeStarted) {
-								// choose dom checks inventory space
-								textArray.push("Quest start: " + questToBeStarted.quest);
-								functionArray.push(Dom.quest.startFromNpc);
-								parameterArray.push([questToBeStarted, npc]);
-								additionalOnClickArray.push(role.additionalOnClick);
-							}
-						}
-
-						// quest finishes
-						if (role.role === "questFinish" || role.role === "questStartFinish") {
-							// check if quest is ready to be finished
-
-							let questCanBeFinished = true; // set to false if the quest cannot be finished
-							let questToBeFinished = role.quest;
-
-							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
-								// quest is an array (hence a Random one is picked each questing time period)
-								// all of these quests are daily quests or repeatable quests
-
-								questToBeFinished = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
-
-								if (questToBeFinished === undefined) { // none of the quests are currently active
-									questCanBeFinished = false;
-									notUnlockedRoles = true;
+								else {
+									// single quest
+									if (!Player.quests.possibleQuestArray.includes(role.quest.quest)) {
+										// quest is not possible
+										questCanBeStarted = false;
+	
+										// figure out what NPC should say to the player
+										if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
+											questActive = true; // for npc dialogue
+										}
+										else {
+											// check if it is daily or one time
+											if (role.quest.repeatTime === undefined) {
+												// one time
+												if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+													// quest has already been completed
+													questComplete = true; // for npc dialogue
+												}
+												else {
+													// quest not unlocked at all (is in "other quests")
+													notUnlockedRoles = true;
+												}
+											}
+											else if (role.quest.repeatTime === "daily") {
+												// daily
+												if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
+													// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
+													questComplete = true; // for npc dialogue
+												}
+												else {
+													// quest not unlocked at all (is in "other quests")
+													notUnlockedRoles = true;
+												}
+											}
+										}
+	
+									}
 								}
-
-								// no need to check if it has already been completed as these are all daily
-							}
-							else {
-								// single quest
-								if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
-									questCanBeFinished = false;
-									notUnlockedRoles = true;
-								}
-							}
-
-							if (questCanBeFinished) {
-								// check if quest conditions have been fulfilled
-								// canBeFinishedArray used for efficiency
-								if (Player.quests.canBeFinishedArray.includes(questToBeFinished.quest)) {
-									// inventory space is checked by choose DOM
-									textArray.push("Quest finish: " + questToBeFinished.quest);
-									functionArray.push(Dom.quest.finishFromNpc);
-									parameterArray.push([questToBeFinished, npc]);
+	
+								if (questCanBeStarted) {
+									// choose dom checks inventory space
+									textArray.push("Quest start: " + questToBeStarted.quest);
+									functionArray.push(Dom.quest.progressFromNpc);
+									parameterArray.push([questToBeStarted, npc]);
 									additionalOnClickArray.push(role.additionalOnClick);
 								}
-								// quest conditions have not been fulfilled
-								else {
-									questActive = true;
+							}
+
+							if (!questCanBeStarted) {
+								// check if quest step is ready to be finished
+
+								let canBeFinished = true; // set to false if the quest step cannot be finished
+								let quest = role.quest;
+								let stepArray = role.step; // this could be an array
+								if (!Array.isArray(stepArray)) {
+									stepArray = [stepArray];
 								}
 
-							}
-							// quest has already been completed
-							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-								questComplete = true;
+								if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
+									// quest is an array (hence a Random one is picked each questing time period)
+									// all of these quests are daily quests or repeatable quests
+
+									quest = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
+
+									if (quest === undefined) { // none of the quests are currently active
+										canBeFinished = false;
+										notUnlockedRoles = true;
+									}
+
+									// no need to check if it has already been completed as these are all daily
+								}
+								else {
+									// single quest
+									if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
+										canBeFinished = false;
+										notUnlockedRoles = true; // for chat message
+									}
+								}
+
+								if (canBeFinished) {
+									// quest is currently active
+									// loop through each possible step of the quest and see if it's been done or not
+									for (let stepIndex = 0; stepIndex < stepArray.length; stepIndex++) {
+										let step = stepArray[stepIndex]; // the actual step number
+										
+										let stepDone = true;
+
+										if (Player.quests.stepProgress[quest.questArea][quest.id][step]) {
+											// step already been completed
+											stepDone = false;
+										}
+										else if (typeof quest.steps[checkStep].availableUntilStepDone !== "undefined" && Player.quests.stepProgress[quest.questArea][quest.id][quest.steps[checkStep].availableUntilStepDone]) {
+											// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
+											stepDone = false;
+										}
+										else if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
+											// quest's steps must all be completed in order (other than optional steps)
+											let checkStep = step-1;
+											while (quest.steps[checkStep].optional && checkStep >= 0) {
+												checkStep--;
+											}
+											if (checkStep >= 0 && !Player.quests.stepProgress[quest.questArea][quest.id][checkStep]) {
+												// previous step not been done yet
+												stepDone = false;
+											}
+										}
+
+										if (stepDone) {
+											// keep checking ..
+											if (typeof quest.steps[step].objectiveRequirement === "undefined") {
+												// no objectives need to be completed for this step
+												stepDone = true;
+											}
+											else {
+												// there are objectives that need to be completed for this step
+												for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
+													let obj = quest.steps[step].objectiveRequirement[objIndex];
+													if (Player.quests.objectiveProgress[quest.questArea][quest.id] !== true) {
+														// objective is not done
+														stepDone = false;
+														break;
+													}
+												}
+											}
+										}
+
+										// check if ready for this step to be completed
+										if (stepDone) {
+											// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
+											questFinish = true;
+											for (let i = 0; i < quest.steps.length; i++) {
+												if (!Player.quests.stepProgress[quest.questArea][quest.id][i] && !quest.steps[i].optional && i!==step) {
+													// the step is not finished, isn't optional, and isn't the step that's just about to be done
+													questFinish = false;
+													break;
+												}
+											}
+
+											if (typeof quest.steps[step].chooseText !== "undefined") {
+												textArray.push(quest.steps[step].chooseText);
+											}
+											else if (questFinish) {
+												// quest is to be finished
+												textArray.push(role.chooseText || "Quest finish: " + quest.quest);
+											}
+											else {
+												textArray.push(role.chooseText || "Quest progress: " + quest.quest);
+											}
+											parameterArray.push([quest, npc, step, questFinish]);
+											functionArray.push(Dom.quest.progressFromNpc);
+											additionalOnClickArray.push(role.additionalOnClick);
+											// (inventory space is checked by choose DOM)
+
+											if (quest.steps[step].forceChoose) {
+												forceChoose = true;
+											}
+
+											break; // don't check any other steps - this npc just progresses the first available step in the steps array
+										}
+
+										// check if quest conditions have been fulfilled
+										// old::
+										/*if (Player.quests.canBeFinishedArray.includes(quest.quest)) {
+											// inventory space is checked by choose DOM
+											textArray.push("Quest finish: " + quest.quest);
+											functionArray.push(Dom.quest.finishFromNpc);
+											parameterArray.push([quest, npc]);
+											additionalOnClickArray.push(role.additionalOnClick);
+										}
+										// quest conditions have not been fulfilled
+										else {
+											questActive = true;
+										}*/
+									}
+
+								}
+								// quest has already been completed
+								else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
+									questComplete = true;
+								}
 							}
 						}
 
 						// quest progression
-						if (role.role === "questProgress") {
+						/*if (role.role === "questProgress") {
 							// check if quest is ready to be progressed
 
 							let questCanBeProgressed = true; // set to false if the quest cannot be finished
 							let questToBeProgressed = role.quest;
+							let questSteps = role.steps;
 
 							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
 								// quest is an array (hence a Random one is picked each questing time period)
@@ -10853,15 +11155,14 @@ Game.update = function (delta) {
 								// check if quest conditions have been fulfilled
 
 								let isCompleted = questToBeProgressed.isCompleted();
-								let canBeProgressed = true;
 								for (let i = 0; i < role.step; i++) { // one step for each quest objective
 									if (isCompleted[i] !== true) {
-										canBeProgressed = false;
+										questCanBeProgressed = false;
 										break;
 									}
 								}
 
-								if (canBeProgressed) {
+								if (questCanBeProgressed) {
 									// inventory space is checked by choose DOM
 									textArray.push(role.chooseText || "Quest progress: " + questToBeProgressed.quest);
 									functionArray.push(Dom.quest.progressFromNpc);
@@ -10878,7 +11179,7 @@ Game.update = function (delta) {
 							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
 								questComplete = true;
 							}
-						}
+						}*/
 
 						// merchants
 						else if (role.role === "merchant") {
@@ -11004,7 +11305,7 @@ Game.update = function (delta) {
 							// bank appears as an option for choose DOM
 							textArray.push(role.chooseText || "I'd like to access my bank storage.");
 							functionArray.push(Dom.bank.page);
-							parameterArray.push([]);
+							parameterArray.push([npc]);
 							additionalOnClickArray.push(role.additionalOnClick);
 						}
 
@@ -11023,6 +11324,15 @@ Game.update = function (delta) {
 							textArray.push(role.chooseText);
 							functionArray.push(Dom.text.page);
 							parameterArray.push([npc.name, role.chat, role.showCloseButton, role.buttons, role.functions, role.give]);
+							additionalOnClickArray.push(role.additionalOnClick);
+						}
+
+						// npc chat banner - better to use than "text" usually
+						else if (role.role === "chatBanner") {
+							// npc chat banner appears as an option in choose DOM
+							textArray.push(role.chooseText);
+							functionArray.push(Dom.chat.npcBanner);
+							parameterArray.push([npc, role.chat]);
 							additionalOnClickArray.push(role.additionalOnClick);
 						}
 
@@ -12638,8 +12948,11 @@ Game.drawImageRotated = function (ctx, img, cropX, cropY, cropWidth, cropHeight,
 // update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
 // screenX and screenY are the CENTRE of the object (hence width/2 or height/2 are subtracted when drawing images to get the top left), as are x and y
 Game.updateScreenPosition = function (entity) {
-	entity.screenX = (entity.x) - this.camera.x + this.viewportOffsetX;
-	entity.screenY = (entity.y) - this.camera.y + this.viewportOffsetY;
+	let renderX = entity.x;
+	let renderY = entity.y;
+
+	entity.screenX = Math.round((renderX) - this.camera.x + this.viewportOffsetX);
+	entity.screenY = Math.round((renderY) - this.camera.y + this.viewportOffsetY);
 
 	if (typeof entity.adjust !== "undefined") { // adjust postiion
 		let angle = this.bearing(entity, entity.adjust.towards);
@@ -12651,10 +12964,6 @@ Game.updateScreenPosition = function (entity) {
 		entity.hitbox.screenX = (entity.hitbox.x) - this.camera.x + this.viewportOffsetX;
 		entity.hitbox.screenY = (entity.hitbox.y) - this.camera.y + this.viewportOffsetY;
 	}
-
-	// not ideal because it makes objects a bit juddery, but without it tiles (i.e. long grass in plains) sometimes have white gaps between them :(
-	entity.screenX = Round(entity.screenX, 1);
-	entity.screenY = Round(entity.screenY, 1);
 }
 
 // draw character health bar, name etc. in correct place
@@ -12829,7 +13138,7 @@ Game.drawManaBar = function (ctx, character, x, y, width, height) {
 			else {
 				// default
 				ctx.fillStyle = "#8f34eb";
-				console.warn("No dedicated health bar colour for bar size " + barValue);
+				console.warn("No dedicated mana bar colour for bar size " + barValue);
 			}
 
 			// health bar body
@@ -13040,19 +13349,18 @@ Game.drawSpells = function (ctx, character, x, y, height, alignment) {
 
 	// iterate through character's spells
 	for (let i = 0; i < character.spells.length; i++) {
-		// get number of image in spell image tileset
-		let iconNum = Spells[character.spells[i].id].imgIconNum;
-
-		// draw the image
-		ctx.drawImage(this.spellImage, 0, 27 * iconNum, 27, 27, startX + i * (height*1.2), y, height, height);
-
-		// draw time remaining (if the spell has one)
-		ctx.fillStyle = "black";
-		ctx.font = fontSize + "px El Messiri";
-		ctx.textAlign = "right";
-
-		if (typeof character.spells[i].onCooldown !== "undefined" && character.spells[i].onCooldown > 0) {
-			ctx.fillText(Round(character.spells[i].onCooldown/1000), (startX+height*0.9) + i * (height*1.2), y+height);
+		if (typeof character.spells[i].id !== "undefined" && this.playerSpellImages[i] !== "Loading") {
+			// draw the image
+			ctx.drawImage(this.playerSpellImages[i], 0, 0, 50, 50, startX + i * (height*1.2), y, height, height);
+	
+			// draw time remaining (if the spell has one)
+			ctx.fillStyle = "black";
+			ctx.font = fontSize + "px El Messiri";
+			ctx.textAlign = "right";
+	
+			if (typeof character.spells[i].onCooldown !== "undefined" && character.spells[i].onCooldown > 0) {
+				ctx.fillText(Round(character.spells[i].onCooldown/1000), (startX+height*0.9) + i * (height*1.2), y+height);
+			}
 		}
 	}
 
@@ -13241,7 +13549,7 @@ Game.render = function (delta) {
 		}
 	}
 	// gnomesort - used because it is fast on mostly sorted data (which this will be because NPCs don't move)
-	let i = 0;
+	let i = 1;
 	while (i < this.allVisibles.length) {
 		if (i === 0 || this.allVisibles[i].sortValue >= this.allVisibles[i-1].sortValue) {
 			// nothing to swap
@@ -13463,8 +13771,8 @@ Game.renderObject = function (objectToRender) {
 	let drawX = objectToRender.screenX - objectToRender.width / 2;
 	let drawY = objectToRender.screenY - objectToRender.height / 2;
 	if (objectToRender.roundPosition) { // see entity class for explanation
-		drawX = Round(drawX, 0);
-		drawY = Round(drawY, 0);
+		drawX = Math.round(drawX);
+		drawY = Math.round(drawY);
 	}
 
 

@@ -106,6 +106,28 @@ var Skins = {
 			src: "penguin",
 			series:	"Dev",
 		},
+		{
+			id: 13,
+			race: "Panda",
+			colour: "White",
+			src: "panda",
+			series:	"Dev",
+		},
+		{
+			id: 14,
+			race: "Slug",
+			colour: "Brown",
+			src: "slug",
+			series:	"Dev",
+		},
+		{
+			id: 15,
+			race: "Human",
+			colour: "Tan1",
+			src: "humanTan1",
+			series:	"Classic",
+			base: true,
+		},
 	],
 	mageClothing: [
 		{
@@ -223,8 +245,79 @@ var Skins = {
 			id: 5,
 			name: "No Hair",
 			src: "null", // colour is appended to the end of this
+			blank: true,
 			colourless: true,
 			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 6,
+			name: "Short 2",
+			src: "short2", // colour is appended to the end of this
+			series:	"NPCs", // othmar, but also available for player !
+			base: true,
+		},
+		{
+			id: 7,
+			name: "Bob",
+			src: "bob", // colour is appended to the end of this
+			series:	"NPCs", // wilma, but also available for player !
+			base: true,
+		},
+		{
+			id: 8,
+			name: "Bedhead",
+			src: "bedhead", // colour is appended to the end of this
+			series:	"NPCs", // robert hendman, but also available for player !
+			base: true,
+		},
+		{
+			id: 9,
+			name: "Crazy",
+			src: "crazy", // colour is appended to the end of this
+			series:	"NPCs", // crazy cat lady, but also available for player !
+			base: true,
+		},
+		{
+			id: 10,
+			name: "Microfringe",
+			src: "microfringe", // colour is appended to the end of this
+			series:	"NPCs", // iglooghost, but also available for player !
+			base: true,
+		},
+		{
+			id: 11,
+			name: "Orc Ponytail",
+			src: "orcPonytail", // colour is appended to the end of this
+			series:	"Classic 2",
+			base: true,
+		},
+	],
+	beard: [
+		{
+			id: 0,
+			name: "No Facial Hair",
+			src: "null",
+			blank: true,
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 1,
+			name: "beard",
+			src: "beard", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
+			],
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 2,
+			name: "Mutton Chops",
+			src: "muttonChops", // colour is appended to the end of this
+			additionalColours: [ // in addition to those in hairColours
+			],
+			series:	"Classic 2",
 			base: true,
 		},
 	],
@@ -233,11 +326,52 @@ var Skins = {
 			id: 0,
 			name: "No Hat",
 			src: "null",
+			blank: true,
 			series:	"Classic",
 			base: true,
 		},
+		{
+			id: 1,
+			name: "Archer Hat",
+			src: "archerHat",
+			series:	"Classic",
+			base: true,
+			class: "a", // for archers only
+		},
+		{
+			id: 2,
+			name: "Mage Hat",
+			src: "mageHat",
+			series:	"Classic",
+			base: true,
+			class: "m", 
+		},
+		{
+			id: 3,
+			name: "Knight Hat",
+			src: "knightHat",
+			series:	"Classic",
+			base: true,
+			class: "k", 
+		},
+		{
+			id: 4,
+			name: "Ginger Cat Hat",
+			src: "catHatGinger",
+			series:	"Classic",
+			base: true,
+		},
+		{
+			id: 4,
+			name: "Neo Hat",
+			src: "iglooghost",
+			series:	"NPC",
+			offset: {
+				//tbd
+			},
+			// npc only - iglooghost
+		},
 	],
-
 	// old skins below:
 	a: [
 		{

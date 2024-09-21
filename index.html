@@ -31,7 +31,9 @@
 		<div id='outTriangle' class='triangleLeft'></div>
 		<div id='triangle' class='innerTriangleLeft'></div>
 		<p id='name' style="font-weight: bold;"></p>
+		<p id='itemDescriptionText'></p> <!-- for spells -->
 		<p id='quest' style="color: slateblue;">Quest item</p>
+		<p id='itemTier'></p>
 		<p id='stats'></p>
 		<p id='conditionalStats'></p>
 		<p id='chooseStats'></p>
@@ -129,9 +131,6 @@
 	</div>
 
 	<div id="adventurePage" hidden class="DOM">
-	</div>
-
-	<div id="reputationPage" hidden class="DOM">
 
 		<div id="adventureWrapper">
 				<div id="level" style="display:inline;">Level 1</div>
@@ -147,6 +146,24 @@
 			<p style="font-size: 20px;">To improve your reputation, help the people in that area by doing quests for them or by attacking their enemies. Be careful though, because if you do something to make them angry they might not forgive you easily.</p>
 		</div>
 
+	</div>
+
+	<div id="spellbookPage" hidden class="DOM">
+		<div id="spellEquipWrapper">
+			<table id="spellsEquipped">
+				<tr>
+					<td id="spellSlot1" ondrop="Dom.spellbook.equip(0);" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.spells[0], undefined, 'spellbookPage', undefined, undefined, undefined, 'Spell slot empty')" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')"></td>
+					<td id="spellSlot2" ondrop="Dom.spellbook.equip(1);" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.spells[1], undefined, 'spellbookPage', undefined, undefined, undefined, 'Spell slot empty')" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')""></td>
+					<td id="spellSlot3" ondrop="Dom.spellbook.equip(2);" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.spells[2], undefined, 'spellbookPage', undefined, undefined, undefined, 'Spell slot empty')" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')""></td>
+				</tr>
+			</table>
+
+			<table id="spellArsenal">
+			</table>
+		</div>
+
+		<div id="spellTreeWrapper">
+		</div>
 	</div>
 
 	<div id="settingsPage" hidden class="DOM">
@@ -320,14 +337,16 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		<div id="accept" class="closeClass" onclick="Dom.quest.accept()">Accept</div>
 		<div id="decline" class="closeClass" onclick="Dom.closePage('questStart')">Decline</div>
 	</div>
-	<div id="questFinish" hidden class="DOM shortDOM">
+	<div id="questFinish" hidden class="DOM shortDOM"> <!-- used for finishing a step of a quest (not just the whole thing) -->
 		<br><h1 id="questFinishQuest"></h1>
+		<b id="questFinishObjectivesHeading"></b>
+		<br><p id="questFinishObjectives"></p>
 		<p id="questFinishRewardsTitle"></p>
 		<p id="questFinishRewards"></p>
 		<div id="questFinishXP"></div><span id="xpClass">&nbsp;&nbsp;</span>
 		<div id="questFinishItems"></div>
-		<div id="acceptReward" class="closeClass" onclick="Dom.quest.acceptRewards();">Complete Quest</div>
-		<div id="declineReward" class="closeClass" onclick="Dom.quest.declineRewards();">Not Now</div>
+		<div id="acceptReward" class="closeClass" onclick="Dom.quest.dismissRewards();">Dismiss</div>
+		<!--<div id="declineReward" class="closeClass" onclick="Dom.quest.declineRewards();">Not Now</div>-->
 		<img id="chanceImage" src="./assets/icons/bag.png" hidden></img>
 		<p id="chance" hidden>You do not have enough inventory space to hold all of the possible rewards from this quest. If you complete it now, there is a chance you might not get as many rewards as you could.</p>
 	</div>
@@ -425,13 +444,13 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 	</div>
 
 	<div id="bookmarks">
-		<img id="changeChat" class="changePage" src="assets/icons/Tag1.png" onclick="Dom.changeBook('chatPage', true)"></img>
+		<img id="changeChat" class="changePage" src="assets/icons/Tag1.png" onclick="Dom.changeBook('chatPage', undefined, true)"></img>
 		<!--<span id="dot" onclick="Dom.changeBook('chatPage', true)" hidden></span>-->
-		<img id="changeInventory" class="changePage" src="assets/icons/Tag2.png" onclick="Dom.changeBook('inventoryPage', true)"></img>
-		<img id="changeQuests" class="changePage" src="assets/icons/Tag3.png" onclick="Dom.changeBook('questsPage', true)"></img>
-		<img id="changeReputation" class="changePage" src="assets/icons/Tag4.png" onclick="Dom.changeBook('reputationPage', true)"></img>
-		<img id="changeAdventure" class="changePage" src="assets/icons/Tag5.png" onclick="Dom.changeBook('adventurePage', true)"></img>
-		<img id="changeSettings" class="changePage" src="assets/icons/Tag6.png" onclick="Dom.changeBook('settingsPage', true)"></img>
+		<img id="changeInventory" class="changePage" src="assets/icons/Tag2.png" onclick="Dom.changeBook('inventoryPage', undefined, true)"></img>
+		<img id="changeQuests" class="changePage" src="assets/icons/Tag3.png" onclick="Dom.changeBook('questsPage', undefined, true)"></img>
+		<img id="changeAdventure" class="changePage" src="assets/icons/Tag4.png" onclick="Dom.changeBook('adventurePage', undefined, true)"></img>
+		<img id="changeSpellbook" class="changePage" src="assets/icons/Tag5.png" onclick="Dom.changeBook('spellbookPage', undefined, true)"></img>
+		<img id="changeSettings" class="changePage" src="assets/icons/Tag6.png" onclick="Dom.changeBook('settingsPage', undefined, true)"></img>
 	</div>
 
 	<script src="./gamedata/functions.js"></script>

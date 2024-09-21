@@ -283,43 +283,6 @@ var Areas = {
 						},
 						shopGreeting: "If ya do enough fishing, you can get some rare items. Heheh.",
 					},
-					{
-						role: "text",
-						chooseText: "Show <strong>Fisherman Tobenam</strong> the <b>blueprint</b>.",
-						chat: `I haven't seen one of those in a while, heheh. Those fish are pretty rare, heheh, but I'm sure you can find one of them here. Trying fishing a while and you should find one.`,
-						buttons: ["Leave"],
-						showCloseButton: false,
-						forceChoose: true, // forces choose dom
-						functions: [function () {
-							// close page
-							Dom.closePage("textPage");
-							// quest progress
-							Player.quests.questProgress.troubledWaters2Progress = 5;
-							Dom.quests.active();
-							Dom.inventory.removeById(74, "item", 1);
-						}],
-						roleRequirement: function () {
-							return Player.quests.questProgress.troubledWaters2Progress === 4;
-						},
-					},
-					/*{
-						role: "text",
-						chooseText: "Show <strong>Fisherman Tobenam</strong> the <b>Universal Translator</b>.",
-						chat: `Heheheh, you found one. I'll see you around then, heheh.`,
-						buttons: ["Leave"],
-						showCloseButton: false,
-						forceChoose: true, // forces choose dom
-						functions: [function () {
-							// close page
-							Dom.closePage("textPage");
-							// quest progress
-							Player.quests.questProgress.troubledWaters2Progress = 7;
-							Dom.quests.active();
-						}],
-						roleRequirement: function () {
-							return Player.quests.questProgress.troubledWaters2Progress === 6;
-						},
-					},*/
 				],
 				chat: {
 					notUnlockedRoles: "It's a great day to fish, heheh.",
@@ -4981,7 +4944,7 @@ animation: {
 		// border lampposts
 		{
 			x: [2920.3, 4584.3, 5038.7, 5261.7,  5068.8, 4672.4, 4751.3, 2184, 2491.6, 2858.3, 2404.2, 5490.7, 3302.3, 4195.1, 2753.5, 5776.2, 6334.5, 6648.3, 5526.9, 5888.1, 6416.8, 2784, 1658.9, 1302.6, 1010, 4360.8, 3144.4, 3567.6, 3929],
-			y: [1888.2, 1888.2, 1732.8, 1895.9,  3166.4, 3166.4, 2229.5, 1955.3, 1807.1, 3170.2, 3170.2, 3043.7, 3586.1, 3586.1, 2218.5, 3211.1, 2995.9, 3213.9, 2131.8, 1965.8, 2183.1,  1463.3, 2137.7, 1954.7, 2183, 2029.3, 2029.3, 3297.8, 3297.8],
+			y: [1888.2, 1888.2, 1732.8, 1895.9,  3166.4, 3166.4, 2229.5, 1955, 1807.1, 3170.2, 3170.2, 3043.7, 3586.1, 3586.1, 2218.5, 3211.1, 2995.9, 3213.9, 2131.8, 1965.8, 2183.1,  1463.3, 2137.7, 1954.7, 2183, 2029.3, 2029.3, 3297.8, 3297.8],
 			imageDay: "eaglecrestLampDay",
 			imageNight: "eaglecrestLampNight",
 			name: "Eaglecrest Lamp",
@@ -6291,7 +6254,7 @@ animation: {
 							{item: Items.food[4], cost: 0, quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Sandwich
 							{item: Items.food[1], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Mince Pie
 							{item: Items.food[2], cost: 0, eventRequirement: "Christmas", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Christmas Pudding
-							{item: Items.food[11], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
+							{item: Items.food[12], cost: 0, eventRequirement: "Antorax", quest: true, unconsumable: true, removeOnAbandon: "Hungry Taverners"}, // Birthday Cake (changed every year)
 						],
 						role: "merchant",
 						roleRequirement: function () {
@@ -6311,7 +6274,7 @@ animation: {
 							{item: Items.consumable[16], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mulled Wine
 							{item: Items.food[1], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Mince Pie
 							{item: Items.food[2], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Pudding
-							{item: Items.food[11], cost: 8, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
+							{item: Items.food[12], cost: 8, eventRequirement: "Antorax"}, // Birthday Cake (changed every year)
 							{item: Items.consumable[21], cost: 3,}, // Beetroot Beer
 							{item: Items.food[0], cost: 2,}, // Bread
 							{item: Items.food[4], cost: 4,}, // Sandwich
@@ -7270,25 +7233,6 @@ animation: {
                             return Player.quests.questProgress.troubledWaters2Progress === 2;
                         },
                     },
-					{
-                        role: "text",
-                        chooseText: "Give blueprint to <strong>Alchemist Tamtam</strong>.",
-                        chat: `Not suuuuuure what I can do with this! This looks more like a fish than a device or alchemy ingrediant!<br><br>
-						Maybe talk to <strong>Fisherman Tobenam</strong> and see if he can do something with it!`,
-                        buttons: ["Leave"],
-                        showCloseButton: false,
-                        forceChoose: true, // forces choose dom
-                        functions: [function () {
-                            // close page
-                            Dom.closePage("textPage");
-                            // quest progress
-							Player.quests.questProgress.troubledWaters2Progress = 4;
-                            Dom.quests.active();
-                        }],
-                        roleRequirement: function () {
-                            return Player.quests.questProgress.troubledWaters2Progress === 3;
-                        },
-                    },
 				],
 				chat: {
 					chooseChat: "Loooooking good my friend! Wanna buy a potion?",
@@ -7517,36 +7461,6 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 							},
 						],
 					},
-					{
-                        role: "text",
-                        chooseText: "Ask about a <b>translator</b>.",
-                        chat: `A <b>translator?</b> I have things much greater!<br><br>
-						But I also have something that you could be looking for. Here's a <b>blueprint</b> which I found while trying to find some more wares to sell. I was going to bring it to <strong>Alchemist Tamtam</strong> later, but it seems it could be more useful to you.<br><br>
-						Try bringing it to <strong>Alchemist Tamtam</strong> and see if he can build the <b>translator</b> for you!<br><br>
-						Gold? No need, take it for free. Although, make sure to buy some of my wares later!`,
-                        buttons: ["Leave"],
-                        showCloseButton: false,
-                        forceChoose: true, // forces choose dom
-                        functions: [function () {
-                            // close page
-                            Dom.closePage("textPage");
-                            // quest progress
-							if (Dom.inventory.checkSpace() > 0)
-							{
-								Player.quests.questProgress.troubledWaters2Progress = 3;
-	                            Dom.quests.active();
-								//give quest item
-								Dom.inventory.give(Items.item[74]);
-							}
-							else {
-								//say users inventory is full
-								Dom.chat.insert("<strong>Shopkeeper Barda</strong>: Unless the cards have bluffed... your inventory is stuffed. Come back when you have more space.");
-							}
-                        }],
-                        roleRequirement: function () {
-                            return Player.quests.questProgress.troubledWaters2Progress === 2;
-                        },
-                    },
 				],
 				chat: {
 					chooseChat: "My shop's a given, now make a decision.",
@@ -9714,27 +9628,6 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                             role: "questStart",
                             quest: Quests.eaglecrest[12]
                         },
-						{
-	                        role: "text",
-	                        chooseText: "Tell <strong>Fisherman Guimtal</strong> about <strong>Fisher Sharptooth</strong>.",
-	                        chat: `Ah, I see. They're a cat.<br><br>
-							Yah see, I've never actually spoken to 'em, I just heard from mah friends.<br><br>
-							Why don't yah try speakin' to some <b>shopkeepers</b> in <strong>Eaglecrest</strong> and see if they sellin' any <b>translators</b> or somethin' like that.<br><br>
-							I'll see yah around, then.`,
-	                        buttons: ["Leave"],
-	                        showCloseButton: false,
-	                        forceChoose: true, // forces choose dom
-	                        functions: [function () {
-	                            // close page
-	                            Dom.closePage("textPage");
-	                            // quest progress
-	                            Player.quests.questProgress.troubledWaters2Progress = 2;
-	                            Dom.quests.active();
-	                        }],
-	                        roleRequirement: function () {
-	                            return Player.quests.questProgress.troubledWaters2Progress === 1;
-	                        },
-	                    },
                 ],
                 chat: {
                     questProgress: "What've yah caught?",
@@ -9756,24 +9649,6 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                     healthRegen: 0.3,
                 },
                 roles: [
-	                    {
-	                        role: "text",
-	                        chooseText: "Say that <b>Fisherman Guimtal</b> sent you.",
-	                        chat: "Miau, miau miau miau miau! Miau miau miau.",
-	                        buttons: ["Leave"],
-	                        showCloseButton: false,
-	                        forceChoose: true, // forces choose dom
-	                        functions: [function () {
-	                            // close page
-	                            Dom.closePage("textPage");
-	                            // quest progress
-	                            Player.quests.questProgress.troubledWaters2Progress = 1;
-	                            Dom.quests.active();
-	                        }],
-	                        roleRequirement: function () {
-	                            return Player.quests.questProgress.troubledWaters2Progress === 0;
-	                        },
-	                    },
 						{
 	                        role: "questFinish",
 	                        quest: Quests.eaglecrest[12],
@@ -9786,10 +9661,10 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 	                        role: "questStartFinish",
 	                        quest: Quests.eaglecrest[14],
 						},
-										{
-												role: "questStartFinish",
-												quest: Quests.eaglecrest[16]
-										},
+						{
+								role: "questStartFinish",
+								quest: Quests.eaglecrest[16]
+						},
 						{
 	                        role: "text",
 	                        chooseText: "Show <b>Fisher Sharptooth</b> the fish you collected.",
@@ -10568,8 +10443,8 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				}
 			},
 			{
-                x: [2667.7, 2054.5, 2055.1, 2150.1, 2363.3, 2291.2, 2020.4, 4543.8],
-                y: [484.3, 1052.7, 1432.1, 1764.4, 2633.2, 3173.4, 3526, 4270.5],
+                x: [2667, 2054.5, 2055.1, 2150.1, 2363.3, 2291.2, 2020.4, 4543.8],
+                y: [484, 1052.7, 1432.1, 1764.4, 2633.2, 3173.4, 3526, 4270.5],
                 name: "Lantern",
 				imageDay: "lanternDayRight",
 				imageNight: "lanternNightRight",

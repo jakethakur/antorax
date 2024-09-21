@@ -3,7 +3,9 @@
 // ids of unlocked customisation options in skindata
 let unlocked = {
 	skinTone: [],
+	beard: [],
 	hair: [],
+	hat: [],
 	mageClothing: [],
 	archerClothing: [],
 	knightClothing: [],
@@ -48,9 +50,10 @@ else {
 }
 
 let previewDirection = 0;
-let selected = { // default values
+let selected = { // default values (tbd randomise these)
 	a: {
 		skinTone: 0,
+		beard: 0,
 		hair: 0,
 		archerClothing: 0,
 		hairColour: "Black",
@@ -58,6 +61,7 @@ let selected = { // default values
 	},
 	m: {
 		skinTone: 0,
+		beard: 0,
 		hair: 0,
 		mageClothing: 0,
 		hairColour: "Black",
@@ -65,6 +69,7 @@ let selected = { // default values
 	},
 	k: {
 		skinTone: 0,
+		beard: 0,
 		hair: 0,
 		knightClothing: 0,
 		hairColour: "Black",
@@ -85,11 +90,10 @@ if(localStorageSelected !== null){
 	if (typeof localStorageSelected.m !== "object") {
 		localStorageSelected.m = {};
 	}
-	Object.assign(localStorageSelected.k, selected.k);
-	Object.assign(localStorageSelected.a, selected.a);
-	Object.assign(localStorageSelected.m, selected.m);
-
-	selected = localStorageSelected;
+	Object.assign(selected.k, localStorageSelected.k);
+	Object.assign(selected.a, localStorageSelected.a);
+	Object.assign(selected.m, localStorageSelected.m);
+	selected.class = localStorageSelected.class;
 }
 else {
 	selected.class = Object.keys(selected)[Math.floor(Math.random()*3)];
@@ -223,8 +227,14 @@ bowEl.onclick = function(){
 	clearInterval(swordAnimInterval);
 	swordAnimInterval = null;
 
+	if (customisationDisp === "mageClothing" || customisationDisp === "knightClothing") {
+		customisationDisp = "archerClothing";
+		imageDirectory = "clothing/archer/";
+	}
+
 	save();
 	arrange();
+	populateSelectionMenu();
 }
 
 staffEl.onclick = function(){
@@ -245,9 +255,14 @@ staffEl.onclick = function(){
 	clearInterval(swordAnimInterval);
 	swordAnimInterval = null;
 
+	if (customisationDisp === "archerClothing" || customisationDisp === "knightClothing") {
+		customisationDisp = "mageClothing";
+		imageDirectory = "clothing/mage/";
+	}
 
 	save();
 	arrange();
+	populateSelectionMenu();
 }
 
 swordEl.onclick = function(){
@@ -268,8 +283,14 @@ swordEl.onclick = function(){
 
 	swordEl.style.backgroundImage = 'url("./assets/swordAnim/hoverSelect.png")';
 
+	if (customisationDisp === "mageClothing" || customisationDisp === "archerClothing") {
+		customisationDisp = "knightClothing";
+		imageDirectory = "clothing/knight/";
+	}
+
 	save();
 	arrange();
+	populateSelectionMenu();
 }
 
 // animations
@@ -396,7 +417,7 @@ document.getElementById("play").onclick = function(){
 
 		// sometimes sessionStorage doesn't carry over i.e. firefox local version. so store this info in the domain name instead for local versions
 		if (location.hostname === "" || location.hostname === "localhost") {
-			window.location.replace("../index.html?class="+selected.class+"&name="+document.getElementById("name").value+"&skinTone="+selected[selected.class].skinTone+"&clothing="+selected[selected.class][selected.classFull+"Clothing"]+"&hair="+selected[selected.class].hair+"&hairColour="+selected[selected.class].hairColour+"&hat="+selected[selected.class].hat);
+			window.location.replace("../index.html?class="+selected.class+"&name="+document.getElementById("name").value+"&skinTone="+selected[selected.class].skinTone+"&clothing="+selected[selected.class][selected.classFull+"Clothing"]+"&beard="+selected[selected.class].beard+"&hair="+selected[selected.class].hair+"&hairColour="+selected[selected.class].hairColour+"&hat="+selected[selected.class].hat);
 		}
 		else {
 			window.location.replace("../index.html");
@@ -438,7 +459,7 @@ function display () {
 		"<br><span style='font-size: 22px;'>"+JSON.parse(localStorage.getItem(selected.class)).displayAreaName+"</span>";
 	}
 	else {
-		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 16px;'>Not Started</span>";
+		document.getElementById("info").innerHTML = "<strong>Level 0</strong><br><span style='font-size: 22px;'>Not Started</span>";
 	}
 
 	// update player image
@@ -460,12 +481,23 @@ function display () {
 	let clothingSrc = Skins[selected.classFull+"Clothing"][selected[selected.class][selected.classFull+"Clothing"]].src;
 	document.getElementById("clothingPreview").src = "../assets/playerCustom/clothing/" + selected.classFull + "/" + clothingSrc + ".png";
 
+	// beard
+	let beardSrc = Skins.beard[selected[selected.class].beard].src;
+	if (!Skins.beard[selected[selected.class].beard].blank) {
+		beardSrc += selected[selected.class].hairColour;
+	}
+	document.getElementById("beardPreview").src = "../assets/playerCustom/beard/" + beardSrc + ".png";
+
 	// hair
-	let hairSrc = Skins.hair[selected[selected.class].hair].src + selected[selected.class].hairColour;
+	let hairSrc = Skins.hair[selected[selected.class].hair].src;
+	if (!Skins.hair[selected[selected.class].hair].blank) {
+		hairSrc += selected[selected.class].hairColour;
+	}
 	document.getElementById("hairPreview").src = "../assets/playerCustom/hair/" + hairSrc + ".png";
 
-	// hat, ears, face tbd
-
+	// hat
+	let hatSrc = Skins.hat[selected[selected.class].hat].src;
+	document.getElementById("hatPreview").src = "../assets/playerCustom/hat/" + hatSrc + ".png";
 }
 
 var customisationDisp;
@@ -529,37 +561,52 @@ function deselectButtons () {
 // customisation screen population
 function populateSelectionMenu () {
 	document.getElementById("customisationSelect").innerHTML = "";
+	document.getElementById("customisationSelect2").innerHTML = "";
 	document.getElementById("customisationColourSelect").innerHTML = "";
 
 	for (let j = 0; j < unlocked[customisationDisp].length; j++) {
 		let skindataId = unlocked[customisationDisp][j]; // id in skindata
 		let skin = Skins[customisationDisp][skindataId]; // object in skindata
 
-		let colour;
-		if (customisationDisp === "hair") {
-			colour = Skins.hairColours[0]; // default colour
+		// check this is for the correct class (i.e. for hats)
+		if (typeof skin.class === "undefined" || skin.class === selected.class) {
+			addCustomisationElement(skin, "customisationSelect", j, customisationDisp);
 		}
-		else if (typeof skin.colours !== "undefined") {
-			colour = skin.colours[0]; // default colour
-		}
-		else {
-			colour = {name: ""}; // no colours available for this
-		}
-
-		// add an el for each item
-		document.getElementById("customisationSelect").innerHTML += "<div class='customisationSelection' id='"+customisationDisp+j+"'>";
-		document.getElementById(customisationDisp+j).style.backgroundImage = 'url("../assets/playerCustom/'+imageDirectory+skin.src+colour.name+'.png")';
-		// adjust (legacy)
-		//document.getElementById("outfit"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
-		//document.getElementById("outfit"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";
 	}
 
 	// now add onclicks
+	// needs to be done now, otherwise they get reset as innerhtml is updated
 	for (let j = 0; j < unlocked[customisationDisp].length; j++) {
-		document.getElementById(customisationDisp+j).onclick = function () {
-			selected[selected.class][customisationDisp] = unlocked[customisationDisp][j];
-			save();
-			display();
+		let skindataId = unlocked[customisationDisp][j]; // id in skindata
+		let skin = Skins[customisationDisp][skindataId]; // object in skindata
+		// check this is actually displayed in the menu
+		if (typeof skin.class === "undefined" || skin.class === selected.class) {
+			document.getElementById(customisationDisp+j).onclick = function () {
+				selected[selected.class][customisationDisp] = unlocked[customisationDisp][j];
+				save();
+				display();
+			}
+		}
+	}
+
+	// also display facial hair (beard) if it's for hair
+	if (customisationDisp === "hair") {
+		let selectedSkin = Skins.beard[selected[selected.class].beard];
+
+		for (let j = 0; j < unlocked.beard.length; j++) {
+			let skindataId = unlocked.beard[j]; // id in skindata
+			let skin = Skins.beard[skindataId]; // object in skindata
+
+			addCustomisationElement(skin, "customisationSelect2", j, "beard");
+		}
+
+		// now add onclicks
+		for (let j = 0; j < unlocked.beard.length; j++) {
+			document.getElementById("beard"+j).onclick = function () {
+				selected[selected.class].beard = unlocked.beard[j];
+				save();
+				display();
+			}
 		}
 	}
 
@@ -568,7 +615,7 @@ function populateSelectionMenu () {
 		let selectedSkin = Skins[customisationDisp][selected[selected.class][customisationDisp]];
 		let colourArray;
 		if (typeof Skins[customisationDisp][selected[selected.class][customisationDisp]].colours === "undefined") {
-			// no colour choice for selected skin
+			// no additional colour choices for selected hair
 			colourArray = Skins.hairColours; // just default colours allowed
 		}
 		else {
@@ -593,6 +640,28 @@ function populateSelectionMenu () {
 			}
 		}
 	}
+}
+
+// called by populateSelectionMenu
+// note this doesn't check if the skin is actually valid to be added (i.e. right class, unlocked)
+function addCustomisationElement(skin, parentElementId, j, type) {
+	let colour;
+	if (type === "hair") {
+		colour = Skins.hairColours[0]; // default colour
+	}
+	else if (typeof skin.colours !== "undefined") {
+		colour = skin.colours[0]; // default colour
+	}
+	else {
+		colour = {name: ""}; // no colours available for this
+	}
+
+	// add an el for each item
+	document.getElementById(parentElementId).innerHTML += "<div class='customisationSelection' id='"+type+j+"'>";
+	document.getElementById(type+j).style.backgroundImage = 'url("../assets/playerCustom/'+imageDirectory+skin.src+colour.name+'.png")';
+	// adjust (legacy)
+	//document.getElementById("outfit"+i).style.right = 12 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.x + "px";
+	//document.getElementById("outfit"+i).style.top = -10 - Skins[selected.class][unlocked[selected.class][i]].headAdjust.y + "px";
 }
 
 

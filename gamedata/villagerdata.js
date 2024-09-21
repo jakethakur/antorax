@@ -140,7 +140,13 @@ var Villagers = [
     },
     {
         id: 5,
-        images: {robertHendman: {normal: "assets/npcs/robertHendman.png"}},
+        image: {
+			skinTone: "humanLight1",
+			clothing: "robertHendman",
+			hair: "bedheadBrown",
+			beard: "beardBrown",
+			// ears done automatically,, everything other than skin tone is optional
+		},
         name: "Robert Hendman",
         level: 12,
         stats: {
@@ -162,7 +168,12 @@ var Villagers = [
     },
     {
         id: 6,
-        images: {wilmaRedding: {normal: "assets/npcs/wilmaRedding.png"}},
+        image: {
+			skinTone: "humanLight1",
+			clothing: "wilmaRedding",
+			hair: "bobBrown",
+			// ears done automatically,, everything other than skin tone is optional
+		},
         name: "Wilma Redding",
         level: 12,
         stats: {
@@ -660,7 +671,13 @@ var Villagers = [
 	},
 	{
         id: 17,
-        images: {demolitionist: {normal: "assets/npcs/demolitionist.png"}},
+        image: {
+			skinTone: "humanTan1",
+			clothing: "demolitionistDarrow",
+			hair: "shortBrown",
+			// facial hair tbd
+			// ears done automatically,, everything other than skin tone is optional
+		},
 		name: "Demolitionist Darrow",
 		hostility: "friendly",
 		level: 20,
@@ -726,7 +743,12 @@ var Villagers = [
 	},
 	{
         id: 19,
-        images: {crazyCatLady: {normal: "assets/npcs/crazyCatLady.png"}},
+        image: {
+			skinTone: "humanDark1",
+			clothing: "crazyCatLady",
+			hair: "crazyWhite",
+			hat: "catHatGinger",
+		},
 		name: "Crazy Cat Lady", // tbd give cat leads (sometimes?)
 		hostility: "friendly",
 		level: 20,
@@ -755,8 +777,12 @@ var Villagers = [
 	},
 	{
         id: 20,
-        images: {necta: {normal: "assets/npcs/babii.png"}},
-		name: "Necta, Dune Surveyor",
+        image: {
+			skinTone: "humanLight1",
+			clothing: "babii",
+			hair: "babii",
+		},
+		name: "Babii, Dune Surveyor",
 		hostility: "friendly",
 		level: 35,
 		stats: {
@@ -770,13 +796,18 @@ var Villagers = [
 		chat: {
             notUnlockedRoles: "Who's the lead archaeologiist? ii've just returned from the dunes.",
 			chooseChat: "ii once met an angel made from a drop of golden blood.",
-	        receiveTavernGood: "ii love iit here!",
+	        receiveTavernGood: "Fanks! ii love iit here!",
 		},
 	},
 	{
         id: 21,
-        images: {espi: {normal: "assets/npcs/iglooghost.png"}},
-		name: "Espi, Ley Musician",
+        image: {
+			skinTone: "humanLight1",
+			clothing: "iglooghost",
+			hair: "microfringeGinger",
+			hat: "iglooghost",
+		},
+		name: "Iglooghost, Ley Musician",
 		hostility: "friendly",
 		level: 35,
 		stats: {
@@ -795,7 +826,12 @@ var Villagers = [
 	},
 	{
         id: 22,
-        images: {othmar: {normal: "assets/npcs/othmar.png"}},
+        image: {
+			skinTone: "elfLight1",
+			clothing: "othmar",
+			hair: "short2Brown",
+			// ears done automatically,, everything other than skin tone is optional
+		},
 		name: "Othmar",
 		hostility: "friendly",
 		level: 15,
@@ -1314,4 +1350,37 @@ var Villagers = [
             notUnlockedRoles: "So sleepy~",
 		},
     },
+	{
+        id: 36,
+        images: {namelessOne: {normal: "assets/npcs/namelessOne.png"}},
+		name: "The Nameless One",
+		hostility: "friendly",
+		level: 20,
+		stats: {
+			maxHealth: 1010,
+			defence: 1010,
+            walkSpeed: 0,
+		},
+        areas: [
+            "eaglecrestPlains",
+        ],
+		chat: {
+            notUnlockedRoles: "They call me The Nameless One, not that any of them bothered to ask my name!",
+			// merchant
+			shopLeave: "See you soon, mate! I’ll be right here. Just look for the fella with the thousand-odd legs.",
+			inventoryFull: "Your inventory’s too stuffed to buy that item, pal! Suffering from success, eh?",
+			tooPoor: "Sorry, pal. You’ve got nowt to buy that item with. I’ll keep it safe til next time you’re here… don’t you worry!",
+		},
+		roles: [
+			{
+				sold: [{item: Items.trinket[7], cost: 44},{item: Items.consumable[39], cost: 6},],
+				role: "merchant",
+				shopGreeting: `A shade has fallen over Antorax… The otherworldly fog has rolled in… My corporeal form can once again manifest in this outside world…
+Which means I can now show you all the clobber I’ve got for sale! Lemme know if you find something you like the look of, pal!`,
+			},
+		],
+		canBeShown: function () {
+			return Event.fog > 0.2;
+		}
+	},
 ];

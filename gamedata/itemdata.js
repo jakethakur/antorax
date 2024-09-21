@@ -4191,6 +4191,22 @@ unidentifiedArea: ["caves"],
 			area: ["eaglecrest"],
 			obtainText: "Can be bought from a merchant during the Samhain event.",
 		},
+		{
+			id: 7,
+			name: "Scarab Pendant", // tbd
+			type: "trinket",
+			image: "assets/items/trinkets/7.png",
+			stats: {
+				// tbd
+			},
+			rarity: "unique",
+			sellPrice: 6,
+			functionText: "Leaves a trail of insects", // tbd
+			lore: "",
+			obtain: ["merchant"],
+			area: ["eaglecrest"],
+			obtainText: "Can be bought from The Nameless One.",
+		},
 	],
 	currency: [
 		{
@@ -5255,7 +5271,7 @@ unidentifiedArea: ["caves"],
 			stack: 1,
 			quest: true,
 		},
-		{
+		/*{
 			id: 75,
 			name: "Tinkered Timepiece",
 			type: "item",
@@ -5281,6 +5297,32 @@ unidentifiedArea: ["caves"],
 					Dom.chat.insert("Timer is currently in use.")
 				}
 			}
+		},*/
+		{
+			id: 75,
+			name: "Cat Toy",
+			type: "item",
+			category: "item",
+			image: "assets/items/item/75.png",
+			stack: 1,
+		},
+		{
+			id: 76,
+			name: "Sack of Flour",
+			type: "item",
+			category: "item",
+			image: "assets/items/item/76.png",
+			stack: 1,
+			quest: true,
+		},
+		{
+			id: 77,
+			name: "Freshly Brewed Milk",
+			type: "item",
+			category: "item",
+			image: "assets/items/item/77.png",
+			stack: 1,
+			quest: true,
 		},
 	],
 	consumable: [
@@ -6275,15 +6317,35 @@ unidentifiedArea: ["caves"],
 			id: 39,
 			name: "Jar of Ants",
 			type: "consumable",
-			image: "assets/items/consumable/32.png",
-			functionText: "Lets out a swarm of ants!!",
-            cooldown: 20,
+			image: "assets/items/consumable/39.png",
+			functionText: "Releases a swarm of ants!!",
+            cooldown: 60,
 			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
 				// summon the ants!!
-				rrrrrrrrrrrrrrrrrrrrr
-			}
+				numAnts = Random(10, 15);
+				for (let i = 0; i < numAnts; i++) {
+					let preparedEnemy = Game.prepareNPC({
+						x: Game.hero.x + Random(-38, 38),
+						y: Game.hero.y + Random(-38, 38),
+						template: EnemyTemplates.item.jarAnt,
+						attackBehaviour: {
+							baseAggro: 100, // always aggroed on enemies
+						},
+						attackTargetTypes: ["enemies"],
+						hostility: "friendly",
+						createdByPlayer: true,
+						respawnOnDeath: false,
+					}, "nonPlayerAttackers");
+					Game.nonPlayerAttackers.push(new NonPlayerAttacker(preparedEnemy));
+					// tbd make them despawn eventually (removeIn?)
+				}
+			},
+			lore: "",
+			requiredImages: { // images that should be loaded for this item
+				jarAnt: {normal: "./assets/enemies/ant.png"},
+			},
 		},
 	],
 	food: [
@@ -6427,6 +6489,16 @@ unidentifiedArea: ["caves"],
 			healthRestore: 88,
 			healthRestoreTime: 8,
 			lore: "Antorax turns eight!",
+		},
+		{
+			id: 12,
+			name: "Antorax Day Birthday Cake",
+			type: "food",
+			image: "assets/items/food/12.png",
+			sellPrice: 9,
+			healthRestore: 99,
+			healthRestoreTime: 9,
+			lore: "Antorax turns nine!",
 		},
 	],
 	teleport: [
@@ -6894,7 +6966,7 @@ unidentifiedArea: ["caves"],
 			sellQuantity: 4,
 			stack: 264,
 			lore: "An old coin from before Antorax was formed.",
-			areas: [],
+			areas: [], 
 		},
 		{
 			id: 14,
@@ -6907,7 +6979,7 @@ unidentifiedArea: ["caves"],
 			sellQuantity: 1,
 			stack: 264,
 			lore: "It's too tarnished to be used as currency.",
-			areas: [],
+			areas: [], // MUST always be all areas, as this is used for fishing tutorial
 		},
 		{
 			id: 15,
@@ -7561,15 +7633,15 @@ unidentifiedArea: ["caves"],
 			rarity: "junk",
 			image: "assets/items/fish/37.png",
 			lore: "Probably the oddest thing in the universe.",
-			stack: 1,
+			stack: 1, 
 			consumption: false,
 			areas: ["loggingCamp"],
 			catchRequirement: function () {
-				return (Player.quests.questProgress.troubledWaters2Progress === 5);
+				return (Player.quests.stepProgress.eaglecrest[12][5]);
 			},
 			onCatch: function()
 			{
-				Player.quests.questProgress.troubledWaters2Progress = 6;
+				Player.quests.progress.eaglecrest[12].translatorFishedUp = true;
 				Dom.quests.active();
 				Dom.chat.npcBanner({name: "Fisherman Tobenam", imageSrc: "assets/npcs/tobenam.png"}, "Heheheh, you found one. I'll see you around then, heheh.");
 			},
@@ -7719,8 +7791,8 @@ unidentifiedArea: ["caves"],
 					map: map,
 					image: Game.creativeImage,
 					name: Game.creativeName,
-					x: Round(Game.hero.x, 1),
-					y: Round(Game.hero.y, 1),
+					x: Round(Game.hero.x, 0),
+					y: Round(Game.hero.y, 0),
 					type: "things",
 					dev: true,
 				};

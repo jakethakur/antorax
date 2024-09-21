@@ -1,5 +1,5 @@
 var Quests = {
-	eaglecrestLoggingCamp: [
+	loggingCampNew: [
 		{
 			id: 0,
 			quest: "To the Logging Camp",
@@ -7,50 +7,64 @@ var Quests = {
 
 			important: true, // appears at top of quest log and choose dom
 
-			//startName: "Cart Driver",
-			startChat: [{
-				text: `That's it, we're here!`,
-			},{
-				text: `I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> on your own from here. `,
-			},{
-				text: `If you walk down a bit to the west you should see the entrance to the camp.`,
-			},{
-				text: `Oh, and you should probably buy a weapon on your way there...`,
-			},],
+			questType: "storyline",
 
-			//finishName: "Marshall Teper",
-			finishChat: [{
-				text: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.`,
-			},{
-				text: `Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers.`,
-			},{
-				text: `Feel free to have a look around the camp and buy anything you want, but not for too long. We've got work to be done.`,
-			},],
-
-			objectives: [
-				"Buy a weapon from a nearby weaponsmith.",
-				"Speak to <strong>Marshall Teper</strong>.",
+			steps: [
+				{
+					stepNum: 0,
+					chat: [{
+						text: `That's it, we're here!`,
+					},{
+						text: `I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> on your own from here. `,
+					},{
+						text: `If you walk down a bit to the west you should see the entrance to the camp.`,
+					},{
+						text: `Oh, and you should probably buy a weapon on your way there...`,
+					},],
+				},
+				{
+					stepNum: 1,
+					chat: [{
+						text: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.`,
+					},{
+						text: `Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers.`,
+					},{
+						text: `Now, you'll need to learn how to fight if you can be of any worth here - there are goblins out there, and they'll want you dead.`,
+					},{
+						text: `Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here.`,
+					},],
+					rewards: {
+						xp: 10,
+						items: [
+							{item: Items.boots[2],},
+							{item: Items.currency[2], quantity: 2,},
+						],
+					},
+					onFinish: function () {
+						Dom.instructions.page(6);
+					}
+				},
 			],
 
-			isCompleted: function() {
-				let completed = []; // contains true or false for all of the objectives, with the last element being if the quest is ready to complete
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1));
-
-				if (completed[0]) {
-					// tutorial
-					Game.setTimeout(function () {
-						if (Player.tutorialProgress === 3 && Game.areaName === "tutorial") {
-							Dom.instructions.page(4);
+			objectivesList: [
+				{id: 0, text: "Buy a weapon from a nearby weaponsmith.",
+					isCompleted: function () {
+						let completed = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1)
+						if (completed) {
+							// tutorial
+							Game.setTimeout(function () {
+								if (Player.tutorialProgress === 3 && Game.areaName === "tutorial") {
+									Dom.instructions.page(4);
+								}
+							}, 2000);
 						}
-					}, 2000);
-				}
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+						return completed;
+					}
+				},
+				{id: 1, text: "Speak to <strong>Marshall Teper</strong>.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+			],
 
 			howToStart: "Speak to the <strong>Cart Driver</strong>.",
 			levelRequirement: 1,
@@ -59,20 +73,87 @@ var Quests = {
 				return Player.tutorialProgress === 1 || Player.skipTutorial;
 			},
 
-			rewards: {
-				xp: 10,
-				items: [
-					{item: Items.boots[2],},
-					{item: Items.currency[2], quantity: 2,},
-				],
+			onQuestStart: function() {
+				Dom.instructions.page(2);
+			},
+		},
+	],
+	eaglecrestLoggingCamp: [ // old quests - should be moved over to loggingCampNew
+		{
+			id: 0,
+			quest: "To the Logging Camp",
+			questArea: "eaglecrestLoggingCamp", // name of the array this is contained in
+
+			important: true, // appears at top of quest log and choose dom
+
+			questType: "storyline",
+
+			steps: [
+				{
+					stepNum: 0,
+					chat: [{
+						text: `That's it, we're here!`,
+					},{
+						text: `I'm afraid you're going to have to walk to the <strong>Eaglecrest Logging Camp</strong> on your own from here. `,
+					},{
+						text: `If you walk down a bit to the west you should see the entrance to the camp.`,
+					},{
+						text: `Oh, and you should probably buy a weapon on your way there...`,
+					},],
+				},
+				{
+					stepNum: 1,
+					chat: [{
+						text: `Welcome to the Eaglecrest Logging Camp, adventurer. It's useful to have you here. I hope your journey was fine.`,
+					},{
+						text: `Take this gold and pair of boots. They're provided by the King's Covenant to all new adventurers.`,
+					},{
+						text: `Now, you'll need to learn how to fight if you can be of any worth here - there are goblins out there, and they'll want you dead.`,
+					},{
+						text: `Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here.`,
+					},],
+					rewards: {
+						xp: 10,
+						items: [
+							{item: Items.boots[2],},
+							{item: Items.currency[2], quantity: 2,},
+						],
+					},
+					onFinish: function () {
+						Dom.instructions.page(6);
+					}
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Buy a weapon from a nearby weaponsmith.",
+					isCompleted: function () {
+						let completed = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1)
+						if (completed) {
+							// tutorial
+							Game.setTimeout(function () {
+								if (Player.tutorialProgress === 3 && Game.areaName === "tutorial") {
+									Dom.instructions.page(4);
+								}
+							}, 2000);
+						}
+						return completed;
+					}
+				},
+				{id: 1, text: "Speak to <strong>Marshall Teper</strong>.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+			],
+
+			howToStart: "Speak to the <strong>Cart Driver</strong>.",
+			levelRequirement: 1,
+			questRequirements: [],
+			requirement: function () {
+				return Player.tutorialProgress === 1 || Player.skipTutorial;
 			},
 
 			onQuestStart: function() {
 				Dom.instructions.page(2);
-			},
-
-			onQuestFinish: function() {
-				Dom.instructions.page(6);
 			},
 		},
 
@@ -82,13 +163,10 @@ var Quests = {
 			questArea: "eaglecrestLoggingCamp",
 
 			important: true,
+			questType: "storyline",
 
 			startName: "Mashall Teper",
-			startChat: [{
-				text: `You'll need to learn how to fight if you can be of any worth here - there are goblins out there, and they'll want you dead.`,
-			},{
-				text: `Go and see <strong>Combat Trainer Saral</strong>. She's more skilled in combat than anyone else here.`,
-			},],
+			startChat: [],
 
 			finishName: "Combat Trainer Saral",
 			finishChat: [{
@@ -2062,7 +2140,7 @@ var Quests = {
 				hidden.push(false);
 				hidden.push(false);
 				hidden.push(false);
-				hidden.push(!Player.quests.npcProgress.eaglecrest[5]); // feather objective
+				hidden.push(!Player.quests.npcProgress.eaglecrest[5]); // feather objective // tbd update because npcProgress no longer exists :)
 				hidden.push(false);
 				hidden.push(false);
 
@@ -2378,292 +2456,312 @@ var Quests = {
 				Dom.alert.page("During a Blood Moon, enemies will be much stronger and will respawn much faster.<br>Health will no longer regenerate outdoors, unless using a special Samhain food item.<br><br>Some special bosses will also spawn. Kill them before the moon disappears at the end of the month!<br><br>Enemies have a chance to drop <b>Samhain Marks</b>, which can be brought to some merchants for rewards.<br>But at what cost?<br>", 0);
 			},
 		},
+
+		
 		{
 			id: 7,
 			quest: "Troubled Waters",
 			questArea: "eaglecrest",
 
-			startName: "Fisherman Guimtal",
-			startChat: [{
-				text: `Somethin' has been infesting the waters and makin' it so us fishermen can't get no fish.`,
-			},{
-				text: `I think the toads may hold the answer. Can yah get some parts from 'em for me so I can investigate 'em.`,
-			},],
-
-			finishName: "Fisherman Guimtal",
-			finishChat: [{
-				text: `Thanks for the help, I'll get back to yah.`,
-			},],
-
-			objectives: [
-				"Obtain 16 tadpoles.",
-				"Obtain 4 frogspawn.",
-				"Speak to <strong>Fisherman Guimtal</strong>.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Fisherman Guimtal",
+					chat: [{
+						text: `Somethin' has been infesting the waters and makin' it so us fishermen can't get no fish.`,
+					},{
+						text: `I think the toads may hold the answer. Can yah get some parts from 'em for me so I can investigate 'em.`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Fisherman Guimtal",
+					chat: [{
+						text: `Thanks for the help, I'll get back to yah.`,
+					},],
+					rewards: {
+						xp: 30,
+						items: [
+							{item: Items.currency[2], quantity: 3,},
+							{item: Items.currency[3], quantity: 1,},
+						],
+					},
+					removeItems: [
+						{item: Items.fish[34], quantity: 16,}, // tadpoles
+						{item: Items.fish[33], quantity: 4,}, // frogspawn
+					],
+				},
 			],
 
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Dom.inventory.check(34, "fish"), 16));
-				completed.push(checkProgress(Dom.inventory.check(33, "fish"), 4));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Obtain 16 tadpoles.",
+					isCompleted: function () {
+						return Dom.inventory.check(34, "fish");
+					}, outOf: 16,
+				},
+				{id: 1, text: "Obtain 4 frogspawn.",
+					isCompleted: function () {
+						return Dom.inventory.check(33, "fish");
+					}, outOf: 4,
+				},
+				{id: 2, text: "Speak to <strong>Fisherman Guimtal</strong>.",
+				},
+			],
 
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Overdraft"],
-
-			rewards: {
-				xp: 30,
-				items: [
-					{item: Items.currency[2], quantity: 3,},
-					{item: Items.currency[3], quantity: 1,},
-				],
-			},
-
-			removeItems: [
-				{item: Items.fish[34], quantity: 16,}, // tadpoles
-				{item: Items.fish[33], quantity: 4,}, // frogspawn
-			],
-
-			resetVariables: [
-			],
 		},
+				
 		{
 			id: 8,
 			quest: "A Fool's Errand",
 			questArea: "eaglecrest",
 
-			startName: "The Jester",
-			startChat: [{
-				text: `Good heavens, I’m all out of tricks!`,
-			},{
-				text: `See, I’m the Eaglecrest court jester but nothing’s funny about getting robbed.`,
-			},{
-				text: `I was just frolicking in the praries when waylay hit - those toads must have thought my foghorn was a froghorn the way they hopped off with it!`,
-				long: true
-			},{
-				text: `My confetti cannon has been pilfered, my triangle’s gone pear-shaped, but worst of all, my prized juggling balls have been nicked. Anyone in the Eaglecrest plains could have them by now!`,
-				long: true
-			},{
-				text: `I can’t do my routine without my props... I’d have to become a... <i>(shudders)</i> a mime! NO! I need them back.`,
-			},{
-				text: `They must be somewhere in the plains! I’d help you... But look at me - I’m not exactly camouflaged!`,
-			},],
-
-			finishName: "The Jester",
-			finishChat: [{
-				text: `Thank you so much! Now that you’ve helped this poor clown, you’ll be laughing all the way to the bank. I’ll make sure of it!`,
-			},{
-				text: `And to whoever stole my magic mirror... you need to take a long hard look at yourself!`,
-			},],
-
-			objectives: [
-				"Find The Jester's <b>Brass Bugle</b> in the Eaglecrest Plains.",
-				"Find The Jester's <b>Confetti Cannon</b> in the Eaglecrest Plains.",
-				"Find The Jester's <b>Triangle</b> in the Eaglecrest Plains.",
-				"Find The Jester's three <b>Juggling Balls</b> in the Eaglecrest Plains.",
-				"Speak to <b>The Jester</b>.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "The Jester",
+					chat: [{
+						text: `Good heavens, I’m all out of tricks!`,
+					},{
+						text: `See, I’m the Eaglecrest court jester but nothing’s funny about getting robbed.`,
+					},{
+						text: `I was just frolicking in the praries when waylay hit - those toads must have thought my foghorn was a froghorn the way they hopped off with it!`,
+						long: true
+					},{
+						text: `My confetti cannon has been pilfered, my triangle’s gone pear-shaped, but worst of all, my prized juggling balls have been nicked. Anyone in the Eaglecrest plains could have them by now!`,
+						long: true
+					},{
+						text: `I can’t do my routine without my props... I’d have to become a... <i>(shudders)</i> a mime! NO! I need them back.`,
+					},{
+						text: `They must be somewhere in the plains! I’d help you... But look at me - I’m not exactly camouflaged!`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "The Jester",
+					chat: [{
+						text: `Thank you so much! Now that you’ve helped this poor clown, you’ll be laughing all the way to the bank. I’ll make sure of it!`,
+					},{
+						text: `And to whoever stole my magic mirror... you need to take a long hard look at yourself!`,
+					},],
+					rewards: {
+						xp: 85,
+						items: [
+							{item: Items.currency[2], quantity: 4,},
+						],
+						reputation: {
+							eaglecrestCity: 20,
+							theJester: 110,
+						},
+					},
+					removeItems: [
+						{item: Items.item[58],},
+						{item: Items.item[60],},
+						{item: Items.item[59],},
+						{item: Items.item[57], quantity: 3},
+					],
+				},
 			],
 
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Dom.inventory.check(58, "item"), 1));
-				completed.push(checkProgress(Dom.inventory.check(60, "item"), 1));
-				completed.push(checkProgress(Dom.inventory.check(59, "item"), 1));
-				completed.push(checkProgress(Dom.inventory.check(57, "item"), 3));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Find The Jester's <b>Brass Bugle</b> in the Eaglecrest Plains.",
+					isCompleted: function () {
+						return Dom.inventory.check(58, "item");
+					}, outOf: 1,
+				},
+				{id: 1, text: "Find The Jester's <b>Confetti Cannon</b> in the Eaglecrest Plains.",
+					isCompleted: function () {
+						return Dom.inventory.check(60, "item");
+					}, outOf: 4,
+				},
+				{id: 2, text: "Find The Jester's <b>Triangle</b> in the Eaglecrest Plains.",
+					isCompleted: function () {
+						return Dom.inventory.check(59, "item");
+					}, outOf: 4,
+				},
+				{id: 3, text: "Find The Jester's three <b>Juggling Balls</b> in the Eaglecrest Plains.",
+					isCompleted: function () {
+						return Dom.inventory.check(57, "item");
+					}, outOf: 4,
+				},
+				{id: 4, text: "Speak to <b>The Jester</b>.",
+				},
+			],
 
 			howToStart: "Speak to <b>The Jester</b> in the Eaglecrest Plains.",
 			levelRequirement: 7,
 			questRequirements: ["Overdraft"],
-
-			rewards: {
-				xp: 85,
-				items: [
-					{item: Items.currency[2], quantity: 4,},
-				],
-				reputation: {
-					eaglecrestCity: 20,
-					theJester: 110,
-				},
-			},
-
-			removeItems: [
-				{item: Items.item[58],},
-				{item: Items.item[60],},
-				{item: Items.item[59],},
-				{item: Items.item[57], quantity: 3},
-			],
 		},
 		{
 			id: 9,
 			quest: "Every Flower in My Garden",
 			questArea: "eaglecrest",
 
-			startName: "Farmer Eloise",
-			startChat: [{
-				text: `Hmm~ Do you think the bees are happy?˚`,
-			},{
-				text: `They keep swarming down in that flower forest˚ I hope they're not sad about my flower patches⁀!`,
-				onFinish: function () {
-					// pan to the patch
-					Game.camera.pan({x: 5875, y:1790}, 250, "constant");
-				}
-			},{
-				text: `You see that empty patch over there˚?`,
-			},{
-				text: `Some <b>blue callalilies</b> would be great there~⁀They're big and blue and there's some in the flower forest~`,
-				onFinish: function () {
-					// pan back
-					Game.camera.pan(Game.hero, 250, "constant", function () {
-						// reset camera
-						Game.camera.follow(Game.hero);
-					}, 0);
-				}
-			},{
-				text: `Oh⁀and some <b>Marigolds</b>˚ they're the yellow flowers all around the plains~`,
-			},],
-
-			finishName: "Farmer Eloise",
-			finishChat: [{
-				text: `I'll plant these tomorrow~`,
-			},{
-				text: `⁀ ‿ ⁀`,
-			},],
-
-			objectives: [
-				"Pick 6 <b>blue callalillies</b> from the <b>flower forest</b> in the Eaglecrest Plains <i>(they're big and blue~)</i>.",
-				"Pick 6 <b>marigolds</b> from around the Eaglecrest Plains <i>(they're yellow)</i>.",
-				"Speak to <b>Farmer Eloise</b>.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Farmer Eloise",
+					chat: [{
+						text: `Hmm~ Do you think the bees are happy?˚`,
+					},{
+						text: `They keep swarming down in that flower forest˚ I hope they're not sad about my flower patches⁀!`,
+						onFinish: function () {
+							// pan to the patch
+							Game.camera.pan({x: 5875, y:1790}, 250, "constant");
+						}
+					},{
+						text: `You see that empty patch over there˚?`,
+					},{
+						text: `Some <b>blue callalilies</b> would be great there~⁀They're big and blue and there's some in the flower forest~`,
+						onFinish: function () {
+							// pan back
+							Game.camera.pan(Game.hero, 250, "constant", function () {
+								// reset camera
+								Game.camera.follow(Game.hero);
+							}, 0);
+						}
+					},{
+						text: `Oh⁀and some <b>Marigolds</b>˚ they're the yellow flowers all around the plains~`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Farmer Eloise",
+					chat: [{
+						text: `I'll plant these tomorrow~`,
+					},{
+						text: `⁀ ‿ ⁀`,
+					},],
+					rewards: {
+						xp: 40,
+						items: [
+							{item: Items.tool[4]},
+							{item: Items.currency[2], quantity: 2,},
+						],
+						reputation: {
+							eaglecrestFarm: 50,
+						},
+					},
+					removeItems: [
+						{item: Items.item[68], quantity: 6},
+						{item: Items.item[31], quantity: 6},
+					],
+				},
 			],
 
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Dom.inventory.check(68, "item"), 6));
-				completed.push(checkProgress(Dom.inventory.check(31, "item"), 6));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Pick 6 <b>blue callalillies</b> from the <b>flower forest</b> in the Eaglecrest Plains <i>(they're big and blue~)</i>.",
+					isCompleted: function () {
+						return Dom.inventory.check(68, "item");
+					}, outOf: 6,
+				},
+				{id: 1, text: "Pick 6 <b>marigolds</b> from around the Eaglecrest Plains <i>(they're yellow)</i>.",
+					isCompleted: function () {
+						return Dom.inventory.check(31, "item");
+					}, outOf: 6,
+				},
+				{id: 2, text: "Speak to <b>Farmer Eloise</b>.",
+				},
+			],
 
 			howToStart: "Speak to <b>Farmer Eloise</b> in the Eaglecrest Plains Farms.",
 			levelRequirement: 8,
 			questRequirements: ["Overdraft"],
 			// tbd reputation requirement
-
-			rewards: {
-				xp: 40,
-				items: [
-					{item: Items.tool[4]},
-					{item: Items.currency[2], quantity: 2,},
-				],
-				reputation: {
-					eaglecrestFarm: 50,
-				},
-			},
-
-			removeItems: [
-				{item: Items.item[68], quantity: 6},
-				{item: Items.item[31], quantity: 6},
-			],
 		},
 		{
 			id: 10,
 			quest: "WANTED: Coyote Pack Wrangler!",
 			questArea: "eaglecrest",
 
-			startName: "Recruiter Sylvie",
-			startChat: [{
-				text: `${Player.name}! You look like you need something to do!`,
-			},{
-				text: `The City has recently been having trouble with Coyotes in the eastern grassy region of the Plains.`,
-			},{
-				text: `It is believed that one or many <b>Coyote Pack Wranglers</b> are causing this trouble. If you feel ready, seek one out and deal with them!`,
-			},],
-
-			finishName: "Recruiter Sylvie",
-			finishChat: [{
-				text: `Well done. Although the Pack Wrangler may be back soon, this will surely act as a deterrent.`,
-			},],
-
-			objectives: [
-				"Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
-				"Speak to <strong>Recruiter Sylvie</strong>.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Recruiter Sylvie",
+					chat: [{
+						text: `${Player.name}! You look like you need something to do!`,
+					},{
+						text: `The City has recently been having trouble with Coyotes in the eastern grassy region of the Plains.`,
+					},{
+						text: `It is believed that one or many <b>Coyote Pack Wranglers</b> are causing this trouble. If you feel ready, seek one out and deal with them!`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Recruiter Sylvie",
+					chat: [{
+						text: `Well done. Although the Pack Wrangler may be back soon, this will surely act as a deterrent.`,
+					},],
+					rewards: {
+						xp: 50,
+						items: [
+							{item: Items.currency[2], quantity: 4,},
+						],
+						reputation: {
+							eaglecrestCity: 60,
+						},
+					},
+				},
 			],
 
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.coyoteWranglersQuest > 0);
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
+					isCompleted: function () {
+						return Player.quests.questProgress.coyoteWranglers > 0;
+					},
+				},
+				{id: 1, text: "Speak to <strong>Recruiter Sylvie</strong>.",
+				},
+			],
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
 			levelRequirement: 8,
 			questRequirements: ["Overdraft"],
-
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 4,},
-				],
-				reputation: {
-					eaglecrestCity: 60,
-				},
-			},
 		},
 		{
 			id: 11,
 			quest: "WANTED: Coyote Pack Wrangler! (bis)",
 			questArea: "eaglecrest",
 
-			startName: "Recruiter Sylvie",
-			startChat: [{
-				text: `Hello again, ${Player.name}. It is unfortunate, but the <b>Coyote Pack Wrangler</b> has been sighted again in the Plains' eastern grassy region.`,
-			},{
-				text: `Even more unfortunate - it seems to have come with backup...`,
-			},{
-				text: `Best you deal with it for the safety of the City's citizens. Maybe the Wrangler and its coyotes will get the message this time??`,
-			},],
-
-			finishName: "Recruiter Sylvie",
-			finishChat: [{
-				text: `Great. Let's hope the Pack Wrangler finds somewhere else to go now, for the City's sake...`,
-			},],
-
-			objectives: [
-				"Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
-				"Speak to <strong>Recruiter Sylvie</strong>.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Recruiter Sylvie",
+					chat: [{
+						text: `Hello again, ${Player.name}. It is unfortunate, but the <b>Coyote Pack Wrangler</b> has been sighted again in the Plains' eastern grassy region.`,
+					},{
+						text: `Even more unfortunate - it seems to have come with backup...`,
+					},{
+						text: `Best you deal with it for the safety of the City's citizens. Maybe the Wrangler and its coyotes will get the message this time??`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Recruiter Sylvie",
+					chat: [{
+						text: `Great. Let's hope the Pack Wrangler finds somewhere else to pester, for the City's sake...`,
+					},],
+					rewards: {
+						xp: 50,
+						items: [
+							{item: Items.currency[2], quantity: 4,},
+						],
+						reputation: {
+							eaglecrestCity: 60,
+						},
+					},
+				},
 			],
 
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.coyoteWranglersQuest > 0);
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Kill a <b>Coyote Pack Wrangler</b> in the eastern grassy region of the Plains.",
+					associatedVariable: "coyoteWranglers",
+				},
+				{id: 1, text: "Speak to <strong>Recruiter Sylvie</strong>.",
+				},
+			],
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
 			levelRequirement: 8,
@@ -2672,18 +2770,8 @@ var Quests = {
 			repeatTime: "daily",
 			shareCooldownWith: [{questArea: "eaglecrest", id: 10}],
 
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 4,},
-				],
-				reputation: {
-					eaglecrestCity: 60,
-				},
-			},
-
 			resetVariables: [
-				"coyoteWranglersQuest",
+				"coyoteWranglers",
 			],
 		},
 		{
@@ -2691,108 +2779,163 @@ var Quests = {
 			quest: "Troubled Waters II",
 			questArea: "eaglecrest",
 
-			startName: "Fisherman Guimtal",
-			startChat: [{
-				text: `Ah yah back. Seems like the toads ain't the ones causin' the fish to go.`,
-			},{
-				text: `Try speakin' to <strong>Fisher Sharptooth</strong> to if they know anythin' about this.`,
-			},{
-				text: `They should be fishin' <b>east</b> of the lake.`,
-			},],
-
-			finishName: "Fisher Sharptooth",
-			finishChat: [{
-				text: `Miau, miau miau?`,
-				options: [
-					{
-						text: "Present the translator to Sharptooth.",
-						action: "progress",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Fisherman Guimtal",
+					chat: [{
+						text: `Ah yah back. Seems like the toads ain't the ones causin' the fish to go.`,
+					},{
+						text: `Try speakin' to <strong>Fisher Sharptooth</strong> to if they know anythin' about this.`,
+					},{
+						text: `They should be fishin' <b>east</b> of the lake.`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Fisherman Sharptoth",
+					chat: [{
+						text: `Miau miau?`,
+						options: [
+							{
+								text: "Say that <b>Fisherman Guimtal</b> sent you.",
+								action: "progress",
+							},
+						]
+					},{
+						text: `Miau, miau miau miau miau! Miau miau miau.`,
+					},],
+				},
+				{
+					stepNum: 2,
+					name: "Fisherman Guimtal",
+					chat: [{
+						text: `Ah, I see. They're a cat.`,
+					},{
+						text: `Yah see, I've never actually spoken to 'em, I just heard from mah friends.`,
+					},{
+						text: `Why don't yah try speakin' to some <b>shopkeepers</b> in <strong>Eaglecrest</strong> and see if they sellin' any <b>translators</b> or somethin' like that.`,
+					},{
+						text: `I'll see yah around, then.`,
+					},],
+				},
+				{
+					stepNum: 3,
+					forceChoose: true,
+					chooseText: "Ask about a <b>translator</b>.",
+					name: "Shopkeeper Barda",
+					chat: [{
+						text: `A <b>translator?</b> I have things much greater!`,
+					},{
+						text: `But I also have something that you could be looking for. Here's a <b>blueprint</b> which I found while trying to find some more wares to sell. I was going to bring it to <strong>Alchemist Tamtam</strong> later, but it seems it could be more useful to you.`,
+						long: true,
+					},{
+						text: `Try bringing it to <strong>Alchemist Tamtam</strong> and see if he can build the <b>translator</b> for you!<br><br>`,
+					},{
+						text: `Gold? No need, take it for free. Although, make sure to buy some of my wares later!`,
+					},],
+					rewards: {
+						items: [
+							{item: Items.item[74]},
+						],
 					},
-				]
-			},{
-				text: `<i>Sharptooth snaches the translator out of your hand and eats it!!</i>`,
-			},{
-				text: `Yous looks surprised? Did yous nots thinks I woulds eat the translator?`,
-			},{
-				text: `This translator was for mes right? Oh well, yous can hears mes now.`,
-			},{
-				text: `Oh, yous wants to learns abouts whys there no fish? Wells it's tragic indeeds.`,
-			},{
-				text: `I'm sures with yours helps we cans solves this issue.`,
-			},],
-
-			objectives: [
-				"Speak to <strong>Fisher Sharptooth</strong> located <b>east</b> of the lake.",
-				"Speak to <strong>Fisherman Guimtal</strong> to see how to speak to <strong>Fisher Sharptooth</strong>.",
-				"Speak to the <b>shopkeepers</b> of <strong>Eaglecrest City</strong> to see if they have a <b>translator</b>.",
-				"Speak to <strong>Alchemist Tamtam</strong> in the <b>east</b> of <strong>Eaglecrest City</strong> and give him the <b>blueprint</b>.",
-				"Speak to <strong>Fisherman Tobenam</strong> in <strong>Fisher's Valley</strong> and see what he can do with the <b>blueprint</b>.",
-				"Fish up a <b>Universal Translator</b> in <strong>Fisher's Valley</strong>.",
-				//"Speak to <strong>Fisherman Tobenam</strong>.",
-				"Return to <strong>Fisher Sharptooth</strong> and give them the <b>Universal Translator</b>."
+				},
+				{
+					stepNum: 4,
+					forceChoose: true,
+					chooseText: "Give blueprint to <strong>Alchemist Tamtam</strong>.",
+					name: "Alchemist Tamtam",
+					chat: [{
+						text: `Not suuuuuure what I can do with this! This looks more like a fish than a device or alchemy ingrediant!`,
+					},{
+						text: `Maybe talk to <strong>Fisherman Tobenam</strong> and see if he can do something with it!`,
+					},],
+				},
+				{
+					stepNum: 5,
+					forceChoose: true,
+					chooseText: "Show <strong>Fisherman Tobenam</strong> the <b>blueprint</b>.",
+					name: "Fisherman Tobenam",
+					chat: [{
+						text: `I haven't seen one of those in a while, heheh. It's a sort of blueprint, more like a fish map, heh.`,
+					},{
+						text: `Those fish are pretty rare, heheh, but I'm sure you can find one of them here. Try fishing a while and you should find one.`,
+					},],
+					removeItems: [
+						{item: Items.item[74]},
+					]
+				},
+				{
+					stepNum: 6,
+					name: "Fisherman Guimtal",
+					chat: [{
+						text: `Miau, miau miau?`,
+						options: [
+							{
+								text: "Present the translator to Sharptooth.",
+								action: "progress",
+							},
+						]
+					},{
+						text: `<i>Sharptooth snaches the translator out of your hand and eats it!!</i>`,
+					},{
+						text: `Yous looks surprised? Did yous nots thinks I woulds eat the translator?`,
+					},{
+						text: `This translator was for mes right? Oh well, yous can hears mes now.`,
+					},{
+						text: `Oh, yous wants to learns abouts whys there no fish? Wells it's tragic indeeds.`,
+					},{
+						text: `I'm sures with yours helps we cans solves this issue.`,
+					},],
+					rewards: {
+						xp: 50,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+							{item: Items.currency[3], quantity: 2,},
+						],
+						reputation: {
+							eaglecrestCity: 30,
+						},
+					},
+					removeItems: [
+						{item: Items.fish[37],}, // remove the translator
+					],
+				},
 			],
 
-			isHidden: function() {
-				let hidden = [];
-
-				if (Player.quests.questProgress.troubledWaters2Progress === undefined)
-				{
-					Player.quests.questProgress.troubledWaters2Progress = 0;
-				}
-
-				// true or falses for each objective (apart from the turn-in objective)
-				hidden.push(false);
-				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 1);
-				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 2);
-				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 3);
-				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 4);
-				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 5);
-				hidden.push(Player.quests.questProgress.troubledWaters2Progress < 6);
-				//hidden.push(Player.quests.questProgress.troubledWaters2Progress < 7);
-
-				return hidden;
-			},
-
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.troubledWaters2Progress > 0);
-				completed.push(Player.quests.questProgress.troubledWaters2Progress > 1);
-				completed.push(Player.quests.questProgress.troubledWaters2Progress > 2);
-				completed.push(Player.quests.questProgress.troubledWaters2Progress > 3);
-				completed.push(Player.quests.questProgress.troubledWaters2Progress > 4);
-				completed.push(Player.quests.questProgress.troubledWaters2Progress > 5);
-				//completed.push(Player.quests.questProgress.troubledWaters2Progress > 6);
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
+			objectivesList: [
+				{id: 0, text: "Speak to <strong>Fisher Sharptooth</strong> located <b>east</b> of the lake.",
+					completeStep: 1,
+				},
+				{id: 1, text: "Speak to <strong>Fisherman Guimtal</strong> to see how to speak to <strong>Fisher Sharptooth</strong>.",
+					revealStep: 1,
+					completeStep: 2,
+				},
+				{id: 2, text: "Speak to the <b>shopkeepers</b> of <strong>Eaglecrest City</strong> to see if they have a <b>translator</b>.",
+					revealStep: 2,
+					completeStep: 3,
+				},
+				{id: 3, text: "Speak to <strong>Alchemist Tamtam</strong> in the <b>east</b> of <strong>Eaglecrest City</strong> and give him the <b>blueprint</b>.",
+					revealStep: 3,
+					completeStep: 4,
+				},
+				{id: 4, text: "Speak to <strong>Fisherman Tobenam</strong> in <strong>Fisher's Valley</strong> and see what he can do with the <b>blueprint</b>.",
+					revealStep: 4,
+					completeStep: 5,
+				},
+				{id: 5, text: "Fish up a <b>Universal Translator</b> in <strong>Fisher's Valley</strong>.",
+					revealStep: 5,
+					associatedVariable: "translatorFishedUp",
+				},
+				{id: 6, text: "Return to <strong>Fisher Sharptooth</strong> and give them the <b>Universal Translator</b>.",
+					revealStep: 5,
+				},
+			],
+			
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters", "Learning to Fish III"],
 			shareCooldownWith: [{questArea: "eaglecrest", id: 7}],
-
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 5,},
-					{item: Items.currency[3], quantity: 2,},
-				],
-				reputation: {
-					eaglecrestCity: 30,
-				},
-			},
-
-			removeItems: [
-				{item: Items.fish[37],}, // remove the translator
-			],
-
-			onQuestStart: function() {
-				Player.quests.questProgress.troubledWaters2Progress = 0;
-			}
 		},
 		{
 			id: 13,
@@ -3294,13 +3437,13 @@ var Quests = {
 					},
 				},
 				{
-					text: "Gather a <b>Living Frog's Leg</b> from a toad in the Plains.",
+					text: "Loot a <b>Living Frog's Leg</b> from a toad in the Plains.",
 					isCompleted: function () {
 
 					},
 				},
 				{
-					text: "Gather a <b><i>Doohickey</i></b> from a toad in the Plains.",
+					text: "Loot a <b><i>Doohickey</i></b> from a toad in the Plains.",
 					isCompleted: function () {
 
 					},
@@ -3561,138 +3704,208 @@ var Quests = {
 				items: [{item: Items.item[1]}], // mystery (monastery armour reward, and catnip)
 			},
 		},
-		/*{
-			id: 17,
+		{
+			id: 21,
 			quest: "The Pyromancer's Shopping List",
 			questArea: "eaglecrest",
 
-			startName: "Peto the Pyromancer",
-			startChat: [{
-				text: `Hello there, stranger! Would you mind helping me with a a certain... <i>ahahaha</i>... a certain matter?`,
-			},{
-				text: `I need a number of specific reagents for my... uh... experiments and you seem like you'd be able to help.`,
-			},{
-				text: `A pyromancer's work is never done, but a bag of flour would certainly help speed it up. <i>hehe</i>`,
-			},{
-				text: `Could you retreive some from the nearby farm if you're willing?`,
-			}],
-
-			stepName1: "Farmer Scop",
-			stepChat1: [{
-				text: `That pyromancer's an odd fella. He loves his pies, but the rumours I've 'eard are bloomin' unsavoury.`
-			},{
-				text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the entrance, then get off with ye!`
-			},],
-
-			stepName2: "Peto the Pyromancer",
-			stepChat2: [{
-				text: `Oh goody! A bag of flour! This'll do nicely for my pyromancer experiments <i>hahaha</i>.`
-			},{
-				text: `If you're still willing, some eggs would go down a treat! You can nick them off the local chickens <i>hehe</i>.`
-			},],
-
-			stepName3: "Peto the Pyromancer",
-			stepChat3: [{
-				text: `Are those my eggs? Why, thank you!`
-			},{
-				text: `What do I need them for? Why, that's <i>ahaha</i>.. why, that would be <i>hahaha</i>... that would be none of your business!`
-			},{
-				text: `But if you're willing to fetch one final ingredient, I could do with some milk! That farm might be worth another try...`
-			}],
-
-			stepName4: "Farmer Scop",
-			stepChat4: [{
-				text: `I thought I told ya to get lost! We've got no cows here and besides... I'm not makin' any more pies for that Peto fella! Not after..... last time.`,
-			},{
-				text: `You city folk make me sick.`,
-			},{
-				text: `But if you're that desperate, I reckon that <b>Alchemist Tamtam</b> would sell you some milk. Now get off me land! I've nowt left for ye here!`
-			},],
-
-			stepName5: "Alchemist Tamtam",
-			stepChat5: [{
-				text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
-			},{
-				text: `It's been a long time since someone's asked me for that...`,
-			},{
-				text: `I guess... we can brew some!!!`
-			},{
-				text: `Yesss... We'll need a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
-			},{
-				text: `Oooonly thing is... I can't remember the order we need to add them to the cauldron in!`
-			},{
-				text: `You'll need to add the <b>Milkfish</b> first... After that, I guess there's only one way to find out!!`
-			},],
-
-			finishName: "Peto the Pyromancer",
-			finishChat: [{
-				text: `My ingredients!`,
-			},{
-				text: `Wait. Did I say 'ingredients'? Well I meant... <i>ahaha</i> my pyromancer potion ingredients! For a potion! <i>oh no.</i>.`,
-			},{
-				text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
-			},],
-
-			objectives: [
-				"Ask <b>Farmer Scop</b> where you can find some <b>flour</b>.",
-				"Give <b>Peto the Pyromancer</b> some flour.",
-				"Give <b>Peto the Pyromancer</b> three <b>eggs</b> from chickens.",
-				"Ask <b>Farmer Scop</b> where you can find some <b>milk</b>.",
-				"Ask <b>Alchemist Tamtam</b> for some milk.",
-				"Collect the potion ingredients from <b>Alchemist Tamtam</b>.",
-				"Add the four ingredients in the right order to brew some milk <i>(Milkfish is first!)</i>",
-				"Give <b>Peto the Pyromancer</b> the milk.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `Hello there, stranger! Would you mind helping me with a a certain... <i>ahahaha</i>... a certain matter?`,
+					},{
+						text: `I need a number of specific reagents for my... uh... experiments and you seem like you'd be able to help.`,
+					},{
+						text: `A pyromancer's work is never done, but a bag of flour would certainly help speed it up. <i>hehe</i>`,
+					},{
+						text: `Could you retreive some from the nearby farm if you're willing?`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Farmer Scop",
+					chat: [{
+						text: `That pyromancer's an odd fella. He loves his pies, but the rumours I've 'eard are bloomin' unsavoury.`
+					},{
+						text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the entrance, then get off with ye!`
+					},],
+				},
+				{
+					stepNum: 2,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `Oh goody! A bag of flour! This'll do nicely for my pyromancer experiments <i>hahaha</i>.`
+					},{
+						text: `If you're still willing, two eggs would go down a treat! You can nick them off the local chickens <i>hehe</i>.`
+					},],
+					removeItems: [
+						{item: Items.item[76], quantity: 1},
+					],
+				},
+				{
+					stepNum: 3,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `Are those my eggs? Why, thank you!`
+					},{
+						text: `What do I need them for? Why, that's <i>ahaha</i>.. why, that would be <i>hahaha</i>... that would be none of your business!`
+					},{
+						text: `But if you're willing to fetch one final ingredient, I could do with some milk! That farm might be worth another try...`
+					}],
+					objectiveRequirement: [2], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					removeItems: [
+						{item: Items.item[40], quantity: 2},
+					],
+				},
+				{
+					stepNum: 4,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `I thought I told ya to get lost! We've got no cows here and besides... I'm not makin' any more pies for that Peto fella! Not after..... last time.`,
+					},{
+						text: `You city folk make me sick.`,
+					},{
+						text: `But if you're that desperate, I reckon that <b>Alchemist Tamtam</b> would sell you some milk. Now get off me land! I've nowt left for ye here!`
+					},],
+				},
+				{
+					stepNum: 5,
+					name: "Alchemist Tamtam",
+					chat: [{
+						id: 1,
+						text: `Okie let's try again from the start!!<br><em>Tamtam's ears perk up.</em>`,
+					},{
+						id: 1,
+						text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
+					},{
+						id: 2,
+						text: `It's been a long time since someone's asked me for that...`,
+					},{
+						id: 3,
+						text: `I guess... we can brew some!!!`
+					},{
+						id: 4,
+						text: `Hmmm, so that'll be a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
+					},{
+						id: 5,
+						text: `Oooonly thing is... I can't remember the order we need to add them to the cauldron in.`
+					},{
+						id: 6,
+						text: `Looks like we'll need a bit of guesswork...`,
+					},{
+						id: 7,
+						text: `You'll need to add the <b>Milkfish</b> first... After that, I guess there's only one way to find out!!`,
+						options: [
+							{
+								text: "Add the Milkfish to the cauldron",
+								action: "progress",
+							},
+						]
+					},{
+						id: 8,
+						text: `Oookkkkaay, what to add next...`,
+						options: [
+							{
+								text: "Add the Katydid to the cauldron",
+								action: "progress",
+								//jumpToId: , // fail
+							},
+							{
+								text: "Add the Iron Ore to the cauldron",
+								action: "progress",
+							},
+							{
+								text: "Add the Lavender to the cauldron",
+								action: "progress",
+							},
+						]
+					},{
+						id: 9,
+						text: `..... Looks like the ore was right! What next??`,
+						options: [
+							{
+								text: "Add the Katydid to the cauldron",
+								action: "progress",
+							},
+							{
+								text: "Add the Lavender to the cauldron",
+								action: "progress",
+							},
+						]
+					},{
+						id: 10,
+						text: `Yay!!! Which leaves...`,
+						options: [
+							{
+								text: "Add the Katydid to the cauldron",
+								action: "progress",
+							},
+						]
+					},
+					],
+				},
+				{
+					stepNum: 6,
+					name: "Peto the Pyromancer",
+					chat: [{
+						text: `My ingredients!`,
+					},{
+						text: `Wait. Did I say 'ingredients'? Well I meant... <i>ahaha</i> my pyromancer potion ingredients! For a potion! <i>oh no.</i>.`,
+					},{
+						text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
+					},],
+					objectiveRequirement: [5], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					removeItems: [
+						{item: Items.item[77], quantity: 1},
+					],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.item[1]}, // mystery (get the helm the next day)
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
 			],
 
-			isHidden: function() {
-				let hidden = [];
-
-				if (Player.quests.npcProgress.eaglecrest[18] === undefined) {
-					Player.quests.npcProgress.eaglecrest[18] = 0;
-				}
-
-				// true or falses for each objective (apart from the turn-in objective)
-				hidden.push(false);
-				hidden.push(false);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 2);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 4);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 5);
-				hidden.push(Player.quests.npcProgress.eaglecrest[18] < 3);
-
-				return hidden;
-			},
-
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(checkProgress(Dom.inventory.check(68, "item"), 6));
-				completed.push(checkProgress(Dom.inventory.check(31, "item"), 6));
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Ask <b>Farmer Scop</b> where you can find some flour.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+				{id: 1, text: "Give <b>Peto the Pyromancer</b> some flour.",
+					isCompleted: function() {return checkProgress(Dom.inventory.check(76, "item"), 1)}, completeStep: 2,
+				},
+				{id: 2, text: "Gather two eggs from chickens in the Plains.",
+					isCompleted: function() {return checkProgress(Dom.inventory.check(40, "item"), 2)}, completeStep: 3,
+					revealStep: 2, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 3, text: "Give <b>Peto the Pyromancer</b> the eggs.",
+					completeStep: 3,
+					revealStep: 2, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 3, text: "Ask <b>Farmer Scop</b> where you can find some milk.",
+					completeStep: 3,
+					revealStep: 3,
+				},
+				{id: 4, text: "Ask <b>Alchemist Tamtam</b> for some milk.",
+					completeStep: 4,
+					revealStep: 4,
+				},
+				{id: 5, text: "Add the four ingredients in the right order to brew some milk.",
+					isCompleted: function() {return checkProgress(Dom.inventory.check(77, "item"), 1)},
+					revealStep: 5,
+				},
+				{id: 6, text: "Give <b>Peto the Pyromancer</b> the milk.",
+					revealStep: 3,
+				},
+			],
 
 			howToStart: "Speak to <b>Peto the Pyromancer</b> in Eaglecrest City.",
 			levelRequirement: 7,
-			questRequirements: ["Overdraft"],
-
-			rewards: {
-				xp: 100,
-				items: [
-					{item: Items.item[1]}, // mystery (get the helm the next day)
-					{item: Items.currency[2], quantity: 2,},
-				],
-			},
-
-			removeItems: [
-				{item: Items.item[68], quantity: 6},
-				{item: Items.item[31], quantity: 6},
-			],
-		},*/
+			questRequirements: ["to be added"],
+		},
 		/*{
 			id: 17,
 			quest: "WANTED: Baron Foxglove!!",
@@ -4149,7 +4362,7 @@ var Quests = {
 				}
 			},
 
-			callQuestFinishOnAbandon: true,
+			callQuestFinishOnAbandon: 1, // this is now set to the STEP of which the finish function should be called
 
 			onQuestFinish: function (npc) {
 				// remove all items with the property removeOnAbandon set to the quest name
@@ -4787,6 +5000,151 @@ var Quests = {
 			resetVariables: [
 				"fishCaught",
 			],
+		},
+	],
+
+	caves: [
+		{
+			id: 0,
+			quest: "Dig Base Alfa",
+			questArea: "caves",
+
+			questType: "storyline",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Recruiter Sylvie",
+					chat: [{
+						text: `${Player.name}!.....`,
+					},{
+						text: `...`,
+					},{
+						text: `..CONGRATULATIONS ON LEVEL TEN!!!`,
+					},{
+						text: `The city is truly thourishing, with many thanks to your help around the area.`,
+					},{
+						text: `Hey, I've even heard the frog problem has been sorted! Those exterminators I ordered were rather effective..`,
+					},{
+						text: `But ${Player.name}, what is the point of such a marvellous city if not the work produced by it?`,
+					},{
+						text: `That's why I need you to report to <b>Field Director Lyn</b> at <b>Eaglecrest Dig Base Alfa</b> immediately.`,
+					},{
+						text: `It's unfortunate, but as an archaeological city we need as much energy put into the <b>Caves excavation effort</b> as possible.`,
+					},{
+						text: `After all,<br><b>Eaglecrest needs you!</b>`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Field Director Lyn",
+					chat: [{
+						text: `—search squadron sent IMMEDIATELY to the lower schist plateau, -1087.21, 546.66.`,
+					},{
+						text: `DIGBETH, we need prompt backup against Palatine AND Vomer!`,
+					},{
+						text: `No JERICHO, it's the LOWER-UPWARD-CRYSTALLINE bridge that needs immediate reinforcement against—`,
+					},{
+						text: `Ah! You must be one of the new archeaologists I ordered from Sylvie. I was hoping there'd be more of you, though it was hard enough to get Sylvie to send backup in the first place...`,
+					},{
+						text: `I hope you had a pleasant journey! I'm Archaeologist Lin, the head of command here at <b>Dig Base Alfa</b>.`
+					},{
+						text: `Not a second to be wasted - please report to <b>P.I. Jericho</b> for further orders.`
+					},{
+						text: `DIGBETH, request services from Sylvie AT ONCE! Yes, AGAIN!`
+					},],
+					rewards: {
+						xp: 20,
+						items: [
+							{item: Items.currency[2], quantity: 4,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Report to <b>Field Director Lyn</b> at <b>Dig Base Alfa</b>, which can be found to the east of the plains, through the coyote field.",
+				},
+			],
+
+			howToStart: "Speak to <b>Recruiter Sylvie</b> in Eaglecrest City.",
+			levelRequirement: 10,
+			questRequirements: ["Last frog quest"],
+		},
+		{
+			id: 1,
+			quest: "The Caves Awaken",
+			questArea: "caves",
+
+			questType: "storyline",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Principal Investigator Jericho",
+					chat: [{
+						text: `Hello! Greetings! Salutations! It's a busy time here at Base Camp Alfa I'm afraid, but no time better for your arrival! What's your name?`,
+						options: [
+							{
+								text: `${Player.name}`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Well great to meet you ${Player.name}! Wonderful name that! I once had a dead cat called ${Player.name}! Well, not dead when I had it- you know what I mean...`,
+					},{
+						text: `Yes, anyway, your, erm, orders. Dig Base Alfa's primary goal is excavation of the upper cave schists, which you'll be sent into.`
+					},{
+						text: `However, the majority of our dig effort in this area comes from the <b>chests</b> that populate the area. A <b>chest</b> is, well, a sort of box-`,
+					},{
+						text: `Sorry. I'm quite nervous. In fact, it's my first day on the job, and... erm...`,
+						options: [
+							{
+								text: `...Yes?`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `The caves they're... Coming alive...`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Principal Investigator Jericho",
+					chat: [{
+						text: `Ouch, looked like the living rock gave you a hard time...`,
+					},{
+						text: `How was your expedition? Did you find anything of value?`,
+						options: [
+							{
+								text: `<i>Show Jericho the book</i>`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Hmmm... Interesting! From a glance this book looks like this could have originated over a thousand years ago.`,
+					},{
+						text: `Let me analyse this book and get back to you soon, see you!`,
+					},{
+						text: `Oh, also, I'm pretty sure there's other archaeologists around that need a hand. Don't be afraid to offer your services!`
+					},],
+					removeItems: [], // tbd
+					rewards: {
+						xp: 50,
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Open and loot five chests from the Upper Schists",
+				},
+				{id: 1, text: "Bring your findings to <b>P.I. Jericho</b>",
+				},
+			],
+
+			howToStart: "Report to <b>P.I. Jericho</b> at <b>Dig Base Alfa</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Dig Base Alfa"],
 		},
 	],
 };
