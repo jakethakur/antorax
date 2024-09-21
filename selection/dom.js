@@ -483,14 +483,14 @@ function display () {
 
 	// beard
 	let beardSrc = Skins.beard[selected[selected.class].beard].src;
-	if (!Skins.beard[selected[selected.class].beard].null) {
+	if (!Skins.beard[selected[selected.class].beard].blank) {
 		beardSrc += selected[selected.class].hairColour;
 	}
 	document.getElementById("beardPreview").src = "../assets/playerCustom/beard/" + beardSrc + ".png";
 
 	// hair
 	let hairSrc = Skins.hair[selected[selected.class].hair].src;
-	if (!Skins.hair[selected[selected.class].hair].null) {
+	if (!Skins.hair[selected[selected.class].hair].blank) {
 		hairSrc += selected[selected.class].hairColour;
 	}
 	document.getElementById("hairPreview").src = "../assets/playerCustom/hair/" + hairSrc + ".png";
