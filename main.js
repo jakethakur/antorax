@@ -7087,7 +7087,7 @@ class LootChest extends Thing {
             npc: this,
             buttons: ["Loot chest"],
             functions: [function (chest) {
-                Dom.loot.page(chest.name, chest.loot);
+                Dom.loot.page(chest, chest.loot);
                 Dom.loot.currentId = "c"+arrayIndex;
                 // "c"+i is a string that allows the loot menu to be identified - c means chest, and arrayIndex is the index of the enemy in Game.chests
                 // the loot menu closes when the area changes anyway, so this will always work
@@ -11468,7 +11468,7 @@ Game.update = function (delta) {
                     npc: "Looting",
                     buttons: ["Loot " + Game.enemies[i].name],
                     functions: [function () {
-                        Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
+                        Dom.loot.page(Game.enemies[i], Game.enemies[i].loot);
                         Dom.loot.currentId = "e"+i;
                         // "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
                         // the loot menu closes when the area changes anyway, so this will always work
@@ -11485,7 +11485,7 @@ Game.update = function (delta) {
 				let lootingRole = choosePageInformation[choosePageInformation.length-1];
 				lootingRole.buttons.push("Loot " + Game.enemies[i].name);
 				lootingRole.functions.push(function () {
-					Dom.loot.page(Game.enemies[i].name, Game.enemies[i].loot);
+					Dom.loot.page(Game.enemies[i], Game.enemies[i].loot);
 					Dom.loot.currentId = "e"+i;
 					// "e"+i is a string that allows the loot menu to be identified - e means enemy, and i is the index of the enemy in Game.enemies
 					// the loot menu closes when the area changes anyway, so this will always work

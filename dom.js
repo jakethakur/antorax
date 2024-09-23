@@ -2845,7 +2845,7 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 Dom.quest.accept = function () {
 	let quest = Dom.currentlyDisplayed;
 
-	// resetting of Player.quests.progress[quest.area][quest.id] variables on quest start
+	// resetting of Player.quests.progress[quest.questArea][quest.id] variables on quest start
 	if (quest.resetVariables !== undefined) {
 		for (let i = 0; i < quest.resetVariables.length; i++) {
 			Player.quests.progress[quest.questArea][quest.id][quest.resetVariables[i]] = undefined;
@@ -2963,7 +2963,7 @@ Dom.quests.active = function (quest) {
 				}
 				if (typeof objectives[i].revealStep !== "undefined") {
 					// objective is always revealed if this step is completed, otherwise it may be hidden
-					if (Player.quests.stepProgress[currentQuest.area][currentQuest.id][objectives[i].revealStep]) {
+					if (Player.quests.stepProgress[currentQuest.questArea][currentQuest.id][objectives[i].revealStep]) {
 						// the required step has been completed
 						hidden = false;
 					}
@@ -2978,7 +2978,7 @@ Dom.quests.active = function (quest) {
 					let completed = false;
 					if (typeof objectives[i].completeStep !== "undefined") {
 						// objective is always completed if this step is completed
-						if (!Player.quests.stepProgress[currentQuest.area][currentQuest.id][objectives[i].completeStep]) {
+						if (!Player.quests.stepProgress[currentQuest.questArea][currentQuest.id][objectives[i].completeStep]) {
 							// the required step has not been completed
 							completed = true;
 						}
@@ -2987,7 +2987,7 @@ Dom.quests.active = function (quest) {
 						completed = objectives[i].isCompleted(); // gives the progress (as a number or symbol to be displayed, or as true/false)
 					}
 					else if (!completed && typeof objectives[i].associatedVariable !== "undefined") { // associated variable with this objective - usually Dom.quests.active is called whenever this var is updated
-						completed = Player.quests.progress[currentQuest.area][currentQuest.id][objectives[i].associatedVariable];
+						completed = Player.quests.progress[currentQuest.questArea][currentQuest.id][objectives[i].associatedVariable];
 					}
 
 					if (completed === 0) {
@@ -3005,7 +3005,7 @@ Dom.quests.active = function (quest) {
 						}
 					}
 
-					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i];
+					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i].text;
 					// now display the progress of this objective
 					if (completed === true && i !== objectives.length-1) {
 						// objective completed (and it's not the last objective, as this is the turn-in objective)
@@ -3018,10 +3018,10 @@ Dom.quests.active = function (quest) {
 
 					// save progress information in Player.quests.objectiveProgress, so it can be eaisly accessed by Game when checking quest finish
 					if (completed === true) {
-						Player.quests.objectiveProgress[currentQuest.area][currentQuest.id][i] = true;
+						Player.quests.objectiveProgress[currentQuest.questArea][currentQuest.id][i] = true;
 					}
 					else {
-						Player.quests.objectiveProgress[currentQuest.area][currentQuest.id][i] = false;
+						Player.quests.objectiveProgress[currentQuest.questArea][currentQuest.id][i] = false;
 					}
 
 					// complete the objective in the code
@@ -3042,7 +3042,7 @@ Dom.quests.active = function (quest) {
 				}]);
 			}
 
-			let objectiveProgress = Player.quests.objectiveProgress[currentQuest.area][currentQuest.id];
+			let objectiveProgress = Player.quests.objectiveProgress[currentQuest.questArea][currentQuest.id];
 
 			// set to whether or not this was completed last time this function was called (to track and announce if quest log is updated)
 			if (currentQuest.wasCompleted === undefined) {
@@ -5257,7 +5257,8 @@ Dom.inventory.hideHotbar = function (hide) {
 	}
 }
 
-Dom.loot.page = function (name, items) {
+// npc is the full npc object
+Dom.loot.page = function (npc, items) {
 	if (Dom.changeBook("lootPage", npc)) {//, true/*false*/, true);
 		//Dom.changeBook("lootPage");
 		//Dom.changeBook("lootPage");
@@ -5265,7 +5266,7 @@ Dom.loot.page = function (name, items) {
 		// the format of Dom.loot.looted is the same as Dom.quest.rewards
 		Dom.loot.looted = items;
 
-		Dom.elements.lootingPageTitle.innerHTML = name;
+		Dom.elements.lootingPageTitle.innerHTML = npc.name;
 		let lootSpaces = "";
 		for (let i = 0; i < items.length; i+=8) {
 			lootSpaces += "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
@@ -7535,14 +7536,41 @@ Dom.init = function () {
 		}
 	}
 
-	// make sure Player.quests variables are up to date
+	// set up Player.quests data structure
+	// make sure these variables are up to date (i.e. incorporate new quests and new areas since last time playing)
 	let varNames = ["progress", "questLastFinished", "timesCompleted", "startedFromNpc", "objectiveProgress", "stepProgress"];
 	for (let i = 0; i < varNames.length; i++) {
 		let obj = Player.quests[varNames[i]];
 		if (Object.keys(Quests).length > Object.keys(obj).length) {
-			for (let j = 0; j < Object.keys(Quests).length; j++) {
+			for (let j = 0; j < Object.keys(Quests).length; j++) { // iterating through the quest areas
 				if (!Object.keys(obj).includes(Object.keys(Quests)[j])) {
 					obj[Object.keys(Quests)[j]] = [];
+				}
+			}
+		}
+	}
+	// these variables should have an object for each quest
+	let varNames2 = ["progress"];
+	for (let i = 0; i < varNames2.length; i++) {
+		let obj = Player.quests[varNames2[i]];
+		if (Object.keys(Quests).length > Object.keys(obj).length) {
+			for (let j = 0; j < Object.keys(Quests).length; j++) {  // iterating through the quest areas
+				let areaName = Object.keys(Quests)[j];
+				for (let k = 0; j < Quests[areaName].length; k++) {  // iterating through the quests in this area
+					Quests[areaName][k] = {};
+				}
+			}
+		}
+	}
+	// these variables should have an array for each quest
+	let varNames3 = ["objectiveProgress", "stepProgress"];
+	for (let i = 0; i < varNames3.length; i++) {
+		let obj = Player.quests[varNames3[i]];
+		if (Object.keys(Quests).length > Object.keys(obj).length) {
+			for (let j = 0; j < Object.keys(Quests).length; j++) {  // iterating through the quest areas
+				let areaName = Object.keys(Quests)[j];
+				for (let k = 0; j < Quests[areaName].length; k++) {  // iterating through the quests in this area
+					Quests[areaName][k] = [];
 				}
 			}
 		}

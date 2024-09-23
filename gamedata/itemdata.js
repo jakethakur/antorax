@@ -7108,7 +7108,7 @@ unidentifiedArea: ["caves"],
                         npc: "Sunken Chest",
                         buttons: ["Loot chest!"],
                         functions: [Dom.loot.page],
-                        parameters: [["Sunken Chest", Player.inventory.items[inventoryPosition].loot]]
+                        parameters: [[{name: "Sunken Chest"}, Player.inventory.items[inventoryPosition].loot]]
                     }]);
                 }
             },
