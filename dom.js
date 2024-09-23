@@ -1169,7 +1169,7 @@ Dom.chat.timeoutTime = 20; // ms between each character being shown
 // optional properties of object inputs include "onFinish" (function) and "options" (see questdata for format)
 // skippable is whether the text can be skipped by pressing enter
 Dom.chat.npcBanner = function (npc, text, skippable) {
-	if (Dom.currentlyDisplayed === "") {
+	if (Dom.currentlyDisplayed === "" || (Dom.currentlyDisplayed === "npcBanner" && Dom.currentNPC.name === npc.name)) {
 		Dom.currentlyDisplayed = "npcBanner";
 		Dom.currentNPC = npc;
 

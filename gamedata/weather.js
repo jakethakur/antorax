@@ -640,7 +640,7 @@ let Event = {
 		// Samhain (Halloween)
 		// Blood Moon
 		else if (d.month === 10) {
-			this.event = "Samhain";
+			//this.event = "Samhain"; // disabled for 2024 until the quests have been updated :)
 		}
 		// Christmas
 		else if (d.month === 12) {

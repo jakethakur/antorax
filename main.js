@@ -10456,10 +10456,6 @@ Game.generateVillagers = function (data, areaName) {
 
 		let villager = possibleVillagers[villagerIndex];
 
-		if (villager.name === "Robert Hendman") {
-			console.log("hi");
-		}
-
 		let formattedImages = this.formatNpcImages(villager);
 
 		// images to be added
@@ -10478,8 +10474,6 @@ Game.generateVillagers = function (data, areaName) {
 			Object.assign(images, formattedImages);
 		}
 	}
-
-	console.log(images);
 
 	// load the images
 	let p = Loader.loadMultipleImages(images);
