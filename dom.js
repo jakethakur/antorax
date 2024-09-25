@@ -7553,11 +7553,11 @@ Dom.init = function () {
 	let varNames2 = ["progress"];
 	for (let i = 0; i < varNames2.length; i++) {
 		let obj = Player.quests[varNames2[i]];
-		if (Object.keys(Quests).length > Object.keys(obj).length) {
-			for (let j = 0; j < Object.keys(Quests).length; j++) {  // iterating through the quest areas
-				let areaName = Object.keys(Quests)[j];
-				for (let k = 0; j < Quests[areaName].length; k++) {  // iterating through the quests in this area
-					Quests[areaName][k] = {};
+		for (let j = 0; j < Object.keys(Quests).length; j++) {  // iterating through the quest areas
+			let areaName = Object.keys(Quests)[j];
+			for (let k = 0; k < Quests[areaName].length; k++) {  // iterating through the quests in this area
+				if (typeof obj[areaName][k] === "undefined") {
+					obj[areaName][k] = {};
 				}
 			}
 		}
@@ -7566,11 +7566,11 @@ Dom.init = function () {
 	let varNames3 = ["objectiveProgress", "stepProgress"];
 	for (let i = 0; i < varNames3.length; i++) {
 		let obj = Player.quests[varNames3[i]];
-		if (Object.keys(Quests).length > Object.keys(obj).length) {
-			for (let j = 0; j < Object.keys(Quests).length; j++) {  // iterating through the quest areas
-				let areaName = Object.keys(Quests)[j];
-				for (let k = 0; j < Quests[areaName].length; k++) {  // iterating through the quests in this area
-					Quests[areaName][k] = [];
+		for (let j = 0; j < Object.keys(Quests).length; j++) {  // iterating through the quest areas
+			let areaName = Object.keys(Quests)[j];
+			for (let k = 0; k < Quests[areaName].length; k++) {  // iterating through the quests in this area
+				if (typeof obj[areaName][k] === "undefined") {
+					obj[areaName][k] = [];
 				}
 			}
 		}
