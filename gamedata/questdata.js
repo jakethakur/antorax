@@ -1760,6 +1760,19 @@ var Quests = {
 	eaglecrest: [
 		{
 			id: 0,
+			quest: "Hidden Quest",
+			questArea: "eaglecrest",
+
+			howToStart: "Hidden Quest",
+			levelRequirement: 1000,
+			questRequirements: [],
+
+			/*old quest, for legacy reasons :)
+			I don't think this quest ever worked lol! I could never be bothered to properly add leads
+			Originally this was going to be the introduction to the cat questline (and then amelio would go missing again...)
+			But it always felt a bit janky, and the first part felt like too much of a barrier to a (hopefully) fun and unique rest of the quest
+			
+			id: 0,
 			quest: "Help! Lost Cat",
 			questArea: "eaglecrest",
 
@@ -1791,32 +1804,10 @@ var Quests = {
 				text: `Ahh yes, your reward. Here is some gold. I hope it goes towards a good cause.`
 			}],
 
-			objectives: [
-				"Buy an <b>Animal Lead</b> from the <b>Eaglecrest Bazaar</b>.",
-				"Find the lost cat, <b>Amelio</b>. <i>He was last seen outside Eaglecrest tavern</i>",
-				"Bring the cat to <strong>Priest Kemp-Eau</strong> on the lead.",
-			],
-
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(typeof Game.hero !== "undefined" && typeof Game.hero.hasOnLead !== "undefined" && Game.hero.hasOnLead.name === "Amelio");
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
-
-			howToStart: "Find the 'lost cat' notice in Eaglecrest City.",
+			howToStart: "Find a 'lost cat' notice in Eaglecrest City.",
 			levelRequirement: 4,
-			questRequirements: ["To Eaglecrest, and Beyond!"],
-
-			rewards: {
-				xp: 50,
-				items: [{item: Items.currency[2], quantity: 10}],
-			},
-		},
+			questRequirements: ["Overdraft"],*/
+		}, // now we skip to id 17 :)
 
 		{
 			id: 1,
@@ -2490,6 +2481,7 @@ var Quests = {
 						{item: Items.fish[34], quantity: 16,}, // tadpoles
 						{item: Items.fish[33], quantity: 4,}, // frogspawn
 					],
+					objectiveRequirement: [0,1]
 				},
 			],
 
@@ -2562,6 +2554,7 @@ var Quests = {
 						{item: Items.item[59],},
 						{item: Items.item[57], quantity: 3},
 					],
+					objectiveRequirement: [0,1,2,3]
 				},
 			],
 
@@ -2648,6 +2641,7 @@ var Quests = {
 						{item: Items.item[68], quantity: 6},
 						{item: Items.item[31], quantity: 6},
 					],
+					objectiveRequirement: [0,1]
 				},
 			],
 
@@ -2703,6 +2697,7 @@ var Quests = {
 							eaglecrestCity: 60,
 						},
 					},
+					objectiveRequirement: 0
 				},
 			],
 
@@ -2752,6 +2747,7 @@ var Quests = {
 							eaglecrestCity: 60,
 						},
 					},
+					objectiveRequirement: 0
 				},
 			],
 
@@ -2861,13 +2857,10 @@ var Quests = {
 					},{
 						text: `Those fish are pretty rare, heheh, but I'm sure you can find one of them here. Try fishing a while and you should find one.`,
 					},],
-					removeItems: [
-						{item: Items.item[74]},
-					]
 				},
 				{
 					stepNum: 6,
-					name: "Fisherman Guimtal",
+					name: "Fisherman Sharptooth",
 					chat: [{
 						text: `Miau, miau miau?`,
 						options: [
@@ -2890,7 +2883,7 @@ var Quests = {
 					rewards: {
 						xp: 50,
 						items: [
-							{item: Items.currency[2], quantity: 5,},
+							{item: Items.currency[2], quantity: 2,},
 							{item: Items.currency[3], quantity: 2,},
 						],
 						reputation: {
@@ -2900,6 +2893,7 @@ var Quests = {
 					removeItems: [
 						{item: Items.fish[37],}, // remove the translator
 					],
+					objectiveRequirement: 5
 				},
 			],
 
@@ -2942,244 +2936,246 @@ var Quests = {
 			quest: "Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)",
 			questArea: "eaglecrest",
 
-			startName: "Fisher Sharptooth",
-			startChat: [{
-				text: `So wes needs to finds wheres the source of this issue is.`,
-			},{
-				text: `I thinks wes could do this bys fishing arounds the plains. This should helps us finds wheres the issue.`,
-			},],
-
-			finishName: "Fisher Sharptooth",
-			finishChat: [{
-				text: `I'lls examines this fish fors yous. Comes backs laters and I'lls tells you the lasts things to do.`,
-			},],
-
-			objectives: [
-				"Fish up a fish near the <b>train station</b> in the <b>north west</b> of the <b>plains</b>.",
-				"Fish up a fish near the <b>flower forest</b> in the <b>south west</b> of the <b>plains</b>.",
-				"Fish up a fish near the <b>lake</b> in the <b>centre</b> of the <b>plains</b>.",
-				"Fish up a fish near the <b>farm</b> in the <b>north east</b> of the <b>plains</b>.",
-				"Fish up a fish near the <b>tall grass</b> in the <b>south east</b> of the <b>plains</b>.",
-				"Return to <b>Fisher Sharptooth</b>.",
-				"Head down the <b>Eaglecrest Well</b> and fish up a fish.",
-				"Return to <b>Fisher Sharptooth</b>.",
+			steps: [
+				{
+					stepNum: 0,
+					name: "Fisher Sharptooth",
+					chat: [{
+						text: `So wes needs to finds wheres the source of this issue is.`,
+					},{
+						text: `I thinks wes could do this bys fishing arounds the plains. This should helps us finds wheres the issue.`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Fisher Sharptooth",
+					chat: [{
+						text: `Hows did you gets on?`,
+						options: [
+							{
+								text: "Show Fisher Sharptooth the fish",
+								action: "progress",
+							},
+						]
+					},{
+						text: `They dos not looks tastys.`,
+					},{
+						text: `It seems the fish seems to bes comings froms thes <b>well</b>. Perhaps theres ares somethings downs theres gettings all the fish.`,
+					},{
+						text: `Whys don'ts yous head downs the well and do some fishing to sees if theres anything downs theres.`,
+					},],
+					objectiveRequirement: [0,1,2,3,4]
+				},
+				{
+					stepNum: 2,
+					name: "Fisher Sharptooth",
+					chat: [{
+						text: `I'lls examines this fish fors yous. Comes backs laters and I'lls tells you the lasts things to do.`,
+					},],
+					objectiveRequirement: [6],
+					rewards: {
+						xp: 50, // tbd remove and replace with some sort of fishing reward / fishing xp / fishing skill
+						items: [
+							{item: Items.currency[2], quantity: 3,},
+							{item: Items.currency[3], quantity: 2,},
+						],
+						reputation: {
+							eaglecrestCity: 30,
+						},
+					},
+				},
 			],
 
-			isHidden: function() {
-				let hidden = [];
-
-				if (Player.quests.questProgress.troubledWaters3Progress === undefined)
-				{
-					Player.quests.questProgress.troubledWaters3Progress = 1;
-				}
-
-				// true or falses for each objective (apart from the turn-in objective)
-				hidden.push(false);
-				hidden.push(false);
-				hidden.push(false);
-				hidden.push(false);
-				hidden.push(false);
-				hidden.push(Player.quests.questProgress.northWestFish === 0 || Player.quests.questProgress.southWestFish === 0 || Player.quests.questProgress.centreFish === 0 || Player.quests.questProgress.northEastFish === 0 || Player.quests.questProgress.southEastFish === 0);
-				hidden.push(Player.quests.questProgress.troubledWaters3Progress < 2);
-				hidden.push(Player.quests.questProgress.troubledWaters3Progress < 3);
-
-				return hidden;
-			},
-
-			isCompleted: function() {
-				let completed = [];
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.northWestFish > 0);
-				completed.push(Player.quests.questProgress.southWestFish > 0);
-				completed.push(Player.quests.questProgress.centreFish > 0);
-				completed.push(Player.quests.questProgress.northEastFish > 0);
-				completed.push(Player.quests.questProgress.southEastFish > 0);
-				completed.push(Player.quests.questProgress.troubledWaters3Progress > 1);
-				completed.push(Player.quests.questProgress.troubledWaters3Progress > 2);
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Fish up a fish near the <b>train station</b> in the <b>north west</b> of the <b>plains</b>.",
+					associatedVariable: "northWestFish"
+				},
+				{id: 1, text: "Fish up a fish near the <b>flower forest</b> in the <b>south west</b> of the <b>plains</b>.",
+					associatedVariable: "southWestFish"
+				},
+				{id: 2, text: "Fish up a fish near the <b>lake</b> in the <b>centre</b> of the <b>plains</b>.",
+					associatedVariable: "centreFish"
+				},
+				{id: 3, text: "Fish up a fish near the <b>farm</b> in the <b>north east</b> of the <b>plains</b>.",
+					associatedVariable: "northEastFish"
+				},
+				{id: 4, text: "Fish up a fish near the <b>tall grass</b> in the <b>south east</b> of the <b>plains</b>.",
+					associatedVariable: "southEastFish"
+				},
+				{id: 5, text: "Return to <b>Fisher Sharptooth</b>.", 
+					completeStep: 1
+				},
+				{id: 6, text: "Head down the <b>Eaglecrest Well</b> and fish up a fish.",
+					revealStep: 1, associatedVariable: "wellFish"
+				},
+				{id: 7, text: "Return to <b>Fisher Sharptooth</b>.",
+					revealStep: 1,
+				},
+			],
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters II"],
-
-			rewards: {
-				xp: 50,
-				items: [
-					{item: Items.currency[2], quantity: 3,},
-					{item: Items.currency[3], quantity: 2,},
-				],
-				reputation: {
-					eaglecrestCity: 30,
-				},
-			},
-
-			removeItems: [
-
-			],
-
-			onQuestStart: function() {
-				Player.quests.questProgress.troubledWaters3Progress = 1;
-			}
 		},
 		{
 			id: 14,
 			quest: "Troubled Waters IV (Big Fish in a Small Pond)",
 			questArea: "eaglecrest",
 
-			startName: "Fisher Sharptooth",
-			startChat: [{
-				text: `I looks at the fish ands its seems thats theres is a large fish in the well.`,
-			},{
-				text: `I needs somes bait to gets the fish outs. Gets mes a fish longer thans a metre please ands wes cans ends this.`,
-			},],
-
-			finishName: "Fisher Sharptooth",
-			finishChat: [{
-				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased whens yous sees thems next.`,
-			},{
-				text: `Here's somes <b>gold</b> ands <b>fishing seals</b> fors yours troubles. I'lls sees yous soons.`,
-			},],
-
-			objectives: [
-				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make it into bait.",
-				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>.",
-				"Talk to <b>Fisher Sharptooth</b>.",
-				"Fish up the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
-				"Defeat the <b>Lake Lurker</b>.",
-				"Return to <b>Fisherman Sharptooth</b>"
+			steps: [
+				{
+					stepNum: 0,
+					name: "Fisher Sharptooth",
+					chat: [{
+						text: `I looks at the fish ands its seems thats theres is a large fish in the well.`,
+					},{
+						text: `I needs somes bait to gets the fish outs. Gets mes a fish longer thans a metre please ands wes cans ends this.`,
+					},],
+				},
+				// the two intermediate steps with sharptooth are actually done from areadata, since these can be repeated, and are shared with the reprisal of this quest (id 16)
+				{
+					stepNum: 1,
+					name: "Fisher Sharptooth",
+					chat: [{
+						text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased whens yous sees thems next.`,
+					},{
+						text: `Here's somes <b>gold</b> ands <b>fishing seals</b> fors yours troubles. I'lls sees yous soons.`,
+					},],
+					rewards: {
+						xp: 100,
+						reputation: {
+							eaglecrestCity: 100,
+						},
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+							{item: Items.currency[3], quantity: 3,},
+						],
+					},
+					objectiveRequirement: 3,
+				}
 			],
 
-			isHidden: function() {
-				let hidden = [];
-
-				if (Player.quests.questProgress.troubledWaters4Progress === undefined)
-				{
-					Player.quests.questProgress.troubledWaters4Progress = 1;
-				}
-
-				// true or falses for each objective (apart from the turn-in objective)
-				hidden.push(false);
-				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 2);
-				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 3);
-				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 4);
-				hidden.push(Player.quests.questProgress.troubledWaters4Progress < 5);
-
-				return hidden;
-			},
-
-			isCompleted: function() {
-				let completed = [];
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Player.quests.questProgress.troubledWaters4Progress > 1 && Dom.inventory.check(37, "consumable", 1) || Player.quests.questProgress.troubledWaters4Progress > 2);
-				completed.push(Player.quests.questProgress.troubledWaters4Progress > 2);
-				completed.push(Player.quests.questProgress.troubledWaters4Progress > 3);
-				completed.push(Player.quests.questProgress.troubledWaters4Progress > 4);
-				completed.push(Player.bossesKilled.lakeLurker > 0);
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make it into bait.",
+					isCompleted: function () {
+						return (Dom.inventory.check(37, "consumable", 1) ||
+							Dom.inventory.check(40, "fish", 1) ||
+							Dom.inventory.check(38, "consumable", 1) ||
+							Player.quests.questProgress.lakeLurkerLastCaught === GetFullDate());
+					}
+				},
+				{id: 1, text: "Use the King of Herrings Bait to fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>, then return to <b>Fisher Sharptooth</b> to make it into bait.",
+					isHidden: function () {
+						return !Player.quests.progress.eaglecrest[14].herringBaitObtained;
+					},
+					isCompleted: function () {
+						return (Dom.inventory.check(40, "fish", 1) ||
+							Dom.inventory.check(38, "consumable", 1) ||
+							Player.quests.questProgress.lakeLurkerLastCaught === GetFullDate());
+					}
+				},
+				{id: 2, text: "Use the Lake Lurker Bait to fish up the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
+					isHidden: function () {
+						return !Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained;
+					},
+					isCompleted: function () {
+						return Player.quests.questProgress.lakeLurkerLastCaught === GetFullDate();
+					}
+				},
+				{id: 3, text: "Defeat the <b>Lake Lurker</b>.",
+					isHidden: function () {
+						return !Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained;
+					},
+					isCompleted: function () {
+						return Player.bossesKilled.lakeLurker === GetFullDate();
+					}
+				},
+				{id: 4, text: "Return to <b>Fisher Sharptooth</b>.",
+					isHidden: function () {
+						return !Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained;
+					},
+				},
+			],
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters III (Eaglecrest Plains Fishing Tourǃǃ)"],
 			shareCooldownWith: [{questArea: "eaglecrest", id: 13}],
-
-			rewards: {
-				xp: 100,
-				reputation: {
-					eaglecrestCity: 100,
-				},
-				items: [
-					{item: Items.currency[2], quantity: 5,},
-					{item: Items.currency[3], quantity: 3,},
-				],
-
-			},
-
-			removeItems: [
-			],
-
-			onQuestStart: function() {
-				Player.quests.questProgress.troubledWaters4Progress = 1;
-			}
 		},
+		// skip one quest (to id 16) to get to the daily quest version of this
+
 		{
 			id: 15,
 			quest: "Bee Careful ǃ ǃ",
 			questArea: "eaglecrest",
 
-			startName: "Farmer Eloise",
-			startChat: [{
-				text: `The bees won't stop swarming that flower forest~!`,
-			},{
-				text: `Maybe they're lost⁀˚`,
-			},{
-				text: `Could you try to lure a swarm back˚?`,
-			},{
-				text: `Try not to hurt the bees~`,
-			},],
-
-			finishName: "Farmer Eloise",
-			finishChat: [{
-				text: `Welcome back, bees˚!⁀!`,
-			},],
-
-			objectives: [
-				"Lure a <b>Bee Swarm</b> from the Plains flower forest to Farmer Eloise's beehives.",
-				"Speak to <b>Farmer Eloise</b>.",
+			steps: [
+				{
+					stepNum: 0, 
+					name: "Farmer Eloise",
+					chat: [{
+						text: `The bees won't stop swarming that flower forest~!`,
+					},{
+						text: `Maybe they're lost⁀˚`,
+					},{
+						text: `Could you try to lure a swarm back˚?`,
+					},{
+						text: `Try not to hurt the bees~`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Farmer Eloise",
+					chat: [{
+						text: `Welcome back, bees˚!⁀!`,
+					},],
+					objectiveRequirement: 0,
+					rewards: {
+						xp: 60,
+						items: [
+							{item: Items.currency[2], quantity: 4,},
+						],
+						reputation: {
+							eaglecrestFarm: 100,
+						},
+					},
+				}
 			],
 
-			isCompleted: function() {
-				let completed = [];
-
-				// true or falses for each objective (apart from the turn-in objective)
-				let objCompleted = false;
-				if (!Player.quests.questProgress.beeCarefulFinished && typeof Game.enemies !== "undefined") {
-					if(Game.areaName === "eaglecrestPlains")
-					{
-						let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
-						let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
-						let nearest = Game.closest(beeSwarms, farmerEloise);
-						objCompleted = (Game.distance(nearest, farmerEloise) < 300);
-						if (objCompleted) {
-							Player.quests.questProgress.beeCarefulFinished = true;
-
-							nearest.attackTargets[Game.hero.id].baseAggro = 0;
-							nearest.attackTargets[Game.hero.id].aggro = 0;
-							nearest.hostility = "neutral";
+			objectivesList: [
+				{id: 0, text: "Lure a <b>Bee Swarm</b> from the Plains flower forest to Farmer Eloise's beehives.",
+					isCompleted: function() {
+						let objCompleted = false;
+						if (!Player.quests.questProgress.beeCarefulFinished && typeof Game.enemies !== "undefined") {
+							if(Game.areaName === "eaglecrestPlains")
+							{
+								let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
+								let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
+								let nearest = Game.closest(beeSwarms, farmerEloise);
+								objCompleted = (Game.distance(nearest, farmerEloise) < 300);
+								if (objCompleted) {
+									Player.quests.questProgress.beeCarefulFinished = true;
+		
+									nearest.attackTargets[Game.hero.id].baseAggro = 0;
+									nearest.attackTargets[Game.hero.id].aggro = 0;
+									nearest.hostility = "neutral";
+								}
+							}
 						}
-					}
-				}
-				else {
-					objCompleted = true;
-				}
-				completed.push(objCompleted);
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+						else {
+							objCompleted = true;
+						}
+		
+						return objCompleted;
+					},
+				},
+				{id: 1, text: "Speak to <b>Farmer Eloise</b>."},
+			],
 
 			howToStart: "Speak to <b>Farmer Eloise</b> in the Eaglecrest Plains Farms.",
 			levelRequirement: 9,
 			questRequirements: ["Every Flower in My Garden"],
-			// tbd reputation requirement
-
-			rewards: {
-				xp: 60,
-				items: [
-					{item: Items.currency[2], quantity: 4,},
-				],
-				reputation: {
-					eaglecrestFarm: 100,
-				},
-			},
+			// tbd reputation requirement?
 		},
 
 		{
@@ -3189,134 +3185,173 @@ var Quests = {
 
 			repeatTime: "daily",
 
-			startName: "Fisher Sharptooth",
-			startChat: [{
-				text: `The fish numbers seems to bes dwindling agains.`,
-			},{
-				text: `I needs somes bait to gets the fish outs. Please gets mes a fish longer thans a metre please ands wes cans ends this.`,
-			},],
-
-			finishName: "Fisher Sharptooth",
-			finishChat: [{
-				text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased.`,
-			},{
-				text: `Here's somes <b>gold</b> ands a <b>fishing seal</b> fors yours troubles. I'lls sees yous soons.`,
-			},],
-
-			objectives: [
-				"Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
-				"Fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b> and return to <b>Fisher Sharptooth</b> to make into bait.",
-				"Fish up and defeat the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
-				"Return to <b>Fisherman Sharptooth</b>"
+			steps: [
+				{
+					stepNum: 0, 
+					name: "Fisher Sharptooth",
+					chat: [{
+						text: `The fish numbers seems to bes dwindling agains.`,
+					},{
+						text: `I needs somes bait to gets the fish outs. Please gets mes a fish longer thans a metre please ands wes cans ends this.`,
+					},],
+				},
+				{
+					stepNum: 1,
+					finishName: "Fisher Sharptooth",
+					finishChat: [{
+						text: `Ooohs, yous kills it. The fish shoulds be comings backs nows. Alls the fishers wills be pleased.`,
+					},{
+						text: `Here's somes <b>gold</b> ands a <b>fishing seal</b> fors yours troubles. I'lls sees yous soons.`,
+					},],
+					objectiveRequirement: 2,
+					rewards: {
+						xp: 50,
+						reputation: {
+							eaglecrestCity: 50,
+						},
+						items: [
+							{item: Items.currency[2], quantity: 2,},
+							{item: Items.currency[3], quantity: 1,},
+						],
+					},
+				}
 			],
 
-			isCompleted: function() {
-				let completed = [];
-				// true or falses for each objective (apart from the turn-in objective)
-				completed.push(Dom.inventory.check(37, "consumable", 1) || Dom.inventory.check(38, "consumable", 1) || Player.bossesKilled.lakeLurker === GetFullDate());
-				completed.push(Dom.inventory.check(38, "consumable", 1) || Player.bossesKilled.lakeLurker === GetFullDate());
-				completed.push(Player.bossesKilled.lakeLurker === GetFullDate());
-
-				completed = checkFinished(completed);
-
-				return completed;
-			},
+			objectivesList: [
+				{id: 0, text: "Fish up a fish longer than <b>100cm</b> and return to <b>Fisher Sharptooth</b> to make it into bait.",
+					isCompleted: function () {
+						return (Dom.inventory.check(37, "consumable", 1) ||
+							Dom.inventory.check(40, "fish", 1) ||
+							Dom.inventory.check(38, "consumable", 1) ||
+							Player.quests.questProgress.lakeLurkerLastCaught === GetFullDate());
+					}
+				},
+				{id: 1, text: "Use the King of Herrings Bait to fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>, then return to <b>Fisher Sharptooth</b> to make it into bait.",
+					isCompleted: function () {
+						return (Dom.inventory.check(40, "fish", 1) ||
+							Dom.inventory.check(38, "consumable", 1) ||
+							Player.quests.questProgress.lakeLurkerLastCaught === GetFullDate());
+					}
+				},
+				{id: 2, text: "Use the Lake Lurker Bait to fish up the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>, then kill the Lake Lurker.",
+					isCompleted: function () {
+						return Player.bossesKilled.lakeLurker === GetFullDate();
+					}
+				},
+				{id: 3, text: "Return to <b>Fisher Sharptooth</b>.",},
+			],
 
 			howToStart: "Speak to <strong>Fisher Sharptooth</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters IV (Big Fish in a Small Pond)"],
 			shareCooldownWith: [{questArea: "eaglecrest", id: 14}],
-
-			rewards: {
-				xp: 50,
-				reputation: {
-					eaglecrestCity: 50,
-				},
-				items: [
-					{item: Items.currency[2], quantity: 2,},
-					{item: Items.currency[3], quantity: 1,},
-				],
-
-			},
 		},
 
 		// cat questline
 		{
 			id: 17,
-			quest: "Help! Lost Cat (again..)",
+			quest: "Help! Lost Cat",
 			questArea: "eaglecrest",
-
-			startName: "Priest Kemp-Eau",
-			startChat: [{
-				text: `${Player.name}! It must be by some divine destiny you've come by here!`,
-			},{
-				text: `I couldn't have seen this coming but... well... our cat <b>Amelio</b> has gone missing again.`,
-			},{
-				text: `Since you were so helpful last time, we were wondering if you would be able to help out again??`,
-				options: [
-					{
-						text: "Sure!",
-						action: "progress",
+			
+			steps: [
+				{
+					stepNum: 0,
+					name: "Help Notice",
+					chat: [{
+						text: `<b>Have you seen this cat?</b>`,
+					},{
+						text: `Missing white cat with black smudge pattern.`,
+					},{
+						text: `Her name is <b>Smudge</b>.`,
+					},{
+						text: `She was last seen outside the <b>Eaglecrest tavern</b>.`,
+					},{
+						text: `Please talk to <b>Priest Kemp-Eau</b> in the <b>Eaglecrest Monastery</b> if you are able to assist.`,
+					},{
+						text: `<b>Generous reward</b> upon Smudge's finding.`,
+					},],
+				},
+				{
+					name: "Priest Kemp-Eau",
+					chat: [{
+						text: `${Player.name}! It must be by some divine destiny you've come by here!`,
+					},{
+						text: `Our cat <b>Smudge</b> has gone missing... for the third time this month...`,
+					},{
+						text: `We treat him well! No other cat in the realm has such spiritual connection to those above. So, ${Player.name}, you must understand the divine shock we are in that she has gone missing so frequently.`,
+						long: true,
+					},{
+						text: `It's taken a toll on us here at the Monastery. Some of us suspect Elder involvement but.. well... I'd hesitate to jump to conclusions.`,
+					},{
+						text: `Anyway! I am getting ahead of myself. You really are in the right place at the right time. Would you be able to offer your compitencies?`,
+						options: [
+							{
+								text: "Sure!",
+								action: "progress",
+							},
+							{
+								text: "If I must...",
+								action: "progress",
+							},
+						]
+					},{
+						text: `What would the Monastery do without you, ${Player.name}!`,
+					},{
+						text: `I've spoken to the Tinkerers' Guild and managed to get my hands on a rare prototype: the <b>PawPerceptors~1450α</b>.`,
+					},{
+						text: `I was told it works via.. something something ley emittance..`,
+						long: true,
+					},{
+						text: `<i>Sigh...</i> I'm not very technical myself. I gathered it leads your Psyche on a divine path to where you need to be.`
+					},{
+						text: `Anyway, follow the trail of paw prints and it should show us where Smudge is running off to!`,
+					},],
+					rewards: {
+						items: [{item: Items.helm[45]}],
 					},
-					{
-						text: "If I must...",
-						action: "progress",
+				},
+				{
+					name: "Priest Kemp-Eau",
+					chat: [{
+						text: `${Player.name}, I sense you're bearing bad news. Where were you led?`,
+						options: [
+							{
+								text: "Tell Priest Kemp-Eau what happened",
+								action: "progress",
+							},
+						]
+					},{
+						text: `Down the sewer? ....<b>That is certainly not a holy place!!!</b>`,
+					},{
+						text: `I just can't think why Smudge would be going down.. <i>there</i>, rather than in the Monastery..`,
+					},{
+						text: `She's a cat of faith!!`,
+					},{
+						text: `Oh, and to think the sewers are getting demolished soon..`,
+					},{
+						text: `${Player.name}, this is not good - we need to do something about this before Smudge gets injured!`,
+					},{
+						text: `I sense <b>Alchemist Tamtam</b> will be able to help with this. Whilst I was searching for a device to find Amelio with, he did mention an experimental recipe that could help...`,
+						long: true,
+					},],
+					rewards: {
+						xp: 50,
+						items: [{item: Items.currency[2], quantity: 5}, {item: Items.item[1]}],
 					},
-				]
-			},{
-				text: `What would the Monastery do without you, ${Player.name}!`,
-			},{
-				text: `I've spoken to the Tinkerers' Guild and managed to get my hands on a rare prototype: the <b>PawPerceptors~1450α</b>.`,
-			},{
-				text: `I was told it works via.. something something ley emittance.. Really, your Psyche is being led on a divine path to where you need to be.`,
-				long: true,
-			},{
-				text: `Anyway, follow the trail of paw prints and it should show us where Amelio is running off to!`,
-			},],
-
-			stepName1: "Priest Kemp-Eau",
-			stepChat1: [{
-				text: `${Player.name}, I sense you're bearing bad news. Where were you led?`,
-				options: [
-					{
-						text: "Tell Priest Kemp-Eau what happened",
-						action: "progress",
-					},
-				]
-			},{
-				text: `Down the sewer? ..That is certainly not a holy place!!!`,
-			},{
-				text: `I just can't think why Amelio would be going down there, rather than in the Monastery..`,
-			},{
-				text: `And to think it's getting demolished soon..`,
-			},{
-				text: `${Player.name}, this is not good - we need to do something about this before Amelio gets injured!`,
-			},{
-				text: `I sense <b>Alchemist Tamtam</b> will be able to help with this. Whilst I was searching for a device to find Amelio with, he did mention an experimental recipe that could help...`,
-				long: true,
-			},],
-
-			finishName: "Alchemist Tamtam",
-			finishChat: [{
-				text: `${Player.name}!!! Great to see you again!!!<br><em>Tamtam's tail wags quickly.</em>`,
-				options: [
-					{
-						text: "Tell Tamtam about the situation.",
-						action: "progress",
-					},
-				]
-			},{
-				text: `Oooooh.... Yeeeessss I do have a recipe I've been working on!!`,
-			},{
-				text: `Only thing is...... The ingredients can be hard to find... <sub>you'll see what I mean</sub>`,
-			},],
+					removeItems: [{
+						item: Items.helm[45],
+					}],
+				}
+			],
 
 			objectivesList: [
 				{
+					text: "Talk to <strong>Priest Kemp-Eau</strong> in the <b>Eaglecrest Monastery</b> to the east of Eaglecrest.",
+					completeStep: 1,
+				},
+				{
 					text: "Use the PawPerceptor~1450α to find the missing cat Amelio.",
-					isCompleted: function () {
-
-					},
+					associatedVariable: "", // set by a tripwire after following the path (only whilst wearing the goggles)
 				},
 				{
 					text: "Bring the cat to <strong>Priest Kemp-Eau</strong>.",
@@ -3343,20 +3378,56 @@ var Quests = {
 				},
 			],
 
-			howToStart: "Speak to <strong>Priest Kemp-Eau</strong> in the <b>Eaglecrest Monastery</b>.",
-			levelRequirement: 10,
-			questRequirements: ["Help! Lost Cat"],
-			shareCooldownWith: [{questArea: "eaglecrest", id: 0}],
-
-			rewards: {
-				xp: 50,
-			},
-			// tbd remove the goggles after first part
+			howToStart: "Find a 'lost cat' notice in Eaglecrest City.",
+			levelRequirement: 4,
+			questRequirements: ["Overdraft"], // tbd change this so you have to have finished fontanel to unlock, and it's a storyline quest
 		},
 		{
 			id: 18,
-			quest: "Potion Making III",
+			quest: "Potion Making IV", // I and II are in logging camp; maybe add an III in the caves somewhere :) also, a fishing only potion making could be cool
 			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Alchemist Tamtam",
+					chat: [{
+						text: `${Player.name}!!! Great to see you again!!!<br><em>Tamtam's tail wags quickly.</em>`,
+						options: [
+							{
+								text: "Tell Tamtam about the situation.",
+								action: "progress",
+							},
+						]
+					},{
+						text: `Oooooh.... Yeeeessss I do have a recipe I've been working on!!`,
+					},{
+						text: `Only thing is...... The ingredients can be hard to find... <sub>you'll see what I mean</sub>`,
+					},{
+						text: `Soooo, let me make you a list!!`,
+					},{
+						text: `You'll need three <b>cattails</b> from the rivers...`,
+					},{
+						text: `One <b><i>Doohickey</i></b>...`,
+						options: [
+							{
+								text: "Ok...",
+								action: "progress",
+							},
+							{
+								text: "What??",
+								action: "progress",
+							},
+						]
+					},{
+						text: `Shhh!! You'll know what I mean...`,
+					},{
+						text: `And, finally, one <b>Living Frog's Leg</b>... you can get the <i>Doohickey</i> and the leg from the toads around the plains!!`,
+					},{
+						text: `Welllll, good luck!!!`,
+					},]
+				},
+			],
 
 			startName: "Alchemist Tamtam",
 			startChat: [{
@@ -3468,8 +3539,8 @@ var Quests = {
 			autofinish: true,
 
 			howToStart: "Speak to <strong>Alchemist Tamtam</strong> in <b>Eaglecrest Elixirs</b>.",
-			levelRequirement: 10,
-			questRequirements: ["Help! Lost Cat (again..)"],
+			levelRequirement: 4,
+			questRequirements: ["Help! Lost Cat"],
 
 			rewards: {
 				xp: 60,
@@ -3578,7 +3649,7 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Alchemist Tamtam</strong> in <b>Eaglecrest Elixirs</b>.",
 			levelRequirement: 10,
-			questRequirements: ["Potion Making III"],
+			questRequirements: ["Potion Making IV"],
 
 			rewards: {
 				xp: 60,
@@ -3597,7 +3668,7 @@ var Quests = {
 				text: `Good luck on your mission - bring me a souvenir!`,
 			},],
 
-			stepName1: "Amelio",
+			stepName1: "Smudge",
 			stepChat1: [{
 				text: `Oh hey! Didn't think I'd see another cat down here :)`,
 				options: [
@@ -3610,13 +3681,13 @@ var Quests = {
 
 			stepName2: "???",
 			stepChat2: [{
-				text: `hello again amelio.`, // tbd make this a different font
+				text: `hello again smudge.`, // tbd make this a different font
 			},{
 				text: `I see you've brought ${Player.name} with you. what a pleasant surprise.`,
 			},{
 				text: `${Player.name}, I've been wanting to meet you for a long, long time. we all have.`,
 			},{
-				text: `here's your ςคtภเթ as promised, amelio.`,
+				text: `here's your ςคtภเթ as promised, smudge.`,
 			},{
 				text: `you too, ${Player.name}. take some. cats can't resist it, though I'm not sure what effect it has on a ${Player.race} in cat form.`,
 			},],
@@ -3626,11 +3697,6 @@ var Quests = {
 				text: `we've got so much more to catch up on, ${Player.name}, but I fear our time will be cut short any minute now.`,
 			},{
 				text: `you'll know where to find me.`, // player mysteriously gets given/finds a device that leads them to here...
-			},{
-				text: `...`,
-			},{
-				text: `...oh yeah. one more thing. at all costs, avoid contact with the cr-`,
-				// autofinish, screen shakes, player area changed back to sewers
 			},],
 
 			finishName: "Alchemist Tamtam",

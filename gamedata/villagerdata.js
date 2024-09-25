@@ -398,9 +398,12 @@ var Villagers = [
 			width: 91,
 			height: 82,
 		},
-        name: "Cow Cat",
+        name: "Smudge",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
+		canBeShown: function () {
+			return false; // cat quest
+		}
     },
 	{
         id: 15,
@@ -920,8 +923,8 @@ var Villagers = [
             "eaglecrestLoggingCamp",
         ],
 		roles: [{
-			role: "questStart",
-			quest: Quests.eaglecrest[8],
+			role: "questProgress",
+			step: [0],
 			roleRequirement: function () {
 				if (Player.quests.activeQuestArray.includes("A Fool's Errand")) {
 					return true; // for questProgress chat message
@@ -951,8 +954,8 @@ var Villagers = [
 			}
 		},
 		{
-			role: "questFinish",
-			quest: Quests.eaglecrest[8],
+			role: "questProgress",
+			step: [1],
 		},
 		{
 			role: "function",
@@ -970,51 +973,51 @@ var Villagers = [
 				let waitTime = 1500; // time to wait between messages
 				switch (Random(0, 6)) {
 					case 0:
-						Dom.chat.insertSequence([
-							Dom.chat.say("The Jester", "What eats more people than a dragon?"),
-							Dom.chat.say("The Jester", "..."),
-							Dom.chat.say("The Jester", "Two dragons!")],
-						waitTime, undefined, undefined, true); // cutscene
+						Dom.chat.npcBanner({imageSrc: "./assets/npcs/jester.png", name: "The Jester"}, [
+							{text: "What eats more people than a dragon?"},
+							{text: "..."},
+							{text: "Two dragons!"},
+						]);
 						break;
 					case 1:
-						Dom.chat.insertSequence([
-							Dom.chat.say("The Jester", "Have you heard about the psychic gnome who escaped from prison?"),
-							Dom.chat.say("The Jester", "..."),
-							Dom.chat.say("The Jester", "He's a small medium at large!")],
-						waitTime, undefined, undefined, true); // cutscene
+						Dom.chat.npcBanner({imageSrc: "./assets/npcs/jester.png", name: "The Jester"}, [
+							{text: "Have you heard about the psychic gnome who escaped from prison?"},
+							{text: "..."},
+							{text: "He's a small medium at large!"},
+						]);
 						break;
 					case 2:
-						Dom.chat.insertSequence([
-							Dom.chat.say("The Jester", "What do you call a magic bee?"),
-							Dom.chat.say("The Jester", "..."),
-							Dom.chat.say("The Jester", "Bee-witched!")],
-						waitTime, undefined, undefined, true); // cutscene
+						Dom.chat.npcBanner({imageSrc: "./assets/npcs/jester.png", name: "The Jester"}, [
+							{text: "What do you call a magic bee?"},
+							{text: "..."},
+							{text: "Bee-witched!"},
+						]);
 						break;
 					case 3:
-						Dom.chat.insertSequence([
-							Dom.chat.say("The Jester", "The mage showed the mime her magic tricks."),
-							Dom.chat.say("The Jester", "..."),
-							Dom.chat.say("The Jester", "The mime was speechless!")],
-						waitTime, undefined, undefined, true); // cutscene
+						Dom.chat.npcBanner({imageSrc: "./assets/npcs/jester.png", name: "The Jester"}, [
+							{text: "The mage showed the mime her magic tricks."},
+							{text: "..."},
+							{text: "The mime was speechless!"},
+						]);
 						break;
 					case 4:
-						Dom.chat.insertSequence([
-							Dom.chat.say("The Jester", "Have you ever tried blindfold archery?"),
-							Dom.chat.say("The Jester", "...You haven’t?"),
-							Dom.chat.say("The Jester", "Well, you don’t know what you’re missing!")],
-						waitTime, undefined, undefined, true); // cutscene
+						Dom.chat.npcBanner({imageSrc: "./assets/npcs/jester.png", name: "The Jester"}, [
+							{text: "Have you ever tried blindfold archery?"},
+							{text: "...You haven’t?"},
+							{text: "Well, you don’t know what you’re missing!"},
+						]);
 						break;
 					case 5:
-						Dom.chat.insertSequence([
-							Dom.chat.say("The Jester", "I’d make a hat joke, but it would just go over your head.")],
-						waitTime, undefined, undefined, true); // cutscene
+						Dom.chat.npcBanner({imageSrc: "./assets/npcs/jester.png", name: "The Jester"}, [
+							{text: "I’d make a hat joke, but it would just go over your head."},
+						]);
 						break;
 					case 6:
-						Dom.chat.insertSequence([
-							Dom.chat.say("The Jester", "Why did the chicken cross the road?"),
-							Dom.chat.say("The Jester", "..."),
-							Dom.chat.say("The Jester", "Weedeater")],
-						waitTime, undefined, undefined, true); // cutscene
+						Dom.chat.npcBanner({imageSrc: "./assets/npcs/jester.png", name: "The Jester"}, [
+							{text: "Why did the chicken cross the road?"},
+							{text: "..."},
+							{text: "Weedeater"},
+						]);
 						break;
 				}
 			},

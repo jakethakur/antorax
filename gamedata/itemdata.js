@@ -822,7 +822,7 @@ unidentifiedArea: ["caves"],
 			rarity: "unique",
 			quest: true,
 			removeOnAbandon: "Help! Lost Cat",
-			functionText: "Detects some paw prints.",
+			functionText: "For cat-tracking use.",
 			lore: "αlfa version! May cause unexpected ley interference!",
 			obtainText: "???",
 			stats: {
@@ -5266,10 +5266,13 @@ unidentifiedArea: ["caves"],
 			name: "Translator Blueprint",
 			type: "item",
 			category: "item",
-			rarity: "common",
+			rarity: "unique",
 			image: "assets/items/item/74.png",
 			stack: 1,
-			quest: true,
+			quest: function(){
+				return !Player.quests.completedQuestArray.includes("Troubled Waters II");
+			},
+			sellPrice: 4, 
 		},
 		/*{
 			id: 75,
@@ -7670,11 +7673,7 @@ unidentifiedArea: ["caves"],
 			},
 			onCatch: function()
             {
-                if(Player.quests.questProgress.troubledWaters3Progress === 2)
-                {
-                    Player.quests.questProgress.troubledWaters3Progress = 3;
-                    Dom.quests.active();
-                }
+                Player.quests.progress.eaglecrest[13].wellFish = true;
             }
 		},
 		//well junk
@@ -7714,12 +7713,7 @@ unidentifiedArea: ["caves"],
 			barGameDifficulty: "kingOfHerrings",
 			onCatch: function()
             {
-								Player.quests.questProgress.kingOfHerringsLastCaught = GetFullDate();
-                if(Player.quests.questProgress.troubledWaters4Progress === 2)
-                {
-                    Player.quests.questProgress.troubledWaters4Progress = 3;
-                    Dom.quests.active();
-                }
+				Player.quests.questProgress.kingOfHerringsLastCaught = GetFullDate();
             },
 			onlyFromBaitPool: true,
 		},
@@ -7746,15 +7740,10 @@ unidentifiedArea: ["caves"],
 			timeToCatch: 10000,
 			onCatch: function(position)
             {
-						   	Player.quests.questProgress.lakeLurkerLastCaught = GetFullDate();
-							  Dom.inventory.remove(position);
-                if(Player.quests.questProgress.troubledWaters4Progress === 4)
-                {
-                    Player.quests.questProgress.troubledWaters4Progress = 5;
-                    Dom.quests.active();
-                }
-								Areas.eaglecrestWell.startBoss(); // includes screen shake and pan to boss
-							},
+				Player.quests.questProgress.lakeLurkerLastCaught = GetFullDate();
+				Dom.inventory.remove(position);
+				Areas.eaglecrestWell.startBoss(); // includes screen shake and pan to boss
+			},
 			onlyFromBaitPool: true,
 		},
 		{

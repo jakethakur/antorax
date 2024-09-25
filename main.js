@@ -11048,6 +11048,9 @@ Game.update = function (delta) {
 											}
 											else {
 												// there are objectives that need to be completed for this step
+												if (!Array.isArray(quest.steps[step].objectiveRequirement)) {
+													quest.steps[step].objectiveRequirement = [quest.steps[step].objectiveRequirement];
+												}
 												for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
 													let obj = quest.steps[step].objectiveRequirement[objIndex];
 													if (Player.quests.objectiveProgress[quest.questArea][quest.id] !== true) {
@@ -12796,23 +12799,36 @@ Game.drawLayer = function (layer) {
             let tile = map.getTile(layer, c, r); // tile number
 
             if (tile > 0 && !map.objectTiles.includes(tile)) { // 0 is empty tile,, objectTiles are rendered on top of player potentially
-				// draw position
-				let x = (c - startCol) * map.tsize + offsetX;
-	            let y = (r - startRow) * map.tsize + offsetY;
+				let drawTile = true;
+				let showIfTiles = Areas[this.areaName].mapData.showIfTiles;
+				if (typeof showIfTiles !== "undefined") {
+					for (let i = 0; i < showIfTiles.length; i++) {
+						if (showIfTiles[i].tiles.includes(tile) && !showIfTiles[i].function()) {
+							drawTile = false;
+							break;
+						}
+					}
+				}
 
-                this.ctx.drawImage(
-                    this.tileAtlas, // image
-					// cropping
-                    ((tile - 1) % map.tilesPerRow) * map.tsize, // source x
-                    Math.floor((tile - 1) / map.tilesPerRow) * map.tsize, // source y
-                    map.tsize, // source width
-                    map.tsize, // source height
-					// drawing
-                    Math.round(x),  // target x
-                    Math.round(y), // target y
-                    map.tsize, // target width
-                    map.tsize // target height
-                );
+				if (drawTile) {
+					// draw position
+					let x = (c - startCol) * map.tsize + offsetX;
+					let y = (r - startRow) * map.tsize + offsetY;
+	
+					this.ctx.drawImage(
+						this.tileAtlas, // image
+						// cropping
+						((tile - 1) % map.tilesPerRow) * map.tsize, // source x
+						Math.floor((tile - 1) / map.tilesPerRow) * map.tsize, // source y
+						map.tsize, // source width
+						map.tsize, // source height
+						// drawing
+						Math.round(x),  // target x
+						Math.round(y), // target y
+						map.tsize, // target width
+						map.tsize // target height
+					);
+				}
             }
         }
     }

@@ -250,6 +250,11 @@ var Areas = {
 						role: "questStart",
 					},
 					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[12],
+						step: [5],
+					},
+					{
 						quest: [Quests.fishing[3], Quests.fishing[4], Quests.fishing[5], Quests.fishing[6], Quests.fishing[7], Quests.fishing[8], Quests.fishing[9], Quests.fishing[10], Quests.fishing[11], Quests.fishing[12]],
 						role: "questStartFinish",
 						newQuestFrequency: "daily",
@@ -4224,11 +4229,13 @@ var Areas = {
 				},
 				{
 					quest: Quests.eaglecrest[10],
-					role: "questStartFinish"
+					role: "questProgress",
+					step: [0, 1]
 				},
 				{
 					quest: Quests.eaglecrest[11],
-					role: "questStartFinish"
+					role: "questProgress",
+					step: [0, 1]
 				},
 				{
 					role: "chatBanner",
@@ -6306,9 +6313,6 @@ animation: {
 				},
                 name: "Amelio",
                 speciesTemplate: SpeciesTemplates.cat,
-                canBeShown: function () {
-                    return Player.quests.activeQuestArray.includes("Help! Lost Cat");
-                }
 			},
 		],
 
@@ -7074,21 +7078,6 @@ animation: {
 				},
 				roles: [
 					{
-						sold: [
-							{item: Items.consumable[17], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Potion
-							{item: Items.consumable[4], cost: 2}, // potion of health I
-							{item: Items.consumable[3], cost: 3}, // potion of swiftness I
-							{item: Items.consumable[2], cost: 4}, // potion of strength I
-							{item: Items.consumable[23], cost: 4}, // potion of evasion I
-							{item: Items.consumable[24], cost: 4}, // potion of regeneration I
-							{item: Items.consumable[25], cost: 3, condition: function () { // potion of fire resistance
-								return Player.quests.questProgress.eaglecrestFirePotionUnlocked === true;
-							}},
-						],
-						role: "merchant",
-						shopGreeting: "There's a potion for you, and you, and youuuuu!",
-					},
-					{
 						role: "text",
 						chooseText: "Do you have a potion of fire resistance?",
 						chat: "Fireeeeeeeeeee! <sub>Oh noooooo.</sub> Wotcha gonna do with that?<br><br><em>Tamtam's tail droops down.</em><br><br><sub>Uhhhhhhhh...</sub> We need more <strong>Fireroot</strong> for that. Haven't had it here for years. If you really need the potion you could bring some Fireroot over from <strong>Eaglecrest Bazaar</strong> on the west street. But <sub>uhhh</sub> it's dangerous. And on fire.<br>Be quick!",
@@ -7135,6 +7124,26 @@ animation: {
 						roleRequirement: function () {
 							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
 						},
+					},
+					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[12],
+						step: [4],
+					},
+					{
+						sold: [
+							{item: Items.consumable[17], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Potion
+							{item: Items.consumable[4], cost: 2}, // potion of health I
+							{item: Items.consumable[3], cost: 3}, // potion of swiftness I
+							{item: Items.consumable[2], cost: 4}, // potion of strength I
+							{item: Items.consumable[23], cost: 4}, // potion of evasion I
+							{item: Items.consumable[24], cost: 4}, // potion of regeneration I
+							{item: Items.consumable[25], cost: 3, condition: function () { // potion of fire resistance
+								return Player.quests.questProgress.eaglecrestFirePotionUnlocked === true;
+							}},
+						],
+						role: "merchant",
+						shopGreeting: "There's a potion for you, and you, and youuuuu!",
 					},
 				],
 				chat: {
@@ -7320,6 +7329,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						roleRequirement: function () {
 							return Player.quests.npcProgress.eaglecrest[2] === 1;
 						},
+					},
+					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[12],
+						step: [3],
 					},
 					{
 						sold: [
@@ -8431,6 +8445,14 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			tallGrassBottoms: [215, -215], // tall grass (slows player)
 			objectTiles: [142, 196, 197,66,75], // top of barrel, fences, (cattails are 136 and 144 but picking object flowers, cattails etc doesn't work yet)
 			transparentTiles: [94, 95, 96, 102, 103, 104, 114, 116, 122, 124, 130, 132, 136, 144], // these tiles should be ignored when considering water etc, even when they're at the front of the canvas
+			showIfTiles: [ // calculated in runtime so should be quite efficient if possible (only use if it needs to be checked every frame)
+				{
+					tiles: [212, 209, 210, 211, 220, 217, 218, 219, 228, 225, 226, 227],
+					function () { // returns true or false depending on whether these files can be shown or not
+						return Player.inventory.helm.type === "helm" && Player.inventory.helm.id === 45; // wearing pawperceptors
+					}
+				}
+			],
 			repeatTiles: [
 				{
 					tile: 192,
@@ -8492,8 +8514,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 				{
 					tile: 239,
-					ySpacing: 20,
-					xSpacing: -6,
+					ySpacing: 10,
+					xSpacing: -8,
 					name: "Lavender",
 					objectProperties: {
 						canBePickedUp: {
@@ -9096,14 +9118,6 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				}, 2000);
 			}
 
-			// remove cat paw prints unless the quest is active
-			let pawPrintTiles = [212, 209, 210, 211, 220, 217, 218, 219, 228, 225, 226, 227];
-			for (let i = 0; i < map.layers[2].length; i++) {
-				if (pawPrintTiles.includes(map.layers[2][i])) {
-					map.layers[2][i] = 0;
-				}
-			}
-
 			// reset if player has seen jester or not
 			Player.quests.questProgress.seenJesterOnScreen = false;
 		},
@@ -9202,62 +9216,62 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			//troubled waters area fishing progress
 			if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= -120 && Game.hero.y <= 1000)
 			{
-				if(Player.quests.questProgress.northWestFish === undefined)
+				if(Player.quests.progress.eaglecrest[13].northWestFish === undefined)
 				{
-					Player.quests.questProgress.northWestFish = 1;
+					Player.quests.progress.eaglecrest[13].northWestFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.questProgress.northWestFish += 1;
+					Player.quests.progress.eaglecrest[13].northWestFish += 1;
 				}
 			}
 			else if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= 4150 && Game.hero.y <= 6180)
 			{
-				if(Player.quests.questProgress.southWestFish === undefined)
+				if(Player.quests.progress.eaglecrest[13].southWestFish === undefined)
 				{
-					Player.quests.questProgress.southWestFish = 1;
+					Player.quests.progress.eaglecrest[13].southWestFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.questProgress.southWestFish += 1;
+					Player.quests.progress.eaglecrest[13].southWestFish += 1;
 				}
 			}
 			else if(Game.hero.x >= 2040 && Game.hero.x <= 5040 && Game.hero.y >= 3200 && Game.hero.y <= 4500)
 			{
-				if(Player.quests.questProgress.centreFish === undefined)
+				if(Player.quests.progress.eaglecrest[13].centreFish === undefined)
 				{
-					Player.quests.questProgress.centreFish = 1;
+					Player.quests.progress.eaglecrest[13].centreFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.questProgress.centreFish += 1;
+					Player.quests.progress.eaglecrest[13].centreFish += 1;
 				}
 			}
 			else if(Game.hero.x >= 4200 && Game.hero.x <= 7440 && Game.hero.y >= -120 && Game.hero.y <= 2200)
 			{
-				if(Player.quests.questProgress.northEastFish === undefined)
+				if(Player.quests.progress.eaglecrest[13].northEastFish === undefined)
 				{
-					Player.quests.questProgress.northEastFish = 1;
+					Player.quests.progress.eaglecrest[13].northEastFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.questProgress.northEastFish += 1;
+					Player.quests.progress.eaglecrest[13].northEastFish += 1;
 				}
 			}
 			else if(Game.hero.x >= 5300 && Game.hero.x <= 7440 && Game.hero.y >= 2360 && Game.hero.y <= 4800)
 			{
-				if(Player.quests.questProgress.southEastFish === undefined)
+				if(Player.quests.progress.eaglecrest[13].southEastFish === undefined)
 				{
-					Player.quests.questProgress.southEastFish = 1;
+					Player.quests.progress.eaglecrest[13].southEastFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.questProgress.southEastFish += 1;
+					Player.quests.progress.eaglecrest[13].southEastFish += 1;
 				}
 			}
 			Dom.quests.active();
@@ -9527,12 +9541,14 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                 },
                 roles: [
                         {
-                            role: "questStartFinish",
-                            quest: Quests.eaglecrest[7]
+                            role: "questProgress",
+                            quest: Quests.eaglecrest[7],
+							step: [0,1],
                         },
                         {
-                            role: "questStart",
-                            quest: Quests.eaglecrest[12]
+                            role: "questProgress",
+                            quest: Quests.eaglecrest[12],
+							step: [0, 2],
                         },
                 ],
                 chat: {
@@ -9556,67 +9572,61 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
                 },
                 roles: [
 						{
-	                        role: "questFinish",
-	                        quest: Quests.eaglecrest[12],
+							role: "questProgress",
+							quest: Quests.eaglecrest[12],
+							step: [1, 6],
 						},
 						{
-	                        role: "questStartFinish",
+	                        role: "questProgress",
 	                        quest: Quests.eaglecrest[13],
+							step: [0, 1, 2],
 						},
 						{
-	                        role: "questStartFinish",
+	                        role: "questProgress",
 	                        quest: Quests.eaglecrest[14],
+							step: [0, 1],
 						},
-										{
-												role: "questStartFinish",
-												quest: Quests.eaglecrest[16]
-										},
 						{
-	                        role: "text",
-	                        chooseText: "Show <b>Fisher Sharptooth</b> the fish you collected.",
-	                        chat: `It seems the fish seems to bes comings froms thes <b>well</b>. Perhaps theres ares somethings downs theres gettings all the fish.<br><br>
-													Whys don'ts yous head downs the well and do some fishing to sees if theres anything downs theres.`,
-	                        buttons: ["Leave"],
-	                        showCloseButton: false,
-	                        forceChoose: true, // forces choose dom
-	                        functions: [function () {
-	                            // close page
-	                            Dom.closePage("textPage");
-	                            // quest progress
-	                            Player.quests.questProgress.troubledWaters3Progress = 2;
-	                            Dom.quests.active();
-	                        }],
-	                        roleRequirement: function () {
-	                            return (Player.quests.questProgress.northWestFish > 0 && Player.quests.questProgress.southWestFish > 0 && Player.quests.questProgress.centreFish > 0 && Player.quests.questProgress.northEastFish > 0 && Player.quests.questProgress.southEastFish > 0 && Player.quests.questProgress.troubledWaters3Progress === 1);
-	                        },
-	                    },
+							role: "questStartFinish",
+							quest: Quests.eaglecrest[16],
+							step: [0, 1],
+						},
 						{
-	                        role: "text",
-	                        chooseText: "Give <b>Fisher Sharptooth</b> a fish longer than <b>100cm</b>.",
-	                        chat: `Okays, nows wes has the fishs Is needs to turns its intos bait.<br><br>
-													<em><b>Fisher Sharptooth</b> turns around and you hear multiple clangs and some switch sqwelching afterwards</em><br><br>
-													Heres yous goes. Yous shoulds nows fish ups a <b>King of Herrings</b>. Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
-	                        buttons: ["Leave"],
-	                        showCloseButton: false,
+	                        role: "chatBanner",
+	                        chooseText: "Give <b>Fisher Sharptooth</b> a fish longer than <b>100cm</b>, for it to be turned into bait.",
+	                        chat: [{
+								text: `Okays, I am trying not to eats it.`,
+								onFinish: function () { // remove the fish
+									for (let i = 0; i < Player.inventory.items.length; i++) {
+										if (Player.inventory.items[i].type === "fish" && Player.inventory.items[i].length > 100) {
+											Dom.inventory.remove(i);
+											return;
+										}
+									}
+								},
+							},{
+								text: `Nows wes has the fishs Is needs to turns its intos bait.`,
+							},{
+								text: `<em><b>Fisher Sharptooth</b> turns around and you hear multiple clangs and some switch sqwelching afterwards</em>`
+							},{
+								text: `Heres yous goes. Yous shoulds nows fish ups a <b>King of Herrings</b>.`
+							}, {
+								text: `Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
+								onFinish: function () {
+									// quest progress
+									Player.quests.progress.eaglecrest[14].herringBaitObtained = true; // so that next step is displayed
+									Dom.quests.active();
+									Dom.inventory.give(Items.consumable[37], 1);
+								}
+							}],
 	                        forceChoose: true, // forces choose dom
-	                        functions: [function () {
-	                            // close page
-	                            Dom.closePage("textPage");
-	                            // quest progress
-															if(Player.quests.questProgress.troubledWaters4Progress === 1)
-															{
-																Player.quests.questProgress.troubledWaters4Progress = 2;
-															}
-	                            Dom.quests.active();
-
-															Dom.inventory.give(Items.consumable[37], 1);
-	                        }],
 	                        roleRequirement: function () {
-									if(Player.quests.questProgress.troubledWaters4Progress > 0 && Dom.inventory.check(40, "fish") === 0)
+								if((Player.quests.activeQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)") ||
+									Player.quests.completedQuestArray.includes("Troubled Waters IV (Big Fish in a Small Pond)")) &&
+									Dom.inventory.check(40, "fish") === 0) // they don't have a king of herrings
 								{
 									for (let i = 0; i < Player.inventory.items.length; i++) {
 									    if (Player.inventory.items[i].type === "fish" && Player.inventory.items[i].length > 100) {
-										   	Dom.inventory.remove(i);
 									       	return true;
 									    }
 									}
@@ -9624,31 +9634,35 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 								return false;
 	                        },
 	                    },
-											{
-						                        role: "text", // aaaaaaaaaaaaaaaaaaaa
-						                        chooseText: "Give <b>Fisher Sharptooth</b> the <b>King of Herrings</b>.",
-						                        chat: `Wows! This is reallys bigs! Is only heards abouts thems befores. Anyways Is needs to turns this intos bait so yous cans catch whats is eatings all the fish.<br><br>
-																		<em><b>Fisher Sharptooth</b> turns around and you see them eat a bit off before turning it into bait</em>.<br><br>
-																		Okays. Heres is the baits for yous. Nows go downs the well and fish ups the <b>Lake Lurker</b>!`,
-						                        buttons: ["Leave"],
-						                        showCloseButton: false,
-						                        forceChoose: true, // forces choose dom
-						                        functions: [function () {
-						                            // close page
-						                            Dom.closePage("textPage");
-						                            // quest progress
-													if(Player.quests.questProgress.troubledWaters4Progress === 3)
-													{
-														Player.quests.questProgress.troubledWaters4Progress = 4;
-													}
-						                            Dom.quests.active();
-													Dom.inventory.removeById(40, "fish");
-													Dom.inventory.give(Items.consumable[38]);
-						                        }],
-						                        roleRequirement: function () {
-						                            return (Player.quests.questProgress.troubledWaters4Progress >= 3 && Dom.inventory.check(40 , "fish"));
-						                        },
-						                    },
+						{
+							role: "chatBanner",
+							chooseText: "Give <b>Fisher Sharptooth</b> the <b>King of Herrings</b>, for it to be turned into bait.",
+							chat: [{
+								text: `Wows! This is reallys bigs! Is only heards abouts thems befores. Never seens.`,
+								onFinish: function () { // remove the fish
+									Dom.inventory.removeById(40, "fish");
+								},
+							},{
+								text: `Anyways Is needs to turns this intos bait so yous cans catch whats is eatings all the fish.`,
+							},{
+								text: `<b>Fisher Sharptooth</b> turns around and you see them eat a bit off before turning it into bait</em>.`
+							},{
+								text: `Okays. Heres is the baits for yous. Nows go downs the well and fish ups the <b>Lake Lurker</b>!`
+							}, {
+								text: `Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
+								onFinish: function () {
+									// quest progress
+									Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained = true; // so that next step is displayed
+									Dom.quests.active();
+									Dom.inventory.removeById(40, "fish");
+									Dom.inventory.give(Items.consumable[38]);
+								}
+							}],
+							forceChoose: true, // forces choose dom
+							roleRequirement: function () {
+								return (Player.quests.progress.eaglecrest[14].herringBaitObtained && Dom.inventory.check(40 , "fish"));
+							},
+						},
                 ],
                 chat: {
 					questProgress: [
@@ -9656,15 +9670,16 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 							text: "Yous looks likes yous nevers seens a cat fish befores.",
 							condition: function()
 							{
-								return Player.quests.questProgress.troubledWaters2Progress > 5;
+								return Player.quests.completedQuestArray.includes("Troubled Waters II"); // translator has been given to sharptooth
 							}
 						},
 						{
-							text: "Miau, miau miau miau."
+							text: "Miau, miau miau miau." // tbd use language system
 						},
 					],
                     notUnlockedRoles: "Miau, miau miau miau.",
                     questComplete: "Yous looks likes yous nevers seens a cat fish befores.",
+                    questActive: "Yous looks likes yous nevers seens a cat fish befores.",
                     inventoryFull: "Yous needs mores space. Comes back laters.",
                 },
             },
@@ -9772,11 +9787,13 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				roles: [
 					{
 						quest: Quests.eaglecrest[9],
-						role: "questStartFinish",
+						role: "questProgress",
+						step: [0,1]
 					},
 					{
 						quest: Quests.eaglecrest[15],
-						role: "questStartFinish",
+						role: "questProgress",
+						step: [0,1]
 					}
 				],
 				chat: {
@@ -10387,7 +10404,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				name: "Well",
 				image: "well",
 				onInteract: function () {
-				    if (Player.quests.questProgress.troubledWaters3Progress > 1) {
+				    if (Player.quests.stepProgress.eaglecrest[13][1]) {
 						Game.hero.channel(function () {
 				            Game.loadArea("eaglecrestWell", {x: 760, y: -300});
 				        }, [], 1500, "Entering well");
