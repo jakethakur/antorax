@@ -592,7 +592,7 @@ Dom.closePage = function (page, notClose) {
 	Dom.checkProgress();
 }
 
-// open a page
+// open a page, dealing with the positioning of the page on the screen, and whether the page is actually allowed to be shown on the screen (per Dom.currentlyDisplayed)
 // returns true if the page was hidden and will now be shown
 // openClose means the page is closed if it is already open
 // npc is used to set currentNPC if one exists
@@ -1169,7 +1169,26 @@ Dom.chat.timeoutTime = 20; // ms between each character being shown
 // optional properties of object inputs include "onFinish" (function) and "options" (see questdata for format)
 // skippable is whether the text can be skipped by pressing enter
 Dom.chat.npcBanner = function (npc, text, skippable) {
-	if (Dom.currentlyDisplayed === "" || (Dom.currentlyDisplayed === "npcBanner" && Dom.currentNPC.name === npc.name)) {
+	// prepare the text that is about to be shown
+	if (Array.isArray(text)) {
+		if (typeof text[0].text === "undefined") {
+			// first element in array is a string
+			text[0] = {text: text};
+		}
+	}
+	else {
+		if (typeof text.text === "undefined") {
+			// text is a string
+			text = [{text: text}];
+		}
+		else {
+			// text is an object
+			text = [text];
+		}
+	}
+
+	// maybe Dom.changeBook should be used for the following?: 
+	if (Dom.currentlyDisplayed === "" || (Dom.currentlyDisplayed === "npcBanner" && Dom.currentNPC.name === npc.name && Dom.chat.npcBannerText !== text[0].text)) {
 		Dom.currentlyDisplayed = "npcBanner";
 		Dom.currentNPC = npc;
 
@@ -1183,30 +1202,23 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 		Dom.chat.npcBannerArray = undefined;
 	
 		let toShow;
-		if (Array.isArray(text)) {
-			if (text.length > 1) {
-				// still some text left to be shown after this
-				Dom.chat.upcomingBannerText = []; // used as parameter for successive npcBanner function calls
-				// deep copy text into upcomingBannerText:
-				for (let i = 0; i < text.length; i++) {
-					Dom.chat.upcomingBannerText.push(text[i]);
-				}
-	
-				Dom.chat.upcomingBannerNpc = npc;
-	
-				// array of text parameters
-				toShow = Dom.chat.upcomingBannerText.shift();
+		if (text.length > 1) {
+			// still some text left to be shown after this
+			Dom.chat.upcomingBannerText = []; // used as parameter for successive npcBanner function calls
+			// deep copy text into upcomingBannerText:
+			for (let i = 0; i < text.length; i++) {
+				Dom.chat.upcomingBannerText.push(text[i]);
 			}
-			else {
-				Dom.chat.upcomingBannerText = undefined;
-	
-				toShow = text[0];
-			}
+
+			Dom.chat.upcomingBannerNpc = npc;
+
+			// array of text parameters
+			toShow = Dom.chat.upcomingBannerText.shift();
 		}
 		else {
 			Dom.chat.upcomingBannerText = undefined;
-	
-			toShow = text;
+
+			toShow = text[0];
 		}
 	
 		Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
@@ -1217,10 +1229,12 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 			if (toShow.long) {
 				// show three lines
 				Dom.elements.npcChatBanner1.style.height = "142px";
+				Dom.elements.npcChatBanner1.style.backgroundImage = "url('./assets/interface/npcDialogueLong.png')";
 			}
 			else {
 				// show two lines
 				Dom.elements.npcChatBanner1.style.height = "116px";
+				Dom.elements.npcChatBanner1.style.backgroundImage = "url('./assets/interface/npcDialogue1.png')";
 			}
 	
 			Dom.chat.npcBannerText = toShow.text;
@@ -1243,9 +1257,6 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 				// in ms
 				Dom.chat.npcBannerParams.options = toShow.options;
 			}
-		}
-		else if (typeof toShow === "string") {
-			Dom.chat.npcBannerText = toShow;
 		}
 		else {
 			console.error("Unexpected type of text parameter for NPC chat banner", toShow);
@@ -2264,7 +2275,7 @@ Dom.currentNPC = {};
 // finish parameter refers to whether the quest is being finished on this step or not
 Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 	// prepare quest object
-	ourQuest = this.prepareQuestObject(quest, npc);
+	let ourQuest = Dom.quest.prepareQuestObject(quest, npc);
 
 	// now finished with preparing quest object. yay.
 
@@ -2371,7 +2382,7 @@ Dom.quest.start = function (quest, npc) {
 			// display objectives on quest start page
 			Dom.elements.questStartObjectives.innerHTML = "";
 			for (let i = 0; i < objectives.length; i++) {
-				if (typeof objectives[i].revealStep === "undefined" && (objectives[i].isHidden === "undefined" || !objectives[i].isHidden())) {
+				if (typeof objectives[i].revealStep === "undefined" && (typeof objectives[i].isHidden === "undefined" || !objectives[i].isHidden())) {
 					Dom.elements.questStartObjectives.innerHTML += "<br>" + objectives[i].text;
 				}
 			}
@@ -7538,7 +7549,7 @@ Dom.init = function () {
 
 	// set up Player.quests data structure
 	// make sure these variables are up to date (i.e. incorporate new quests and new areas since last time playing)
-	let varNames = ["progress", "questLastFinished", "timesCompleted", "startedFromNpc", "objectiveProgress", "stepProgress"];
+	let varNames = ["progress", "questLastFinished", "timesCompleted", "startedFromNpc", "objectiveProgress", "stepProgress", "npcProgress"];
 	for (let i = 0; i < varNames.length; i++) {
 		let obj = Player.quests[varNames[i]];
 		if (Object.keys(Quests).length > Object.keys(obj).length) {

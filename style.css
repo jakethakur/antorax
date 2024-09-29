@@ -302,7 +302,7 @@ thead:after { /* space after bags in bank */
 	height: 150px;
 	padding-left: 10px;
 	padding-right: 10px;
-	background-image: url("./assets/interface/npcDialogue1.png"); /* can go soon */
+	background-image: url("./assets/interface/npcDialogue1.png");
 	overflow: visible; /* for image popping out */
 	position: relative;
 	top: 125px;

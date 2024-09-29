@@ -4706,7 +4706,7 @@ var Areas = {
 			},
 			animation: {
 				type: "spritesheet",
-				frameTime: 100,
+				frameTime: 10000,
 				imagesPerRow: 3,
 				totalImages: 3,
 			},
@@ -5509,9 +5509,9 @@ animation: {
 			}
 
 			// overdraft quest
-			if (Player.quests.activeQuestArray.includes("Overdraft") && Player.quests.npcProgress.eaglecrest[2] === 0) {
-				Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Uhhh can't you see we're closed?"));
-			}
+			//if (Player.quests.activeQuestArray.includes("Overdraft") && Player.quests.npcProgress.eaglecrest[2] === 0) {
+			//	Dom.chat.insert(Dom.chat.say("Head Banker Jonos", "Uhhh can't you see we're closed?"));
+			//}
 		},
 
 		/*things: [

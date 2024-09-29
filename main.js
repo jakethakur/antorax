@@ -3728,6 +3728,16 @@ class Attacker extends Character {
 
 		this.spellCasts = 0; // total number of spell casts
 
+		// fix old spell objects by removing them 
+		// a fix for the new spell system 29/09/2024 - you can probably remove this next time you're reading this :)
+		for (let i =0; i < this.spells.length; i++) {
+			if (this.spells[i].type !== "spell") {
+				console.warn("Player spell is not in the correct form, so was removed", this.spells[i]);
+				this.spells.splice(i);
+				i--;
+			}
+		}
+
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allAttackers.push(this); // array for current area only
@@ -10976,7 +10986,7 @@ Game.update = function (delta) {
 									// choose dom checks inventory space
 									textArray.push("Quest start: " + questToBeStarted.quest);
 									functionArray.push(Dom.quest.progressFromNpc);
-									parameterArray.push([questToBeStarted, npc]);
+									parameterArray.push([questToBeStarted, npc, 0]);
 									additionalOnClickArray.push(role.additionalOnClick);
 								}
 							}

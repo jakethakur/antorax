@@ -235,6 +235,8 @@ var Player = {
 		randomDailyQuests: {}, // the random daily quest of the day (for NPCs with a random daily quest)
 
 		startedFromNpc: {}, // for each quest started with differsOnNpc property, this contains the npc that it was most recently started from.  startedfromnpc[area][id]
+
+		npcProgress: {}, // legacy - not used anymore. just here for now so areas/npcs don't break; remove at some point
 	},
 
 	// overall progress, checked by DOM etc

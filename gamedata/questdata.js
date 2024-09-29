@@ -2712,8 +2712,8 @@ var Quests = {
 			],
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
-			levelRequirement: 8,
-			questRequirements: ["Overdraft"],
+			levelRequirement: 1,
+			questRequirements: [],
 		},
 		{
 			id: 11,
