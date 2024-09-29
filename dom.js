@@ -6140,14 +6140,14 @@ Dom.spellChoice.page = function (npc, spells) {
 			}
 		}
 
-		Dom.elements.driverPageBuy.onclick = function () {
-			let id = Spells[spells[Dom.driver.previous].spellId].id;
+		Dom.elements.driverPageBuy.onclick = function () { 
+			/*let id = Spells[spells[Dom.driver.previous].spellId].id;
 			let tier = spells[Dom.driver.previous].spellTier;
 
 			Game.hero.spells[0] = {id: id, tier: tier};
 
 			Dom.driver.previous = undefined;
-			Dom.closePage("driverPage");
+			Dom.closePage("driverPage");*/
 		}
 	}
 }

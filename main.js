@@ -2786,6 +2786,19 @@ class Character extends Thing {
 		}
 	}
 
+	// calculates the modified amount of a stat from all status effects of a certain type, then returns this amount
+	// propertyName refers the key name in statusEffect.info, i.e. "xpIncrease"
+	calculateStatusEffects (propertyName) {
+		let amount = 0;
+		for (let i = 0; i < this.statusEffects.length; i++) {
+			let statusEffect = this.statusEffects[i];
+			if (statusEffect.info[propertyName] !== undefined) {
+				amount += statusEffect.info[propertyName];
+			}
+		}
+		return amount;
+	}
+
 	// take damage
 	// damagedByHero is true or false depending on whether it was damaged by the hero
 	// damagedByName is the name of what damaged this (attacker.name) - optional, just for achievement use currently
@@ -3960,8 +3973,9 @@ class Hero extends Attacker {
 		this.spritesheetRotate = true; // spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. always the case for the hero unless transformed
 	}
 
-	// new properties are added to this as required
+	// "into" parameter is the keyname of the object in PlayerTransformations in savedata
 	// currently just works for spells, stats, image, animation, projectiles
+	// new properties are added to this as required
 	transform (properties) {
 		if (this.transformed) {
 			console.error("Game.hero.transform was called even though hero is already transformed. Parameters:", properties);
@@ -3985,18 +3999,20 @@ class Hero extends Attacker {
 		Game.projectileImageUpdate();
 		
 		// stats
-		this.untransformedStats = this.stats;
 		if (typeof properties.stats !== "undefined") {
 			this.stats = properties.stats;
 		}
 		// tbd conditionalStats
 
 		// spells
-		this.untransformedSpells = this.spells;
 		if (typeof properties.spells !== "undefined") {
+			// format the spells to get the latest spells from spelldata
+			// (all that is required in these objects is the id and class)
+			for (let i = 0; i < properties.spells.length; i++) {
+				properties.spells[i] = Spells[properties.spells[i].class][properties.spells[i].id];
+			}
 			this.spells = properties.spells;
 		}
-		// tbd save these untransformed arrays in savedata
 	}
 
 	untransform () {
@@ -4009,12 +4025,10 @@ class Hero extends Attacker {
 		Game.projectileImageUpdate();
 
 		// stats
-		this.stats = this.untransformedStats;
-		this.untransformedStats = undefined;
+		this.stats = Player.stats;
 
 		// spells
-		this.spells = this.untransformedSpells;
-		this.untransformedSpells = undefined;
+		this.spells = Player.spells;
 
 		this.transformed = false;
 	}
@@ -5798,7 +5812,11 @@ class Projectile extends Thing {
 						}
 					}
 
-					if (canBeDamaged && Random(0, 99) < target.stats.dodgeChance) {
+					let targetDodgeChance = target.stats.dodgeChance;
+					// dodge chance status effects
+					targetDodgeChance += target.calculateStatusEffects("dodgeChance");
+
+					if (canBeDamaged && Random(0, 99) < targetDodgeChance) {
 						// hit dodged
 						this.damageDealt.push({enemy: target, damage: "hit dodged", critical: false});
 						canBeDamaged = false;
@@ -7493,6 +7511,8 @@ Game.removeTileStatusEffects = function (target, keep) {
 
 // status effect function array
 // so that Hero's status effects can be saved with progress saving (and returned their functions in Game.initStatusEffects)
+// note that status effects should NOT change stats, rather the location in main.js that looks at this stat shoudl also look for relevant status effects
+// this way, status effects work well with hero transformations
 Game.statusEffects.functions = {
 	// generic tick function for all timed status effects
 	tick: function (owner, timeTicked) { // decrease time
@@ -7536,7 +7556,7 @@ Game.statusEffects.functions = {
 	},
 
 	// decreases target's stat (changedStat) by value info[changedStat]
-	decreaseStat: function (target) {
+	/*decreaseStat: function (target) {
 		if (target.stats[this.changedStat] !== undefined) {
 			// stat exists
 			target.stats[this.changedStat] -= this.info[this.changedStat];
@@ -7544,16 +7564,11 @@ Game.statusEffects.functions = {
 		else {
 			console.error("Stat " + this.changedStat + " does not exist, but status effect " + this.title + " wants to decrease it. Please tell Jake!");
 		}
-	},
+	},*/ // shouldn't really be used! see above
 
 	//
 	// please try to keep the following in alphabetical order :)
 	//
-
-	// xp onExpire
-	decreaseXP: function (target) {
-		target.stats.xpBonus -= this.info.xpIncrease;
-	},
 
 	// fire onTick
 	fireTick: function (owner) {
@@ -8023,10 +8038,6 @@ Game.statusEffects.xp = function(properties) {
 		newProperties.imageName = "xpDown";
 		newProperties.type = "xpDown";
 	}
-	// increase XP
-	properties.target.stats.xpBonus += properties.xpIncrease;
-	// decrease XP on expire
-	newProperties.onExpire = "decreaseXP";
 
 	this.generic(newProperties);
 }
@@ -8124,12 +8135,6 @@ Game.statusEffects.dodgeChance = function(properties) {
 	newProperties.imageName = "dodgeChance";
 	newProperties.type = "dodgeChance";
 
-	// increase dodge chance
-	properties.target.stats.dodgeChance += properties.statIncrease;
-	// decrease after expire
-	newProperties.changedStat = "dodgeChance";
-	newProperties.onExpire = "decreaseStat";
-
 	this.generic(newProperties);
 }
 
@@ -8142,12 +8147,6 @@ Game.statusEffects.healthRegen = function(properties) {
 	newProperties.increasePropertyValue = properties.statIncrease;
 	newProperties.imageName = "healthRegen";
 	newProperties.type = "healthRegen";
-
-	// increase dodge chance
-	properties.target.stats.healthRegen += properties.statIncrease;
-	// decrease after expire
-	newProperties.changedStat = "healthRegen";
-	newProperties.onExpire = "decreaseStat";
 
 	this.generic(newProperties);
 }
@@ -10605,7 +10604,9 @@ Game.regen = function (delta) {
 Game.regenHealth = function (delta) {
 	for (let i = 0; i < this.allCharacters.length; i++) {
 		if (!this.allCharacters[i].respawning && !this.allCharacters[i].isCorpse) {
-			this.restoreHealth(this.allCharacters[i], this.allCharacters[i].stats.healthRegen * delta, false, true);
+			let healthRegen = this.allCharacters[i].stats.healthRegen;
+			healthRegen += this.allCharacters[i].calculateStatusEffects("healthRegen");
+			this.restoreHealth(this.allCharacters[i], healthRegen * delta, false, true);
 		}
 	}
 }
@@ -12149,7 +12150,11 @@ Game.getXP = function (xpGiven, xpBonus) {
 	if (typeof xpGiven === "number") {
 		// xp bonus
 		if (xpBonus !== false) {
-			xpGiven *= 1 + ((Game.hero.stats.xpBonus + Event.globalXpBonus) / 100);
+			let xpBonus = Game.hero.stats.xpBonus + Event.globalXpBonus; // in percent (i.e. 100 is double xp)
+			// add up any status effects 
+			let bonusFromStatusEffects = this.hero.calculateStatusEffects("xpIncrease");
+			xpBonus += bonusFromStatusEffects;
+			xpGiven *= 1 + (xpBonus / 100);
 		}
 
 		// increase XP
@@ -14213,10 +14218,8 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// re-link status effects + spells (inefficient? - tbd)
 		Player.statusEffects = Game.hero.statusEffects;
 		Player.spells = Game.hero.spells;
-		Player.untransformedSpells = Game.hero.untransformedSpells;
 		// re-link player stats (inefficient? - tbd)
-		Player.stats = Game.hero.stats;
-		Player.untransformedStats = Game.hero.untransformedStats;
+		Player.stats = Game.hero.stats;eeeeeeeeeeeeeeeeeeeeeee
 
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));

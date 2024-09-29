@@ -399,7 +399,7 @@ const PlayerTransformations = {
 		//conditionalStats: [],//?????change??????
 
 		// spells
-		spells: [{id: 17, tier: 1}],
+		spells: [{id: 0, class: "transform"}],
 
 		projectile: {
 			image: "furballGinger",
