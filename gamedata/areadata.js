@@ -7146,6 +7146,12 @@ animation: {
 							{item: Items.consumable[25], cost: 3, condition: function () { // potion of fire resistance
 								return Player.quests.questProgress.eaglecrestFirePotionUnlocked === true;
 							}},
+							{item: Items.consumable[31], cost: 25, condition: function () { // cat potion
+								return Player.quests.completedQuestArray.includes("Potion Making IV");
+							}},
+							{item: Items.consumable[41], cost: 3, condition: function () { // milk
+								return Player.quests.completedQuestArray.includes("The Pyromancer's Shopping List");
+							}},
 						],
 						role: "merchant",
 						shopGreeting: "There's a potion for you, and you, and youuuuu!",

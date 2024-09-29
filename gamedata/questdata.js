@@ -3272,6 +3272,7 @@ var Quests = {
 					},],
 				},
 				{
+					stepNum: 1,
 					name: "Priest Kemp-Eau",
 					chat: [{
 						text: `${Player.name}! It must be by some divine destiny you've come by here!`,
@@ -3311,6 +3312,7 @@ var Quests = {
 					},
 				},
 				{
+					stepNum: 2,
 					name: "Priest Kemp-Eau",
 					chat: [{
 						text: `${Player.name}, I sense you're bearing bad news. Where were you led?`,
@@ -3331,7 +3333,7 @@ var Quests = {
 					},{
 						text: `${Player.name}, this is not good - we need to do something about this before Smudge gets injured!`,
 					},{
-						text: `I sense <b>Alchemist Tamtam</b> will be able to help with this. Whilst I was searching for a device to find Amelio with, he did mention an experimental recipe that could help...`,
+						text: `I sense <b>Alchemist Tamtam</b> will be able to help with this. Whilst I was searching for a device to find Smudge with, he did mention an experimental recipe that could help...`,
 						long: true,
 					},],
 					rewards: {

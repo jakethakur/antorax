@@ -5320,12 +5320,13 @@ unidentifiedArea: ["caves"],
 		},
 		{
 			id: 77,
-			name: "Freshly Brewed Milk",
+			name: "Beaker of Freshly Brewed Milk",
 			type: "item",
 			category: "item",
 			image: "assets/items/item/77.png",
 			stack: 1,
 			quest: true,
+			functionText: "Cleanses you of all timed status effects and transformations."
 		},
 	],
 	consumable: [
@@ -6349,6 +6350,30 @@ unidentifiedArea: ["caves"],
 			requiredImages: { // images that should be loaded for this item
 				jarAnt: {normal: "./assets/enemies/ant.png"},
 			},
+		},
+		{
+			id: 40,
+			name: "Potion of Fortitude I",
+			type: "item",
+			category: "item",
+			image: "assets/items/item/40.png",
+			stack: 1,
+			// tbd - defense potion that can be bought in caves
+		},
+		{
+			id: 41,
+			name: "Beaker of Milk",
+			type: "item",
+			category: "item",
+			image: "assets/items/item/41.png",
+			stack: 1,
+			functionText: "Cleanses you of all timed status effects and transformations.",
+            cooldown: 10,
+			onClickFunction: function () {
+				// tbd! has to make sure when untransforming that there are no current transformations that depend on the area (maybe give transformations a list of areas in which milk can't be drunk? and a list of quests that would be abandoned if you would untransform?)
+			
+				Game.hero.untransform();
+			}
 		},
 	],
 	food: [

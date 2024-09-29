@@ -6644,12 +6644,15 @@ Dom.inventory.conditionalChooseStats = function () {
 }
 
 // reevaluate conditional stats of equipped items (should be called every tick in main, since needs to account for player movement, enemy movement, despawning, etc.)
+// returns whether a change was made to a stat or not
 Dom.inventory.conditionalStats = function () {
+	let changeMade = false;
 	for (let i = 0; i < Player.conditionalStats.length; i++) {
 		for (let x = 0; x < Items[Player.conditionalStats[i].type][Player.conditionalStats[i].id].conditionalStats.length; x++) {
 			let conditionalStat = Items[Player.conditionalStats[i].type][Player.conditionalStats[i].id].conditionalStats[x];
 			if (conditionalStat.condition()) {
 				if (!Player.conditionalStats[i].active[x]) {
+					// stat must be activated, but was not already
 					Dom.inventory.beforeChangedStats();
 					Player.conditionalStats[i].active[x] = true;
 					// add conditionalStats to stats
@@ -6661,9 +6664,11 @@ Dom.inventory.conditionalStats = function () {
 						}
 					}
 					Dom.inventory.afterChangedStats();
+					changeMade = true;
 				}
 			}else {
 				if (Player.conditionalStats[i].active[x]) {
+					// stat must be deactivated, and was previously activated
 					Dom.inventory.beforeChangedStats();
 					Player.conditionalStats[i].active[x] = false;
 					// remove conditionalStats from stats
@@ -6675,11 +6680,13 @@ Dom.inventory.conditionalStats = function () {
 						}
 					}
 					Dom.inventory.afterChangedStats();
+					changeMade = false;
 				}
 			}
 		}
 	}
 	Dom.inventory.conditionalChooseStats();
+	return changeMade;
 }
 
 Dom.inventory.beforeChangedStats = function () {

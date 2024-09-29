@@ -3974,14 +3974,24 @@ class Hero extends Attacker {
 	}
 
 	// "into" parameter is the keyname of the object in PlayerTransformations in savedata
+	// init is set to true if this is called on game initialisation
 	// currently just works for spells, stats, image, animation, projectiles
 	// new properties are added to this as required
-	transform (properties) {
+	// note that the player's old stats, spells etc are still stored in Player. this is what dom acts upon anyway, so player can still do stuff in their inventory without affecting their transformed self
+	transform (into, init) {
 		if (this.transformed) {
-			console.error("Game.hero.transform was called even though hero is already transformed. Parameters:", properties);
+			console.error("Game.hero.transform was called even though hero is already transformed. Parameters:", into);
 			return false;
 		}
-		this.transformed = true;
+
+		let properties = PlayerTransformations[into];
+
+		if (typeof properties[into] === "undefined") {
+			console.error("Could not find the transformation in PlayerTransformations: ", into);
+			return false;
+		}
+
+		this.transformed = into;
 
 		// image and animation
 		// (same as in constructor)
@@ -3999,10 +4009,20 @@ class Hero extends Attacker {
 		Game.projectileImageUpdate();
 		
 		// stats
+		// note conditional stats are not currently available for transformations
 		if (typeof properties.stats !== "undefined") {
 			this.stats = properties.stats;
+
+			// fill in all stats that aren't specified in savedata as the default stats
+			for (let key in DefaultStats) {
+				if (typeof this.stats[key] === "undefined") {
+					this.stats[key] = DefaultStats[key];
+				}
+			}
 		}
-		// tbd conditionalStats
+		// start with full mana and health
+		this.health = this.stats.maxHealth;
+		this.mana = this.stats.maxMana;
 
 		// spells
 		if (typeof properties.spells !== "undefined") {
@@ -4016,21 +4036,26 @@ class Hero extends Attacker {
 	}
 
 	untransform () {
-		let heroProperties = Game.heroBaseProperties();
-		// image and animation
-		this.setImageFromProperties(heroProperties);
-
-		// projectile
-		this.projectile = {};
-		Game.projectileImageUpdate();
-
-		// stats
-		this.stats = Player.stats;
-
-		// spells
-		this.spells = Player.spells;
-
-		this.transformed = false;
+		if (this.transformed) {
+			let heroProperties = Game.heroBaseProperties();
+			// image and animation
+			this.setImageFromProperties(heroProperties);
+	
+			// stats
+			this.stats = Player.stats;
+			// start with full mana and health
+			this.health = this.stats.maxHealth;
+			this.mana = this.stats.maxMana;
+	
+			// spells
+			this.spells = Player.spells;
+	
+			this.transformed = false;
+	
+			// projectile
+			this.projectile = {};
+			Game.equipmentUpdate(); // this in turn calls projectileImageUpdate
+		}
 	}
 
 	// move on a mount
@@ -4860,9 +4885,6 @@ class Hero extends Attacker {
 							if (Math.floor(this.stats.fishingSkill) - Math.floor(oldFishingSkill) > 0) { // check if the player's fishing skill has increased to the next integer (or more)
 								Dom.chat.insert("Your fishing skill has increased to " + Math.floor(this.stats.fishingSkill) + "."); // notify them of this in chat
 							}
-
-							// update player stats
-							//Player.stats = Game.hero.stats; // inefficient (should be linked)
 
 							// fish length for fisher's log
 							if (this.channelling.length > User.fish[this.channelling.id] || typeof User.fish[this.channelling.id] === "undefined") {
@@ -9797,10 +9819,11 @@ Game.init = function () {
 
 		spells: Player.spells,
 	});
-
-	// link stats
-    // currently a bit inefficient?
-    Game.hero.stats = Player.stats;
+	if (Player.transformed) {
+		Game.hero.transform(Player.transformed, true);
+		Game.hero.mana = Player.mana;
+		Game.hero.health = Player.health;
+	}
 
 	// set player projectile
 	this.projectileImageUpdate();
@@ -11923,7 +11946,10 @@ Game.update = function (delta) {
 
 	this.playerProjectileUpdate(delta); // update player's currently channelling projectile
 
-	Dom.inventory.conditionalStats(); // update any player conditional stats (must be done every tick to account for e.g. player movement, enemy movement, despawning etc.)
+	let changeMade = Dom.inventory.conditionalStats(); // update any player conditional stats (must be done every tick to account for e.g. player movement, enemy movement, despawning etc.)
+	if (changeMade && !Game.hero.transformed) {
+		Game.hero.stats = Player.stats; // bring over the conditional stat changes to the hero
+	}
 
 	//
 	// animations
@@ -12255,137 +12281,139 @@ Game.getXP = function (xpGiven, xpBonus) {
 // called whenever weapon/armour is changed (in order to change player stats)
 // PG's code
 Game.equipmentUpdate = function () {
-    // player stats updated
-    this.hero.stats = Player.stats; // inefficient (should be linked)
+	if (!this.hero.transformed) { // if the hero is transformed, the stats are updated in Player but not in Hero
+		// player stats updated - update for hero as well
+		this.hero.stats = Player.stats;
 
-	let weaponType = this.getAttackType(); // type of weapon equipped of player
+		let weaponType = this.getAttackType(); // type of weapon equipped of player
 
-    // if the player is holding a weapon, set their projectile details
-    if (weaponType !== undefined) {
-        // player has weapon equipped
+		// if the player is holding a weapon, set their projectile details
+		if (weaponType !== undefined) {
+			// player has weapon equipped
 
-		if (Player.inventory.weapon.stats.reloadTime !== undefined) {
-        	this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime + Player.inventory.weapon.stats.reloadTime;
-		}
-		else {
-        	this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime;
-		}
-
-		// projectile speed
-	    if (typeof Player.inventory.weapon.projectileSpeed !== "undefined") {
-	        this.hero.stats.projectileSpeed = Player.inventory.weapon.projectileSpeed;
-	    }
-	    else {
-			this.hero.stats.projectileSpeed = AttackConstants[weaponType].projectileSpeed;
-	    }
-
-		if (Player.inventory.weapon.range !== undefined) {
-			// weapon has a set range that is different from the generic range type for that item (if one exists)
-			// note this "set range" is not displayed on the item (otherwise rangeMultiplier (or make something called rangeModifier) should be used)
-        	this.hero.stats.range = Player.inventory.weapon.range * (this.hero.stats.rangeMultiplier/100);//pppppppppppp  under cons
-		}
-		else {
-        	this.hero.stats.projectileRange = AttackConstants[weaponType].projectileRange;
-		}
-
-		// set weapon angle variance
-		// because variance is not a stat unless manually overwritten, this is required
-	    if (weaponType === "bow" || Player.inventory.weapon.variance !== undefined) {
-	        this.hero.stats.variance = Player.inventory.weapon.variance || AttackConstants.bow.variance;
-	    }
-	    else {
-	        this.hero.stats.variance = 0;
-	    }
-		// same for minimumVariance
-	    if (weaponType === "bow" || Player.inventory.weapon.minimumVariance !== undefined) {
-	        this.hero.stats.minimumVariance = Player.inventory.weapon.minimumVariance || AttackConstants.bow.minimumVariance;
-	    }
-	    else {
-	        this.hero.stats.minimumVariance = 0;
-	    }
-
-		// swords etc
-	    /*if (weaponType === "sword" || typeof Player.inventory.weapon.iterationSpacing !== undefined) {  // spacing in ms between snake projectiles and max number of snake projectiles
-	        this.hero.stats.iterationSpacing = Player.inventory.weapon.iterationSpacing || AttackConstants.sword.iterationSpacing;
-	        this.hero.stats.maxIterations = Player.inventory.weapon.maxIterations || AttackConstants.sword.maxIterations;
-	    }
-	    else {
-	        this.hero.stats.iterationSpacing = 0;
-	        this.hero.stats.maxIterations = 0;
-	    }*/
-
-		// swords etc
-	    if (weaponType === "sword" || typeof Player.inventory.weapon.maxIterations !== undefined) {  //tbddddddddd
-	    }
-	    else {
-	    }
-    }
-    else {
-        // no weapon equipped (setting range to 0 is how this is sometimes read)
-        this.hero.stats.range = 0;
-    }
-
-    // set player projectile
-    this.projectileImageUpdate();
-
-	// set displayed player weapon
-	// tbd make this called only if the player has changed *weapon*
-	this.hero.weaponUpdate();
-
-    // if the player is no longer holding a fishing rod, remove their bobber
-    if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
-        this.removeObject(this.hero.channellingProjectileId, "projectiles"); // remove bobber
-
-        this.hero.removeChannelling("fishingBobberRemoved");
-        this.hero.channellingProjectileId = null;
-    }
-
-	// damageAllHit
-    if (Player.inventory.weapon.damageAllHit !== undefined) {
-        this.hero.stats.damageAllHit = Player.inventory.weapon.damageAllHit || false;
-    }
-    else {
-        this.hero.stats.damageAllHit = true;
-    }
-
-	// dom range is always base dom range * interact range
-	this.hero.stats.domRange = this.hero.stats.baseDomRange * this.hero.stats.interactRange / 100;
-
-	// intervalEffects
-	for (let i = 0; i < this.equipmentKeys.length; i++) {
-		let inventoryItem = Player.inventory[this.equipmentKeys[i]];
-		if (typeof inventoryItem.type !== "undefined") {
-			let item = Items[inventoryItem.type][inventoryItem.id];
-
-			if (typeof item.intervalEffect === "undefined" || typeof item.intervalEffect.time === "undefined") {
-				// no interval effect on current item equipped
-				if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
-					// there is currently an interval effect active for this item slot - clear it
-					this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
-					this.intervalEffects[this.equipmentKeys[i]] = {};
-				}
+			if (Player.inventory.weapon.stats.reloadTime !== undefined) {
+				this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime + Player.inventory.weapon.stats.reloadTime;
 			}
 			else {
-				// there is an interval effect on this current item equipped
-				if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId === "undefined" || this.intervalEffects[this.equipmentKeys[i]].itemId !== item.id) {
-					// interval effect is different to the existing one
+				this.hero.stats.reloadTime = AttackConstants[weaponType].reloadTime;
+			}
+
+			// projectile speed
+			if (typeof Player.inventory.weapon.projectileSpeed !== "undefined") {
+				this.hero.stats.projectileSpeed = Player.inventory.weapon.projectileSpeed;
+			}
+			else {
+				this.hero.stats.projectileSpeed = AttackConstants[weaponType].projectileSpeed;
+			}
+
+			if (Player.inventory.weapon.range !== undefined) {
+				// weapon has a set range that is different from the generic range type for that item (if one exists)
+				// note this "set range" is not displayed on the item (otherwise rangeMultiplier (or make something called rangeModifier) should be used)
+				this.hero.stats.range = Player.inventory.weapon.range * (this.hero.stats.rangeMultiplier/100);//pppppppppppp  under cons
+			}
+			else {
+				this.hero.stats.projectileRange = AttackConstants[weaponType].projectileRange;
+			}
+
+			// set weapon angle variance
+			// because variance is not a stat unless manually overwritten, this is required
+			if (weaponType === "bow" || Player.inventory.weapon.variance !== undefined) {
+				this.hero.stats.variance = Player.inventory.weapon.variance || AttackConstants.bow.variance;
+			}
+			else {
+				this.hero.stats.variance = 0;
+			}
+			// same for minimumVariance
+			if (weaponType === "bow" || Player.inventory.weapon.minimumVariance !== undefined) {
+				this.hero.stats.minimumVariance = Player.inventory.weapon.minimumVariance || AttackConstants.bow.minimumVariance;
+			}
+			else {
+				this.hero.stats.minimumVariance = 0;
+			}
+
+			// swords etc
+			/*if (weaponType === "sword" || typeof Player.inventory.weapon.iterationSpacing !== undefined) {  // spacing in ms between snake projectiles and max number of snake projectiles
+				this.hero.stats.iterationSpacing = Player.inventory.weapon.iterationSpacing || AttackConstants.sword.iterationSpacing;
+				this.hero.stats.maxIterations = Player.inventory.weapon.maxIterations || AttackConstants.sword.maxIterations;
+			}
+			else {
+				this.hero.stats.iterationSpacing = 0;
+				this.hero.stats.maxIterations = 0;
+			}*/
+
+			// swords etc
+			if (weaponType === "sword" || typeof Player.inventory.weapon.maxIterations !== undefined) {  //tbddddddddd
+			}
+			else {
+			}
+		}
+		else {
+			// no weapon equipped (setting range to 0 is how this is sometimes read)
+			this.hero.stats.range = 0;
+		}
+
+		// set player projectile
+		this.projectileImageUpdate();
+
+		// set displayed player weapon
+		// tbd make this called only if the player has changed *weapon*
+		this.hero.weaponUpdate();
+
+		// if the player is no longer holding a fishing rod, remove their bobber
+		if (Player.inventory.weapon.type !== "rod" && this.hero.channelling === "fishing") {
+			this.removeObject(this.hero.channellingProjectileId, "projectiles"); // remove bobber
+
+			this.hero.removeChannelling("fishingBobberRemoved");
+			this.hero.channellingProjectileId = null;
+		}
+
+		// damageAllHit
+		if (Player.inventory.weapon.damageAllHit !== undefined) {
+			this.hero.stats.damageAllHit = Player.inventory.weapon.damageAllHit || false;
+		}
+		else {
+			this.hero.stats.damageAllHit = true;
+		}
+
+		// dom range is always base dom range * interact range
+		this.hero.stats.domRange = this.hero.stats.baseDomRange * this.hero.stats.interactRange / 100;
+
+		// intervalEffects
+		for (let i = 0; i < this.equipmentKeys.length; i++) {
+			let inventoryItem = Player.inventory[this.equipmentKeys[i]];
+			if (typeof inventoryItem.type !== "undefined") {
+				let item = Items[inventoryItem.type][inventoryItem.id];
+
+				if (typeof item.intervalEffect === "undefined" || typeof item.intervalEffect.time === "undefined") {
+					// no interval effect on current item equipped
 					if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
 						// there is currently an interval effect active for this item slot - clear it
 						this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
 						this.intervalEffects[this.equipmentKeys[i]] = {};
 					}
-					// set new effect
-					this.intervalEffects[this.equipmentKeys[i]].interval = this.setInterval(item.intervalEffect.function, item.intervalEffect.time *1000);
-					this.intervalEffects[this.equipmentKeys[i]].itemId = item.id;
+				}
+				else {
+					// there is an interval effect on this current item equipped
+					if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId === "undefined" || this.intervalEffects[this.equipmentKeys[i]].itemId !== item.id) {
+						// interval effect is different to the existing one
+						if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
+							// there is currently an interval effect active for this item slot - clear it
+							this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
+							this.intervalEffects[this.equipmentKeys[i]] = {};
+						}
+						// set new effect
+						this.intervalEffects[this.equipmentKeys[i]].interval = this.setInterval(item.intervalEffect.function, item.intervalEffect.time *1000);
+						this.intervalEffects[this.equipmentKeys[i]].itemId = item.id;
+					}
 				}
 			}
-		}
-		else {
-			// nothing equipped in this slot
-			if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
-				// there is currently an interval effect active for this item slot - clear it
-				this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
-				this.intervalEffects[this.equipmentKeys[i]] = {};
+			else {
+				// nothing equipped in this slot
+				if (typeof this.intervalEffects[this.equipmentKeys[i]].itemId !== "undefined") {
+					// there is currently an interval effect active for this item slot - clear it
+					this.clearInterval(this.intervalEffects[this.equipmentKeys[i]].interval);
+					this.intervalEffects[this.equipmentKeys[i]] = {};
+				}
 			}
 		}
 	}
@@ -14215,11 +14243,15 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		Player.mana = Game.hero.mana;
 		Player.trails = Game.hero.trails;
 		Player.oldPosition = Game.hero.oldPosition; // temporary teleport
-		// re-link status effects + spells (inefficient? - tbd)
+		// re-link status effects
 		Player.statusEffects = Game.hero.statusEffects;
-		Player.spells = Game.hero.spells;
-		// re-link player stats (inefficient? - tbd)
-		Player.stats = Game.hero.stats;eeeeeeeeeeeeeeeeeeeeeee
+		if (!Game.hero.transformed) {
+			// re-link player stats and spells (might be inefficient ?)
+			Player.spells = Game.hero.spells;
+			Player.stats = Game.hero.stats;
+		}
+		// hero transformation
+		Player.transformed = Game.hero.transformed;
 
 		// save everything in savedata.js
 		localStorage.setItem(Player.class, JSON.stringify(Player));

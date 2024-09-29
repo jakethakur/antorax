@@ -405,6 +405,10 @@ const PlayerTransformations = {
 			image: "furballGinger",
 		},
 		// tbd attackstyle
+
+		// transform specific properties
+		illegalUntransformAreas: [], // array of areas in which the player must be transformed (so untransforms i.e. milk don't work)
+		abandonOnUntransform: [], // array of quests that should be abandoned if you untransform
 	},
 };
 
