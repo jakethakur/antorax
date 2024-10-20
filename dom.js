@@ -154,6 +154,8 @@ let Dom = {
 		quest: document.getElementById("quest"),
 		questFinish: document.getElementById("questFinish"),
 		questFinishItems: document.getElementById("questFinishItems"),
+		questFinishObjectivesHeading: document.getElementById("questFinishObjectivesHeading"),
+		questFinishObjectives: document.getElementById("questFinishObjectives"),
 		questFinishQuest: document.getElementById("questFinishQuest"),
 		questFinishRewardsTitle: document.getElementById("questFinishRewardsTitle"),
 		//questFinishStartItems: document.getElementById("questFinishStartItems"),
@@ -2650,7 +2652,31 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 		}
 
 		// increment variables etc
-		this.acceptRewards(quest, npc, step, finish);
+		Dom.quest.acceptRewards(quest, npc, step, finish);
+
+		// display any new objectives
+		// note that this doesn't display any objectives that were previously hidden via a isHidden function - maybe do this in the future.
+		let newObjectives = [];
+		for (let i = 0; i < quest.objectivesList.length; i++) {
+			if (quest.objectivesList[i].revealStep === step && (typeof quest.objectivesList[i].isHidden === "undefined" || !quest.objectivesList[i].isHidden())) {
+				newObjectives.push(i);
+			}
+		}
+		if (newObjectives.length > 0) {
+			// there have been new objectives "unlocked"
+			Dom.elements.questFinishObjectivesHeading.hidden = false;
+			Dom.elements.questFinishObjectives.hidden = false;
+
+			Dom.elements.questFinishObjectives.innerHTML = "";
+			for (let i = 0; i < newObjectives.length; i++) {
+				Dom.elements.questFinishObjectives.innerHTML += "<br>" + quest.objectivesList[newObjectives[i]].text;
+			}
+		}
+		else {
+			// no objective information to be displayed
+			Dom.elements.questFinishObjectivesHeading.hidden = true;
+			Dom.elements.questFinishObjectives.hidden = true;
+		}
 
 		// display rewards
 		Dom.elements.questFinishItems.innerHTML = "";
@@ -2752,14 +2778,10 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 // they've just completed step number "step".
 // called by Dom.quest.progress (i.e. when npc dialogue has finished)
 // handles everything that's not to do with showing the page
+// note that this is NOT called on quest start (Maybe should be changed in the future). Dom.quest.accept is the analogue for quest start
 Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	// increment variables
 	Player.quests.stepProgress[quest.questArea][quest.id][step] = true;
-
-	// increment timesCompleted variable
-	if (quest.repeatTime === "daily" || quest.repeatTime === "repeatable" || quest.numberOfRepeats !== undefined) {
-		Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
-	}
 
 	// removeItems
 	// note that the quest step can still be completed even if this item is not in the player's inventory - this should instead be checked in an objective
@@ -2776,8 +2798,14 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		}
 	}
 
-	// if finishing quest, remove it from active quests array
+	// if finishing quest, remove it from active quests array and increment variables
 	if (finish) {
+		// increment timesCompleted variable
+		if (quest.repeatTime === "daily" || quest.repeatTime === "repeatable" || quest.numberOfRepeats !== undefined) {
+			Player.quests.timesCompleted[quest.questArea][quest.id] = Increment(Player.quests.timesCompleted[quest.questArea][quest.id]);
+		}
+
+		// remove it from active quests array
 		for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
 			if (Player.quests.activeQuestArray[i] === quest.quest) { // checks if they have the same name
 				Player.quests.activeQuestArray.splice(i,1);
@@ -2865,7 +2893,8 @@ Dom.quest.accept = function () {
 
 	// reset objectiveProgress and stepProgress
 	Player.quests.objectiveProgress[quest.questArea][quest.id] = [];
-	Player.quests.stepProgress[quest.questArea][quest.id] = [];
+	Player.quests.stepProgress[quest.questArea][quest.id] = [true]; // true because first step has been completed
+
 
 	// set the npc that the player started the quest from, in case the quest differsOnNpc
 	Player.quests.startedFromNpc[quest.questArea][quest.id] = Dom.currentNPC;

@@ -3842,75 +3842,20 @@ var Quests = {
 					stepNum: 5,
 					name: "Alchemist Tamtam",
 					chat: [{
-						id: 1,
-						text: `Okie let's try again from the start!!<br><em>Tamtam's ears perk up.</em>`,
-					},{
-						id: 1,
+						id: 0,
 						text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
 					},{
-						id: 2,
+						id: 1,
 						text: `It's been a long time since someone's asked me for that...`,
 					},{
-						id: 3,
+						id: 2,
 						text: `I guess... we can brew some!!!`
 					},{
-						id: 4,
+						id: 3,
 						text: `Hmmm, so that'll be a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
 					},{
-						id: 5,
-						text: `Oooonly thing is... I can't remember the order we need to add them to the cauldron in.`
-					},{
-						id: 6,
-						text: `Looks like we'll need a bit of guesswork...`,
-					},{
-						id: 7,
-						text: `You'll need to add the <b>Milkfish</b> first... After that, I guess there's only one way to find out!!`,
-						options: [
-							{
-								text: "Add the Milkfish to the cauldron",
-								action: "progress",
-							},
-						]
-					},{
-						id: 8,
-						text: `Oookkkkaay, what to add next...`,
-						options: [
-							{
-								text: "Add the Katydid to the cauldron",
-								action: "progress",
-								//jumpToId: , // fail
-							},
-							{
-								text: "Add the Iron Ore to the cauldron",
-								action: "progress",
-							},
-							{
-								text: "Add the Lavender to the cauldron",
-								action: "progress",
-							},
-						]
-					},{
-						id: 9,
-						text: `..... Looks like the ore was right! What next??`,
-						options: [
-							{
-								text: "Add the Katydid to the cauldron",
-								action: "progress",
-							},
-							{
-								text: "Add the Lavender to the cauldron",
-								action: "progress",
-							},
-						]
-					},{
-						id: 10,
-						text: `Yay!!! Which leaves...`,
-						options: [
-							{
-								text: "Add the Katydid to the cauldron",
-								action: "progress",
-							},
-						]
+						id: 4,
+						text: `Oooonly thing is... it's a dangerous recipe to brew...`
 					},
 					],
 				},

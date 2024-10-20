@@ -246,9 +246,6 @@ thead:after { /* space after bags in bank */
 	cursor: pointer;
 }
 
-#closeReputation, #closeSettings {
-}
-
 #closeCredits {
 	top: 20px;
 }
@@ -925,9 +922,13 @@ left: 55px;
 	background-image: url("./assets/icons/xp.png");
 }
 
-#accept, #acceptReward, #confirm {
+#accept, #confirm {
 	top: 20px;
 	left: 20px;
+}
+
+#acceptReward {
+	top: 20px;
 }
 
 #decline, #declineReward, #cancel {

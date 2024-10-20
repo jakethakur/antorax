@@ -11016,7 +11016,7 @@ Game.update = function (delta) {
 							}
 
 							if (!questCanBeStarted) {
-								// check if quest step is ready to be finished
+								// check if a quest step is ready to be finished
 
 								let canBeFinished = true; // set to false if the quest step cannot be finished
 								let quest = role.quest;
@@ -11050,22 +11050,31 @@ Game.update = function (delta) {
 									// quest is currently active
 									// loop through each possible step of the quest and see if it's been done or not
 									for (let stepIndex = 0; stepIndex < stepArray.length; stepIndex++) {
-										let step = stepArray[stepIndex]; // the actual step number
-										
+										if (stepArray[stepIndex] === 0) {
+											// not starting quest - skip this step
+											stepIndex++;
+											if (stepIndex >= stepArray.length) {
+												break;
+											}
+										}
+
+										let step = stepArray[stepIndex]; // the actual step id number (stepArray is the steps that are offered by the NPC, i.e. not all of the possible steps of the quest)
+
 										let stepDone = true;
 
 										if (Player.quests.stepProgress[quest.questArea][quest.id][step]) {
 											// step already been completed
 											stepDone = false;
 										}
-										else if (typeof quest.steps[checkStep].availableUntilStepDone !== "undefined" && Player.quests.stepProgress[quest.questArea][quest.id][quest.steps[checkStep].availableUntilStepDone]) {
+										else if (typeof quest.steps[step].availableUntilStepDone !== "undefined" && Player.quests.stepProgress[quest.questArea][quest.id][quest.steps[step].availableUntilStepDone]) {
 											// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
 											stepDone = false;
 										}
 										else if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
-											// quest's steps must all be completed in order (other than optional steps)
+											// as the quest is chronological, quest's steps must all be completed in order (other than optional steps)
+											// find the highest non-optional step below the current step we are checking
 											let checkStep = step-1;
-											while (quest.steps[checkStep].optional && checkStep >= 0) {
+											while (checkStep >= 0 && quest.steps[checkStep].optional) {
 												checkStep--;
 											}
 											if (checkStep >= 0 && !Player.quests.stepProgress[quest.questArea][quest.id][checkStep]) {
@@ -11087,7 +11096,7 @@ Game.update = function (delta) {
 												}
 												for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
 													let obj = quest.steps[step].objectiveRequirement[objIndex];
-													if (Player.quests.objectiveProgress[quest.questArea][quest.id] !== true) {
+													if (Player.quests.objectiveProgress[quest.questArea][quest.id][obj] !== true) {
 														// objective is not done
 														stepDone = false;
 														break;
