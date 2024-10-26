@@ -301,6 +301,7 @@ var Player = {
 		numberOfProjectiles: 0, // currently an archer only stat - if this isn't 0 or 1, multiple projectiles are fired!
 		enemyAggro: 100, // (110%) multiplier on aggro of enemies this attacks
 		channellingMoveSpeed: 100, // percentage of value in attackConstants
+		waterWalking: false,
 
 		// projectiles
 		variance: 0, // default angle variance of projectiles - set by default in AttackConstants; can be overriden in itemdata
@@ -320,6 +321,10 @@ var Player = {
 
 		// fishing
 		fishingSkill: 0, // (1.1) increased when you fish stuff up (increased by main.js)
+
+		// air underwater
+		breathing: 0, // i.e. from breathing helmet. 
+		maxAir: 0, // set automatically by breathing in equipmentUpdate
 
 		// misc
 		baseDomRange: 240, // distance from an entity that a DOM menu may be opened

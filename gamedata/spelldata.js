@@ -919,6 +919,35 @@ const Spells = {
 				timeSpacing: [3000, 2000]
 			},
         },
+		{
+			name: "Hop",
+			id: 12,
+			type: "spell",
+			class: "enemy", // katydids (leaf locusts) etc
+
+			func: function (caster, target) {
+                let velocity = this.stats.velocity;
+                let dist = Math.min(Game.distance(caster, target), this.stats.distance);
+                let time = dist / velocity;
+                let bear = Game.bearing(caster, target);
+                caster.displace(0, velocity, time, bear); // start displacement
+			},
+
+			targetRequired: true, // doesn't cast without a target
+
+			// stat values
+			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
+			// values not in an array remain constant for all tiers
+			stats: {
+				// the following stats are required for all spells
+				channelTime: 0,
+				manaCost: 0,
+				cooldown: 400,
+				// the following stats are specific to this spell
+				velocity: 500,
+				distance: 30
+			},
+		},
 	
 	],
 }

@@ -1205,10 +1205,6 @@ const EnemyTemplates = {
 			inventorySpace: 16,
 		},
 
-
-
-
-
 		coyote: {
 			rotationImages: {
 				left: "coyoteUnbotheredLeft",
@@ -1272,208 +1268,6 @@ const EnemyTemplates = {
 				height: 98,
 			},
 		},
-
-//maxilla
-maxilla: {
-	rotationImages: {
-		left: "maxilla",
-		right: "maxilla"
-	},
-	deathImage: "coyoteCorpse",
-	name: "Maxilla",
-	hostility: "hostile",
-	level: 15,
-	respawnOnDeath: false,
-	stats: {
-		damage: 8,
-		walkSpeed: 80,
-		swimSpeed: 25,
-		iceSpeed: 210,
-		maxHealth: 65,
-		defence: 5,
-		range: 60,
-		reloadTime: 1300,
-		healthRegen: 0.5,
-		lootTime: 15000,
-	},
-	xpGiven: 100,
-	projectile: {
-		image: "melee",
-	},
-
-	spells: [
-					{
-							id: 19, // seek prey
-							tier: 1,
-							parameters: function () { // returns array of parameters
-									return {
-											target: this.calculateTarget(),
-									};
-							},
-			castCondition: function (caster) {
-				let target = caster.calculateTarget();
-									return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-							},
-							interval: 5000,
-					},
-			],
-	lootTableTemplate: [EnemyLootTables.coyote],
-	inventorySpace: 8,
-	onDeath: function () {
-		// coyotes killed achievement
-		User.progress.coyotes = Increment(User.progress.coyotes);
-	},
-	animation: {
-		type: "spritesheet",
-		frameTime: 30,
-		imagesPerRow: 3,
-		totalImages: 3,
-		animateBasis: "walk"
-	},
-	crop: {
-		x: 0,
-		y: 0,
-		width: 447,
-		height: 216,
-	},
-},
-
-
-//palatine
-palatine: {
-	rotationImages: {
-		left: "palatine",
-		right: "palatine"
-	},
-	deathImage: "coyoteCorpse",
-	name: "Palatine",
-	hostility: "hostile",
-	level: 15,
-	respawnOnDeath: false,
-	stats: {
-		damage: 8,
-		walkSpeed: 80,
-		swimSpeed: 25,
-		iceSpeed: 210,
-		maxHealth: 65,
-		defence: 5,
-		range: 60,
-		reloadTime: 1300,
-		healthRegen: 0.5,
-		lootTime: 15000,
-	},
-	xpGiven: 100,
-	projectile: {
-		image: "melee",
-	},
-
-	spells: [
-					{
-							id: 19, // seek prey
-							tier: 1,
-							parameters: function () { // returns array of parameters
-									return {
-											target: this.calculateTarget(),
-									};
-							},
-			castCondition: function (caster) {
-				let target = caster.calculateTarget();
-									return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-							},
-							interval: 5000,
-					},
-			],
-	lootTableTemplate: [EnemyLootTables.coyote],
-	inventorySpace: 8,
-	onDeath: function () {
-		// coyotes killed achievement
-		User.progress.coyotes = Increment(User.progress.coyotes);
-	},
-	animation: {
-		type: "spritesheet",
-		frameTime: 180,
-		imagesPerRow: 4,
-		totalImages: 4,
-	},
-	crop: {
-		x: 0,
-		y: 0,
-		width: 219,
-		height: 392,
-	},
-},
-
-
-//vomer
-
-		vomer: {
-			rotationImages: {
-				left: "vomer",
-				right: "vomer"
-			},
-			deathImage: "coyoteCorpse",
-			name: "Vomer",
-			hostility: "hostile",
-			level: 15,
-			respawnOnDeath: false,
-			stats: {
-				damage: 25,
-				walkSpeed: 100,
-				swimSpeed: 25,
-				iceSpeed: 210,
-				maxHealth: 150,
-				defence: 10,
-				range: 60,
-				reloadTime: 800,
-				healthRegen: 1,
-				lootTime: 15000,
-			},
-			xpGiven: 500,
-			projectile: {
-				image: "melee",
-			},
-
-			spells: [
-							{
-									id: 27, // seek prey
-									tier: 1,
-									parameters: function () { // returns array of parameters
-											return {
-													target: this.calculateTarget(),
-											};
-									},
-					castCondition: function (caster) {
-						let target = caster.calculateTarget();
-											return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
-									},
-									interval: 15000,
-							},
-					],
-			lootTableTemplate: [EnemyLootTables.coyote],
-			inventorySpace: 8,
-			onDeath: function () {
-				// coyotes killed achievement
-				User.progress.coyotes = Increment(User.progress.coyotes);
-			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 30,
-				imagesPerRow: 3,
-				totalImages: 3,
-				animateBasis: "walk"
-			},
-			crop: {
-				x: 0,
-				y: 0,
-				width: 309,
-				height: 210,
-			},
-		},
-
-//vomer end
-
-
-
 
 		coyoteWrangler: {
 			image: "coyoteWrangler",
@@ -1561,7 +1355,6 @@ palatine: {
                 Player.quests.progress.eaglecrest[11].coyoteWranglers = Increment(Player.quests.progress.eaglecrest[11].coyoteWranglers);
             }
 		},
-
 
 		beeSwarm: {
 			rotationImages: {
@@ -1856,8 +1649,6 @@ palatine: {
 			},
 		},
 
-
-
 		baronFoxglove: {
 			image: "foxglove",
 			deathImage: "foxgloveCorpse",
@@ -1983,7 +1774,266 @@ palatine: {
 			inventorySpace: 18,
 		},
 
+		imp: { // for spell brewing
+			image: "imp",
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			name: "Imp",
+			hostility: "neutral",
+			level: 5,
+			stats: {
+				damage: 3,
+				walkSpeed: 95,
+				swimSpeed: 40,
+				iceSpeed: 160,
+				maxHealth: 24,
+				defence: 2,
+				range: 390,
+				reloadTime: 1550,
+				healthRegen: 0.4,
+				flaming: 1,
+				lootTime: 15000,
+				respawnTime: 30000,
+				projectileSpeed: 200,
+				projectileRange: 400,
+			},
+			attackBehaviour: {
+				baseAggro: 0,
+			},
+			xpGiven: 25,
+			projectile: {
+				image: "fireball",
+			},
+		},
+		katydid: { // for spell brewing
+			image: "katydid",
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			name: "Katydid",
+			hostility: "hostile",
+			level: 1,
+			critter: true, // not counted for combatant achivements
+			stats: {
+				damage: 2,
+				walkSpeed: 0, // only hop
+				swimSpeed: 0,
+				iceSpeed: 0,
+				maxHealth: 2,
+				range: 20,
+				healthRegen: 0,
+				reloadTime: 1000,
+			},
+			xpGiven: 0,
+			projectile: {
+				image: "melee",
+			},
+			spells: [
+				{
+			        class: "enemy",
+					id: 12,
+					tier: 1,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > caster.stats.range - 15;
+	                },
+				},
+	        ],
+		},
+
 		// tbd need to move the following to a new cave section
+
+//maxilla
+maxilla: {
+	rotationImages: {
+		left: "maxilla",
+		right: "maxilla"
+	},
+	deathImage: "coyoteCorpse",
+	name: "Maxilla",
+	hostility: "hostile",
+	level: 15,
+	respawnOnDeath: false,
+	stats: {
+		damage: 8,
+		walkSpeed: 80,
+		swimSpeed: 25,
+		iceSpeed: 210,
+		maxHealth: 65,
+		defence: 5,
+		range: 60,
+		reloadTime: 1300,
+		healthRegen: 0.5,
+		lootTime: 15000,
+	},
+	xpGiven: 100,
+	projectile: {
+		image: "melee",
+	},
+
+	spells: [
+					{
+							id: 19, // seek prey
+							tier: 1,
+							parameters: function () { // returns array of parameters
+									return {
+											target: this.calculateTarget(),
+									};
+							},
+			castCondition: function (caster) {
+				let target = caster.calculateTarget();
+									return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
+							},
+							interval: 5000,
+					},
+			],
+	lootTableTemplate: [EnemyLootTables.coyote],
+	inventorySpace: 8,
+	onDeath: function () {
+		// coyotes killed achievement
+		User.progress.coyotes = Increment(User.progress.coyotes);
+	},
+	animation: {
+		type: "spritesheet",
+		frameTime: 30,
+		imagesPerRow: 3,
+		totalImages: 3,
+		animateBasis: "walk"
+	},
+	crop: {
+		x: 0,
+		y: 0,
+		width: 447,
+		height: 216,
+	},
+},
+
+
+//palatine
+palatine: {
+	rotationImages: {
+		left: "palatine",
+		right: "palatine"
+	},
+	deathImage: "coyoteCorpse",
+	name: "Palatine",
+	hostility: "hostile",
+	level: 15,
+	respawnOnDeath: false,
+	stats: {
+		damage: 8,
+		walkSpeed: 80,
+		swimSpeed: 25,
+		iceSpeed: 210,
+		maxHealth: 65,
+		defence: 5,
+		range: 60,
+		reloadTime: 1300,
+		healthRegen: 0.5,
+		lootTime: 15000,
+	},
+	xpGiven: 100,
+	projectile: {
+		image: "melee",
+	},
+
+	spells: [
+					{
+							id: 19, // seek prey
+							tier: 1,
+							parameters: function () { // returns array of parameters
+									return {
+											target: this.calculateTarget(),
+									};
+							},
+			castCondition: function (caster) {
+				let target = caster.calculateTarget();
+									return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
+							},
+							interval: 5000,
+					},
+			],
+	lootTableTemplate: [EnemyLootTables.coyote],
+	inventorySpace: 8,
+	onDeath: function () {
+		// coyotes killed achievement
+		User.progress.coyotes = Increment(User.progress.coyotes);
+	},
+	animation: {
+		type: "spritesheet",
+		frameTime: 180,
+		imagesPerRow: 4,
+		totalImages: 4,
+	},
+	crop: {
+		x: 0,
+		y: 0,
+		width: 219,
+		height: 392,
+	},
+},
+
+		vomer: {
+			rotationImages: {
+				left: "vomer",
+				right: "vomer"
+			},
+			deathImage: "coyoteCorpse",
+			name: "Vomer",
+			hostility: "hostile",
+			level: 15,
+			respawnOnDeath: false,
+			stats: {
+				damage: 25,
+				walkSpeed: 100,
+				swimSpeed: 25,
+				iceSpeed: 210,
+				maxHealth: 150,
+				defence: 10,
+				range: 60,
+				reloadTime: 800,
+				healthRegen: 1,
+				lootTime: 15000,
+			},
+			xpGiven: 500,
+			projectile: {
+				image: "melee",
+			},
+
+			spells: [
+							{
+									id: 27, // seek prey
+									tier: 1,
+									parameters: function () { // returns array of parameters
+											return {
+													target: this.calculateTarget(),
+											};
+									},
+					castCondition: function (caster) {
+						let target = caster.calculateTarget();
+											return typeof target !== "undefined" && Game.distance(caster, target) > caster.stats.range - 25;
+									},
+									interval: 15000,
+							},
+					],
+			lootTableTemplate: [EnemyLootTables.coyote],
+			inventorySpace: 8,
+			onDeath: function () {
+				// coyotes killed achievement
+				User.progress.coyotes = Increment(User.progress.coyotes);
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 30,
+				imagesPerRow: 3,
+				totalImages: 3,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 309,
+				height: 210,
+			},
+		},
 
 		crystalAntOrange: {
 			rotationImages: {

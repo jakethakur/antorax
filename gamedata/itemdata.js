@@ -1413,7 +1413,7 @@ unidentifiedArea: ["caves"],
 				defence: 3,
 				reflection: 20,
 				maxHealth: 10,
-				swimSpeed: 40,
+				swimSpeed: 30,
 			},
 		},
 		{
@@ -1450,7 +1450,6 @@ unidentifiedArea: ["caves"],
 			obtainText: "Not yet obtainable. Check back soon!",
 			stats: {
 				defence: 3,
-				swimSpeed: 30,
 			},
 			conditionalStats: [
 				{
@@ -1826,7 +1825,6 @@ unidentifiedArea: ["caves"],
 					},
 					stats: {
 						walkSpeed: 50,
-						swimSpeed: 50,
 					},
 				},
 			],
@@ -1900,7 +1898,6 @@ unidentifiedArea: ["caves"],
 			unidentifiedArea: ["eaglecrest"],
 			stats: {
 				defence: 2,
-				swimSpeed: 40,
 			},
 			conditionalStats: [
 				{
@@ -4007,7 +4004,7 @@ unidentifiedArea: ["caves"],
 				"The Ocean Warrior's Boots",
 			],
 			stats: {
-				swimSpeed: 120, // perhaps display as water walking?
+				waterWalking: true,
 			},
 			multiplier: [
 				// double chosen stats
@@ -4092,7 +4089,6 @@ unidentifiedArea: ["caves"],
 				"River Dredging Overshoes",
 			],
 			stats: {
-				swimSpeed: 30,
 				looting: 40, // tbd make this and stealing conditional stats?
 				stealing: 40,
 			},
@@ -7986,7 +7982,6 @@ const ItemFunctions = {
 			{stat: "lifesteal", amount: 5, rare: true,},
 			{stat: "xpBonus", amount: 30, rare: true,},
 			{stat: "stealing", amount: 30, rare: true,},
-			{stat: "swimSpeed", amount: 30, rare: true,},
 			{stat: "healingPower", amount: 25, rare: true,},
 		];
 		let nonRareEnhancements = enhancements.filter(enhancement => enhancement.rare !== true);

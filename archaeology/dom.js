@@ -131,6 +131,9 @@ function Stats (stat, value, array) {
 	else if (stat === "Flaming" || stat === "Exploding") {
 		return stat+" "+Romanize(value)+"<br>";
 	}
+	else if (stat === "Breathing") {
+		return "Underwater Breathing "+Romanize(value)+"<br>";
+	}
 	else if (stat === "Poison X") {
 		return "Poison: " + NumberSign(value) + "/" + array.poisonY + "s<br>";
 	}
@@ -149,7 +152,7 @@ function Stats (stat, value, array) {
 	else if (stat === "Knockback") {
 		return stat+": "+NumberSign(value)+"px<br>";
 	}
-	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
+	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield" || stat === "Water Walking") {
 		return stat+"<br>";
 	}
 	else if (stat === "Move During Focus") {
@@ -837,6 +840,8 @@ var StatsInfo = {
 	poisonStrength: "Changes the amount poison damage dealt, as a percentage.",
 	unstoppable: "Invulnerability to stuns, slows, roots, hexes.",
 	exploding: "Whenever you kill an enemy, they explode, dealing 50% of your attack damage to nearby enemies and setting them on fire.",
+	breathing: ["Error", "Allows underwater breathing for up to 10 seconds without air."],
+	waterWalking: "Allows you to walk normal speed on water.",
 	numberOfProjectiles: "Multiple projectiles are fired at once!",
 	enemyAggro: "Changes how much aggro you generate from enemies.",
 }

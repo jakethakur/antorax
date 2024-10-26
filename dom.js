@@ -1703,7 +1703,13 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.elements.innerStats.innerHTML += "<br>Frostaura";
 	}
 	if (Player.stats.arcaneAura) {
-		Dom.elements.innerStats.innerHTML += "<br>Arcane aura";
+		Dom.elements.innerStats.innerHTML += "<br>Arcane Aura";
+	}
+	if (Player.stats.waterWalking) {
+		Dom.elements.innerStats.innerHTML += "<br>Water Walking";
+	}
+	if (Player.stats.breathing !== 0) {
+		Dom.elements.innerStats.innerHTML += "<br>Underwater Breathing "+Romanize(Player.stats.breathing);
 	}
 	if (Player.stats.unstoppable) {
 		Dom.elements.innerStats.innerHTML += "<br>Immunity to stuns and slows";
@@ -1804,6 +1810,9 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Flaming" || stat === "Exploding") {
 		return stat+" "+Romanize(value)+"<br>";
 	}
+	else if (stat === "Breathing") {
+		return "Underwater Breathing "+Romanize(value)+"<br>";
+	}
 	else if (stat === "Poison X") {
 		return "Poison: " + NumberSign(value) + "/" + array.poisonY + "s<br>";
 	}
@@ -1822,7 +1831,7 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Knockback") {
 		return stat+": "+NumberSign(value)+"px<br>";
 	}
-	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield") {
+	else if (stat === "Frostaura" || stat === "Splash Damage" || stat === "Wind Shield" || stat === "Water Walking") {
 		return stat+"<br>";
 	}
 	/*else if (stat === "Move During Focus") {

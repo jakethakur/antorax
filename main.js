@@ -866,6 +866,16 @@ var map = {
 				}
 			}
 		}
+		// move slower and require air when underwater
+		if (typeof this.underwaterTiles !== "undefined") { // check that this map contains waterTiles
+			for (let i = 0; i < this.underwaterTiles.length; i++) {
+				if (tileArray.includes(this.underwaterTiles[i])) {
+					// water tile found
+					isSlow = "underwater";
+					break;
+				}
+			}
+		}
 
 		return isSlow;
 	},
@@ -1501,6 +1511,8 @@ class Entity {
 		if (typeof this.fishable !== "undefined" && typeof this.fishable.name === "undefined") {
 			this.fishable.name = properties.name;
 		}
+
+		this.breathingArea = properties.breathingArea; // true or false; whether the player can breathe underwater when they're touching this WITH THEIR FEET
 
 
 		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
@@ -2419,6 +2431,7 @@ class Character extends Thing {
 		this.stats.healingPower = properties.stats.healingPower || 100; // multiplier of healing receieved (doesn't include usual health regen)
 		this.stats.unstoppable = properties.stats.unstoppable || false; // immunity to movement-reducing abilities
 		this.stats.enemyAggro = properties.stats.enemyAggro || 100; // percentage; refers to the aggro increase on enemies this attacks
+		this.stats.waterWalking = properties.stats.waterWalking;
 
 		this.critter = properties.critter; // if this is set to true, doesn't count for combatant achivements
 
@@ -3174,7 +3187,7 @@ class Character extends Thing {
 		// test for slow tiles (e.g: water, mud)
 		let slowTile = this.map.isSlowTileAtXY(this.x, footY);
 
-		let waterWalking = this.hasStatusEffectType("waterWalking"); // can walk on water and mud
+		let waterWalking = this.hasStatusEffectType("waterWalking") || this.stats.waterWalking; // can walk on water
 
 		if (slowTile === null || walkableObject || baseSpeed) { // normal speed
 			this.speed = walkSpeed;
@@ -3214,10 +3227,10 @@ class Character extends Thing {
 			}
 		}
 
-		else if (slowTile === "water") { // in water tile
+		else if (slowTile === "water" || slowTile === "underwater") { // in water tile, or underwater
 			Game.removeTileStatusEffects(this, "Swimming"); // remove all status effects from other tiles
 
-			if (!waterWalking) {
+			if (!waterWalking || slowTile === "underwater") { // water walking only works when not underwater
 				this.speed = swimSpeed;
 				if (!this.hasStatusEffect("Swimming")) { // give status effect if the player doesn't already have it
 					// remove fire status effect
@@ -3242,20 +3255,20 @@ class Character extends Thing {
 		else if (slowTile === "mud") { // in mud tile
 			Game.removeTileStatusEffects(this, "Stuck in the mud"); // remove all status effects from other tiles
 
-			if (!waterWalking) {
-				// currently mud goes the same speed as in a water tile
-				this.speed = swimSpeed;
+			// note water walking doesn't work here
 
-				if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
-					Game.statusEffects.generic({
-						target: this,
-						effectTitle: "Stuck in the mud",
-						effectDescription: "Reduced movement speed",
-						imageName: "mud",
-						type: "mud",
-						effectStack: "noStack",
-					});
-				}
+			// currently mud goes the same speed as in a water tile
+			this.speed = swimSpeed;
+
+			if (!this.hasStatusEffect("Stuck in the mud")) { // give status effect if the player doesn't already have it
+				Game.statusEffects.generic({
+					target: this,
+					effectTitle: "Stuck in the mud",
+					effectDescription: "Reduced movement speed",
+					imageName: "mud",
+					type: "mud",
+					effectStack: "noStack",
+				});
 			}
 		}
 
@@ -3277,6 +3290,16 @@ class Character extends Thing {
 
 		else {
 			console.error("Unknown slow tile: " + slowTile);
+		}
+
+		// toggle this.underwater
+		if (slowTile === "underwater" && !this.underwater) {
+			this.underwater = true;
+			Game.renderDayNight(); // for screen tint
+		}
+		else if (slowTile !== "underwater" && this.underwater) {
+			this.underwater = false;
+			Game.renderDayNight(); // for screen tint
 		}
 
 		if (!baseSpeed) {
@@ -3932,6 +3955,11 @@ class Hero extends Attacker {
 		this.stats.focusSpeed = properties.stats.focusSpeed || 0; // archer only
 		this.stats.maxDamage = properties.stats.maxDamage; // mage only
 		this.stats.xpBonus = properties.stats.xpBonus || 0; // perentage
+
+		// underwater stats
+		this.stats.breathing = properties.stats.breathing || 0;
+		this.stats.maxAir = properties.stats.maxAir || 0;
+		this.air = properties.air || 0;
 
 		// class specific
 
@@ -9312,7 +9340,19 @@ Game.loadArea = function (areaName, destination) {
 			}
 		}
 
+		// prepare repeatTiles
 		let repeatTileNos = map.repeatTiles.map(obj => obj.tile);
+
+		// prepare objectTiles (sightly different, as these array elements could either just be a number, or be an object with additional info provided)
+		let objectTilesArray = [];
+		for (let i = 0; i < map.objectTiles.length; i++) {
+			if (typeof map.objectTiles[i].tile !== "undefined") {
+				objectTilesArray.push(map.objectTiles[i].tile);
+			}
+			else {
+				objectTilesArray.push(map.objectTiles[i]);
+			}
+		}
 
 		// add any object tiles as objects themselves
 		for (let layer = 0; layer < map.layers.length; layer++) {
@@ -9320,9 +9360,13 @@ Game.loadArea = function (areaName, destination) {
 		        for (let r = 0; r < map.rows; r++) {
 		            let tile = map.getTile(layer, c, r); // tile number
 
-		            if (tile !== 0 && (map.objectTiles.includes(tile) || map.objectTiles.includes(-tile))) { // 0 is empty tile
+					// check if it's an object tile
+					let index = objectTilesArray.findIndex(foo => foo===tile || foo===-tile);
+
+		            if (tile !== 0 && index !== -1) { // note 0 is empty tile
+						// this is an objectTile
 						if (tile < 0) {
-							tile = -tile;
+							tile = -tile; // ensure that this tile isn't rendered normally in addition
 						}
 
 						// draw position
@@ -9336,9 +9380,16 @@ Game.loadArea = function (areaName, destination) {
 							height: map.tsize
 						}
 
+						// additional properties
+						let z = 0; 
+						if (typeof map.objectTiles[index].z !== "undefined") {
+							z = map.objectTiles[index].z; 
+						}
+
 						this.things.push(new Thing({
 							x: x,
 							y: y,
+							z: z,
 							width: map.tsize,
 							height: map.tsize,
 							image: "tiles",
@@ -9804,6 +9855,7 @@ Game.init = function () {
 		// properties inherited from Attacker
 
 		mana: Player.mana,
+		air: Player.air,
 
 		// stats
 		stats: Player.stats,
@@ -10621,6 +10673,8 @@ Game.regen = function (delta) {
 	this.regenHealth(delta);
 	// only the hero has mana
 	this.restoreMana(this.hero, this.hero.stats.manaRegen * delta)
+	// underwater breathing
+	this.underwaterBreathingTick(this.hero, delta);
 }
 
 // healthRegen = health regenerated per second
@@ -10670,9 +10724,9 @@ Game.restoreMana = function (target, mana) {
 	if (target.stats.maxMana > 0) {
 		// check they have mana
 		if (target.mana !== target.stats.maxMana) {
-			// health can be restored
+			// mana can be restored
 			if (target.mana + mana > target.stats.maxMana) {
-				// too much health - cap out at maximum
+				// too much mana - cap out at maximum
 				target.mana = target.stats.maxMana;
 				return false;
 			}
@@ -10683,6 +10737,69 @@ Game.restoreMana = function (target, mana) {
 		}
 	}
 }
+
+// deals with the hero taking damage/depleting air when underwater, as well as gaining air when near an air source or not underwater
+// also deals with damaging of hero if they are underwater and don't have enough rain
+// the actual air parts of this function (everything other than the damaging) require Game.hero.stats.maxAir to be greater than zero (i.e. hero has breathing helmet)
+// note that Game.hero.stats.maxAir is set in Game.equipmentUpdate based off the breathing stat
+// target is expected to be Game.hero (no other character worries about underwater breathing currently)
+Game.underwaterBreathingTick = function (target, delta) {
+	// change target's air value
+	if (target.stats.maxAir > 0) {
+		if (typeof target.air === "undefined") {
+			target.air = 0;
+		}
+
+		let airNet = 0; // change in target's air value
+		if (!target.underwater) {
+			// not underwater
+			airNet = delta*4; // restores a flat rate of air: 4 per second
+		}
+		else {
+			// underwater
+			// check for an air source
+			let airSourceFound = false;
+			let targetCollision = target.footHitbox; // what we test the target's collisions with for breathing areas
+			if (typeof targetCollision === "undefined") {
+				targetCollision = target;
+			}
+			for (let i = 0; i < this.allEntities.length; i++) {
+				let entity = this.allEntities[i];
+				if (entity.breathingArea && targetCollision.isTouching(entity)) {
+					airSourceFound = true;
+					break;
+				}
+			}
+			if (airSourceFound) {
+				// at an air source underwater
+				airNet = delta*4; // restores a flat rate of air: 4 per second
+			}
+			else {
+				// underwater
+				airNet = -delta*2; // depletes a flat rate of air: 2 per second
+			}
+		}
+
+		if (target.air + airNet > target.stats.maxAir) {
+			// too much air - cap out at maximum
+			target.air = target.stats.maxAir;
+		}
+		else if (target.air + airNet < 0) {
+			// too little air - cap out at minimum
+			target.air = 0;
+		}
+		else {
+			target.air += airNet;
+		}
+	}
+
+	// damage target if they are underwater and they have no air
+	if (target.underwater && target.air <= 0) {
+		// deals 10% of player's max health a second - irrespective of their defence etc
+		target.takeDamage(target.stats.maxHealth*0.1*delta);
+	}
+}
+
 
 //
 // Update game state
@@ -12384,6 +12501,20 @@ Game.equipmentUpdate = function () {
 			this.hero.stats.damageAllHit = true;
 		}
 
+		// breathing
+		if (Player.stats.breathing > 0) {
+			if (Player.stats.breathing === 1) {
+				this.hero.stats.maxAir = 20;
+			}
+			else {
+				console.error("Unexpected Player.stats.breathing value: ", Player.stats.breathing);
+			}
+		}
+		else {
+			this.hero.stats.maxAir = 0;
+			this.hero.air = 0;
+		}
+
 		// dom range is always base dom range * interact range
 		this.hero.stats.domRange = this.hero.stats.baseDomRange * this.hero.stats.interactRange / 100;
 
@@ -13083,90 +13214,11 @@ Game.drawCharacterInformation = function (ctx, character) {
 	}
 }
 
-// draw a health bar (on given context, for given character, at given position, with given dimensions)
-// tbd : change colour for friendly characters?
-// tbd : generalise to work for drawing mana bars as well?
-Game.drawHealthBar = function (ctx, character, x, y, width, height) {
-	// remember previous canvas transparency preferences
-	const oldGlobalAlpha = ctx.globalAlpha;
-
-	// canvas formatting
-	ctx.lineWidth = 1;
-	ctx.globalAlpha = 0.6;
-
-	// health variables
-
-	// get width of each small health bar (in health)
-	// there should be between 3 and 9 bars (with the exception of low health )
-	let barValue = 10;
-	let barValueFound = false;
-	let numberOfBars;
-	while (!barValueFound) {
-		numberOfBars = character.stats.maxHealth / barValue;
-		if (numberOfBars < 10) { // less than 10 little health bars with this barValue
-			barValueFound = true;
-		}
-		else { // more than 9; multiply bar size by 10 and try again
-			barValue *= 3;
-		}
-
-		// stop infniite loops
-		if (barValue > 100000) {
-			console.error("No health bar value found for ", character);
-			break;
-		}
-	}
-
-	character.healthFraction = character.health / character.stats.maxHealth; // fraction of health remaining
-
-	if (character.healthFraction > 0) { // check the character has some health to draw (we don't want to draw negative health)
-		// colour based on size of each bar (although they all look the same to me -PG)
-		if (Game.creativeMode) {
-			ctx.fillStyle = "#00CC00"; // green
-		}
-		else if (barValue === 10) {
-			ctx.fillStyle = "#FF4D4D"; // light red
-		}
-		else if (barValue === 30) {
-			ctx.fillStyle = "#FF0000"; // red
-		}
-		else if (barValue === 90) {
-			ctx.fillStyle = "#CC0000"; // dark red
-		}
-		else if (barValue === 270) {
-			ctx.fillStyle = "#800000"; // maroon (very dark red)
-		}
-		else if (barValue === 810) {
-			ctx.fillStyle = "#DAA520"; // gold
-		}
-		else {
-			// default
-			ctx.fillStyle = "#DAA520"; // gold
-			//console.warn("No dedicated health bar colour for bar size " + barValue);
-		}
-
-		// health bar body
-		ctx.fillRect(x, y, character.healthFraction * width, height);
-	}
-
-	// health bar border
-	ctx.strokeStyle = "black";
-	ctx.strokeRect(x, y, width, height); // general border around the whole thing
-	let i; // defined for use outside of for loop
-	for (i = 0; i < character.stats.maxHealth / barValue - 1; i++) {
-		ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, barValue / character.stats.maxHealth * width, height);
-	}
-
-	// final bar
-	ctx.strokeRect(x + barValue / character.stats.maxHealth * width * i, y, width - (barValue / character.stats.maxHealth * width * i), height);
-
-	// restore previous canvas transparency preferences
-	ctx.globalAlpha = oldGlobalAlpha;
-}
-
-// draw a mana bar (on given context, for given character, at given position, with given dimensions)
-Game.drawManaBar = function (ctx, character, x, y, width, height) {
-	if (typeof character.stats.maxMana !== "undefined" && character.stats.maxMana > 0) {
+// draw a health/mana/other (on given context, for given stat, at given position, with given dimensions)
+// stat is i.e. Game.hero.health; maxValue is i.e. Game.hero.stats.maxHealth
+// barType must be "health", "mana" or "air". maybe in the future make a custom barType able to be specified in addition
+Game.drawStatBar = function (ctx, stat, maxValue, barType, x, y, width, height) {
+	if (typeof maxValue !== "undefined" && maxValue > 0) {
 		// remember previous canvas transparency preferences
 		const oldGlobalAlpha = ctx.globalAlpha;
 
@@ -13174,15 +13226,21 @@ Game.drawManaBar = function (ctx, character, x, y, width, height) {
 		ctx.lineWidth = 1;
 		ctx.globalAlpha = 0.6;
 
-		// get width of each small mana bar (in mana)
-		// there should be between 3 and 9 bars (with the exception of low mana )
-		// same as health ...
+		// get width of each small bar (in mana/health)
+		// there should be between 3 and 9 bars (with the exception of very low max value of stat, i.e. low maxMana)
 		let barValue = 10;
+		if (barType === "health" || barType === "mana" || barType === "air") {
+			barValue = 10;
+		}
+		else {
+			console.error("Unexpected barType", barType);
+			return false;
+		}
 		let barValueFound = false;
 		let numberOfBars;
 		while (!barValueFound) {
-			numberOfBars = character.stats.maxMana / barValue;
-			if (numberOfBars < 10) { // less than 10 little health bars with this barValue
+			numberOfBars = maxValue / barValue;
+			if (numberOfBars < 10) { // less than 10 little bars with this barValue
 				barValueFound = true;
 			}
 			else { // more than 9; multiply bar size by 10 and try again
@@ -13190,37 +13248,85 @@ Game.drawManaBar = function (ctx, character, x, y, width, height) {
 			}
 		}
 
-		character.manaFraction = character.mana / character.stats.maxMana; // fraction of health remaining
+		let fraction = stat / maxValue; // fraction of health remaining
 
-		if (character.manaFraction > 0) { // check the character has some mana to draw (we don't want to draw negative mana)
-			// colour based on size of each bar
-			if (barValue === 10) {
-				ctx.fillStyle = "#a874e3"; // lightish purple
+		if (fraction > 0) { // check the character has some stat to draw (we don't want to draw negative stat value)
+			// colour, potentially based on size of each bar
+			if (barType === "health") {
+				// colour based on size of each bar (although they all look the same to me -PG)
+				if (Game.creativeMode) {
+					ctx.fillStyle = "#00CC00"; // green
+				}
+				else if (barValue === 10) {
+					ctx.fillStyle = "#FF4D4D"; // light red
+				}
+				else if (barValue === 30) {
+					ctx.fillStyle = "#FF0000"; // red
+				}
+				else if (barValue === 90) {
+					ctx.fillStyle = "#CC0000"; // dark red
+				}
+				else if (barValue === 270) {
+					ctx.fillStyle = "#800000"; // maroon (very dark red)
+				}
+				else if (barValue === 810) {
+					ctx.fillStyle = "#DAA520"; // gold
+				}
+				else {
+					// default
+					ctx.fillStyle = "#DAA520"; // gold
+					//console.warn("No dedicated health bar colour for bar size " + barValue);
+				}
 			}
-			else {
-				// default
-				ctx.fillStyle = "#8f34eb";
-				console.warn("No dedicated mana bar colour for bar size " + barValue);
+			else if (barType === "mana") {
+				if (barValue === 10) {
+					ctx.fillStyle = "#a874e3"; // lightish purple
+				}
+				else {
+					// default
+					ctx.fillStyle = "#8f34eb";
+					console.warn("No dedicated mana bar colour for bar size " + barValue);
+				}
+			}
+			else if (barType === "air") {
+				ctx.fillStyle = "#80bbff"; // temp colour
 			}
 
-			// health bar body
-			ctx.fillRect(x, y, character.manaFraction * width, height);
+			// bar body
+			ctx.fillRect(x, y, fraction * width, height);
 		}
 
 		// health bar border
 		ctx.strokeStyle = "black";
 		ctx.strokeRect(x, y, width, height); // general border around the whole thing
 		let i; // defined for use outside of for loop
-		for (i = 0; i < character.stats.maxMana / barValue - 1; i++) {
-			ctx.strokeRect(x + barValue / character.stats.maxMana * width * i, y, barValue / character.stats.maxMana * width, height);
+		for (i = 0; i < maxValue / barValue - 1; i++) {
+			ctx.strokeRect(x + barValue / maxValue * width * i, y, barValue / maxValue * width, height);
 		}
 
 		// final bar
-		ctx.strokeRect(x + barValue / character.stats.maxMana * width * i, y, width - (barValue / character.stats.maxMana * width * i), height);
+		ctx.strokeRect(x + barValue / maxValue * width * i, y, width - (barValue / maxValue * width * i), height);
 
 		// restore previous canvas transparency preferences
 		ctx.globalAlpha = oldGlobalAlpha;
 	}
+}
+
+// draw a health bar (on given context, for given character, at given position, with given dimensions)
+// tbd : change colour for friendly characters?
+// tbd : generalise to work for drawing mana bars as well?
+Game.drawHealthBar = function (ctx, character, x, y, width, height) {
+	this.drawStatBar(ctx, character.health, character.stats.maxHealth, "health", x, y, width, height);
+}
+
+// draw a mana bar (on given context, for given character, at given position, with given dimensions)
+Game.drawManaBar = function (ctx, character, x, y, width, height) {
+	this.drawStatBar(ctx, character.mana, character.stats.maxMana, "mana", x, y, width, height);
+}
+
+// draw an air bar (underwater breathing) (on given context, for given character, at given position, with given dimensions)
+Game.drawAirBar = function (ctx, character, x, y, width, height) {
+	this.drawStatBar(ctx, character.air, character.stats.maxAir, "air", x, y, width, height);
 }
 
 Game.drawDamageTaken = function (ctx, character, x, y, fontSize) {
@@ -14130,8 +14236,12 @@ Game.secondary.render = function () {
 
 		// player health bar at top-left
 		Game.drawHealthBar(this.ctx, Game.hero, 10, 10, 250, 25);
-		// player mana bar at top-left (only drawn if they have a max mana)
+		// player mana bar at top-left (only drawn if they have nonzero maxMana)
 		Game.drawManaBar(this.ctx, Game.hero, 10, 43, 250, 25);
+		// player air bar at top-left (only drawn if they have nonzero maxAir; AND their air is less than max, or they are underwater)
+		if (Game.hero.stats.maxAir > 0 && (Game.hero.underwater || Game.hero.air < Game.hero.stats.maxAir)) {
+			Game.drawAirBar(this.ctx, Game.hero, 10, 76, 250, 25);
+		}
 
 		// set xp variables
 		const totalWidth = 335; // total width of xp bar
@@ -14226,6 +14336,13 @@ Game.renderDayNight = function () {
 		}
 	}
 
+	// screen tint due to player being underwater
+	if (Game.hero.underwater) {
+		this.ctxDayNight.fillStyle = "#2998a3";
+		this.ctxDayNight.globalAlpha = 0.19;
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+	}
+
 	// screen tint due to helm
 	// (currently just works for helm)
 	if (typeof Player.inventory.helm.screenTint !== "undefined") {
@@ -14250,6 +14367,7 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// save other player details that aren't otherwise saved to savedata
 		Player.health = Game.hero.health;
 		Player.mana = Game.hero.mana;
+		Player.air = Game.hero.air;
 		Player.trails = Game.hero.trails;
 		Player.oldPosition = Game.hero.oldPosition; // temporary teleport
 		// re-link status effects
