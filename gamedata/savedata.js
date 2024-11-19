@@ -221,7 +221,7 @@ var Player = {
 		possibleQuestArray: [],
 		completedQuestArray: [],
 
-		progress: {}, // same as questProgress, but now divided into areas and their quest ids à la npcProgress. for anything that npcProgress can't track
+		progress: {}, // progress[questArea][questId] is an object
 
 		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		// this is used either for OLD QUESTS or objectives that aren't just relevant to one quest (since this object does not have proper structure)

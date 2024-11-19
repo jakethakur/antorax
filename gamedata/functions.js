@@ -651,6 +651,7 @@ function NumberSign (value) {
 
 // returns a deep clone of the object
 // this is the fastest way to do it in general - see https://stackoverflow.com/a/5344074/9713957
+// tbd 2024 - replace this with structuredClone
 function DeepCloneObject (obj) {
 	return JSON.parse(JSON.stringify(obj));
 }

@@ -13817,6 +13817,12 @@ chloroville: {
 
 		lootArea: "eaglecrest",
 		lootTier: 1,
+		
+		areaVariables: {
+			conveyorSpeed: 100, // speed of objects moving on conveyor belts
+			conveyorDirection1: "down",
+			conveyorDirection2: "up",
+		},
 
 		mapData: {
 			origin: {x: 0, y: -180},
@@ -13996,6 +14002,7 @@ chloroville: {
 			toxicWasteGreen: {normal: "assets/objects/toxicWasteGreen.png"},
 			toxicWastePurple: {normal: "assets/objects/toxicWastePurple.png"},
 			toxicWasteRed: {normal: "assets/objects/toxicWasteRed.png"},
+			toxicWasteBlue: {normal: "assets/objects/toxicWasteBlue.png"},
 			blueprints: {normal: "assets/objects/blueprints.png"},
 			goggles: {normal: "assets/items/helm/45.png"},
 			armour: {normal: "assets/items/set/13.png"},
@@ -14107,43 +14114,56 @@ crop: {
 				totalImages: 4,
 			},
 		},
-
 		{
 			x: [756.2],
 			y: [1679.6],
 			image: "leverPurple",
-			name: "leverPurple",
+			name: "Purple Lever",
 			crop: {
 				x: 0,
 				y: 0,
 				width: 28,
 				height: 100
 			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 2000,
-				imagesPerRow: 2,
-				totalImages: 2,
+			onInteract: function () {
+				if (Game.areaVariables.conveyorDirection1 === "down") {
+					Game.areaVariables.conveyorDirection1 = "up";
+					map.replaceTiles(506, 507);
+					this.crop.x = 28;
+				}
+				else if (Game.areaVariables.conveyorDirection1 === "up") {
+					Game.areaVariables.conveyorDirection1 = "down";
+					map.replaceTiles(507, 506);
+					this.crop.x = 0;
+				}
 			},
+			interactCooldown: 0.3,
 		},
 
 		{
 			x: [816.2],
 			y: [1679.6],
 			image: "leverYellow",
-			name: "leverYellow",
+			name: "Yellow Lever",
 			crop: {
-				x: 0,
+				x: 28,
 				y: 0,
 				width: 28,
 				height: 100
 			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 2000,
-				imagesPerRow: 2,
-				totalImages: 2,
+			onInteract: function () {
+				if (Game.areaVariables.conveyorDirection2 === "down") {
+					Game.areaVariables.conveyorDirection2 = "up";
+					map.replaceTiles(508, 509);
+					this.crop.x = 28;
+				}
+				else if (Game.areaVariables.conveyorDirection2 === "up") {
+					Game.areaVariables.conveyorDirection2 = "down";
+					map.replaceTiles(509, 508);
+					this.crop.x = 0;
+				}
 			},
+			interactCooldown: 0.3,
 		},
 
 

@@ -2712,7 +2712,7 @@ var Quests = {
 			],
 
 			howToStart: "Speak to <strong>Recruiter Sylvie</strong>.",
-			levelRequirement: 1,
+			levelRequirement: 8,
 			questRequirements: [],
 		},
 		{
@@ -3858,6 +3858,9 @@ var Quests = {
 						text: `Oooonly thing is... it's a dangerous recipe to brew...`
 					},
 					],
+					onStepComplete: function () {
+						Game.questPresets.protect();
+					},
 				},
 				{
 					stepNum: 6,
@@ -3918,6 +3921,503 @@ var Quests = {
 			howToStart: "Speak to <b>Peto the Pyromancer</b> in Eaglecrest City.",
 			levelRequirement: 7,
 			questRequirements: ["to be added"],
+		},
+		{
+			id: 22,
+			quest: "Catfish!",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "???", // mail
+					chat: [{
+						text: "Hey! You! You're the one that made me "
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Captain Greenbeard",
+					chat: [{
+						text: `My ingredients!`,
+					},],
+				},
+				{
+					stepNum: 2,
+					name: "Captain Greenbeard",
+					chat: [{
+						text: `My ingredients!`,
+					},],
+				},
+				{
+					stepNum: 3,
+					name: "Captain Greenbeard",
+					chat: [{
+						text: `My ingredients!`,
+					},{
+						text: `Wait. Did I say 'ingredients'? Well I meant... <i>ahaha</i> my pyromancer potion ingredients! For a potion! <i>oh no.</i>.`,
+					},{
+						text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
+					},],
+					objectiveRequirement: [2], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					removeItems: [
+						{item: Items.item[77], quantity: 1},
+					],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.item[1]}, // mystery (get the helm the next day)
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Speak to <b>Captain Greenbeard</b> in the <b>Eagle's Span Tavern</b>.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+				{id: 1, text: "Meet <b>Captain Greenbeard</b> at the spot marked on the map he gave to you.",
+					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 2, text: "Solve the puzzle.",
+					revealStep: 2,
+				},
+				{id: 3, text: "Speak to Captain Greenbeard.",
+					revealStep: 2,
+				},
+			],
+
+			howToStart: "Open your mail from <b>an Unknown Sender</b>.",
+			levelRequirement: 7,
+			questRequirements: ["Overdraft"],
+		},
+		{
+			id: 23,
+			quest: "Underwater",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Captain Greenbeard", // mail
+					chat: [{
+						text: `tbd`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Captain Greenbeard", // irl
+					chat: [{
+						text: `You go check it out, I'm not the biggest fan of water.`,
+						options: [
+							{
+								text: "But...",
+								action: "progress",
+								response: {
+									text: `...what?`,
+								}
+							},
+							{
+								text: "Aren't you a pirate?!",
+								action: "progress",
+								response: {
+									text: `What's that got to do with it?`,
+								}
+							},
+						]
+					},{
+						text: `Go on... jump!`,
+					}],
+				},
+				{
+					stepNum: 2,
+					name: "Captain Greenbeard",
+					chat: [{
+						text: `My ingredients!`,
+					},],
+					objectiveRequirement: [5], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					removeItems: [
+						{item: Items.item[77], quantity: 1},
+					],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.item[1]}, // mystery (get the helm the next day)
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Bring your <b>breathing helmet</b> to <b>Captain Greenbeard</b> at <i>River Heart's Blessing</i>, the lake in the centre of the Plains.",
+					completeStep: 1, // if this step is completed, then this objective is always completed
+				},
+				{id: 1, text: "Ask <b>Captain Greenbeard</b> to jump into the water!",
+					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 2, text: "Explore underwater.",
+					revealStep: 1,
+				},
+				{id: 3, text: "Destroy the <b>Giant Frog</b>.",
+					isHidden: function () {
+
+					}
+				},
+			],
+
+			howToStart: "Open your mail from <b>Captain Greenbeard</b>!",
+			levelRequirement: 8,
+			questRequirements: ["Overdraft"],
+		},
+		{
+			id: 24,
+			quest: "Tinker tbd",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Athena Tinker",
+					chat: [{
+						text: `tbd`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+				{
+					stepNum: 2,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Report to <b>tinkerer's name</b> in the Tinkerers' Workshop inside .",},
+				{id: 1, text: "Complete the conveyor belt game", 
+					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 2, text: "Complete the conveyor belt game",
+					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 3, text: "Complete the conveyor belt game",
+					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 4, text: "Complete the conveyor belt game",
+					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+				},
+				{id: 5, text: "Report to <b>tinkerer's name</b> in the Tinkerers' Workshop inside .",},
+			],
+
+			howToStart: "Speak to <b>Athena Tinker</b> in the <b>Eagle's Span Tavern</b>.",
+			levelRequirement: 8,
+			questRequirements: ["Underwater"],
+		},
+		{
+			id: 25,
+			quest: "conveyor belt game",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					onFinish: function () {
+						Player.quests.progress.eaglecrest[25].gameScore = 0; // initialise score variable
+						Dom.scoreboardInit({
+							timeLimit: 130,
+							variablesArray: [{keyName: "gameScore", title: "Score"}],
+							targetVariableIndex: 0,
+							targetValue: 20,
+							title: "Conveyor Belt Game",
+							questArea: "eaglecrest",
+							questId: 25,
+							randomEvents: [
+								{ // blue barrel
+									func: function () {
+										Game.things.push(new Thing(Game.prepareNPC({
+											x: 89.9, y: 909.3,
+											image: "toxicWasteBlue",
+											name: "Blue Barrel",
+											template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+											speed: Game.areaVariables.conveyorSpeed
+										}, "things")));
+									},
+									cooldown: 3000,
+								},
+								{ // red barrel
+									func: function () {
+										Game.things.push(new Thing(Game.prepareNPC({
+											x: 89.9, y: 909.3,
+											image: "toxicWasteRed",
+											name: "Red Barrel",
+											template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+											speed: Game.areaVariables.conveyorSpeed
+										}, "things")));
+									},
+									cooldown: 3000,
+								},
+								{ // green barrel
+									func: function () {
+										Game.things.push(new Thing(Game.prepareNPC({
+											x: 89.9, y: 909.3,
+											image: "toxicWasteGreen",
+											name: "Green Barrel",
+											template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+											speed: Game.areaVariables.conveyorSpeed
+										}, "things")));
+									},
+									cooldown: 3000,
+									requiredTimeElapsed: 14000
+								},
+								{ // explosives (destroy them with your weapon, otherwise they lose you points! but note barrels can be destroyed also...)
+									func: function () {
+						
+									},
+									cooldown: 1000,
+									requiredTimeElapsed: 14000,
+									weighting: 0.2,
+								},
+							],
+							eventSequence: [
+								{ // speed increase
+									func: function () {
+										for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+											Dom.scoreboard.randomEvents[i].cooldown = 2000;
+										}
+										// update movement speed of new objects
+										Game.areaVariables.conveyorSpeed = 200;
+										// update movement speed of old objects
+										for (let i = 0; i < Game.things.length; i++) {
+											if (Game.things.name === "Red Barrel" || Game.things.name === "Blue Barrel" || Game.things.name === "Green Barrel" || Game.things.name === "Explosive") {
+												Game.things[i].speed = Game.areaVariables.conveyorSpeed;
+											}
+										}
+										// tbd update tile animation speeds
+									}, time: 34300
+								},
+								// tbd manually summon an explosive a little before the second chat message
+							],
+							chatSequence: [
+								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
+								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `That explosive should not be there! Destroy it with your weapon, otherwise you will lose points.`,},],time: 56700},
+								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `Conveyor belts to speed 3.`,},],time: 96200},
+								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 113500}
+							],
+						})
+					}
+				},
+				{
+					stepNum: 1,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					rewards: {
+						xp: 50,
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Achieve a score of 15 or greater at the conveyor belt station.", associatedVariable:"scoreboardProgress"},
+				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+			],
+
+			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
+			levelRequirement: 8,
+			questRequirements: ["Underwater"],
+			requirement: function () {
+				return Player.quests.stepProgress.eaglecrest[24][1]; // completed step with id 2 of the tinkerer quest, i.e. spoken to the lead tinkerer
+			}
+		},
+		{
+			id: 26,
+			quest: "hidden objects game",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Find fifteen red <b>Intensity Lucents</b> around the <b>Tinkerers' Workshop</b>.",},
+				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+			],
+
+			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
+			levelRequirement: 8,
+			questRequirements: ["Underwater"],
+			requirement: function () {
+				return Player.quests.stepProgress.eaglecrest[24][1];
+			}
+		},
+		{
+			id: 27,
+			quest: "pipe drone game",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Pilot the drone to fix the pipes",},
+				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+			],
+
+			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
+			levelRequirement: 8,
+			questRequirements: ["Underwater"],
+			requirement: function () {
+				return Player.quests.stepProgress.eaglecrest[24][1];
+			}
+		},
+		{
+			id: 28,
+			quest: "foam game",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "tbd",},
+				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+			],
+
+			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
+			levelRequirement: 8,
+			questRequirements: ["Underwater"],
+			requirement: function () {
+				return Player.quests.stepProgress.eaglecrest[24][1];
+			}
+		},
+		{
+			id: 29,
+			quest: "Heart of Gold",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Tinkerer", // communication link to the tinkerers from the mech
+					chat: [{
+						text: `tbd`, // communication as you get in the mech (a function here should also put you in the mech)
+					},],
+				},
+				{
+					stepNum: 0,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`, // communication as you enter the frog queen base
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Tinkerer",
+					chat: [{
+						text: `tbd`,
+					},],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Enter the River Heart's Blessing and approach the Frog Queen's Base",},
+				{id: 0, text: "Enter the River Heart's Blessing and approach the Frog Queen's Base",},
+				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+			],
+
+			howToStart: "Collect the Mech by <b>River Heart's Blessing</b> in the centre of the Plains.",
+			levelRequirement: 8, // realistically they'll be at least level 9-10 by now
+			questRequirements: ["tinkerer quest tbd"],
 		},
 		/*{
 			id: 17,

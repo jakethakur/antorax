@@ -1375,6 +1375,7 @@ class Entity {
 
 		// optional function for when space is pressed when touching
 		this.onInteract = properties.onInteract;
+		this.interactCooldown = properties.interactCooldown; // cooldown between onInteract being able to be called, in seconds
 
 		// for if it can be mounted.. mountee position relative to this
 		this.rideAdjustX = properties.rideAdjustX || 0;
@@ -1416,7 +1417,9 @@ class Entity {
 		this.moveTowards = properties.moveTowards; // should be an object with an x and y, and a speed property if this entity doesn't have a .speed/this speed should be overriden
 		// movetowards can also be given a moveTowardsFinishFunction which is called when the locations is reached (not if it's interrupted before this!)
 		// note moveTowards is currently incompatible with player / enemy / projectile move towards - tbd merge them into this one :)
-		this.moveTowardsLoop = properties.moveTowardsLoop;// moveTowardsLoop is an optional array of moveTowards objects which are iterated through one after another
+
+		// moveTowardsLoop is an optional array of moveTowards objects which are looped through one after another 
+		this.moveTowardsLoop = properties.moveTowardsLoop;
 		if (typeof this.moveTowardsLoop !== "undefined") {
 			let startIndex;
 			if (typeof properties.moveTowardsLoopStartIndex !== "undefined") {
@@ -1432,6 +1435,18 @@ class Entity {
 			this.moveTowards = this.moveTowardsLoop[startIndex];
 			this.moveTowardsState = startIndex; // index in loop that is currently being followed
 		}
+		// moveTowardsSequence is an optional array of moveTowards objects which is only run through once
+		// these array elements can be functions, which return a moveTowards object (or "remove", which removes this object)
+		this.moveTowardsSequence = properties.moveTowardsSequence; 
+		if (typeof this.moveTowardsSequence !== "undefined") {
+			this.moveTowardsSequence.map(el => el); // copy
+			// function to be called once all of moveTowardsSequence has been finished
+			this.moveTowardsSequenceFinishFunc = properties.moveTowardsSequenceFinishFunc;
+
+			this.moveTowards = this.moveTowardsSequence[0];
+			this.moveTowardsState = 0; // index in sequence that is currently being followed
+		}
+		
 		this.speed = properties.speed; // potentially used with moveTowards
 
 		this.rotate = 0;
@@ -2453,6 +2468,7 @@ class Character extends Thing {
 		this.onDeath = properties.onDeath;
 		this.onDeathAdditional = properties.onDeathAdditional; // so that we can have an ondeath from the speciestemplate and from areadata for example
 		// onDeathAdditional doesn't require damage to be dealt by hero, but onDeath does!!!
+		// tbd these should be combined and turned into an array of ondeaths, where it can be optionally specified whether damage from hero is required
 
 
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
@@ -5383,7 +5399,7 @@ class Hero extends Attacker {
 				offsetX = 21;
 			}
 			if (this.animation.state !== 3) {
-				offsetY = -this.animation.state;
+				offsetY = 2-this.animation.state;
 			}
 			else {
 				offsetY = -1;
@@ -7176,7 +7192,6 @@ class LootChest extends Thing {
 	}
 }
 
-// can be looted
 class Cannon extends Thing {
 	constructor(properties) {
 		super(properties);
@@ -7230,6 +7245,26 @@ class Mailbox extends Thing {
         this.readImage = properties.readImage;
         this.unreadImage = properties.unreadImage;
     }
+}
+
+// used for area puzzles - these will attach to the player when they walk near, reducing their speed
+// if the player takes damage they will leave the player
+// if they reach near their target coordinates / entity, they leave the player and set a certain quest variable to be true (if desired)
+class Ley extends Thing {
+    constructor(properties) {
+        super(properties);
+
+		this.connectedToHero = false;
+
+        this.range = properties.range; // distance this must be from hero latch on / from target to leave hero
+    }
+
+	update () {
+		// see if it can connect
+		if (!this.connectedToHero && Game.distance(this, Game.hero) <= this.range) {
+			
+		}
+	}
 }
 
 //
@@ -8498,6 +8533,110 @@ Game.drawTrail = function (entity, trail) {
 }
 
 //
+// Quest preset functions
+//
+
+Game.questPresets = {};
+
+Game.questPresets.protect = function (properties) {
+	// commences a protect stage of a quest, where the player must protect a pre-summoned object for a given time period
+	// if the player leaves the area, or dies causing them to leave the area, or the object gets destroyed, then the stage is failed. if a quest is specified, a step can be un-completed or a quest can be abandoned (see below).
+	// note the object will need to be resummoned outside of this fn if it gets destroyed
+
+	// properties must include:
+	// protectObject: the object to be protected. a progress bar will be displayed above this object
+	// timePeriod: the length of time in milliseconds that the player must protect the object for
+
+	// properties may also include:
+
+	// randomEvents: an array of objects. these will be chosen and run at random.
+	// ^^^^^^^^^^^^^ each object should have a function property which would be called, and a cooldown (delay until the next random event is chosen)
+	// ^^^^^^^^^^^^^ optionally they can have a requiredTimeElapsed, which is a time that would have to have elapsed in ms before that fn can be called. they can also have a requirementFunction.
+
+	// eventSequence: an array of objects. these will be run as timeouts, independently to randomEvents if this exists. note these timeouts are all cleared if the protect is failed
+	// ^^^^^^^^^^^^^^ these objects contain a function property, and a time property (in ms) which specifies the time at which it will be called
+
+	// chatSequence: same as above, but for chat banners that are displayed. properties of each object are the usual chatBanner parameters (see questdata chat), and time property which is same as above
+	// note that these won't display if the player is currently talking to another NPC
+
+	// questArea and questId: the area and id of the related quest in questdata (note if this is specified, then upon completion, Player.quests.progress[questArea][questId].protectStageCompleted is set to questStep (or true if questStep not specified))
+	// questStep: the step of the quest that will be un-completed if the player fails (note that alternate dialogue can be specified for further attempts of this quest step, in questdata using the chatFailed dialouge)
+	// if questStep is the first step (0), then the quest is abandoned on fail
+
+	// onFinish is a function that is called upon the protection being successful for the timePeriod
+	// onFail is a function that is called upon the protection being unsuccessful for the timePeriod
+	// failMessage is the message that is sent to chat if the player is unsuccessful. note that if they log out mid quest, this will instead be sent in chat when they next log on
+
+	// progressBarColour: the colour the progress bar will be displayed as. as a hex code (inc. hash) standard channelling pink by default
+	// progressBarDescription: the text shown over the progress bar
+
+	// despawnEnemiesOnCompletion: TBA ??
+	
+	let channelSuccessFunction = function () {
+		if (typeof properties.questArea !== "undefined" && typeof properties.questId !== "undefined") {
+			if (typeof properties.questStep !== "undefined") {
+				Player.quests.progress[properties.questArea][properties.questId].protectStageCompleted = properties.questStep;
+			}
+			else {
+				Player.quests.progress[properties.questArea][properties.questId].protectStageCompleted = true;
+			}
+		}
+
+		if (typeof properties.onFinish !== "undefined") {
+			properties.onFinish();
+		}
+
+		Dom.quests.active();
+	};
+	properties.protectObject.channel(channelSuccessFunction, [], properties.timePeriod, properties.progressBarDescription, {colour: properties.progressBarColour});
+
+	// eventSequence
+	for (let i = 0; i < properties.eventSequence.length; i++) {
+		Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(properties.eventSequence[i].function, properties.eventSequence[i].time));
+	}
+	// chatSequence
+	for (let i = 0; i < properties.chatSequence.length; i++) {
+		Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(properties.chatSequence[i].function, properties.chatSequence[i].time));tbf
+	}
+
+	let onDeathFunction = function () {
+
+	};
+	if (typeof properties.protectObject.onDeathAdditional !== "undefined") {
+		console.error("protectObject's onDeathAdditional was previously defined and had to be overwritten.", properties.protectObject)
+	}
+	properties.protectObject.onDeathAdditional = onDeathFunction;
+
+	
+	if (typeof properties.protectObject.onDeathAdditional !== "undefined") {
+		console.error("protectObject's onDeathAdditional was previously defined and had to be overwritten.", properties.protectObject)
+	}
+	Areas[Game.areaName].callAreaLeaveOnLogout = true;
+	Areas[Game.areaName].onAreaLeave = function (logout) {
+		if ("tbd") { // check this hasn't been completed yet
+			let chat = "<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.";
+			if (logout) {
+				Player.chatOnJoin.push(chat);
+			}
+			else {
+				Dom.chat.insert(chat);
+			}
+			Dom.quest.abandon(Quests.eaglecrest[6]);
+		}
+
+
+	}
+
+	// tbd onAreaLeave and onDeath should optionally be arrays. and then the issue of overwriting existing fns will no longer exist :)
+	// you could also make functions which add onAreaLeave and onDeaths (dealing with cases where it is not yet an array, or hasn't yet been defined)
+}
+
+
+
+
+
+
+//
 // Tag minigame
 //
 
@@ -9002,6 +9141,11 @@ Game.loadArea = function (areaName, destination) {
 
 		this.areaName = areaName;
 
+		this.areaVariables = Areas[areaName].areaVariables;
+		if (typeof this.areaVariables === "undefined") {
+			this.areaVariables = {};
+		}
+
 		// save data information
 		Player.areaName = areaName;
         Player.displayAreaName = Areas[areaName].data.name;
@@ -9104,7 +9248,7 @@ Game.loadArea = function (areaName, destination) {
 		if (typeof this.allEntities !== "undefined") {
 			for (let i = 0; i < this.allEntities.length; i++) {
 				if (this.allEntities[i].constructor.name !== "Hero") {
-					this.removeObject(this.allEntities[i].id, this.allEntities[i].type);
+					this.removeObject(this.allEntities[i].id, this.allEntities[i].type); // this automatically removes any channelling functions etc.
 				}
 			}
 		}
@@ -10867,6 +11011,11 @@ Game.update = function (delta) {
 	}
 
 	//
+	// Scoreboard
+	//
+	Dom.scoreboardTimerUpdate(delta);
+
+	//
 	// Spell cooldowns
 	//
 
@@ -11923,6 +12072,10 @@ Game.update = function (delta) {
 			// hero not touching
 			canInteract = false;
 		}
+		else if (thing.interactOnCooldown) {
+			// interact on cooldown, due to interactCooldown property
+			canInteract = false;
+		}
 		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
 			// hero is playing minigame
 			canInteract = false;
@@ -11932,6 +12085,14 @@ Game.update = function (delta) {
 			let interactFunction = thing.onInteract.bind(thing);
 			interactFunction();
 			Dom.checkProgress();
+
+			if (typeof thing.interactCooldown !== "undefined") { // cooldown between interactions, to avoid one press of space triggering it many times
+				thing.interactOnCooldown = true;
+				let func = function () {
+					thing.interactOnCooldown = false;
+				};
+				this.setTimeout(func, thing.interactCooldown*1000);
+			}
 		}
 	}
 
@@ -12025,12 +12186,12 @@ Game.update = function (delta) {
 
 			entity.totalDistanceWalked += Math.sqrt((dirx * speed * delta)*(dirx * speed * delta) + (diry * speed * delta)*(diry * speed * delta))
 
-			let smallNudge = speed * 0.01;
+			let smallNudge = speed * 0.02;
 
 			// check if destination has been reached
 			if (Math.round(entity.x) < entity.moveTowards.x + smallNudge && Math.round(entity.x) > entity.moveTowards.x - smallNudge
 			&& Math.round(entity.y) < entity.moveTowards.y + smallNudge && Math.round(entity.y) > entity.moveTowards.y - smallNudge) {
-				// destination reached
+				// moveTowards destination reached
 
 				// put them directly at the destination
 				entity.x = entity.moveTowards.x;
@@ -12044,9 +12205,50 @@ Game.update = function (delta) {
 				// remove moveTowards
 				entity.moveTowards = undefined;
 
-				// some entities now begin another moveTowards
+				// some entities now begin another moveTowards, via moveTowardsSequence or moveTowardsLoop
 				// see entity class definition for more info <3
-				if (typeof entity.moveTowardsLoop !== "undefined") {
+				if (typeof entity.moveTowardsSequence !== "undefined") {
+					entity.moveTowardsState++;
+					if (entity.moveTowardsState >= entity.moveTowardsSequence.length) {
+						// sequence has finished
+						if (typeof entity.moveTowardsSequenceFinishFunc !== "undefined") {
+							entity.moveTowardsSequenceFinishFunc();
+						}
+						entity.moveTowardsSequence = undefined;
+						entity.moveTowardsSequenceFinishFunc = undefined;
+					}
+					else {
+						if (typeof entity.moveTowardsSequence[entity.moveTowardsState] === "function") {
+							// a function which returns the move towards
+							// if this returns "remove", the object will be removed instead
+							// if this returns undefined, the moveTowards is removed, and no further moveTowardsSequence steps will be reached
+							let func = entity.moveTowardsSequence[entity.moveTowardsState].bind(entity);
+							let newMoveTowards = func();
+
+							// make a new moveTowardsSequence composed of newMoveTowards and everything left in moveTowardsSequence
+							if (!Array.isArray(newMoveTowards)) {
+								newMoveTowards = [newMoveTowards];
+							}
+							for (let i = entity.moveTowardsState+1; i < entity.moveTowardsSequence.length; i++) {
+								newMoveTowards.push(entity.moveTowardsSequence[i]);
+							}
+
+							entity.moveTowardsSequence = newMoveTowards;
+							entity.moveTowardsState = 0;
+						}
+
+						if (entity.moveTowardsSequence[entity.moveTowardsState] === "remove") {
+							if (typeof entity.moveTowardsSequenceFinishFunc !== "undefined") {
+								entity.moveTowardsSequenceFinishFunc();
+							}
+							this.removeObject(entity.id, entity.type);
+						}
+						else {
+							entity.moveTowards = entity.moveTowardsSequence[entity.moveTowardsState];
+						}
+					}
+				}
+				else if (typeof entity.moveTowardsLoop !== "undefined") {
 					entity.moveTowardsState++;
 					if (entity.moveTowardsState >= entity.moveTowardsLoop.length) {
 						entity.moveTowardsState = 0; // loop round

@@ -175,6 +175,7 @@ let Dom = {
 		reputationPage: document.getElementById("reputationPage"),
 		reputationWrapper: document.getElementById("reputationWrapper"),
 		rightArrow: document.getElementById("rightArrow"),
+		scoreboard: document.getElementById("scoreboard"),
 		secondary: document.getElementById("secondary"),
 		set: document.getElementById("set"),
 		settingAcceptHolder: document.getElementById("settingAcceptHolder"),
@@ -2958,6 +2959,9 @@ Dom.quests.active = function (quest) {
 		Player.quests.activeQuestArray.push(quest.quest);
 	}
 
+	// update scoreboard (if one is active) 
+	Dom.scoreboardUpdate();
+
 	Dom.elements.activeQuestBox.style.textAlign = "left";
 
 	// classification of quests
@@ -3289,6 +3293,295 @@ Dom.quests.other = function () {
 		Dom.elements.otherQuestBox.style.textAlign = "center";
 		Dom.elements.otherQuestBox.innerText = "You have unlocked every quest";
 	}
+}
+
+
+//
+// Scoreboard
+//
+
+// initialise a scoreboard which keeps track of variables, typically for a minigame being completed in a single area
+// not always visible, but optionally, a visual scoreboard appears below the mana bar
+Dom.scoreboardInit = function (properties) {
+    // this is the only way that Dom.scoreboard can be initialised! usually related to a quest (through the properties.questArea and questId values), but doesn't have to be
+    // this function will fail and send a console.error if Dom.scoreboard is currently being used
+    // the Dom.scoreboard is removed on area leave or on quest abandon (if a quest is specified in properties)
+   
+    // the scoreboard is updated by Dom.scoreboard.update, which is called when Dom.quests.active is called
+    // it should only be updated via Dom.quests.active to avoid scoreboard being updated without quest log update (as it is likely they will both share variables)
+   
+    // properties parameter is an object which includes properties:
+   
+    // timeLimit: IN SECONDS, the time after which the challenge ends. optional.
+    // endOnceTargetReached: if set to true, the scoreboard is terminated once a target function returns true. otherwise, it keeps going until timeLimit is reached (or area is left in the case of no time limit)
+    // targetFunction can access any values in Dom.scoreboard.variablesArray, and should return true if the scoreboard has been "succeeded"
+	// alternatively, targetVariableIndex, targetValue and targetComparisonType can be used instead. targetVariableIndex is the variable index in the variablesArray. targetComparisonType can be "equality" or "geq" (greater than or equal to). default is geq.
+	// successFunction is called once on success before the scoreboard is removed
+    // failFunction is called once on failure before the scoreboard is removed. note this and the above are optional, and can both access values in Dom.scoreboard.variablesArray
+	// there does not need to be a success or failure!! can ignore all of this if desired
+	// callFailFunctionOnAbandon is set to true if failFunction should be called even after leaving the area or abandoning the quest
+
+    // variablesArray: an array of objects, which make up the values used for the scoreboard display, and potentially also validation of whether the task has been completed at the end (i.e. for if you want to save any function values)
+    // this is saved in Dom.scoreboard.variablesArray, and updated by Dom.scoreboard.update
+    // these objects should be of the form {keyName: String, func: function(){}, title: String, doNotClear: Boolean}
+    // keyName is key name of variable in Player.quests.progress[questArea][questId] (provided questArea and questId are specified)
+    // alternatively func can be specified. only one or the other per object is needed!
+    // the value of the keyName variable or function output is stored as object.value in Dom.scoreboard
+    // title is an optional. if one is specified, the value is displayed on the scoreboard as "Title: value" rather than just as value. Usually a good idea unless your value is a string!
+    // doNotClear is set to true if the variable stored at keyName should not be cleared (set to undefined) upon the scoreboard being finished (irrespective of success/fail) [by default these variables are cleared!]
+
+	// if success, then if a quest is set, Player.quests.progress[questArea][questId][progressKey] is set to questStep (or true if questStep not defined) (progressKey defaults to "scoreboardSuccess" if not defined)
+
+    // onscreen scoreboard's dom properties (all of these are optional)
+    // this scoreboard optionally appears below the mana bar to show minigame progress
+    //
+    // displayScoreboard: set to false if you don't want to display it. defaults to true
+    // title: the title of the scoreboard, if you want one to be displayed
+    // displayTimer: set to false if timer (increasing in time if no time limit, or counting down if there is a time limit) shouldn't be displayed. defaults to true
+    //    ''         the location of the timer defaults to the bottom of the scoreboard; this should be set to "top" to make it default to the top (below the title)
+
+	// randomEvents, eventSequence and chatSequence - see below
+
+	if (typeof this.scoreboard === "undefined") {
+		this.scoreboard = {};
+		// read the comments above for what the properties do
+
+		this.scoreboard.questArea = properties.questArea;
+		this.scoreboard.questId = properties.questId;
+		this.scoreboard.questStep = properties.questStep;
+
+		// ending behaviour
+		this.scoreboard.timeLimit = properties.timeLimit;
+		this.scoreboard.endOnceTargetReached = properties.endOnceTargetReached;
+		this.scoreboard.targetFunction = properties.targetFunction;
+		this.scoreboard.targetVariableIndex = properties.targetVariableIndex;
+		this.scoreboard.targetValue = properties.targetValue;
+		this.scoreboard.targetComparisonType = properties.targetComparisonType||"geq";
+		this.scoreboard.successFunction = properties.successFunction;
+		this.scoreboard.failFunction = properties.failFunction;
+		this.scoreboard.callFailFunctionOnAbandon = properties.callFailFunctionOnAbandon;
+		this.scoreboard.progressKey = properties.progressKey || "scoreboardProgress";
+
+		// runtime behaviour
+		this.scoreboard.variablesArray = properties.variablesArray;
+
+		// visual behaviour
+		this.scoreboard.displayScoreboard = properties.displayScoreboard;
+		if (typeof this.scoreboard.displayScoreboard === "undefined") {
+			this.scoreboard.displayScoreboard = true;
+		}
+		this.scoreboard.title = properties.title;
+		this.scoreboard.displayTimer = properties.displayTimer;
+		if (typeof this.scoreboard.displayTimer === "undefined") {
+			this.scoreboard.displayTimer = true;
+		}
+		
+		this.scoreboard.clearTimeoutsOnFinish = [];
+		// randomEvents: an array of objects. these will be chosen and run at random.
+		// ^^^^^^^^^^^^^ each object should have a func property which would be called, and a cooldown (delay until the next random event is chosen)
+		// ^^^^^^^^^^^^^ optionally they can have a requiredTimeElapsed, which is a time that would have to have elapsed in ms before that fn can be called. they can also have a requirementFunction.
+		// randomEventsInitialTimeout property can also be set, to allow a grace period before the events begin
+		// each time the timeout finishes, Dom.scoreboardRandomEvent is called, and a new timeout is set
+		if (typeof properties.randomEvents !== "undefined") {
+			this.scoreboard.randomEvents = properties.randomEvents;
+			let time = 0;
+			if (typeof properties.randomEventsInitialTimeout !== "undefined") {
+				time = properties.randomEventsInitialTimeout;
+			}
+			let randomEventsTimeout = Game.setTimeout(Dom.scoreboardRandomEvents, time);
+			Game.clearedTimeoutsOnAreaChange.push(randomEventsTimeout);
+			this.scoreboard.clearTimeoutsOnFinish.push(randomEventsTimeout)
+		}
+		// eventSequence: an array of objects. these will be run as timeouts, independently to randomEvents if this exists. note these timeouts are all cleared if the protect is failed
+		// ^^^^^^^^^^^^^^ these objects contain a func property, and a time property (in ms) which specifies the time at which it will be called
+		if (typeof properties.eventSequence !== "undefined") {
+			for (let i = 0; i < properties.eventSequence.length; i++) {
+				let timeout = Game.setTimeout(properties.eventSequence[i].func, properties.eventSequence[i].time);
+				Game.clearedTimeoutsOnAreaChange.push(timeout);
+				this.scoreboard.clearTimeoutsOnFinish.push(timeout)
+			}
+		}
+		// chatSequence: same as above, but for chat banners that are displayed. properties of each object are the usual chatBanner parameters (see questdata chat), and time property which is same as above
+		// note that these won't display if the player is currently talking to another NPC
+		if (typeof properties.chatSequence !== "undefined") {
+			for (let i = 0; i < properties.chatSequence.length; i++) {
+				let timeout = Game.setTimeout(Dom.chat.npcBanner, properties.chatSequence[i].time, [properties.chatSequence[i].npc, properties.chatSequence[i].chat]);
+				Game.clearedTimeoutsOnAreaChange.push(timeout);
+				this.scoreboard.clearTimeoutsOnFinish.push(timeout)
+			}
+		}
+
+		// update the DOM to display information
+		if (this.scoreboard.displayScoreboard) {
+			this.elements.scoreboard.innerHTML = "";
+
+			if (typeof this.scoreboard.title !== "undefined") {
+				this.elements.scoreboard.innerHTML += "<b id='scoreboardTitle'><b id='scoreboardTitle'><br><br>";
+			}
+
+			for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
+				let variable = this.scoreboard.variablesArray[i];
+				this.elements.scoreboard.innerHTML += "<p class='scoreboardVariable' id='scoreboardVariable"+i+"'></p><br>";
+			}
+
+			this.scoreboardUpdateVisual(); // set textContent values for the above
+
+			if (this.scoreboard.displayTimer) {
+				this.elements.scoreboard.innerHTML += "<br><p id='scoreboardTimer'></p><br>";
+				this.scoreboardTimerUpdate(0); // sets innerhtml
+			}
+
+			this.elements.scoreboard.hidden = false;
+		}
+	}
+	else {
+		console.error("Dom.scoreboardInit was called, but Dom.scoreboard has already been defined as", this.scoreboard);
+		return false;
+	}
+}
+
+// scoreboard is updated by Game.scoreboardUpdate, which is pretty much only called when Dom.quests.active is called
+// this should only be called via Dom.quests.active to avoid scoreboard being updated without quest log update (as it is likely they will both share variables)
+// note scoreboard.timer is updated in Game.update. if it exceeds timelimit, this function is called directly
+Dom.scoreboardUpdate = function () {
+	if (typeof this.scoreboard !== "undefined") {
+		for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
+			let foo = this.scoreboard.variablesArray[i];
+			if (typeof foo.func !== "undefined") {
+				foo.value = foo.func();
+			}
+			else if (typeof foo.keyName !== "undefined") {
+				foo.value = Player.quests.progress[this.scoreboard.questArea][this.scoreboard.questId][foo.keyName];
+			}
+		}
+
+		// note that scoreboard.timer is updated in Game.update each tick
+		let result = true; // success (true) or failure (f)! neither of these might exist, in which case no successFunction is set and nothing is changed
+		if (typeof this.scoreboard.targetFunction !== "undefined") {
+			result = this.scoreboard.targetFunction();
+		}
+		else if (typeof this.scoreboard.targetVariableIndex !== "undefined") {
+			let value = this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex];
+			if (this.scoreboard.targetComparisonType === "geq" && value<this.scoreboard.targetValue) {
+				result = false;
+			}
+			else if (this.scoreboard.targetComparisonType === "equality" && value!==this.scoreboard.targetValue) {
+				result = false;
+			}
+		}
+
+		if (typeof this.scoreboard.timeLimit !== "undefined" && this.scoreboard.timer >= this.scoreboard.timeLimit) { // note both are measured in seconds
+			// time is up - run functions then clear variables and scoreboard
+			this.scoreboardFinish(result);
+		}
+		else if (result && this.endOnceTargetReached) {
+			// time has not yet finished yet (if there is time), but the player has succeeded at the minigame 
+			this.scoreboardFinish(result);
+		}
+		else if (this.scoreboard.displayScoreboard) {
+			this.scoreboardUpdateVisual();
+		}
+	}
+}
+
+// update the variable and title displays on the scoreboard
+// it is assumed that this is only called if a scoreboard has been initiated, and should be shown (as this will only be called by scoreboardInit and scoreboardUpdate)
+Dom.scoreboardUpdateVisual = function () {
+	if (typeof this.scoreboard.title !== "undefined") {
+		document.getElementById("scoreboardTitle").textContent = this.scoreboard.title;
+	}
+
+	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
+		let variable = this.scoreboard.variablesArray[i];
+		if (typeof variable.title !== "undefined") {
+			document.getElementById("scoreboardVariable"+i).textContent = variable.title+": "+variable.value;
+		}
+		else {
+			document.getElementById("scoreboardVariable"+i).textContent = variable.value;
+		}
+	}
+}
+
+// called by Game.update every tick
+Dom.scoreboardTimerUpdate = function (delta) {
+	if (typeof this.scoreboard !== "undefined") {
+		if (typeof this.scoreboard.timer === "undefined") {
+			this.scoreboard.timer = 0;
+		}
+		// it is measured in seconds
+		this.scoreboard.timer += delta;
+
+		if (Dom.scoreboard.timer >= Dom.scoreboard.timeLimit) {
+			this.scoreboardUpdate();
+		}
+
+		// visual update of timer
+		if (typeof this.scoreboard !== "undefined" && this.scoreboard.displayTimer) { // includes a check that scoreboard didn't finish (in above scoreboardUpdate function)
+			if (typeof this.scoreboard.timeLimit !== "undefined") {
+				let timeRemaining = this.scoreboard.timeLimit - this.scoreboard.timer;
+				document.getElementById("scoreboardTimer").textContent = "Time remaining: "+Round(timeRemaining,1)+"s";
+			}
+			else {
+				document.getElementById("scoreboardTimer").textContent = "Time elapsed: "+this.scoreboard.timer+"s";
+			}
+		}
+	}
+}
+
+// random events for scoreboard, called on a timeout (see above)
+Dom.scoreboardRandomEvents = function () {
+	let filteredEvents = Dom.scoreboard.randomEvents.filter(event => (typeof event.requirementFunction === "undefined" || event.requirementFunction())
+		&& (typeof event.requiredTimeElapsed === "undefined" || Dom.scoreboard.timer >= event.requiredTimeElapsed/1000));
+
+	let chosenEventIndex = Random(0, filteredEvents.length-1);
+	let event = filteredEvents[chosenEventIndex];
+
+	event.func();
+
+	let randomEventsTimeout = Game.setTimeout(Dom.scoreboardRandomEvents, event.cooldown);
+	Game.clearedTimeoutsOnAreaChange.push(randomEventsTimeout);
+	Dom.scoreboard.clearTimeoutsOnFinish.push(randomEventsTimeout)
+}
+
+// called when scoreboard has finished, from Dom.scoreboardUpdate
+// resets (sets to undefined) scoreboard, as well as relevant variables. also runs success/fail function
+// result is true/false depending on whether the player has succeeded or failed
+Dom.scoreboardFinish = function (result) {
+	if (result === true) {
+		// success!
+		if (typeof this.scoreboard.successFunction !== "undefined") {
+			this.scoreboard.successFunction();
+		}
+
+		// if a quest has been defined, update a quest variable
+		if (typeof this.scoreboard.questArea !== "undefined" && typeof this.scoreboard.questId !== "undefined") {
+			if (typeof this.scoreboard.questStep !== "undefined") {
+				Player.quests.progress[this.scoreboard.questArea][this.scoreboard.questId][this.scoreboard.progressKey] = this.scoreboard.questStep;
+			}
+			else {
+				Player.quests.progress[this.scoreboard.questArea][this.scoreboard.questId][this.scoreboard.progressKey] = true;
+			}
+		}
+	}
+	else if (result === false || (result === "abandon" && this.scoreboard.callFailFunctionOnAbandon)) {
+		// failure
+		if (typeof this.scoreboard.failFunction !== "undefined") {
+			this.scoreboard.failFunction();
+		}
+	}
+
+	// clear variables
+	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
+		let foo = this.scoreboard.variablesArray[i];
+		if (typeof foo.keyName !== "undefined" && !foo.doNotClear) {
+			Player.quests.progress[this.scoreboard.questArea][this.scoreboard.questId][foo.keyName] = undefined;
+		}
+	}
+
+	this.scoreboard = undefined;
+	Dom.elements.scoreboard.hidden = true;
+
+	Dom.quests.active();
 }
 
 

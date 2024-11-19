@@ -1782,18 +1782,16 @@ const EnemyTemplates = {
 			hostility: "neutral",
 			level: 5,
 			stats: {
-				damage: 3,
-				walkSpeed: 95,
+				damage: 4,
+				walkSpeed: 40,
 				swimSpeed: 40,
-				iceSpeed: 160,
-				maxHealth: 24,
-				defence: 2,
-				range: 390,
-				reloadTime: 1550,
-				healthRegen: 0.4,
+				iceSpeed: 40,
+				maxHealth: 36,
+				defence: 0,
+				range: 666,
+				reloadTime: 666,
+				healthRegen: 0,
 				flaming: 1,
-				lootTime: 15000,
-				respawnTime: 30000,
 				projectileSpeed: 200,
 				projectileRange: 400,
 			},
@@ -2582,6 +2580,57 @@ stoneElemental: {
 		},
 	},
 };
+
+
+//
+// Templates for entities for quests
+//
+const QuestTemplates = {
+	eaglecrest: {
+		// barrel for tinkerers conveyor belt quest
+		conveyorGameBarrel: {
+			moveTowardsSequence: [
+				{x: 89.9, y: 1616,},
+				{x: 89.9, y: 1616,},
+				{x: 570.3, y: 1616,},
+				function () {
+					if (Game.areaVariables.conveyorDirection1 === "up") {
+						if (this.name === "Blue Barrel") {
+							// correct barrel; increase score upon route being finished
+							this.moveTowardsSequenceFinishFunc = function () {
+								Player.quests.progress.eaglecrest[25].gameScore++;
+							}
+						}
+						return [{x: 570.3, y: 1335.7,}, "remove"]
+					}
+					else if (Game.areaVariables.conveyorDirection1 === "down") {
+						return [{x: 570.3, y: 1793.1,}, {x: 993.8, y: 1793.1,}, function () {
+							if (Game.areaVariables.conveyorDirection2 === "up") {
+								if (this.name === "Red Barrel") {
+									// correct barrel; increase score upon route being finished
+									this.moveTowardsSequenceFinishFunc = function () {
+										Player.quests.progress.eaglecrest[25].gameScore++;
+									}
+								}
+								return [{x: 990.8, y: 1323.7,}, "remove"]
+							}
+							else if (Game.areaVariables.conveyorDirection2 === "down") {
+								if (this.name === "Green Barrel") {
+									// correct barrel; increase score upon route being finished
+									this.moveTowardsSequenceFinishFunc = function () {
+										Player.quests.progress.eaglecrest[25].gameScore++;
+									}
+								}
+								return [{x: 993.8, y: 1906.2,}, {x: 1891.7, y: 1906.2,}, {x: 1891.7, y: 1332.7,}, "remove"]
+							}
+						}]
+					}
+				}
+			],
+		}
+	}
+};
+
 
 
 const MountTemplates = {

@@ -1220,6 +1220,23 @@ left: 55px;
 	display: block;
 }
 
+/*						*/
+/*		SCOREBOARD		*/
+/*						*/
+
+#scoreboard{
+	position: absolute;
+	width: 250px;
+	top: 150px;
+	left: 10px;
+	background-color: var(--alert);
+	border: 5px solid var(--border);
+	opacity: 0.5;
+	font-size: 25px;
+	padding: 20px;
+	padding-bottom: 10px;
+}
+
 /*					*/
 /*		ALERT		*/
 /*					*/
