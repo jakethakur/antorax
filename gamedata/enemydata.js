@@ -1352,7 +1352,7 @@ const EnemyTemplates = {
                 Player.quests.questProgress.coyoteWranglers = Increment(Player.quests.questProgress.coyoteWranglers);
 
                 // resettable variables for quest
-                Player.quests.progress.eaglecrest[11].coyoteWranglers = Increment(Player.quests.progress.eaglecrest[11].coyoteWranglers);
+                Player.quests.prog.eaglecrest[11].vars.coyoteWranglers = Increment(Player.quests.prog.eaglecrest[11].vars.coyoteWranglers);
             }
 		},
 
@@ -2598,7 +2598,17 @@ const QuestTemplates = {
 						if (this.name === "Blue Barrel") {
 							// correct barrel; increase score upon route being finished
 							this.moveTowardsSequenceFinishFunc = function () {
-								Player.quests.progress.eaglecrest[25].gameScore++;
+								Player.quests.prog.eaglecrest[25].vars.gameScore++;
+								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+								Dom.quests.active();
+							}
+						}
+						else {
+							// incorrect barrel
+							this.moveTowardsSequenceFinishFunc = function () {
+								Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
+								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+								Dom.quests.active();
 							}
 						}
 						return [{x: 570.3, y: 1335.7,}, "remove"]
@@ -2609,7 +2619,17 @@ const QuestTemplates = {
 								if (this.name === "Red Barrel") {
 									// correct barrel; increase score upon route being finished
 									this.moveTowardsSequenceFinishFunc = function () {
-										Player.quests.progress.eaglecrest[25].gameScore++;
+										Player.quests.prog.eaglecrest[25].vars.gameScore++;
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Dom.quests.active();
+									}
+								}
+								else {
+									// incorrect barrel
+									this.moveTowardsSequenceFinishFunc = function () {
+										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Dom.quests.active();
 									}
 								}
 								return [{x: 990.8, y: 1323.7,}, "remove"]
@@ -2618,7 +2638,17 @@ const QuestTemplates = {
 								if (this.name === "Green Barrel") {
 									// correct barrel; increase score upon route being finished
 									this.moveTowardsSequenceFinishFunc = function () {
-										Player.quests.progress.eaglecrest[25].gameScore++;
+										Player.quests.prog.eaglecrest[25].vars.gameScore++;
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Dom.quests.active();
+									}
+								}
+								else {
+									// incorrect barrel
+									this.moveTowardsSequenceFinishFunc = function () {
+										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Dom.quests.active();
 									}
 								}
 								return [{x: 993.8, y: 1906.2,}, {x: 1891.7, y: 1906.2,}, {x: 1891.7, y: 1332.7,}, "remove"]

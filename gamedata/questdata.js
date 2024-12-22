@@ -1738,15 +1738,15 @@ var Quests = {
 
 			onQuestStart: function () {
 				if (Game.areaName === "eaglecrestLoggingCamp") {
-					if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined) {
+					if (Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === null || Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === undefined) {
 						Areas.eaglecrestLoggingCamp.npcs[9] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true);
 						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
 	                }
-					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 5) {
+					else if (Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 5) {
 						Areas.eaglecrestLoggingCamp.npcs[10] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[10], "npcs", true);
 						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[10]));
 					}
-					else if (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 8) {
+					else if (Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 8) {
 						Areas.eaglecrestLoggingCamp.npcs[11] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[11], "npcs", true);
 						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[11]));
 					}
@@ -3066,7 +3066,7 @@ var Quests = {
 				},
 				{id: 1, text: "Use the King of Herrings Bait to fish up the <b>King of Herrings</b> located in <b>Eaglecrest Well</b>, then return to <b>Fisher Sharptooth</b> to make it into bait.",
 					isHidden: function () {
-						return !Player.quests.progress.eaglecrest[14].herringBaitObtained;
+						return !Player.quests.prog.eaglecrest[14].vars.herringBaitObtained;
 					},
 					isCompleted: function () {
 						return (Dom.inventory.check(40, "fish", 1) ||
@@ -3076,7 +3076,7 @@ var Quests = {
 				},
 				{id: 2, text: "Use the Lake Lurker Bait to fish up the <b>Lake Lurker</b> located in <b>Eaglecrest Well</b>.",
 					isHidden: function () {
-						return !Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained;
+						return !Player.quests.prog.eaglecrest[14].vars.lakeLurkerBaitObtained;
 					},
 					isCompleted: function () {
 						return Player.quests.questProgress.lakeLurkerLastCaught === GetFullDate();
@@ -3084,7 +3084,7 @@ var Quests = {
 				},
 				{id: 3, text: "Defeat the <b>Lake Lurker</b>.",
 					isHidden: function () {
-						return !Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained;
+						return !Player.quests.prog.eaglecrest[14].vars.lakeLurkerBaitObtained;
 					},
 					isCompleted: function () {
 						return Player.bossesKilled.lakeLurker === GetFullDate();
@@ -3092,7 +3092,7 @@ var Quests = {
 				},
 				{id: 4, text: "Return to <b>Fisher Sharptooth</b>.",
 					isHidden: function () {
-						return !Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained;
+						return !Player.quests.prog.eaglecrest[14].vars.lakeLurkerBaitObtained;
 					},
 				},
 			],
@@ -4073,7 +4073,7 @@ var Quests = {
 		},
 		{
 			id: 24,
-			quest: "Tinker tbd",
+			quest: "Build-A-Mech",
 			questArea: "eaglecrest",
 
 			steps: [
@@ -4135,24 +4135,35 @@ var Quests = {
 		},
 		{
 			id: 25,
-			quest: "conveyor belt game",
+			quest: "Quality Assurance",
 			questArea: "eaglecrest",
 
 			steps: [
 				{
 					stepNum: 0,
-					name: "Tinkerer",
+					name: "Technician Ustinov",
 					chat: [{
-						text: `tbd`,
-					},],
+						text: `Glug glog-hello there.`,
+					},{
+						text: `Perfect timing - we're due to be sent a supply of mech parts in a few minutes.`,
+					},{
+						text: `All I'll need you to do is pull the <b>Purple Lever</b> and <b>Yellow Lever</b> to sort the barrels to the rigght colour hatch.`,
+					},{
+						text: `A few mistakes is fine, but we'll need at least 76% of them sorted to their correct hatches!`,
+					},{
+						text: `Glog-here they come now!`,
+					}],
 					onFinish: function () {
-						Player.quests.progress.eaglecrest[25].gameScore = 0; // initialise score variable
+						Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
+						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0; 
+						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 100; 
+						Player.quests.prog.eaglecrest[25].vars.percentageCorrectDisplay = "100%"; 
 						Dom.scoreboardInit({
-							timeLimit: 130,
-							variablesArray: [{keyName: "gameScore", title: "Score"}],
+							timeLimit: 110,
+							variablesArray: [{keyName: "percentageCorrect", title: "Success Rate", displayAs: "percentage"}],
 							targetVariableIndex: 0,
-							targetValue: 20,
-							title: "Conveyor Belt Game",
+							targetValue: 50,
+							title: "Quality Assurance",
 							questArea: "eaglecrest",
 							questId: 25,
 							randomEvents: [
@@ -4191,50 +4202,101 @@ var Quests = {
 										}, "things")));
 									},
 									cooldown: 3000,
-									requiredTimeElapsed: 14000
+									requiredTimeElapsed: 11000
 								},
-								{ // explosives (destroy them with your weapon, otherwise they lose you points! but note barrels can be destroyed also...)
+								/*{ // explosives (destroy them with your weapon, otherwise they lose you points! but note barrels can be destroyed also...)
 									func: function () {
 						
 									},
 									cooldown: 1000,
 									requiredTimeElapsed: 14000,
 									weighting: 0.2,
-								},
+								},*/
 							],
 							eventSequence: [
 								{ // speed increase
 									func: function () {
 										for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
-											Dom.scoreboard.randomEvents[i].cooldown = 2000;
+											Dom.scoreboard.randomEvents[i].cooldown = 2300; // 3000 -> 2300
 										}
 										// update movement speed of new objects
-										Game.areaVariables.conveyorSpeed = 200;
+										Game.areaVariables.conveyorSpeed = 130; // 100 -> 130
 										// update movement speed of old objects
 										for (let i = 0; i < Game.things.length; i++) {
-											if (Game.things.name === "Red Barrel" || Game.things.name === "Blue Barrel" || Game.things.name === "Green Barrel" || Game.things.name === "Explosive") {
+											if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
 												Game.things[i].speed = Game.areaVariables.conveyorSpeed;
 											}
 										}
-										// tbd update tile animation speeds
+										// update tile animation speeds
+										for (let i = 0; i < map.animateTiles.length; i++) {
+											if (map.animateTiles[i].conveyor) {
+												let intervalNum = map.animateTiles[i].intervalNumber;
+												Game.changeInterval(intervalNum, 138); // 180 -> 138
+											}
+										}
 									}, time: 34300
 								},
-								// tbd manually summon an explosive a little before the second chat message
+								{ // speed increase
+									func: function () {
+										for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+											Dom.scoreboard.randomEvents[i].cooldown = 1500; // 2300 -> 1500
+										}
+										// update movement speed of new objects
+										Game.areaVariables.conveyorSpeed = 200; // 130 -> 200
+										// update movement speed of old objects
+										for (let i = 0; i < Game.things.length; i++) {
+											if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
+												Game.things[i].speed = Game.areaVariables.conveyorSpeed;
+											}
+										}
+										// update tile animation speeds
+										for (let i = 0; i < map.animateTiles.length; i++) {
+											if (map.animateTiles[i].conveyor) {
+												let intervalNum = map.animateTiles[i].intervalNumber;
+												Game.changeInterval(intervalNum, 90); // 138 -> 90
+											}
+										}
+									}, time: 66200
+								},
+								{ // speed increase
+									func: function () {
+										for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+											Dom.scoreboard.randomEvents[i].cooldown = 1000; // 1500 -> 1000
+										}
+										// update movement speed of new objects
+										Game.areaVariables.conveyorSpeed = 300; // 200 -> 300
+										// update movement speed of old objects
+										for (let i = 0; i < Game.things.length; i++) {
+											if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
+												Game.things[i].speed = Game.areaVariables.conveyorSpeed;
+											}
+										}
+										// update tile animation speeds
+										for (let i = 0; i < map.animateTiles.length; i++) {
+											if (map.animateTiles[i].conveyor) {
+												let intervalNum = map.animateTiles[i].intervalNumber;
+												Game.changeInterval(intervalNum, 60); // 180 -> 60
+											}
+										}
+									}, time: 98200
+								},
 							],
 							chatSequence: [
-								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
-								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `That explosive should not be there! Destroy it with your weapon, otherwise you will lose points.`,},],time: 56700},
-								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `Conveyor belts to speed 3.`,},],time: 96200},
-								{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 113500}
+								{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
+								//{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `That explosive should not be there! Destroy it with your weapon, otherwise you will lose points.`,},],time: 56700},
+								{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 66200},
+								{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 98200}
 							],
 						})
 					}
 				},
 				{
 					stepNum: 1,
-					name: "Tinkerer",
+					name: "Technician Ustinov",
 					chat: [{
-						text: `tbd`,
+						text: `Glglg-wonderful work!`,
+					},{
+						text: `Come back and help out again if you gget a chance.`,
 					},],
 					rewards: {
 						xp: 50,
@@ -4243,33 +4305,38 @@ var Quests = {
 			],
 
 			objectivesList: [
-				{id: 0, text: "Achieve a score of 15 or greater at the conveyor belt station.", associatedVariable:"scoreboardProgress"},
-				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+				{id: 0, text: "Achieve a success rate of 76% or greater at the conveyor belt station, to the left of the <b>Tinkerer's Workshop</b>.", associatedVariable:"scoreboardProgress"},
+				{id: 1, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",},
 			],
 
-			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
-			levelRequirement: 8,
-			questRequirements: ["Underwater"],
+			howToStart: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",
+			//levelRequirement: 8,
+			//questRequirements: ["Underwater"],
+			levelRequirement: 1,
+			questRequirements: [],
 			requirement: function () {
-				return Player.quests.stepProgress.eaglecrest[24][1]; // completed step with id 2 of the tinkerer quest, i.e. spoken to the lead tinkerer
+				return true;
+				//return Player.quests.prog.eaglecrest[24].stepProgress[1]; // completed step with id 2 of the tinkerer quest, i.e. spoken to the lead tinkerer
 			}
 		},
 		{
 			id: 26,
-			quest: "hidden objects game",
+			quest: "Batteries not Included",
 			questArea: "eaglecrest",
 
 			steps: [
 				{
 					stepNum: 0,
-					name: "Tinkerer",
+					name: "Weapons Tinkerer Dolph",
 					chat: [{
-						text: `tbd`,
+						text: `Greetings, let me keep this short as I've got a lot to do today.`,
+					},{
+						text: ``,
 					},],
 				},
 				{
 					stepNum: 1,
-					name: "Tinkerer",
+					name: "Weapons Tinkerer Dolph",
 					chat: [{
 						text: `tbd`,
 					},],
@@ -4283,15 +4350,15 @@ var Quests = {
 			],
 
 			objectivesList: [
-				{id: 0, text: "Find fifteen red <b>Intensity Lucents</b> around the <b>Tinkerers' Workshop</b>.",},
-				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+				{id: 0, text: "Find fifteen green <b>Lucents</b> around the <b>Eaglecrest Tinkerer's Workshop</b>.",},
+				{id: 1, text: "Speak to <b>Weapons Tinkerer Dolph</b> in the <b>Tinkerers' Workshop</b>.",},
 			],
 
-			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
+			howToStart: "Speak to <b>Weapons Tinkerer Dolph</b> in the <b>Tinkerers' Workshop</b>.",
 			levelRequirement: 8,
 			questRequirements: ["Underwater"],
 			requirement: function () {
-				return Player.quests.stepProgress.eaglecrest[24][1];
+				return Player.quests.prog.eaglecrest[24].stepProgress[1];
 			}
 		},
 		{
@@ -4302,14 +4369,14 @@ var Quests = {
 			steps: [
 				{
 					stepNum: 0,
-					name: "Tinkerer",
+					name: "Drone Operator Penelope",
 					chat: [{
 						text: `tbd`,
 					},],
 				},
 				{
 					stepNum: 1,
-					name: "Tinkerer",
+					name: "Drone Operator Penelope",
 					chat: [{
 						text: `tbd`,
 					},],
@@ -4324,58 +4391,18 @@ var Quests = {
 
 			objectivesList: [
 				{id: 0, text: "Pilot the drone to fix the pipes",},
-				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
+				{id: 1, text: "Speak to <b>Drone Operator Penelope</b> in the <b>Tinkerers' Workshop</b>.",},
 			],
 
-			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
+			howToStart: "Speak to <b>Drone Operator Penelope</b> in the <b>Tinkerers' Workshop</b>.",
 			levelRequirement: 8,
 			questRequirements: ["Underwater"],
 			requirement: function () {
-				return Player.quests.stepProgress.eaglecrest[24][1];
+				return Player.quests.prog.eaglecrest[24].stepProgress[1];
 			}
 		},
 		{
 			id: 28,
-			quest: "foam game",
-			questArea: "eaglecrest",
-
-			steps: [
-				{
-					stepNum: 0,
-					name: "Tinkerer",
-					chat: [{
-						text: `tbd`,
-					},],
-				},
-				{
-					stepNum: 1,
-					name: "Tinkerer",
-					chat: [{
-						text: `tbd`,
-					},],
-					rewards: {
-						xp: 100,
-						items: [
-							{item: Items.currency[2], quantity: 5,},
-						],
-					},
-				},
-			],
-
-			objectivesList: [
-				{id: 0, text: "tbd",},
-				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
-			],
-
-			howToStart: "Speak to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",
-			levelRequirement: 8,
-			questRequirements: ["Underwater"],
-			requirement: function () {
-				return Player.quests.stepProgress.eaglecrest[24][1];
-			}
-		},
-		{
-			id: 29,
 			quest: "Heart of Gold",
 			questArea: "eaglecrest",
 
@@ -4410,7 +4437,6 @@ var Quests = {
 			],
 
 			objectivesList: [
-				{id: 0, text: "Enter the River Heart's Blessing and approach the Frog Queen's Base",},
 				{id: 0, text: "Enter the River Heart's Blessing and approach the Frog Queen's Base",},
 				{id: 1, text: "Report to <b>tinkerer's name</b> in the <b>Tinkerers' Workshop</b>.",},
 			],
@@ -4875,7 +4901,7 @@ var Quests = {
 				}
 			},
 
-			callQuestFinishOnAbandon: 1, // this is now set to the STEP of which the finish function should be called
+			callQuestFinishOnAbandon: 1, // this is set to the step(s, if array) of which the finish function should be called
 
 			onQuestFinish: function (npc) {
 				// remove all items with the property removeOnAbandon set to the quest name
@@ -5590,6 +5616,214 @@ var Quests = {
 			questArea: "caves",
 
 			questType: "storyline",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Principal Investigator Jericho",
+					chat: [{
+						text: `Hello! Greetings! Salutations! It's a busy time here at Base Camp Alfa I'm afraid, but no time better for your arrival! What's your name?`,
+						options: [
+							{
+								text: `${Player.name}`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Well great to meet you ${Player.name}! Wonderful name that! I once had a dead cat called ${Player.name}! Well, not dead when I had it- you know what I mean...`,
+					},{
+						text: `Yes, anyway, your, erm, orders. Dig Base Alfa's primary goal is excavation of the upper cave schists, which you'll be sent into.`
+					},{
+						text: `However, the majority of our dig effort in this area comes from the <b>chests</b> that populate the area. A <b>chest</b> is, well, a sort of box-`,
+					},{
+						text: `Sorry. I'm quite nervous. In fact, it's my first day on the job, and... erm...`,
+						options: [
+							{
+								text: `...Yes?`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `The caves they're... Coming alive...`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Principal Investigator Jericho",
+					chat: [{
+						text: `Ouch, looked like the living rock gave you a hard time...`,
+					},{
+						text: `How was your expedition? Did you find anything of value?`,
+						options: [
+							{
+								text: `<i>Show Jericho the book</i>`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Hmmm... Interesting! From a glance this book looks like this could have originated over a thousand years ago.`,
+					},{
+						text: `Let me analyse this book and get back to you soon, see you!`,
+					},{
+						text: `Oh, also, I'm pretty sure there's other archaeologists around that need a hand. Don't be afraid to offer your services!`
+					},],
+					removeItems: [], // tbd
+					rewards: {
+						xp: 50,
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Open and loot five chests from the Upper Schists",
+				},
+				{id: 1, text: "Bring your findings to <b>P.I. Jericho</b>",
+				},
+			],
+
+			howToStart: "Report to <b>P.I. Jericho</b> at <b>Dig Base Alfa</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Dig Base Alfa"],
+		},
+		{
+			id: 2,
+			quest: "Digging for Answers",
+			questArea: "caves",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Senior Archaeologist Digbeth",
+					chat: [{
+						text: `I trust you've heard about the caves coming to life? Yes.. it seems to be all anyone is talking about recently.`,
+					},{
+						text: `Nobody knows why. Some say it's due to a surge in the ley lines the caves lie upon, but then why hasn't this happened before? The caves formed to follow the endemic ley lines millions of years ago, we archaeologists only catalysed their opening into the overground.`,
+						long: true,
+					},{
+						text: `Some others proffer a spiritual suggestion, that the gods are fighting back against those seeking to disrupt nature. But these ideas are generally frowned upon - they have absolutely no archeaological basis.`,
+						long: true,
+					},{
+						text: `Either way, I've been working at this site long enough to know that something's up. So, say, how would you feel about helping me figure out the cause of all this?`,
+					},{
+						text: `I should add that this work isn't <i>officially</i> sanctioned by the Convent, but with ${Event.antoraxAge} years under my belt at this site, I have strings I can pull. What do you say to giving me a hand?`,
+						long: true,
+						options: [
+							{
+								text: `Sign me up!`,
+								action: "progress",
+							},
+							{
+								text: `I'm not sure I...`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Excellent, glad to have you on board! I need you to see what's inside these <b>Living Rocks</b> around the upper schists. They're not easily killed by conventional weapons, which is why we'll need to source something more... explosive.`,
+						long: true,
+					},{
+						text: `I know just the guy for the job - have a chat to my friend <b>Item Buyer Pierre</b> inside the caves, and see if there's anything he can do for us.`,
+					}],
+				},
+				{
+					stepNum: 1,
+					name: "Item Buyer Pierre",
+					chat: [{
+						text: `'ello there. What can I get ya for?`,
+						options: [
+							{
+								text: `Something explosive!`,
+								action: "progress",
+							},
+							{
+								text: `Something to kill the Living Rock with!`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Can't say yer the first 'un today to ask that for.`,
+					},{
+						text: `I'll give ya anythin' for an equitable trade. Les see...`,
+					},{
+						text: `<b>5440 gold</b> for <b>5 diamond-grade dynamite</b>? Guaranteed to blow anythin' apart if want it yer.`,
+						options: [
+							{
+								text: `What?!`,
+								action: "progress",
+							},
+							{
+								text: `I can't afford that!`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Eh, fine. <b>5210 gold</b> for <b>5 diamond-grade dynamite</b>. Take it or leave it.`,
+						options: [
+							{
+								text: `Leave it`,
+								action: "progress",
+							},
+						]
+					},{
+						text: `Fine, pleasure doin' business with y'.`,
+					},{
+						text: `'ang on... fine. There's somethin' else y' could bring.`,
+					},{
+						text: `I've a real craving for... <b>Crumpets</b>. Three should do me wonderful!`,
+					}
+					],
+				},
+				{
+					stepNum: 2,
+					name: "Item Buyer Pierre",
+					chat: [{
+						text: `Fanks, I was starved!`,
+					},{
+						text: `'ere's yer <b>diamond-grade dynamite</b>. Pleasure doin' business with yers.`,
+					},{
+						text: `I'm startin' to like havin' yer around 'ere. Don't go off down those caves forever like those other archaeologists ya? Can't be givin' my sister business.`,
+						long: true,
+					},{
+						text: `And if y' have any other crumpets, bring 'em my way ya?`,
+					},{
+						text: `Ta!`,
+					}
+					],
+					rewards: [], // tbd
+					removeItems: [], // tbd
+				},
+				{
+					stepNum: 3,
+					name: "Senior Archaeologist Digbeth",
+					chat: [{
+						text: `Well?`,
+					},{
+						text: `'ere's yer <b>diamond-grade dynamite</b>. Pleasure doin' business with yers.`,
+					},
+					],
+					rewards: [], // tbd
+					removeItems: [], // tbd
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Talk to <b>Item Buyer Pierre</b> in the Caves.",
+				},
+				{id: 1, text: "Bring three <b>crumpets</b> to <b>Item Buyer Pierre</b>.",
+				},
+				{id: 2, text: "Use the <b>diamond-grade dynamite</b> to kill and loot a <b>Living Rock</b>.",
+				},
+				{id: 3, text: "Bring your findings to <b>Senior Archaeologist Digbeth</b>.",
+				},
+			],
+
+			howToStart: "Chat to <b>P.I. Jericho</b> at <b>Dig Base Alfa</b>.",
+			levelRequirement: 10,
+			questRequirements: ["Dig Base Alfa"],
+		},
+		{
+			id: 3,
+			quest: "Ballad of the Lost, Part 1",
+			questArea: "caves",
 
 			steps: [
 				{

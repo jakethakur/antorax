@@ -311,7 +311,7 @@ var Areas = {
 				z: -1,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 2;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 2;
 				}
 			},
 			{
@@ -321,7 +321,7 @@ var Areas = {
 				orderOffsetY: -10,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 9;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 9;
 				}
 			},
 		],
@@ -371,7 +371,7 @@ var Areas = {
                 disappearAfterOpened: true,
                 canBeShown: function () {
                     return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 10;
                 },
 				onClose: function () {
 					Quests.eaglecrestLoggingCamp[25].autofinish = true;
@@ -1094,7 +1094,7 @@ var Areas = {
 				z: -1,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					(Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined);
+					(Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === null || Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === undefined);
 				}
 			},
 			{
@@ -1104,7 +1104,7 @@ var Areas = {
 				y: 305,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 5;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 5;
 				}
 			},
 			{
@@ -1114,7 +1114,7 @@ var Areas = {
 				y: 380,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 8;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 8;
 				}
 			},
 
@@ -1142,7 +1142,7 @@ var Areas = {
 					questProgress: "It's definitely somewhere!",
 				},
 				canBeShown: function () {
-					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10 &&
+					return Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 10 &&
 						Player.quests.possibleQuestArray.includes("A Tale of Two Twintops");
 				},
 			},
@@ -1171,7 +1171,7 @@ var Areas = {
 					questProgress: "Keep lookin'! You'll never find it otherwise.",
 				},
 				canBeShown: function () {
-					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 10 &&
+					return Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 10 &&
 						Player.quests.possibleQuestArray.includes("A Tale of Two Twintops");
 				},
 			},
@@ -1201,7 +1201,7 @@ var Areas = {
 					questComplete: "Thanks for helpin' - it's my turn to hide tomorrow!",
 				},
 				canBeShown: function () {
-					return Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 1 &&
+					return Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted % 2 === 1 &&
 						Player.quests.possibleQuestArray.includes("A Tale of Two Twintops");
 				},
 				boundary: {
@@ -1234,10 +1234,10 @@ var Areas = {
 					questComplete: "Woohoo! My turn to hide next! You'll never find me.",
 				},
 				canBeShown: function () {
-					return (Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === null || // haven't started quest yet
-						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === undefined ||
-						(Player.quests.timesCompleted.eaglecrestLoggingCamp[25] !== 10 && // or have started it and have completed it an even number of times
-						Player.quests.timesCompleted.eaglecrestLoggingCamp[25] % 2 === 0)) && // or have started it and have completed it an even number of times
+					return (Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === null || // haven't started quest yet
+						Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === undefined ||
+						(Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted !== 10 && // or have started it and have completed it an even number of times
+						Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted % 2 === 0)) && // or have started it and have completed it an even number of times
 						Player.quests.possibleQuestArray.includes("A Tale of Two Twintops"); // Quest can be started
 				},
 				boundary: {
@@ -1549,7 +1549,7 @@ var Areas = {
 				y: 1300,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 1;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 1;
 				}
 			},
 			{
@@ -1563,7 +1563,7 @@ var Areas = {
                 },
                 canBeShown: function () {
                     return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-                    Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 4;
+                    Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 4;
                 }
             },
 			{
@@ -1574,7 +1574,7 @@ var Areas = {
 				z: -1,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 6;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 6;
 				}
 			},
 		],
@@ -2272,7 +2272,7 @@ var Areas = {
 				y: 150,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 3;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 3;
 				}
 			},
 		],
@@ -3383,7 +3383,7 @@ var Areas = {
 				z: -2,
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.timesCompleted.eaglecrestLoggingCamp[25] === 7;
+					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 7;
 				}
 			},
 		],
@@ -4252,7 +4252,7 @@ var Areas = {
 						text: `Remember to come back to me later and maybe I'll have something for you to do!`,
 					},],
 					roleRequirement: function () {
-						return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+						return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 					},
 				},
 			],
@@ -4339,7 +4339,7 @@ var Areas = {
 						text: `A <b>Translator</b>? No. Try asking some of the <b>shopkeepers</b>.`,
 					},],
 					roleRequirement: function () {
-						return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+						return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 					},
 				},
 			],
@@ -4379,7 +4379,7 @@ var Areas = {
 						text: `I only buy, not sell. Speaking of selling, you got anything for me?`,
 					},],
 					roleRequirement: function () {
-						return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+						return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 					},
 				},
 			],
@@ -4403,7 +4403,7 @@ var Areas = {
 						text: `I'm busy. Leave.`,
 					},],
 					roleRequirement: function () {
-						return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+						return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 					},
 				},
 			]
@@ -4454,7 +4454,7 @@ var Areas = {
 						text: `Don't have a <b>translator</b>. Feel free to come back if you have something for me to identify!`,
 					},],
 					roleRequirement: function () {
-						return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+						return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 					},
 				},
 			],
@@ -4531,7 +4531,7 @@ var Areas = {
 						text: `I've only got pies, but they'll be sure to fill your stomach!`,
 					},],
 					roleRequirement: function () {
-						return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+						return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 					},
 				},
 			],
@@ -4655,7 +4655,7 @@ var Areas = {
 						text: `Maybe a less... authentic... shopkeeper will have one.`,
 					},],
 					roleRequirement: function () {
-						return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+						return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 					},
 				},
 			],
@@ -5666,7 +5666,7 @@ animation: {
 							text: `I'm afraid we don't have any. Unless you have one in your bank storage I'm afraid I can't help you.`,
 						},],
 						roleRequirement: function () {
-							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+							return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 						},
 					},
 				],
@@ -5752,7 +5752,7 @@ animation: {
 							text: `I'm afraid we don't have any. Unless you have one in your bank storage I'm afraid I can't help you.`,
 						},],
 						roleRequirement: function () {
-							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+							return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 						},
 					},
 				],
@@ -5838,7 +5838,7 @@ animation: {
 							text: `I'm afraid we don't have any. Unless you have one in your bank storage I'm afraid I can't help you.`,
 						},],
 						roleRequirement: function () {
-							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+							return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 						},
 					},
 				],
@@ -5924,7 +5924,7 @@ animation: {
 							text: `I'm afraid we don't have any. Unless you have one in your bank storage I'm afraid I can't help you.`,
 						},],
 						roleRequirement: function () {
-							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+							return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 						},
 					},
 				],
@@ -6240,7 +6240,7 @@ animation: {
 							<strong>Jak</strong>: Sorry, we don't have one, try asking some of the <strong>shopkeepers</strong.`,
 						},],
 						roleRequirement: function () {
-							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+							return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 						},
 					},
 				],
@@ -6890,7 +6890,7 @@ animation: {
 							text: `<em>Oh, you're leavin' already</em>.`
 						},],
 						roleRequirement: function () {
-							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+							return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 						},
 					},
 				],
@@ -7127,7 +7127,7 @@ animation: {
 							text: `Noooooo! Unfortunately I don't have one! You could ask the other <strong>shopkeepers</strong>, I'm sure one of them will have one!!`
 						},],
 						roleRequirement: function () {
-							return Player.quests.stepProgress.eaglecrest[12][2] && !Player.quests.stepProgress.eaglecrest[12][3];
+							return Player.quests.prog.eaglecrest[12].stepProgress[2] && !Player.quests.prog.eaglecrest[12].stepProgress[3];
 						},
 					},
 					{
@@ -9170,7 +9170,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			if (Areas["eaglecrestPlains"].mapData.layers[1][101+31*mapCols] !== 0 && Math.abs(Areas["eaglecrestPlains"].mapData.layers[1][101+31*mapCols]) !== 241) { // first some validation... (just in case map has been changed without this code being changed) - this isn't foolproof but should catch any change
 				console.error("Position of marigold flower bed has been moved but code has not been updated - please tell Jake!");
 			}
-			if (Player.quests.questLastFinished.eaglecrest[9] > yesterdayDate || IsNullLike(Player.quests.questLastFinished.eaglecrest[9])) { // not finished, or finished after yesterday
+			if (Player.quests.prog.eaglecrest[9].questLastFinished > yesterdayDate || IsNullLike(Player.quests.prog.eaglecrest[9].questLastFinished)) { // not finished, or finished after yesterday
 				// remove them
 				Areas["eaglecrestPlains"].mapData.layers[1][101+31*mapCols] = 0;
 				Areas["eaglecrestPlains"].mapData.layers[1][102+31*mapCols] = 0;
@@ -9227,62 +9227,62 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			//troubled waters area fishing progress
 			if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= -120 && Game.hero.y <= 1000)
 			{
-				if(Player.quests.progress.eaglecrest[13].northWestFish === undefined)
+				if(Player.quests.prog.eaglecrest[13].vars.northWestFish === undefined)
 				{
-					Player.quests.progress.eaglecrest[13].northWestFish = 1;
+					Player.quests.prog.eaglecrest[13].vars.northWestFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.progress.eaglecrest[13].northWestFish += 1;
+					Player.quests.prog.eaglecrest[13].vars.northWestFish += 1;
 				}
 			}
 			else if(Game.hero.x >= -240 && Game.hero.x <= 2000 && Game.hero.y >= 4150 && Game.hero.y <= 6180)
 			{
-				if(Player.quests.progress.eaglecrest[13].southWestFish === undefined)
+				if(Player.quests.prog.eaglecrest[13].vars.southWestFish === undefined)
 				{
-					Player.quests.progress.eaglecrest[13].southWestFish = 1;
+					Player.quests.prog.eaglecrest[13].vars.southWestFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.progress.eaglecrest[13].southWestFish += 1;
+					Player.quests.prog.eaglecrest[13].vars.southWestFish += 1;
 				}
 			}
 			else if(Game.hero.x >= 2040 && Game.hero.x <= 5040 && Game.hero.y >= 3200 && Game.hero.y <= 4500)
 			{
-				if(Player.quests.progress.eaglecrest[13].centreFish === undefined)
+				if(Player.quests.prog.eaglecrest[13].vars.centreFish === undefined)
 				{
-					Player.quests.progress.eaglecrest[13].centreFish = 1;
+					Player.quests.prog.eaglecrest[13].vars.centreFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.progress.eaglecrest[13].centreFish += 1;
+					Player.quests.prog.eaglecrest[13].vars.centreFish += 1;
 				}
 			}
 			else if(Game.hero.x >= 4200 && Game.hero.x <= 7440 && Game.hero.y >= -120 && Game.hero.y <= 2200)
 			{
-				if(Player.quests.progress.eaglecrest[13].northEastFish === undefined)
+				if(Player.quests.prog.eaglecrest[13].vars.northEastFish === undefined)
 				{
-					Player.quests.progress.eaglecrest[13].northEastFish = 1;
+					Player.quests.prog.eaglecrest[13].vars.northEastFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.progress.eaglecrest[13].northEastFish += 1;
+					Player.quests.prog.eaglecrest[13].vars.northEastFish += 1;
 				}
 			}
 			else if(Game.hero.x >= 5300 && Game.hero.x <= 7440 && Game.hero.y >= 2360 && Game.hero.y <= 4800)
 			{
-				if(Player.quests.progress.eaglecrest[13].southEastFish === undefined)
+				if(Player.quests.prog.eaglecrest[13].vars.southEastFish === undefined)
 				{
-					Player.quests.progress.eaglecrest[13].southEastFish = 1;
+					Player.quests.prog.eaglecrest[13].vars.southEastFish = 1;
 					Dom.quests.active();
 				}
 				else
 				{
-					Player.quests.progress.eaglecrest[13].southEastFish += 1;
+					Player.quests.prog.eaglecrest[13].vars.southEastFish += 1;
 				}
 			}
 			Dom.quests.active();
@@ -9600,7 +9600,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 							step: [0, 1],
 						},
 						{
-							role: "questStartFinish",
+							role: "questProgress",
 							quest: Quests.eaglecrest[16],
 							step: [0, 1],
 						},
@@ -9627,7 +9627,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 								text: `Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
 								onFinish: function () {
 									// quest progress
-									Player.quests.progress.eaglecrest[14].herringBaitObtained = true; // so that next step is displayed
+									Player.quests.prog.eaglecrest[14].vars.herringBaitObtained = true; // so that next step is displayed
 									Dom.quests.active();
 									Dom.inventory.give(Items.consumable[37], 1);
 								}
@@ -9665,7 +9665,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 								text: `Its a large fish so the large fish shouldn'ts be ables to eats it, so yous shoulds be ables to finds one in the well.`,
 								onFinish: function () {
 									// quest progress
-									Player.quests.progress.eaglecrest[14].lakeLurkerBaitObtained = true; // so that next step is displayed
+									Player.quests.prog.eaglecrest[14].vars.lakeLurkerBaitObtained = true; // so that next step is displayed
 									Dom.quests.active();
 									Dom.inventory.removeById(40, "fish");
 									Dom.inventory.give(Items.consumable[38]);
@@ -9673,7 +9673,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 							}],
 							forceChoose: true, // forces choose dom
 							roleRequirement: function () {
-								return (Player.quests.progress.eaglecrest[14].herringBaitObtained && Dom.inventory.check(40 , "fish"));
+								return (Player.quests.prog.eaglecrest[14].vars.herringBaitObtained && Dom.inventory.check(40 , "fish"));
 							},
 						},
                 ],
@@ -10429,7 +10429,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				name: "Well",
 				image: "well",
 				onInteract: function () {
-				    if (Player.quests.stepProgress.eaglecrest[13][1]) {
+				    if (Player.quests.prog.eaglecrest[13].stepProgress[1]) {
 						Game.hero.channel(function () {
 				            Game.loadArea("eaglecrestWell", {x: 760, y: -300});
 				        }, [], 1500, "Entering well");
@@ -13832,39 +13832,44 @@ chloroville: {
 			tilesPerRow: 8,
 			objectTiles: [489, 490, 491],
 			animateTiles: [
-
 				{
-				tiles: [441, 442, 443, 444, 445],
-				animateTime: 180,
-			},
-			{
-			tiles: [449, 450, 451, 452, 453],
-			animateTime: 180,
-		},
-
-{
-		tiles: [569, 570, 571, 572, 573],
-		animateTime: 180,
-		},
-
-{
-		tiles: [577, 578, 579, 580, 581],
-		animateTime: 180,
-		},
-
-{
-		tiles: [585, 586, 587, 588, 589],
-		animateTime: 180,
-		},
-
-		{
-				tiles: [593, 594, 595, 596, 597],
-				animateTime: 180,
+					tiles: [441, 442, 443, 444, 445],
+					animateTime: 180,
+					conveyor: true,
+					requireContinuity: true,
+				},
+				{
+					tiles: [449, 450, 451, 452, 453],
+					animateTime: 180,
+					conveyor: true,
+					requireContinuity: true,
+				},
+				{
+					tiles: [569, 570, 571, 572, 573],
+					animateTime: 180,
+					conveyor: true,
+					requireContinuity: true,
+				},
+				{
+					tiles: [577, 578, 579, 580, 581],
+					animateTime: 180,
+					conveyor: true,
+					requireContinuity: true,
+				},
+				{	
+					tiles: [585, 586, 587, 588, 589],
+					animateTime: 180,
+					conveyor: true,
+					requireContinuity: true,
 				},
 
-
-
-		],
+				{
+					tiles: [593, 594, 595, 596, 597],
+					animateTime: 180,
+					conveyor: true,
+					requireContinuity: true,
+				},
+			],
 			layers: [
 				[429,429,429,429,429,429,429,429,429,429,429,429,429,429,485,436,510,431,431,431,431,431,431,431,431,431,431,431,431,431,431,510,436,485,430,429,429,429,429,429,429,429,429,429,429,429,429,429,
 429,429,429,429,429,429,429,429,429,429,429,429,429,429,436,436,510,431,437,438,437,438,438,438,437,438,437,438,437,438,431,510,436,436,429,429,429,429,429,429,429,429,429,429,429,429,429,429,
@@ -14011,257 +14016,340 @@ chloroville: {
 			leverPurple: {normal: "assets/objects/leverPurple.png"},
 			leverYellow: {normal: "assets/objects/leverYellow.png"},
 			liftDoor: {normal: "assets/objects/workshopLiftDoor.png"},
-
-
-	},
-	things: [
-		{
-			x: [928.9, 575.4, 639.2,  1927.1, 2044, 2309.4, 2221.8, 2560.6, 2686.6, 810, 900.2,  2081.6, 1976.9, 2725.8, 2629, 192.3, 257.4, 484.1, 138.5, 197.6],
-			y: [1980.8, 1973.2, 2043.9, 2045.3, 1991.4,  2018.6, 2013.7, 1842.9, 1842.9, 740.4, 659.7, 741, 681.7, 698.9, 783.4, 1811.6, 1868, 1809.2, 762.8, 695],
-			image: "gearSteel",
-			name: "gearSteel",
-			crop: {
-				x: 0,
-				y: 0,
-				width: 202.5,
-				height: 202.5
-			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 350,
-				imagesPerRow: 2,
-				totalImages: 2,
-			},
+			ustinov: {normal: "assets/npcs/ustinov.png"},
+			dolph: {normal: "assets/npcs/dolph.png"},
+			penelope: {normal: "assets/npcs/penelope.png"},
 		},
-		{
-			x: 1441, y: 1650,
-			image: "tinkererMech",
-			name: "tinkererMech",
-			crop: {
-				x: 0,
-				y: 0,
-				width: 493,
-				height: 388,
+		npcs: [
+			{
+				x: 461,
+				y: 1452,
+				image: "ustinov",
+				name: "Technician Ustinov",
+				hostility: "friendly",
+				level: 22,
+				stats: {
+					maxHealth: 160,
+					defence: 6,
+					healthRegen: 0.3,
+				},
+				roles: [
+					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[25],
+						step: [0, 1],
+					},
+				],
+				chat: {
+					notUnlockedRoles: "What are you doingg here?",
+					questProgress: "Glug-get yourself back to those levers, there's more items to sort througgh!",
+					questComplete: "Don't you love all the rust here? Makes it feel so homely!",
+					inventoryFull: "Your baggs are full!",
+				},
 			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 250,
-				imagesPerRow: 4,
-				totalImages: 4,
+			{
+				x: 2105,
+				y: 1587,
+				image: "penelope",
+				name: "Drone Operator Penelope",
+				hostility: "friendly",
+				level: 26,
+				stats: {
+					maxHealth: 200,
+					defence: 3,
+					healthRegen: 0.2,
+				},
+				roles: [
+					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[27],
+						step: [0, 1],
+					},
+				],
+				chat: {
+					notUnlockedRoles: "Hey hey!",
+					questProgress: "",
+					questComplete: "",
+					inventoryFull: "",
+				},
 			},
-},
-
-{x: 1443.1, y: 540.2, z:-1, image: 'liftDoor', name: 'liftDoor',
-crop: {
-	x: 0,
-	y: 0,
-	width: 240,
-	height: 240,
-},},
-
-		{
-			x: [1993.9, 806.4,  2629.6, 2104.4, 1952.2, 2269.3, 2619.7, 840.1, 665.8, 388.5, 282.1],
-			y: [755.9, 656.8,  708.7, 684.2, 1969.9, 1955.9, 1784.8, 1984.5, 1962.5, 1800.6, 1781.7],
-			image: "gearRust",
-			name: "gearRust",
-			crop: {
-				x: 0,
-				y: 0,
-				width: 68,
-				height: 68
+			{
+				x: 1165,
+				y: 1735,
+				image: "dolph",
+				name: "Weapons Tinkerer Dolph",
+				hostility: "friendly",
+				level: 40,
+				stats: {
+					maxHealth: 250,
+					defence: 19,
+					healthRegen: 0.4,
+				},
+				roles: [
+					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[27],
+						step: [0, 1],
+					},
+				],
+				chat: {
+					notUnlockedRoles: "Yes?",
+					questProgress: "",
+					questComplete: "",
+					inventoryFull: "",
+				},
 			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 150,
-				imagesPerRow: 2,
-				totalImages: 2,
+		],
+		things: [
+			{
+				x: [928.9, 575.4, 639.2,  1927.1, 2044, 2309.4, 2221.8, 2560.6, 2686.6, 810, 900.2,  2081.6, 1976.9, 2725.8, 2629, 192.3, 257.4, 484.1, 138.5, 197.6],
+				y: [1980.8, 1973.2, 2043.9, 2045.3, 1991.4,  2018.6, 2013.7, 1842.9, 1842.9, 740.4, 659.7, 741, 681.7, 698.9, 783.4, 1811.6, 1868, 1809.2, 762.8, 695],
+				image: "gearSteel",
+				name: "gearSteel",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 202.5,
+					height: 202.5
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 350,
+					imagesPerRow: 2,
+					totalImages: 2,
+				},
 			},
-		},
-
-		{
-			x: [181.5, 1001.9, 1887.5,  2771.2, 116.5],
-			y: [1532.7, 385.7, 385.7,  385.7, 385.7],
-			image: "tinkererChimney",
-			name: "tinkererChimney",
-			crop: {
-				x: 0,
-				y: 0,
-				width: 140,
-				height: 140
+			{
+				x: 1441, y: 1650,
+				image: "tinkererMech",
+				name: "tinkererMech",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 493,
+					height: 388,
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 250,
+					imagesPerRow: 4,
+					totalImages: 4,
+				},
 			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 200,
-				imagesPerRow: 3,
-				totalImages: 3,
+			{x: 1443.1, y: 540.2, z:-1, image: 'liftDoor', name: 'liftDoor',
+				crop: {
+					x: 0,
+					y: 0,
+					width: 240,
+					height: 240,
+				},
 			},
-		},
-		{
-			x: [834.1, 319.6, 2029.3, 2496.6],
-			y: [536.3, 536.3, 536.3, 536.3],
-			image: "tinkererLight",
-			name: "tinkererLight",
-			crop: {
-				x: 0,
-				y: 0,
-				width: 120,
-				height: 120
+			{
+				x: [1993.9, 806.4,  2629.6, 2104.4, 1952.2, 2269.3, 2619.7, 840.1, 665.8, 388.5, 282.1],
+				y: [755.9, 656.8,  708.7, 684.2, 1969.9, 1955.9, 1784.8, 1984.5, 1962.5, 1800.6, 1781.7],
+				image: "gearRust",
+				name: "gearRust",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 68,
+					height: 68
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 150,
+					imagesPerRow: 2,
+					totalImages: 2,
+				},
 			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 600,
-				imagesPerRow: 4,
-				totalImages: 4,
+
+			{
+				x: [181.5, 1001.9, 1887.5,  2771.2, 116.5],
+				y: [1532.7, 385.7, 385.7,  385.7, 385.7],
+				image: "tinkererChimney",
+				name: "tinkererChimney",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 140,
+					height: 140
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 200,
+					imagesPerRow: 3,
+					totalImages: 3,
+				},
 			},
-		},
-		{
-			x: [756.2],
-			y: [1679.6],
-			image: "leverPurple",
-			name: "Purple Lever",
-			crop: {
-				x: 0,
-				y: 0,
-				width: 28,
-				height: 100
+			{
+				x: [834.1, 319.6, 2029.3, 2496.6],
+				y: [536.3, 536.3, 536.3, 536.3],
+				image: "tinkererLight",
+				name: "tinkererLight",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 120,
+					height: 120
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 600,
+					imagesPerRow: 4,
+					totalImages: 4,
+				},
 			},
-			onInteract: function () {
-				if (Game.areaVariables.conveyorDirection1 === "down") {
-					Game.areaVariables.conveyorDirection1 = "up";
-					map.replaceTiles(506, 507);
-					this.crop.x = 28;
-				}
-				else if (Game.areaVariables.conveyorDirection1 === "up") {
-					Game.areaVariables.conveyorDirection1 = "down";
-					map.replaceTiles(507, 506);
-					this.crop.x = 0;
-				}
+			{
+				x: [693.2],
+				y: [1619.6],
+				image: "leverPurple",
+				name: "Purple Lever",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 100,
+					height: 28
+				},
+				onInteract: function () {
+					if (Game.areaVariables.conveyorDirection1 === "down") {
+						Game.areaVariables.conveyorDirection1 = "up";
+						map.replaceTiles(506, 507);
+						this.crop.y = 28;
+					}
+					else if (Game.areaVariables.conveyorDirection1 === "up") {
+						Game.areaVariables.conveyorDirection1 = "down";
+						map.replaceTiles(507, 506);
+						this.crop.y = 0;
+					}
+				},
+				interactCooldown: 0.3,
 			},
-			interactCooldown: 0.3,
-		},
 
-		{
-			x: [816.2],
-			y: [1679.6],
-			image: "leverYellow",
-			name: "Yellow Lever",
-			crop: {
-				x: 28,
-				y: 0,
-				width: 28,
-				height: 100
+			{
+				x: [869.2],
+				y: [1619.6],
+				image: "leverYellow",
+				name: "Yellow Lever",
+				crop: {
+					x: 0,
+					y: 28,
+					width: 100,
+					height: 28
+				},
+				onInteract: function () {
+					if (Game.areaVariables.conveyorDirection2 === "down") {
+						Game.areaVariables.conveyorDirection2 = "up";
+						map.replaceTiles(508, 509);
+						this.crop.y = 28;
+					}
+					else if (Game.areaVariables.conveyorDirection2 === "up") {
+						Game.areaVariables.conveyorDirection2 = "down";
+						map.replaceTiles(509, 508);
+						this.crop.y = 0;
+					}
+				},
+				interactCooldown: 0.3,
 			},
-			onInteract: function () {
-				if (Game.areaVariables.conveyorDirection2 === "down") {
-					Game.areaVariables.conveyorDirection2 = "up";
-					map.replaceTiles(508, 509);
-					this.crop.x = 28;
-				}
-				else if (Game.areaVariables.conveyorDirection2 === "up") {
-					Game.areaVariables.conveyorDirection2 = "down";
-					map.replaceTiles(509, 508);
-					this.crop.x = 0;
-				}
+
+
+
+			{
+				x: [2760.1, 2282.4, 842.1,  301.7, 2581.9, 484.2, 29.1, 2043.4, 1313, 1570.3, 1572.1, 1307.8, 1307.8, 1561.5, 1258.7, 1620.9, 1259.2, 1623.1],
+				y: [525.9, 525.9, 525.9,  1722.9, 1722.9, 526.8, 526.8, 526.8, 290.9, 290.9, 329.4, 329.4, 398.7, 398.7, 1374.1, 1374.1, 2034.8, 2034.8],
+				image: "tinkererWires",
+				name: "tinkererWires",
 			},
-			interactCooldown: 0.3,
-		},
 
-
-
-		{
-			x: [2760.1, 2282.4, 842.1,  301.7, 2581.9, 484.2, 29.1, 2043.4, 1313, 1570.3, 1572.1, 1307.8, 1307.8, 1561.5, 1258.7, 1620.9, 1259.2, 1623.1],
-			y: [525.9, 525.9, 525.9,  1722.9, 1722.9, 526.8, 526.8, 526.8, 290.9, 290.9, 329.4, 329.4, 398.7, 398.7, 1374.1, 1374.1, 2034.8, 2034.8],
-			image: "tinkererWires",
-			name: "tinkererWires",
-		},
-
-		{
-			x: [299.8],
-			y: [1478.7],
-			image: "blueprints",
-			name: "blueprints",
-		},
-		{
-			x: [270.7],
-			y: [1430],
-			image: "goggles",
-			name: "goggles",
-		},
-
-		{
-			x: [390.2],
-			y: [1461.3],
-			image: "armour",
-			name: "armour",
-		},
-
-		{
-			x: [2602.2,  71.2,  1152, 1110.1, 883, 1989.9,],
-			y: [937.5,  1861.6, 634.1, 667.2,  926.8, 409.2,],
-			image: "toxicWasteGreen",
-			name: "toxicWasteGreen",
-		},
-
-		{
-			x: [2386.3,  823.5,  1798.8, 2663.4,  2052.9,],
-			y: [1903.1,  926.8,  1424.8, 937.5,  409.2,],
-			image: "toxicWastePurple",
-			name: "toxicWastePurple",
-		},
-
-		{
-			x: [1076.2, 2444, 1734.2, 98,],
-			y: [1424.8, 1903.1, 1424.8, 1884.9,],
-			image: "toxicWasteRed",
-			name: "toxicWasteRed",
-		},
-
-		{
-			x: [180.6, 1110.4],
-			y: [1090.7, 1564.7],
-			image: "floorWires",
-			name: "floorWires",
-		},
-
-		{
-			x: [1700.1, 2633.6],
-			y: [ 1853.5, 1249.3],
-			z: -1,
-			image: "floorWires2",
-			name: "floorWires2",
-		},
-
-
-
-		{
-			x:  [998.8, 151.8, 1893, 2722.6, 923.7, 1956.4, 1888.4, 988.9,  1036.3, 1834.3, 2105.8, 2578.3, 292.8, 770.5],
-			y: [ 959.3, 959.3, 959.3, 959.3, 1758.9, 1758.9, 1293.1, 1293.1,   239.7, 239.7, 428.7, 428.7, 428.7, 428.7],
-			image: "siren",
-			name: "siren",
-			crop: {
-				x: 0,
-				y: 0,
-				width: 202.5,
-				height: 202.5
+			{
+				x: [359.8],
+				y: [1478.7],
+				z: -1,
+				image: "blueprints",
+				name: "blueprints",
 			},
-			crop: {
-				x: 0,
-				y: 0,
-				width: 24,
-				height: 24
+			{
+				x: [390.7],
+				y: [1430],
+				z: -1,
+				image: "goggles",
+				name: "goggles",
 			},
-			animation: {
-				type: "spritesheet",
-				frameTime: 200,
-				imagesPerRow: 2,
-				totalImages: 2,
+
+			{
+				x: [270.2],
+				y: [1461.3],
+				z: -1,
+				image: "armour",
+				name: "armour",
 			},
-		},
+
+			{
+				x: [2602.2,  71.2,  1152, 1110.1, 883, 1989.9,],
+				y: [937.5,  1861.6, 634.1, 667.2,  926.8, 409.2,],
+				image: "toxicWasteGreen",
+				name: "toxicWasteGreen",
+			},
+
+			{
+				x: [2386.3,  823.5,  1798.8, 2663.4,  2052.9,],
+				y: [1903.1,  926.8,  1424.8, 937.5,  409.2,],
+				image: "toxicWastePurple",
+				name: "toxicWastePurple",
+			},
+
+			{
+				x: [1076.2, 2444, 1734.2, 98,],
+				y: [1424.8, 1903.1, 1424.8, 1884.9,],
+				image: "toxicWasteRed",
+				name: "toxicWasteRed",
+			},
+
+			{
+				x: [180.6, 1110.4],
+				y: [1090.7, 1564.7],
+				image: "floorWires",
+				name: "floorWires",
+			},
+
+			{
+				x: [1700.1, 2633.6],
+				y: [ 1853.5, 1249.3],
+				z: -1,
+				image: "floorWires2",
+				name: "floorWires2",
+			},
+
+
+
+			{
+				x:  [998.8, 151.8, 1893, 2722.6, 923.7, 1956.4, 1888.4, 988.9,  1036.3, 1834.3, 2105.8, 2578.3, 292.8, 770.5],
+				y: [ 959.3, 959.3, 959.3, 959.3, 1758.9, 1758.9, 1293.1, 1293.1,   239.7, 239.7, 428.7, 428.7, 428.7, 428.7],
+				image: "siren",
+				name: "siren",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 202.5,
+					height: 202.5
+				},
+				crop: {
+					x: 0,
+					y: 0,
+					width: 24,
+					height: 24
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 200,
+					imagesPerRow: 2,
+					totalImages: 2,
+				},
+			},
 
 
 
 
-	],
+		],
 		areaTeleports: [
 			{
 				x: 1442,
@@ -14274,7 +14362,6 @@ crop: {
 			},
 
 		],
-
 		tripwires: [
 		{
 		x: [1442] , y: [693],

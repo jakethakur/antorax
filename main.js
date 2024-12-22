@@ -936,8 +936,32 @@ var map = {
 		// set new intervals if there are tiles to be animated
 		if (this.animateTiles !== undefined) {
 			for (let animateIndex = 0; animateIndex < this.animateTiles.length; animateIndex++) {
-				if (typeof this.animateTiles[animateIndex].animateCondition === "undefined" || this.animateTiles[animateIndex].animateCondition()) {
-					this.tileAnimationIntervals.push(Game.setInterval(this.animateTilesFunction.bind(this), this.animateTiles[animateIndex].animateTime, [animateIndex]));
+				let animateObj = this.animateTiles[animateIndex];
+				if (typeof animateObj.animateCondition === "undefined" || animateObj.animateCondition()) {
+					if (animateObj.requireContinuity) {
+						// these tiles should be animated at all moments, even if not shown on the screen, in order to preserve continuity between tiles !
+						// find the location of all tiles to be animated 
+						// animateTilesLocations[animateIndex] contains all 
+						animateObj.tileLocations = [];
+						for (let layer = 0; layer < this.layers.length; layer++) {
+							for (let c = 0; c <= this.cols; c++) {
+								for (let r = 0; r <= this.rows; r++) {
+									let tileNum = map.getTile(layer, c, r); // tile number
+	
+									// see if tile should be animated due to appearing in animateObj
+									let index = animateObj.tiles.findIndex(tile => tile === tileNum);
+									if (index >= 0) {
+										// tile should be animated!
+										animateObj.tileLocations.push({layer: layer, col: c, row: r});
+									}
+								}
+							}
+						}
+					}
+
+					let intervalNumber = Game.setInterval(this.animateTilesFunction.bind(this), this.animateTiles[animateIndex].animateTime, [animateIndex]);
+					this.tileAnimationIntervals.push(intervalNumber);
+					this.animateTiles[animateIndex].intervalNumber = intervalNumber;
 				}
 			}
 		}
@@ -946,52 +970,83 @@ var map = {
 	// animates tiles based on this.animateTiles
 	// called by intervals set by initTileAnimation
 	// parameter is the index to be animated of the array map.animateTimes
+	// if requireContinuity is true for this animateIndex, all tiles in the area are animated
+	// otherwise, just those on the screen are animated
 	animateTilesFunction: function(animateIndex) {
-		// finding startCol etc is exactly the same as in drawLayer - tbd mayb try to generalise into a fn
-		let startCol, endCol, startRow, endRow;
+		let animateObj = this.animateTiles[animateIndex];
 
-		startCol = Math.floor(Game.camera.x / this.tsize) + this.origin.x/60;
-		if (this.viewportOffsetX > 0) {
-			// area width not big enough to fill camera
-			// set end column so canvas drawing does not loop
-			endCol = this.cols - 1;
-		}
-		else {
-		    endCol = startCol + Math.ceil(Game.camera.width / this.tsize);
-		}
+		if (animateObj.requireContinuity) {
+			// all tiles in the area are animated - an array of their locations was generated in map.initTileAnimation
 
-		startRow = Math.floor(Game.camera.y / this.tsize) + this.origin.y/60;
-		if (this.viewportOffsetY > 0) {
-			// area height not big enough to fill camera
-			// set end column so canvas drawing does not loop
-			endRow = this.rows - 1;
-		}
-		else {
-		    endRow = startRow + Math.ceil(Game.camera.height / this.tsize);
-		}
-
-		// iterate through tiles
-		for (let layer = 0; layer < this.layers.length; layer++) {
-		    for (let c = startCol; c <= endCol; c++) {
-		        for (let r = startRow; r <= endRow; r++) {
-		            let tileNum = map.getTile(layer, c, r); // tile number
-
-					// see if tile should be animated by appearing in this.animateTiles[animateIndex]
-					let index = this.animateTiles[animateIndex].tiles.findIndex(tile => tile === tileNum);
-					if (index >= 0) {
-						// tile should be animated!
-						index++;
-						if (index === this.animateTiles[animateIndex].tiles.length) {
-							// wrap around to start of animate array
-							index = 0;
-						}
-						// set the tile
-						// could use map.setTile? not sure if necessary
-						this.setTile(layer, c, r, this.animateTiles[animateIndex].tiles[index]);
+			for (let i = 0; i < animateObj.tileLocations.length; i++) {
+				let tileLocation = animateObj.tileLocations[i];
+				let tileNum = this.getTile(tileLocation.layer, tileLocation.col, tileLocation.row);
+				// find new value of tile
+				let index = animateObj.tiles.findIndex(tile => tile === tileNum);
+				if (index >= 0) {
+					index++;
+					if (index === animateObj.tiles.length) {
+						// wrap around to start of animate array
+						index = 0;
 					}
-		        }
+					// set the tile
+					// could use map.setTile? not sure if necessary
+					this.setTile(tileLocation.layer, tileLocation.col, tileLocation.row, animateObj.tiles[index]);
+				}
+				else {
+					console.error("Tile was in tileLocations, but does not have a tileNum that should be animated",animateObj)
+				}
 			}
-	    }
+		}
+		else {
+			// just tiles on the screen are animated
+
+			// finding startCol etc is exactly the same as in drawLayer - tbd mayb try to generalise into a fn
+			let startCol, endCol, startRow, endRow;
+
+			startCol = Math.floor(Game.camera.x / this.tsize) + this.origin.x/60;
+			if (this.viewportOffsetX > 0) {
+				// area width not big enough to fill camera
+				// set end column so canvas drawing does not loop
+				endCol = this.cols - 1;
+			}
+			else {
+				endCol = startCol + Math.ceil(Game.camera.width / this.tsize);
+			}
+
+			startRow = Math.floor(Game.camera.y / this.tsize) + this.origin.y/60;
+			if (this.viewportOffsetY > 0) {
+				// area height not big enough to fill camera
+				// set end column so canvas drawing does not loop
+				endRow = this.rows - 1;
+			}
+			else {
+				endRow = startRow + Math.ceil(Game.camera.height / this.tsize);
+			}
+
+			// iterate through tiles
+			for (let layer = 0; layer < this.layers.length; layer++) {
+				for (let c = startCol; c < endCol; c++) {
+					for (let r = startRow; r <= endRow; r++) {
+						let tileNum = map.getTile(layer, c, r); // tile number
+
+						// see if tile should be animated by appearing in animateObj
+						let index = animateObj.tiles.findIndex(tile => tile === tileNum);
+						if (index >= 0) {
+							// tile should be animated!
+							index++;
+							if (index === animateObj.tiles.length) {
+								// wrap around to start of animate array
+								index = 0;
+							}
+							// set the tile
+							// could use map.setTile? not sure if necessary
+							this.setTile(layer, c, r, animateObj.tiles[index]);
+						}
+					}
+				}
+			}
+		}
 	},
 
 	// replaces a tile or group of tiles - these tiles should all be distinct (e.g. 6 different tiles make up a rock)
@@ -1296,6 +1351,23 @@ Game.clearInterval = function(id) {
 		return true;
 	}
 	return false;
+}
+
+// change the time of an interval (also works for timeouts)
+Game.changeInterval = function (timeoutId, newTime) {
+	let obj = this.intervals.find(timeout => timeout.id === timeoutId);
+	if (typeof obj === "undefined") {
+		// look in timeouts instead
+		obj = this.timeouts.find(timeout => timeout.id === timeoutId);
+		if (typeof obj === "undefined") {
+			console.error("Could not find an interval or timeout with id: ", timeoutId)
+			return false;
+		}
+	}
+
+	obj.time = newTime;
+
+	return true;
 }
 
 //
@@ -7247,7 +7319,7 @@ class Mailbox extends Thing {
     }
 }
 
-// used for area puzzles - these will attach to the player when they walk near, reducing their speed
+// used for area puzzles - these will attach to the player when they walk near, reducing their speed by 40%
 // if the player takes damage they will leave the player
 // if they reach near their target coordinates / entity, they leave the player and set a certain quest variable to be true (if desired)
 class Ley extends Thing {
@@ -7255,15 +7327,26 @@ class Ley extends Thing {
         super(properties);
 
 		this.connectedToHero = false;
+		this.connectedHeroHealth 
 
-        this.range = properties.range; // distance this must be from hero latch on / from target to leave hero
+        this.range = properties.range || 70; // distance this must be from hero latch on / from target to leave hero
+
+		this.speed = properties.speed || 50;
     }
 
 	update () {
-		// see if it can connect
-		if (!this.connectedToHero && Game.distance(this, Game.hero) <= this.range) {
+		// see if it can disconnect
+		if (this.connectedToHero) {
 			
 		}
+
+		// see if it can connect
+		if (!this.connectedToHero && !Game.hero.hasLey && Game.distance(this, Game.hero) <= this.range) {
+			this.connectedToHero = true;
+			Game.hero.hasLey = true;
+		}
+		
+		// if it's connected to the hero, move towards the hero's head
 	}
 }
 
@@ -8539,6 +8622,39 @@ Game.drawTrail = function (entity, trail) {
 Game.questPresets = {};
 
 Game.questPresets.protect = function (properties) {
+	let channelSuccessFunction = function () {
+		if (typeof properties.questArea !== "undefined" && typeof properties.questId !== "undefined") {
+			if (typeof properties.questStep !== "undefined") {
+				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = properties.questStep;
+			}
+			else {
+				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = true;
+			}
+		}
+
+		if (typeof properties.onFinish !== "undefined") {
+			properties.onFinish();
+		}
+
+		Dom.quests.active();
+	};
+	properties.protectObject.channel(channelSuccessFunction, [], properties.timePeriod, properties.progressBarDescription, {colour: properties.progressBarColour});
+
+	Dom.scoreboardInit({
+		timeLimit: 110,
+		variablesArray: [{keyName: "gameScore", title: "Score"}],
+		targetVariableIndex: 0,
+		targetValue: 20,
+		//title: ,
+		//questArea: ,
+		//questId: ,
+		//randomEvents: ,
+		//eventSequence: ,
+		//chatSequence: ,
+	})
+}
+
+Game.questPresets.protect = function (properties) {
 	// commences a protect stage of a quest, where the player must protect a pre-summoned object for a given time period
 	// if the player leaves the area, or dies causing them to leave the area, or the object gets destroyed, then the stage is failed. if a quest is specified, a step can be un-completed or a quest can be abandoned (see below).
 	// note the object will need to be resummoned outside of this fn if it gets destroyed
@@ -8559,7 +8675,7 @@ Game.questPresets.protect = function (properties) {
 	// chatSequence: same as above, but for chat banners that are displayed. properties of each object are the usual chatBanner parameters (see questdata chat), and time property which is same as above
 	// note that these won't display if the player is currently talking to another NPC
 
-	// questArea and questId: the area and id of the related quest in questdata (note if this is specified, then upon completion, Player.quests.progress[questArea][questId].protectStageCompleted is set to questStep (or true if questStep not specified))
+	// questArea and questId: the area and id of the related quest in questdata (note if this is specified, then upon completion, Player.quests.prog[questArea][questId].vars.protectStageCompleted is set to questStep (or true if questStep not specified))
 	// questStep: the step of the quest that will be un-completed if the player fails (note that alternate dialogue can be specified for further attempts of this quest step, in questdata using the chatFailed dialouge)
 	// if questStep is the first step (0), then the quest is abandoned on fail
 
@@ -8575,10 +8691,10 @@ Game.questPresets.protect = function (properties) {
 	let channelSuccessFunction = function () {
 		if (typeof properties.questArea !== "undefined" && typeof properties.questId !== "undefined") {
 			if (typeof properties.questStep !== "undefined") {
-				Player.quests.progress[properties.questArea][properties.questId].protectStageCompleted = properties.questStep;
+				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = properties.questStep;
 			}
 			else {
-				Player.quests.progress[properties.questArea][properties.questId].protectStageCompleted = true;
+				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = true;
 			}
 		}
 
@@ -8958,7 +9074,7 @@ Game.loadDefaultImages = function () {
 	}
 
 	if (Player.name === "James") {
-		Player.skinTone = "slug"
+		Player.skinTone = "slug";
 		Player.ears = "null";
 		Player.hair = "null";
 		Player.beard = "null";
@@ -8969,6 +9085,10 @@ Game.loadDefaultImages = function () {
 		Player.hat = "null";
 		Player.beard = "null";
 	}
+	
+	if (typeof Player.ears === "undefined") {
+		Player.ears = Player.skinTone;
+	}
 
 	// load player images
 	toLoad.push(Loader.loadImage("playerSkin_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
@@ -8977,7 +9097,7 @@ Game.loadDefaultImages = function () {
 	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
 	toLoad.push(Loader.loadImage("playerBeard_"+Player.beard, "./assets/playerCustom/beard/" + Player.beard + ".png", false));
 	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
-	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
+	toLoad.push(Loader.loadImage("playerEars_"+Player.ears, "./assets/playerCustom/ears/" + Player.ears + ".png", false));
 	toLoad.push(Loader.loadImage("playerHat_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
 
 	// load class' default projectile
@@ -9794,6 +9914,12 @@ Game.loadArea = function (areaName, destination) {
 			});
 		}
 		*/
+
+		// they logged out at this area - call areaLeave if there are quests that need to be abandoned, variables that need to be reset etc.
+		// note quests may also be abandoned on logout through Game.hero.abandonQuestsOnLogout, which is dealt with in Game.init
+		if (init && Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
+			Areas[Game.areaName].onAreaLeave(true);
+		}
 
 		// done loading!
 		this.loadingArea = false;
@@ -11204,7 +11330,7 @@ Game.update = function (delta) {
 										questCanBeStarted = false;
 										questActive = true; // for npc dialogue
 									}
-									else if (role.newQuestFrequency === "daily" && role.quest.some(quest => Player.quests.questLastFinished[quest.questArea][quest.id] >= GetFullDate())) {
+									else if (role.newQuestFrequency === "daily" && role.quest.some(quest => Player.quests.prog[quest.questArea][quest.id].questLastFinished >= GetFullDate())) {
 										// daily quest and one of the quests has already been done today (or after today o.O)
 										questCanBeStarted = false;
 										questComplete = true; // for npc dialogue
@@ -11258,7 +11384,7 @@ Game.update = function (delta) {
 											}
 											else if (role.quest.repeatTime === "daily") {
 												// daily
-												if (Player.quests.questLastFinished[role.quest.questArea][role.quest.id] >= GetFullDate()) { // quest has already been done today (or after today o.O)
+												if (Player.quests.prog[role.quest.questArea][role.quest.id].questLastFinished >= GetFullDate()) { // quest has already been done today (or after today o.O)
 													// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
 													questComplete = true; // for npc dialogue
 												}
@@ -11328,11 +11454,11 @@ Game.update = function (delta) {
 
 										let stepDone = true;
 
-										if (Player.quests.stepProgress[quest.questArea][quest.id][step]) {
+										if (Player.quests.prog[quest.questArea][quest.id].stepProgress[step]) {
 											// step already been completed
 											stepDone = false;
 										}
-										else if (typeof quest.steps[step].availableUntilStepDone !== "undefined" && Player.quests.stepProgress[quest.questArea][quest.id][quest.steps[step].availableUntilStepDone]) {
+										else if (typeof quest.steps[step].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[step].availableUntilStepDone]) {
 											// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
 											stepDone = false;
 										}
@@ -11343,7 +11469,7 @@ Game.update = function (delta) {
 											while (checkStep >= 0 && quest.steps[checkStep].optional) {
 												checkStep--;
 											}
-											if (checkStep >= 0 && !Player.quests.stepProgress[quest.questArea][quest.id][checkStep]) {
+											if (checkStep >= 0 && !Player.quests.prog[quest.questArea][quest.id].stepProgress[checkStep]) {
 												// previous step not been done yet
 												stepDone = false;
 											}
@@ -11362,7 +11488,7 @@ Game.update = function (delta) {
 												}
 												for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
 													let obj = quest.steps[step].objectiveRequirement[objIndex];
-													if (Player.quests.objectiveProgress[quest.questArea][quest.id][obj] !== true) {
+													if (Player.quests.prog[quest.questArea][quest.id].objectiveProgress[obj] !== true) {
 														// objective is not done
 														stepDone = false;
 														break;
@@ -11376,7 +11502,7 @@ Game.update = function (delta) {
 											// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
 											questFinish = true;
 											for (let i = 0; i < quest.steps.length; i++) {
-												if (!Player.quests.stepProgress[quest.questArea][quest.id][i] && !quest.steps[i].optional && i!==step) {
+												if (!Player.quests.prog[quest.questArea][quest.id].stepProgress[i] && !quest.steps[i].optional && i!==step) {
 													// the step is not finished, isn't optional, and isn't the step that's just about to be done
 													questFinish = false;
 													break;

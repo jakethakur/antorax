@@ -821,7 +821,7 @@ unidentifiedArea: ["caves"],
 			area: ["eaglecrest"],
 			rarity: "unique",
 			quest: true,
-			removeOnAbandon: "Help! Lost Cat",
+			removeOnAbandon: {area: "eaglecrest", id: 17},
 			functionText: "For cat-tracking use.",
 			lore: "αlfa version! May cause unexpected ley interference!",
 			obtainText: "???",
@@ -6145,6 +6145,7 @@ unidentifiedArea: ["caves"],
 			image: "assets/items/consumable/33.png",
 			functionText: "In 3 seconds, deal 10 damage to ALL characters near this, and set them on fire (I).",
             cooldown: 25,
+			sellPrice: 3,
 			onClickFunction: function (inventoryPosition) {
 				// remove the item
 				Dom.inventory.remove(inventoryPosition);
@@ -6155,7 +6156,6 @@ unidentifiedArea: ["caves"],
 				dynamiteLit: {normal: "./assets/projectiles/dynamiteLit.png"},
 				// explosion is already loaded in by default
 			},
-			sellPrice: 3,
 		},
 		{
 			id: 34,
@@ -6371,6 +6371,25 @@ unidentifiedArea: ["caves"],
 				Game.hero.untransform();
 			}
 		},
+		{
+			id: 42,
+			name: "Diamond-Grade Dynamite",
+			type: "consumable",
+			image: "assets/items/consumable/33.png",
+			functionText: "In 3 seconds, deal 20 damage to ALL characters near this, and set them on fire (II). Deals significantly increased damage to rock-based creatures.",
+			sellPrice: 4,
+            cooldown: 15,
+			onClickFunction: function (inventoryPosition) {
+				// remove the item
+				Dom.inventory.remove(inventoryPosition);
+				// place down dynamite
+				ItemFunctions.placeDynamite(Game.hero.x, Game.hero.y, Game.hero, 20, 2);
+			},
+			requiredImages: { // images that should be loaded for this item
+				dynamiteLit: {normal: "./assets/projectiles/dynamiteLit.png"},
+				// explosion is already loaded in by default
+			},
+		},
 	],
 	food: [
 		{
@@ -6523,6 +6542,16 @@ unidentifiedArea: ["caves"],
 			healthRestore: 99,
 			healthRestoreTime: 9,
 			lore: "Antorax turns nine!",
+		},
+		{
+			id: 13,
+			name: "Crumpet",
+			type: "food",
+			image: "assets/items/food/13.png",
+			sellPrice: 1,
+			healthRestore: 40,
+			healthRestoreTime: 6,
+			lore: "This thing's basically a part of the geology now",
 		},
 	],
 	teleport: [
@@ -7661,11 +7690,11 @@ unidentifiedArea: ["caves"],
 			consumption: false,
 			areas: ["loggingCamp"],
 			catchRequirement: function () {
-				return (Player.quests.stepProgress.eaglecrest[12][5]);
+				return (Player.quests.prog.eaglecrest[12].stepProgress[5]);
 			},
 			onCatch: function()
 			{
-				Player.quests.progress.eaglecrest[12].translatorFishedUp = true;
+				Player.quests.prog.eaglecrest[12].vars.translatorFishedUp = true;
 				Dom.quests.active();
 				Dom.chat.npcBanner({name: "Fisherman Tobenam", imageSrc: "assets/npcs/tobenam.png"}, "Heheheh, you found one. I'll see you around then, heheh.");
 			},
@@ -7694,7 +7723,7 @@ unidentifiedArea: ["caves"],
 			},
 			onCatch: function()
             {
-                Player.quests.progress.eaglecrest[13].wellFish = true;
+                Player.quests.prog.eaglecrest[13].vars.wellFish = true;
             }
 		},
 		//well junk
@@ -7998,12 +8027,18 @@ const ItemFunctions = {
 	},
 
 	// used by consumable 33, and demolitionist darrow boss
-	placeDynamite: function (x, y, caster, damage, flamingTier) {
+	// detonationTime is milliseconds
+	// crit parameter gives this an option to deal bonus damage to enemies of a certain type
+	// it should be an array of objects, where the objects have properties "characteristic" (the characteristic that is targetted), and "damageMultiplier"
+	placeDynamite: function (x, y, caster, damage, flamingTier, detonationTime, crit) {
 		if (typeof flamingTier === "undefined") {
 			flamingTier = 1;
 		}
 		if (typeof damage === "undefined") {
 			damage = 10;
+		}
+		if (typeof detonationTime === "undefined") {
+			detonationTime = 3000;
 		}
 
 		let dynamiteObject = {
@@ -8051,7 +8086,7 @@ const ItemFunctions = {
 
 			// remove the dynamite object
 			Game.removeObject(dynamite.id, dynamite.type);
-		}, [thing], 3000, "", {colour: "#FF5313"});
+		}, [thing], detonationTime, "", {colour: "#FF5313"});
 	},
 }
 
