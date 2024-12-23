@@ -4305,7 +4305,7 @@ var Quests = {
 			],
 
 			objectivesList: [
-				{id: 0, text: "Achieve a success rate of 76% or greater at the conveyor belt station, to the left of the <b>Tinkerer's Workshop</b>.", associatedVariable:"scoreboardProgress"},
+				{id: 0, text: "Achieve a success rate of 76% or greater at the conveyor belt station, to the left of the <b>Tinkerers' Workshop</b>.", associatedVariable:"scoreboardProgress"},
 				{id: 1, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",},
 			],
 
@@ -4350,7 +4350,7 @@ var Quests = {
 			],
 
 			objectivesList: [
-				{id: 0, text: "Find fifteen green <b>Lucents</b> around the <b>Eaglecrest Tinkerer's Workshop</b>.",},
+				{id: 0, text: "Find fifteen green <b>Lucents</b> around the <b>Eaglecrest Tinkerers' Workshop</b>.",},
 				{id: 1, text: "Speak to <b>Weapons Tinkerer Dolph</b> in the <b>Tinkerers' Workshop</b>.",},
 			],
 

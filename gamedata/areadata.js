@@ -13802,7 +13802,7 @@ chloroville: {
 		id: 29,
 
 		data: {
-			name: "Tinkerer's Workshop",
+			name: "Tinkerers' Workshop",
 			displayOnEnter: false,
 		},
 
