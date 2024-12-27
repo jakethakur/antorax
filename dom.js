@@ -3343,8 +3343,8 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.targetVariableIndex = properties.targetVariableIndex;
 		this.scoreboard.targetValue = properties.targetValue;
 		this.scoreboard.targetComparisonType = properties.targetComparisonType||"geq";
-		this.scoreboard.successFunction = properties.successFunction;
-		this.scoreboard.failFunction = properties.failFunction;
+		this.scoreboard.successFunction = properties.successFunction.bind(this.scoreboard);
+		this.scoreboard.failFunction = properties.failFunction.bind(this.scoreboard);
 		this.scoreboard.callFailFunctionOnAbandon = properties.callFailFunctionOnAbandon;
 		this.scoreboard.progressKey = properties.progressKey || "scoreboardProgress";
 
@@ -3479,6 +3479,9 @@ Dom.scoreboardUpdateVisual = function () {
 
 	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
 		let variable = this.scoreboard.variablesArray[i];
+		if (variable.percentage) { // it is a decial but should be displayed as a percentage
+		    variable*=100;
+		}
 		if (typeof variable.title !== "undefined") {
 			document.getElementById("scoreboardVariable"+i).textContent = variable.title+": "+variable.value;
 		}
@@ -3566,7 +3569,7 @@ Dom.scoreboardFinish = function (result) {
 		}
 	}
 
-	// clear variables
+	// clear variables (note this is done after successFunction and failFunction
 	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
 		let foo = this.scoreboard.variablesArray[i];
 		if (typeof foo.keyName !== "undefined" && !foo.doNotClear) {

@@ -166,10 +166,12 @@ var Player = {
 	unlockedTabs: [],
 	skippedTabs: [],
 
+    // misc stats used for achivements mostly!
 	playtime: 0, // seconds on the game
 	days: [], // days logged on (yyyymmdd)
 	consecutiveDays: 0,
-	metNPCs: ["Cart Driver"],
+	metNPCs: [],
+	totalDeaths: 0, // doesn't include minigame deaths
 
 	chatOnJoin: [],
 
@@ -230,10 +232,13 @@ var Player = {
 		// timesCompleted, number of times a player has completed a repeatable quest (used for e.g. hide and seek quest in logging camp)
 		// startedFromNpc, for each quest started with differsOnNpc property, this contains the npc that it was most recently started from
 
+        randomDailyQuests: {},
+
+
 		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		// this is used either for OLD QUESTS or objectives that aren't just relevant to one quest (since this object does not have proper structure)
 
-		npcProgress: {}, // legacy - not used anymore. just here for now so areas/npcs don't break; remove at some poin
+		npcProgress: {}, // legacy - not used anymore. just here for now so areas/npcs don't break; remove at some point
 	},
 
 	// overall progress, checked by DOM etc

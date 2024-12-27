@@ -1157,7 +1157,7 @@ Game.removeObject = function (id, type, index) {
 
 		// remove any status effect timeouts
 		if (typeof obj.removeAllStatusEffects !== "undefined") {
-			obj.removeAllStatusEffects();
+			obj.removeAllStatusEffects(); // (counts as a death as far as status effects are concerned)
 		}
 
 		// every object is an entity
@@ -2844,37 +2844,39 @@ class Character extends Thing {
 	}
 
 	// remove status effect from the specified index of this.statusEffects
-	// reason is a string specifying the reason the effect was removed
+	// reason is a string specifying the reason the effect was removed - i.e. "time" or "death"
 	removeStatusEffect (index, reason) {
 		let statusEffect = this.statusEffects[index];
 
-		// clear tick
-		if (statusEffect.tickTimeout !== undefined) {
-			Game.clearTimeout(statusEffect.tickTimeout);
-		}
+		if (reason === "death" && statusEffect.removeOnDeath) {
+            // clear tick
+            if (statusEffect.tickTimeout !== undefined) {
+                Game.clearTimeout(statusEffect.tickTimeout);
+            }
 
-		// call onExpire
-		// only called if the status effect has run out of time, or if onExpire is called on any remove
-		if (statusEffect.onExpire !== undefined && (reason==="time" || statusEffect.callExpireOnRemove)) {
-			statusEffect.onExpire(this, ...statusEffect.onExpireParams);
-		}
+            // call onExpire
+            // only called if the status effect has run out of time, or if onExpire is called on any remove
+            if (statusEffect.onExpire !== undefined && (reason==="time" || statusEffect.callExpireOnRemove)) {
+                statusEffect.onExpire(this, ...statusEffect.onExpireParams);
+            }
 
-		// status effect display if status effect is hidden
-		if (statusEffect.hidden) {
-			this.numberOfHiddenStatusEffects--;
-		}
+            // status effect display if status effect is hidden
+            if (statusEffect.hidden) {
+                this.numberOfHiddenStatusEffects--;
+            }
 
-		// hide infobar if there was one
-		if (statusEffect.infoBarText !== undefined && Game.minigameInProgress === undefined) {
-			Dom.infoBar.page("");
-		}
+            // hide infobar if there was one
+            if (statusEffect.infoBarText !== undefined && Game.minigameInProgress === undefined) {
+                Dom.infoBar.page("");
+            }
 
-		// remove it
-		this.statusEffects.splice(index, 1);
+            // remove it
+            this.statusEffects.splice(index, 1);
 
-		// refresh canvas status effects if the status effect was applied to player
-		if (this.constructor.name === "Hero") {
-			this.updateStatusEffects();
+            // refresh canvas status effects if the status effect was applied to player
+            if (this.constructor.name === "Hero") {
+                this.updateStatusEffects();
+            }
 		}
 	}
 
@@ -2883,7 +2885,7 @@ class Character extends Thing {
 	removeAllStatusEffects () {
 		while (this.statusEffects.length > 0) {
 			// cannot be set to [] for Game.hero, otherwise it no longer mirrors player
-			this.removeStatusEffect(0, "all");
+			this.removeStatusEffect(0, "death");
 		}
 	}
 
@@ -2918,10 +2920,11 @@ class Character extends Thing {
 			this.damageTakenFromHero = true;
 		}
 
-		// check for death
 		if (this !== Game.hero) {
 			// not player (assumed it is killed by player - TBD)
 			// TBD use hostility to check if it is killed by player
+
+			// check for death
 			if (this.health <= 0 && !this.isCorpse && !this.removed) { // check it is dead and not already a corpse
 
 				// death ! !
@@ -3098,10 +3101,13 @@ class Character extends Thing {
 				}
 			}
 
-			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
+            // check for death
+			if (this.health <= 0 && !this.respawning) { // check player is dead and not already respawning
 
 				if (!Game.minigameInProgress || !Game.minigameInProgress.playing) {
 					// not playing a minigame
+
+			        Player.totalDeaths = Increment(Player.totalDeaths);
 
 					// find existing xp fatigue effect
 					let existingEffect = this.statusEffects.find(statusEffect => statusEffect.title === "XP Fatigue");
@@ -3169,6 +3175,7 @@ class Character extends Thing {
 				}
 				else {
 					// playing a minigame
+					// doesn't actually count as a real death - they are just stunned for 5s instead
 					Game.statusEffects.generic({
 						effectTitle: "Respawning",
 						effectDescription: "You can't die in a minigame",
@@ -3458,9 +3465,9 @@ class Character extends Thing {
 			}; // time the player has been displaced for
 
 			// (for testing) - let user know if a character is being displaced that already has a set z position
-			// this is becuse the set z position will be removed by setExpandZ (and not returned after the displacement), which should never happen
+			// this is because the set z position will be removed by setExpandZ (and not returned after the displacement), which should never happen
 			if (this.z !== 0) {
-				console.error("The z position of a character is being changed by displacement (when it has already been set before by something else). This shouldn't happen, please tell Jake.", this)
+				console.error("The z position of a character is being changed by displacement, when it has already been set before by something else. This shouldn't happen, please tell Jake.", this)
 			}
 
 			// expand by 0.01
@@ -3482,7 +3489,7 @@ class Character extends Thing {
 			// expand
 			let newExpand;
 			if (this.isBeingDisplaced.time < 1) {
-				// small time displace uses different equation
+				// small time displace uses different equation, so the player's max expand is capped (but doesn't hit this cap for small displacement times)
 				newExpand = -Math.pow(2*this.isBeingDisplaced.elapsed-this.isBeingDisplaced.time, 2) + Math.pow(this.isBeingDisplaced.time, 2) + 1;
 			}
 			else {
@@ -4008,7 +4015,7 @@ class UserControllable extends Attacker {
 		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
 		loadObj[faceKeyName] = {normal: "./assets/playerCustom/facialExpression/" + this.face + ".png"};
 		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"}; // tbd get from skindata
-		loadObj[beardKeyName] = {normal: "./assets/playerCustom/berad/" + this.beard + ".png"};
+		loadObj[beardKeyName] = {normal: "./assets/playerCustom/beard/" + this.beard + ".png"};
 		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
 		loadObj[earsKeyName] = {normal: "./assets/playerCustom/ears/" + this.skinTone + ".png"};
 		loadObj[hatKeyName] = {normal: "./assets/playerCustom/hat/" + this.hat + ".png"};
@@ -7608,8 +7615,6 @@ function statusEffect(properties) {
 
 	this.type = properties.type; // status effect type
 
-	this.changedStat = properties.changedStat; // used to change back changed stat on expire (same name as key name in target.stats)
-
 	this.hidden = properties.hidden; // not visible to player
 
 	this.showInfoBar = properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText)
@@ -7723,17 +7728,6 @@ Game.statusEffects.functions = {
 		}
 	},
 
-	// decreases target's stat (changedStat) by value info[changedStat]
-	/*decreaseStat: function (target) {
-		if (target.stats[this.changedStat] !== undefined) {
-			// stat exists
-			target.stats[this.changedStat] -= this.info[this.changedStat];
-		}
-		else {
-			console.error("Stat " + this.changedStat + " does not exist, but status effect " + this.title + " wants to decrease it. Please tell Jake!");
-		}
-	},*/ // shouldn't really be used! see above
-
 	//
 	// please try to keep the following in alphabetical order :)
 	//
@@ -7834,24 +7828,20 @@ Game.statusEffects.generic = function (properties) {
 
 	if (found === -1) { // no similar effect currently applied to the target, or effect doesn't stack
 
-		// effect description
-		let effectText = properties.effectDescription;
-
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
-			effect: effectText,
-			info: { // status effect in-game behaviour info (time remaining, etc.) - tbd needs removing..
-				curse: properties.curse, // transferred on to enemies on attack
-				worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
-				showTime: typeof properties.showTime==="undefined"?true:false,
-				removeOnAttack: properties.removeOnAttack, // if the status effect should be removed after player attacking - currently just works for player!
-			},
+			effect: properties.effectDescription,
 			extraInfo: properties.extraInfo, // extra properties to be added to info
 			image: properties.imageName,
 			type: properties.type,
-			changedStat: properties.changedStat, // used to change back changed stat on expire (same name as key name in target.stats)
 			hidden: properties.hidden, // not visible to player
-			showInfoBar: properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText + colour properties.infoBarColour)
+
+			showInfoBar: properties.showInfoBar, // infobar shown about status effect (with text properties.infoBarText + colour properties.infoBarColour)
+
+			curse: properties.curse, // transferred on to enemies on attack
+		    worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
+			showTime: typeof properties.showTime==="undefined"?true:false,
+			removeOnAttack: properties.removeOnAttack, // if the status effect should be removed after player attacking - currently just works for player!
 		}));
 
 		// the status effect that was just added
@@ -9061,21 +9051,18 @@ Game.loadDefaultImages = function () {
 
 	if (Player.name === "Sammer") {
 		Player.skinTone = "fish"
-		Player.ears = "null";
 		Player.hair = "null";
 		Player.beard = "null";
 	}
 
 	if (Player.name === "Pingu") {
 		Player.skinTone = "penguin"
-		Player.ears = "null";
 		Player.hair = "null";
 		Player.beard = "null";
 	}
 
 	if (Player.name === "James") {
 		Player.skinTone = "slug";
-		Player.ears = "null";
 		Player.hair = "null";
 		Player.beard = "null";
 	}
@@ -9085,10 +9072,8 @@ Game.loadDefaultImages = function () {
 		Player.hat = "null";
 		Player.beard = "null";
 	}
-	
-	if (typeof Player.ears === "undefined") {
-		Player.ears = Player.skinTone;
-	}
+
+    Player.ears = Player.skinTone;
 
 	// load player images
 	toLoad.push(Loader.loadImage("playerSkin_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
@@ -9097,7 +9082,7 @@ Game.loadDefaultImages = function () {
 	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
 	toLoad.push(Loader.loadImage("playerBeard_"+Player.beard, "./assets/playerCustom/beard/" + Player.beard + ".png", false));
 	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
-	toLoad.push(Loader.loadImage("playerEars_"+Player.ears, "./assets/playerCustom/ears/" + Player.ears + ".png", false));
+	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
 	toLoad.push(Loader.loadImage("playerHat_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
 
 	// load class' default projectile
