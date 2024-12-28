@@ -31,6 +31,7 @@
 		<div id='outTriangle' class='triangleLeft'></div>
 		<div id='triangle' class='innerTriangleLeft'></div>
 		<p id='name' style="font-weight: bold;"></p>
+		<p id='itemNotice' style="font-weight: bold;color:'\910909'"></p>
 		<p id='itemDescriptionText'></p> <!-- for spells -->
 		<p id='quest' style="color: slateblue;">Quest item</p>
 		<p id='itemTier'></p>
@@ -75,10 +76,10 @@
 		<div id="displayStats" onmouseover="Dom.inventory.displayIdentification(true)"onmouseleave="Dom.expand('itemIdentification')"></div>
 
 		<span id="inventoryGearWrapper">
-			<div id="helm" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-			<div id="chest" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-			<div id="greaves" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
-			<div id="boots" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="helm" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.helm, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Helm slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'helm');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="chest" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.chest, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Chest slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'chest');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="greaves" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.greaves, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Leg slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'greaves');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="boots" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.boots, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Boots slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'boots');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		</span>
 
 		<div id="weapon" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.weapon, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'weapon');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
@@ -90,10 +91,10 @@
 				<td id="trinketSlot3" ondrop="Dom.inventory.drop(event, Player.inventory.trinkets, 2);Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.trinkets[2], undefined, 'inventoryPage', undefined, undefined, undefined, 'Trinket slot empty')" onmouseleave="Dom.expand('information')" ondrag="Dom.expand('information')" onclick="Game.inventoryUpdate()"></td>
 			</tr>
 
-			<div hidden id="mountSlotLocked" onmouseover="Dom.inventory.displayInformation({name: 'Mount slot locked', image:''}, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"></div>
-			<div id="mountSlotUnlocked" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.mount, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Mount slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'mount');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div hidden id="mountSlotLocked" onmouseover="Dom.inventory.displayInformation(undefined, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Mount slot locked')"onmouseleave="Dom.expand('information')"></div>
+			<div id="mountSlotUnlocked" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.mount, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Mount slot empty')" onmouseleave="Dom.expand('information')" ondrop="Dom.inventory.drop(event, Player.inventory, 'mount');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 
-			<div id="bag" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.bag, undefined, 'inventoryPage', 'equip')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'bag');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
+			<div id="bag" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.bag, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Bag slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'bag');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		</table>
 
 		<span id="itemInventoryWrapper">

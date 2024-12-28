@@ -587,6 +587,10 @@ function FromCamelCase (str) {
 	return str.charAt(0).toUpperCase() + str.slice(1).replace( /([A-Z])/g, " $1" );
 }
 
+function capitalizeFirstLetter (str) {
+    return String(str).charAt(0).toUpperCase() + String(str).slice(1);
+}
+
 // random number between min and max, biased around certain value (bias)
 // influence is how much influence on the random number this should have (should normally be set to 1)
 // thanks to https://stackoverflow.com/a/29325222/9713957

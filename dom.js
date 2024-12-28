@@ -109,6 +109,7 @@ let Dom = {
 		itemTier: document.getElementById("itemTier"),
 		itemIdentification: document.getElementById("itemIdentification"),
 		itemInventory: document.getElementById("itemInventory"),
+		itemNotice: document.getElementById("itemNotice"),
 		leaderboardPage: document.getElementById("leaderboardPage"),
 		leaderboardPageDescription: document.getElementById("leaderboardPageDescription"),
 		leaderboardPageList: document.getElementById("leaderboardPageList"),
@@ -1190,20 +1191,20 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 		}
 	}
 
-	// maybe Dom.changeBook should be used for the following?: 
+	// maybe Dom.changeBook should be used for the following?:
 	if (Dom.currentlyDisplayed === "" || (Dom.currentlyDisplayed === "npcBanner" && Dom.currentNPC.name === npc.name && Dom.chat.npcBannerText !== text[0].text)) {
 		Dom.currentlyDisplayed = "npcBanner";
 		Dom.currentNPC = npc;
 
 		//skippable = true;
-	
+
 		Dom.chat.npcBannerReadyToProgress = false;
-	
+
 		// reinit
 		//Dom.elements.npcChatBanner1.style.height = "116px";
 		Dom.chat.npcBannerText = "";
 		Dom.chat.npcBannerArray = undefined;
-	
+
 		let toShow;
 		if (text.length > 1) {
 			// still some text left to be shown after this
@@ -1223,11 +1224,11 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 
 			toShow = text[0];
 		}
-	
+
 		Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
-	
+
 		Dom.chat.npcBannerParams.skippable = skippable;
-	
+
 		if (typeof toShow === "object") {
 			if (toShow.long) {
 				// show three lines
@@ -1239,23 +1240,23 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 				Dom.elements.npcChatBanner1.style.height = "116px";
 				Dom.elements.npcChatBanner1.style.backgroundImage = "url('./assets/interface/npcDialogue1.png')";
 			}
-	
+
 			Dom.chat.npcBannerText = toShow.text;
-	
+
 			Dom.chat.npcBannerParams.onFinish = toShow.onFinish; // function or undefined
 			Dom.chat.npcBannerParams.onFinishParams = toShow.onFinishParams; // array or undefined
-	
+
 			// these are just to be set by DOM functions
 			Dom.chat.npcBannerParams.onFinishDom = toShow.onFinishDom; // function or undefined
 			Dom.chat.npcBannerParams.onFinishDomParams = toShow.onFinishDomParams; // array or undefined
-	
+
 			Dom.chat.npcBannerParams.autoProgress = toShow.autoProgress;
-	
+
 			if (typeof toShow.progressIn !== "undefined") {
 				// in ms
 				setTimeout(this.npcChatProgress, toShow.progressIn, true);
 			}
-	
+
 			if (typeof toShow.options !== "undefined") {
 				// in ms
 				Dom.chat.npcBannerParams.options = toShow.options;
@@ -1265,7 +1266,7 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 			console.error("Unexpected type of text parameter for NPC chat banner", toShow);
 			return;
 		}
-	
+
 		// finish reinit
 		if (toShow.saidBy === "none" || npc === false) {
 			// i.e. an action rather than a person saying it
@@ -1278,11 +1279,11 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 			Dom.elements.npcChatBannerHeader1.innerHTML = npc.name;
 			Dom.elements.npcChatImage.style.backgroundImage = "url('"+npc.imageSrc+"')";
 		}
-	
+
 		// show
 		Dom.elements.npcChatNext.src = "assets/icons/dialogueWait.png";
 		Dom.elements.npcChatBanner1.hidden = false;
-	
+
 		setTimeout(Dom.chat.npcBannerIterate, this.timeoutTime, 1);
 	}
 }
@@ -1432,10 +1433,7 @@ Dom.chat.npcChatFinished = function() {
 }
 
 
-
-
-
-
+// toggle whether an element is hidden or not
 Dom.expand = function (block) {
 	block = document.getElementById(block);
 	if (block.hidden) {
@@ -1444,8 +1442,8 @@ Dom.expand = function (block) {
 		block.hidden = true;
 	}
 	if (block === information) {
-		Dom.inventory.displayTimer = false;
-		block.hidden = true;
+	    block.hidden = true;
+	    Dom.inventory.displayedInformation = {};
 	}
 }
 
@@ -1595,6 +1593,49 @@ document.onmousemove = function (e) {
     window.mouseY = event.clientY;
 }
 
+//
+// INVENTORY
+//
+
+// returns an array of all items the player has in their inventory - includes armour, trinkets, bank.
+// note that these are all extensions of the player's inventory - items are moved around these using Dom.inventory.drop, not Dom.inventory.give
+Dom.inventory.playerInventoryArray = function () {
+    let arr = Player.inventory.items;
+    arr = arr.concat(Player.inventory.helm);
+    arr = arr.concat(Player.inventory.chest);
+    arr = arr.concat(Player.inventory.greaves);
+    arr = arr.concat(Player.inventory.boots);
+    arr = arr.concat(Player.inventory.weapon);
+    arr = arr.concat(Player.inventory.bag);
+    arr = arr.concat(Player.inventory.mount);
+    arr = arr.concat(Player.inventory.trinkets);
+    arr = arr.concat(Player.bank.items);
+    return arr;
+}
+
+// assigns an instanceId to the passed in item object
+// each stack of an item in your inventory is assigned a unique instanceId
+// (including bank and equipped items, which are viewed as an extension of the inventory)
+// saved instanceIds are reassigned on rejoin
+// this function is called on dom init, Dom.inventory.give, as well as on right clicking from/to bank (since this splits one stack into potentially two)
+Dom.inventory.assignInstanceId = function (item) {
+    if (typeof this.nextInstanceId === "undefined") {
+        this.nextInstanceId = 0; // the next instance id to be assigned to an item
+    }
+
+    item.instanceId = this.nextInstanceId;
+
+    this.nextInstanceId++;
+
+    return item.instanceId;
+}
+
+//
+// INVENTORY ITEM INFORMATION HOVEROVER
+//
+
+// updates the position of the information box displayed on hover over an item
+// object is the DOM object that should have its position updated; element is the DOM object that object appears above
 Dom.inventory.updatePosition = function (object, element) {
 	let left = document.getElementById(element).offsetLeft;
 	let top = document.getElementById(element).offsetTop;
@@ -1637,7 +1678,8 @@ Dom.inventory.updatePosition = function (object, element) {
 	if (!object.hidden) {
 		setTimeout(function () {
 			Dom.inventory.updatePosition(object, element);
-		},1);
+		},1); // updates its position as often as possible unless the information box is hidden
+		// tbd this should definitely use an event listener to see if the player is moving their mouse over the item instead
 	}
 }
 
@@ -1865,393 +1907,415 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Defence Multiplier" || stat === "Damage Multiplier" || stat === "Movement Multiplier") {
 		return stat+": "+value+"%<br>";
 	}
-	else { 
+	else {
 		return "";
 	}
 };
 
-// display the information of an item, shown on hoverover
-// array is the array of equipment in chooseDOM
-// emptySlotMessage is the message to be shown if the slot is empty but being hovered over - doesn't yet work !
+// display the information of an item, i.e. on hoverover
+// stacked is for displaying how many of an item there are in its name (i.e. X Gold). only applies for currency items; can probably remove in the future (tbd)
+// element is the element which this hoverover is displayed above
+// position gives information about the context in which this item is being viewed - equip (if it's equipped), trade, buyer, questFinish, etc.
+// hide is not used and can be removed
+// array is the array of equipment in chooseDOM (only used for position==="trade" currently)
+// emptySlotMessage is the message to be shown if the slot is empty but being hovered over
 Dom.inventory.displayInformation = function (item, stacked, element, position, hide, array, emptySlotMessage) {
 	if (item === undefined) {
 		item = {};
 	}
-	if (hide !== "cooldown" || Dom.inventory.displayedInformation === item.name) {
-		if (hide === undefined) {
-			Dom.elements.information.hidden = true;
-		}
-		if (item.image !== undefined) {
-			// slot not empty
-			if (hide === undefined) {
-				Dom.elements.information.style.opacity = 0;
-				Dom.elements.information.hidden = false;
-				Dom.elements.name.style.width = null;
-				Dom.elements.stats.style.width = null;
-			}
-			Dom.inventory.updatePosition(Dom.elements.information, element);
-			Dom.elements.information.style.opacity = 1;
-			Dom.inventory.displayedInformation = item.name;
-			if (item.name !== undefined) {
-				Dom.elements.name.innerHTML = item.name;
-				if (item.rarity === "mythic") {
-					Dom.elements.name.style.color = "#b13fea";
-				}
-				else if (item.rarity === "unique") {
-					Dom.elements.name.style.color = "orange";
-				}
-				else if (item.rarity === "junk") {
-					Dom.elements.name.style.color = "darkgray";
-				}
-				else {
-					Dom.elements.name.style.color = "var(--text)";
-				}
-			}
-			else {
-				Dom.elements.name.innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
-				Dom.elements.name.style.color = "var(--text)";
-			}
 
-			// display item's stats
-			Dom.elements.stats.innerHTML = "";
-			Dom.elements.conditionalStats.innerHTML = "";
-			Dom.elements.chooseStats.innerHTML = "";
-			Dom.elements.conditionalChooseStats.innerHTML = "";
-			if (item.stats !== undefined) {
+    Dom.elements.information.hidden = true;
 
-				// look for chosen stat from choose stats (if there is one)
-				for (let i = 0; i < Object.keys(item.stats).length; i++) {
-					if (Object.keys(item.stats)[i] !== item.chosenStat) {
+    if (typeof item.image !== "undefined" || typeof emptySlotMessage !== "undefined") {
+        // slot not empty, or an empty slot message should be shown
 
-						Dom.elements.stats.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
-					}
-				}
+        if (typeof emptySlotMessage !== "undefined" && typeof item.image === "undefined") {
+            item = {name: emptySlotMessage};
+        }
 
-				// choose stats (stats that can be chosen from)
-				if (item.chooseStats !== undefined) {
-					if (Object.keys(item.chooseStats).length > 0) {
-						if (!item.allChooseStats) {
-							Dom.elements.chooseStats.innerHTML = "Click to choose stat:<br>";
-						}
-						else {
-							Dom.elements.chooseStats.innerHTML = "";
-						}
-					}
-					for (let i = 0; i < Object.keys(item.chooseStats).length; i++) {
-						let color = "gray";
-						if (Object.keys(item.chooseStats)[i] === item.chosenStat || item.allChooseStats) {
-							color = "var(--text)";
-						}
-						Dom.elements.chooseStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
-					}
-				}
-				else {
-					Dom.elements.chooseStats.innerHTML = "";
-				}
+        Dom.elements.information.style.opacity = 0;
+        Dom.elements.information.hidden = false;
+        Dom.elements.name.style.width = null;
+        Dom.elements.stats.style.width = null;
 
-				// conditional choose stats (choose stats that require a condition)
-				if (item.conditionalChooseStats !== undefined) {
-					if (item.chooseStats === undefined) {
-						item.chooseStats = [];
-					}
-					if (Object.keys(item.conditionalChooseStats).length > Object.keys(item.chooseStats).length) {
-						Dom.elements.conditionalChooseStats.innerHTML = "Locked stats:<br>";
-					}
-					for (let i = 0; i < Object.keys(item.conditionalChooseStats).length; i++) {
-						if (!Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
-							Dom.elements.conditionalChooseStats.innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
-						}
-					}
-				}
-				else {
-					Dom.elements.conditionalChooseStats.innerHTML = "";
-				}
+        Dom.inventory.updatePosition(Dom.elements.information, element);
 
-				// conditional stats (stats that require a condition to be true to be active; otherwise they are displayed in grey)
-				if (item.conditionalStats !== undefined) {
-					for (let x = 0; x < item.conditionalStats.length; x++) {
-						Dom.elements.conditionalStats.innerHTML = item.conditionalStats[x].text+"<br>";
-						for (let i = 0; i < Object.keys(item.conditionalStats[x].stats).length; i++) {
-							let color = "gray";
-							if (Items[item.type][item.id].conditionalStats[x].condition()) {
-								color = "var(--text)";
-							}
-							Dom.elements.conditionalStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
-						}
-					}
-				}
-				else {
-					Dom.elements.conditionalStats.innerHTML = "";
-				}
-			}
+        // displayedInformation contains a way to identify what item, location etc. the information is being displayed for
+        // this is used for if the information needs to be updated at all, i.e. for displaying a cooldown
+        Dom.inventory.displayedInformation = {item: item, element: element, position: position, array: array, emptySlotMessage: emptySlotMessage};
 
-			// weapon, armour, rod or tool
-			if (item.type !== "item" && item.type !== "spell" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && item.type !== "dev") {
+        if (item.name !== undefined) {
+            Dom.elements.name.innerHTML = item.name;
+            if (item.rarity === "mythic") {
+                Dom.elements.name.style.color = "#b13fea";
+            }
+            else if (item.rarity === "unique") {
+                Dom.elements.name.style.color = "orange";
+            }
+            else if (item.rarity === "junk") {
+                Dom.elements.name.style.color = "darkgray";
+            }
+            else {
+                Dom.elements.name.style.color = "var(--text)";
+            }
+        }
+        else {
+            Dom.elements.name.innerHTML = "Unidentified "+item.type.charAt(0).toUpperCase() + item.type.slice(1);
+            Dom.elements.name.style.color = "var(--text)";
+        }
 
-				// weapons used to attack have tiers that should be displayed
-				if (item.type !== "rod" && item.type !== "tool") {
-					Dom.elements.itemTier.innerHTML = "Tier: "+item.tier+"<br>";
-				}
-				else {
-					Dom.elements.itemTier.innerHTML = "";
-				}
+        if (item.imageLoading) {
+            Dom.elements.itemNotice.innerHTML = "Disabled whilst image loading";
+        }else {
+            Dom.elements.itemNotice.innerHTML = "";
+        }
 
-				if (item.set !== undefined) {
-					// if the item is equipped
-					if (position === "equip") {
-						let setNum = 0;
-						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
-							for (let x = 0; x < 5; x++) {
-								if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
-									setNum++;
-									break;
-								}
-							}
-						}
-						Dom.elements.set.innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
-						// if the whole set is equipped
-						if (setNum === Items.set[item.set].armour.length) {
-							Dom.elements.set.innerHTML += "<br><br>Set Bonus:<br>";
-							for (let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++) {
+        // display item's stats
+        Dom.elements.stats.innerHTML = "";
+        Dom.elements.conditionalStats.innerHTML = "";
+        Dom.elements.chooseStats.innerHTML = "";
+        Dom.elements.conditionalChooseStats.innerHTML = "";
+        if (item.stats !== undefined) {
 
-								Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
-							}
+            // look for chosen stat from choose stats (if there is one)
+            for (let i = 0; i < Object.keys(item.stats).length; i++) {
+                if (Object.keys(item.stats)[i] !== item.chosenStat) {
 
-							// mulitplier
-							if (Items.set[item.set].multiplier !== undefined) {
-								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
-									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
-								}
-							}
+                    Dom.elements.stats.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(item.stats)[i]), item.stats[Object.keys(item.stats)[i]], item.stats);
+                }
+            }
 
-							// allChooseStats
-							if (Items.set[item.set].allChooseStats) {
-								Dom.elements.set.innerHTML += "All choose stats of this set are activated";
-							}
-						}
-					}
-					// if the item is in the player chooseDOM
-					else if (position === "trade") {
-						let setNum = 0;
-						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
-							for (let x = 0; x < 5; x++) {
-								if (array[Object.keys(array)[x]].name === Items.set[item.set].armour[i]) {
-									setNum++;
-									break;
-								}
-							}
-						}
-						Dom.elements.set.innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
-						// if the whole set is equipped
-						if (setNum === Items.set[item.set].armour.length) {
-							Dom.elements.set.innerHTML += "<br><br>Set Bonus:<br>";
-							for (let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++) {
+            // choose stats (stats that can be chosen from)
+            if (item.chooseStats !== undefined) {
+                if (Object.keys(item.chooseStats).length > 0) {
+                    if (!item.allChooseStats) {
+                        Dom.elements.chooseStats.innerHTML = "Click to choose stat:<br>";
+                    }
+                    else {
+                        Dom.elements.chooseStats.innerHTML = "";
+                    }
+                }
+                for (let i = 0; i < Object.keys(item.chooseStats).length; i++) {
+                    let color = "gray";
+                    if (Object.keys(item.chooseStats)[i] === item.chosenStat || item.allChooseStats) {
+                        color = "var(--text)";
+                    }
+                    Dom.elements.chooseStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.chooseStats)[i]), item.chooseStats[Object.keys(item.chooseStats)[i]], item.chooseStats)+"</span>";
+                }
+            }
+            else {
+                Dom.elements.chooseStats.innerHTML = "";
+            }
 
-								Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
-							}
+            // conditional choose stats (choose stats that require a condition)
+            if (item.conditionalChooseStats !== undefined) {
+                if (item.chooseStats === undefined) {
+                    item.chooseStats = [];
+                }
+                if (Object.keys(item.conditionalChooseStats).length > Object.keys(item.chooseStats).length) {
+                    Dom.elements.conditionalChooseStats.innerHTML = "Locked stats:<br>";
+                }
+                for (let i = 0; i < Object.keys(item.conditionalChooseStats).length; i++) {
+                    if (!Object.keys(item.chooseStats).includes(Object.keys(item.conditionalChooseStats[i])[0])) {
+                        Dom.elements.conditionalChooseStats.innerHTML += "<span style='color: gray'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalChooseStats[i])[0]), item.conditionalChooseStats[i][Object.keys(item.conditionalChooseStats[i])[0]], item.conditionalChooseStats)+"</span>";
+                    }
+                }
+            }
+            else {
+                Dom.elements.conditionalChooseStats.innerHTML = "";
+            }
 
-							// multiplier
-							if (Items.set[item.set].multiplier !== undefined) {
-								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
-									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
-								}
-							}
+            // conditional stats (stats that require a condition to be true to be active; otherwise they are displayed in grey)
+            if (item.conditionalStats !== undefined) {
+                for (let x = 0; x < item.conditionalStats.length; x++) {
+                    Dom.elements.conditionalStats.innerHTML = item.conditionalStats[x].text+"<br>";
+                    for (let i = 0; i < Object.keys(item.conditionalStats[x].stats).length; i++) {
+                        let color = "gray";
+                        if (Items[item.type][item.id].conditionalStats[x].condition()) {
+                            color = "var(--text)";
+                        }
+                        Dom.elements.conditionalStats.innerHTML += "<span style='color: "+color+"'>"+Dom.inventory.stats(FromCamelCase(Object.keys(item.conditionalStats[x].stats)[i]), item.conditionalStats[x].stats[Object.keys(item.conditionalStats[x].stats)[i]], item.conditionalStats[x].stats)+"</span>";
+                    }
+                }
+            }
+            else {
+                Dom.elements.conditionalStats.innerHTML = "";
+            }
+        }
 
-							// allChooseStats
-							if (Items.set[item.set].allChooseStats) {
-								Dom.elements.set.innerHTML += "All choose stats of this set are activated";
-							}
-						}
-					}
-					// if the item is not equipped and not in player chooseDOM
-					else {
-						let setNum = 0;
-						for (let i = 0; i < Items.set[item.set].armour.length; i++) {
-							let checkUsed = true;
-							for (let x = 0; x < Player.inventory.items.length; x++) {
-								if (Player.inventory.items[x].name === Items.set[item.set].armour[i]) {
-									setNum++;
-									checkUsed = false;
-									break;
-								}
-							}
-							// if not in item inventory check equipped slots
-							if (checkUsed) {
-								for (let x = 0; x < 5; x++) {
-									if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
-										setNum++;
-										break;
-									}
-								}
-							}
-						}
-						Dom.elements.set.innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
-						// if the whole set is in the inventory
-						if (setNum === Items.set[item.set].armour.length) {
-							Dom.elements.set.innerHTML += "<br><br>Set Bonus:<br>";
-							for (let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++) {
+        // weapon, armour, rod or tool
+        if (typeof item.type !== "undefined" && item.type !== "item" && item.type !== "spell" && item.type !== "bag" && item.type !== "currency" && item.type !== "fish" && item.type !== "consumable" && item.type !== "food" && item.type !== "teleport" && item.type !== "dev") {
 
-								Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
-							}
+            // weapons used to attack have tiers that should be displayed
+            if (item.type !== "rod" && item.type !== "tool") {
+                Dom.elements.itemTier.innerHTML = "Tier: "+item.tier+"<br>";
+            }
+            else {
+                Dom.elements.itemTier.innerHTML = "";
+            }
 
-							// mulitplier
-							if (Items.set[item.set].multiplier !== undefined) {
-								for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
-									Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
-								}
-							}
+            if (item.set !== undefined) {
+                // if the item is equipped
+                if (position === "equip") {
+                    let setNum = 0;
+                    for (let i = 0; i < Items.set[item.set].armour.length; i++) {
+                        for (let x = 0; x < 5; x++) {
+                            if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
+                                setNum++;
+                                break;
+                            }
+                        }
+                    }
+                    Dom.elements.set.innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
+                    // if the whole set is equipped
+                    if (setNum === Items.set[item.set].armour.length) {
+                        Dom.elements.set.innerHTML += "<br><br>Set Bonus:<br>";
+                        for (let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++) {
 
-							// allChooseStats
-							if (Items.set[item.set].allChooseStats) {
-								Dom.elements.set.innerHTML += "All choose stats of this set are activated";
-							}
-						}
-					}
-				}
-				else {
-					Dom.elements.set.innerHTML = "";
-				}
-			}
-			else {
-				Dom.elements.set.innerHTML = "";
-				Dom.elements.itemTier.innerHTML = "";
-			}
-			if (item.type === "bag") {
-				Dom.elements.stats.innerHTML = "Capacity: "+item.size;
-			}
-			if (item.type === "currency") {
-				if (stacked !== undefined) {
-					Dom.elements.name.innerHTML = stacked + " " + Dom.elements.name.innerHTML;
-				}
-				else if (item.stacked !== undefined) {
-					Dom.elements.name.innerHTML = item.stacked + " " + Dom.elements.name.innerHTML;
-				}
-				else {
-					Dom.elements.name.innerHTML = "1 " + Dom.elements.name.innerHTML;
-				}
-			}
+                            Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+                        }
 
-			// spells
-			if (item.type === "spell") {
-				Dom.elements.itemDescriptionText.innerHTML = item.description;
-			}
+                        // mulitplier
+                        if (Items.set[item.set].multiplier !== undefined) {
+                            for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
+                                Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
+                            }
+                        }
 
-			// length of fish
-			if (item.fishingType === "fish") {
-				Dom.elements.stats.innerHTML = "Length: " + item.length + "cm";
-			}
+                        // allChooseStats
+                        if (Items.set[item.set].allChooseStats) {
+                            Dom.elements.set.innerHTML += "All choose stats of this set are activated";
+                        }
+                    }
+                }
+                // if the item is in the player chooseDOM
+                else if (position === "trade") {
+                    let setNum = 0;
+                    for (let i = 0; i < Items.set[item.set].armour.length; i++) {
+                        for (let x = 0; x < 5; x++) {
+                            if (array[Object.keys(array)[x]].name === Items.set[item.set].armour[i]) {
+                                setNum++;
+                                break;
+                            }
+                        }
+                    }
+                    Dom.elements.set.innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
+                    // if the whole set is equipped
+                    if (setNum === Items.set[item.set].armour.length) {
+                        Dom.elements.set.innerHTML += "<br><br>Set Bonus:<br>";
+                        for (let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++) {
 
-			// quest item
-			if (item.quest !== undefined && (item.quest === true || item.quest())) {
-				Dom.elements.quest.hidden = false;
-			}
-			else {
-				Dom.elements.quest.hidden = true;
-			}
+                            Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+                        }
 
-			// active ability text
-			if (typeof item.activeAbility !== "undefined") {// && item.chooseStats === undefined) {
-				Dom.elements.activeAbility.innerHTML = "Active ability: " + Spells[item.activeAbility].name + " " + Romanize(item.activeAbilityTier);
-			}
-			else {
-				Dom.elements.activeAbility.innerHTML = "";
-			}
+                        // multiplier
+                        if (Items.set[item.set].multiplier !== undefined) {
+                            for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
+                                Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
+                            }
+                        }
 
-			// function text (use of an item)
-			if (item.functionText !== undefined && item.functionText !== "") {// && item.chooseStats === undefined) {
-				Dom.elements.functionText.innerHTML = item.functionText;
-			}
-			else {
-				Dom.elements.functionText.innerHTML = "";
-			}
+                        // allChooseStats
+                        if (Items.set[item.set].allChooseStats) {
+                            Dom.elements.set.innerHTML += "All choose stats of this set are activated";
+                        }
+                    }
+                }
+                // if the item is not equipped and not in player chooseDOM
+                else {
+                    let setNum = 0;
+                    for (let i = 0; i < Items.set[item.set].armour.length; i++) {
+                        let checkUsed = true;
+                        for (let x = 0; x < Player.inventory.items.length; x++) {
+                            if (Player.inventory.items[x].name === Items.set[item.set].armour[i]) {
+                                setNum++;
+                                checkUsed = false;
+                                break;
+                            }
+                        }
+                        // if not in item inventory check equipped slots
+                        if (checkUsed) {
+                            for (let x = 0; x < 5; x++) {
+                                if (Player.inventory[Object.keys(Player.inventory)[x]].name === Items.set[item.set].armour[i]) {
+                                    setNum++;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    Dom.elements.set.innerHTML = Items.set[item.set].name + " (" + setNum + "/" + Items.set[item.set].armour.length+")";
+                    // if the whole set is in the inventory
+                    if (setNum === Items.set[item.set].armour.length) {
+                        Dom.elements.set.innerHTML += "<br><br>Set Bonus:<br>";
+                        for (let i = 0; i < Object.keys(Items.set[item.set].stats).length; i++) {
 
-			// durability
-			if (item.maxDurability !== undefined) {
-				Dom.elements.durability.innerHTML = "Durability: " + (item.durability || item.maxDurability) + "/" + item.maxDurability;
-			}
-			else {
-				Dom.elements.durability.innerHTML = "";
-			}
+                            Dom.elements.set.innerHTML += Dom.inventory.stats(FromCamelCase(Object.keys(Items.set[item.set].stats)[i]), Items.set[item.set].stats[Object.keys(Items.set[item.set].stats)[i]], Items.set[item.set].stats);
+                        }
 
-			// charges
-			if (item.charges !== undefined) {
-				if (item.charges === 1) {
-					Dom.elements.charges.innerHTML = item.charges + " Charge";
-				}
-				else {
-					Dom.elements.charges.innerHTML = item.charges + " Charges";
-				}
-			}
-			else if (item.maxCharges !== undefined) {
-				if (item.maxCharges === 1) {
-					Dom.elements.charges.innerHTML = item.maxCharges + " Charge";
-				}
-				else {
-					Dom.elements.charges.innerHTML = item.maxCharges + " Charges";
-				}
-			}
-			else {
-				Dom.elements.charges.innerHTML = "";
-			}
+                        // mulitplier
+                        if (Items.set[item.set].multiplier !== undefined) {
+                            for (let i = 0; i < Items.set[item.set].multiplier.length; i++) {
+                                Dom.elements.set.innerHTML += Items.set[item.set].multiplier[i].text + "<br>";
+                            }
+                        }
 
-			// food
-			if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
-				Dom.elements.food.innerHTML = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
-			}
-			else {
-				Dom.elements.food.innerHTML = "";
-			}
+                        // allChooseStats
+                        if (Items.set[item.set].allChooseStats) {
+                            Dom.elements.set.innerHTML += "All choose stats of this set are activated";
+                        }
+                    }
+                }
+            }
+            else {
+                Dom.elements.set.innerHTML = "";
+            }
+        }
+        else {
+            Dom.elements.set.innerHTML = "";
+            Dom.elements.itemTier.innerHTML = "";
+        }
+        if (item.type === "bag") {
+            Dom.elements.stats.innerHTML = "Capacity: "+item.size;
+        }
+        if (item.type === "currency") {
+            if (stacked !== undefined) {
+                Dom.elements.name.innerHTML = stacked + " " + Dom.elements.name.innerHTML;
+            }
+            else if (item.stacked !== undefined) {
+                Dom.elements.name.innerHTML = item.stacked + " " + Dom.elements.name.innerHTML;
+            }
+            else {
+                Dom.elements.name.innerHTML = "1 " + Dom.elements.name.innerHTML;
+            }
+        }
 
-			// item lore
-			if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
-				Dom.elements.lore.innerHTML = item.lore;
-			}else {
-				Dom.elements.lore.innerHTML = "";
-			}
+        // spells
+        if (item.type === "spell") {
+            Dom.elements.itemDescriptionText.innerHTML = item.description;
+        }
 
-			// item buyer price
-			if (position === "buyer" && item.sellPrice !== undefined && (item.quest === undefined || !item.quest())) {
-				// the maths to work out the prices
-				let charges = item.charges || item.durability;
-				let maxCharges = item.maxCharges || item.maxDurability;
+        // length of fish
+        if (item.fishingType === "fish") {
+            Dom.elements.stats.innerHTML = "Length: " + item.length + "cm";
+        }
 
-				Dom.elements.buyer.innerHTML = "Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(charges === undefined ? item.sellPrice : Math.ceil((item.sellPrice-1) * charges / maxCharges))+" "+Items.currency[item.sellCurrency].name.toLowerCase();
-			}
-			else {
-				Dom.elements.buyer.innerHTML = "";
-			}
+        // quest item
+        if (item.quest !== undefined && (item.quest === true || item.quest())) {
+            Dom.elements.quest.hidden = false;
+        }
+        else {
+            Dom.elements.quest.hidden = true;
+        }
 
-			// item cooldown
-			if (item.cooldown !== undefined) {
-				item.countdownStart = item.cooldownStart;
-				item.countdown = item.cooldown;
-				item.countdownText = "On cooldown";
-			}
+        // active ability text
+        if (typeof item.activeAbility !== "undefined") {// && item.chooseStats === undefined) {
+            Dom.elements.activeAbility.innerHTML = "Active ability: " + Spells[item.activeAbility].name + " " + Romanize(item.activeAbilityTier);
+        }
+        else {
+            Dom.elements.activeAbility.innerHTML = "";
+        }
 
-			// misc timer
-			if (item.countdownStart !== undefined && parseInt(item.countdownStart) + item.countdown > parseInt(GetFullDateTime())) {
-				let answer = CalculateTime(GetFullDateTime(), (parseInt(item.countdownStart) + item.countdown).toString());
-				Dom.elements.cooldown.innerHTML = (Dom.elements.lore.innerHTML !== "" ? "<br><br>" : "") + item.countdownText+":<br>" + answer;
-				Dom.inventory.displayTimer = true;
-				setTimeout(function () {
-					if (Dom.inventory.displayTimer) {
-						Dom.inventory.displayInformation(item, stacked, element, position, "cooldown");
-					}
-				},1000);
-			}
-			else {
-				Dom.elements.cooldown.innerHTML = "";
-			}
+        // function text (use of an item)
+        if (item.functionText !== undefined && item.functionText !== "") {// && item.chooseStats === undefined) {
+            Dom.elements.functionText.innerHTML = item.functionText;
+        }
+        else {
+            Dom.elements.functionText.innerHTML = "";
+        }
 
-			Dom.elements.information.style.width = 1 + Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
-			Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 31 + "px";
-			Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 31 + "px";
-		}
-		else if (emptySlotMessage !== undefined) {
-			// slot empty
-			// tbd !!!!
-		}
-	}
+        // durability
+        if (item.maxDurability !== undefined) {
+            Dom.elements.durability.innerHTML = "Durability: " + (item.durability || item.maxDurability) + "/" + item.maxDurability;
+        }
+        else {
+            Dom.elements.durability.innerHTML = "";
+        }
+
+        // charges
+        if (item.charges !== undefined) {
+            if (item.charges === 1) {
+                Dom.elements.charges.innerHTML = item.charges + " Charge";
+            }
+            else {
+                Dom.elements.charges.innerHTML = item.charges + " Charges";
+            }
+        }
+        else if (item.maxCharges !== undefined) {
+            if (item.maxCharges === 1) {
+                Dom.elements.charges.innerHTML = item.maxCharges + " Charge";
+            }
+            else {
+                Dom.elements.charges.innerHTML = item.maxCharges + " Charges";
+            }
+        }
+        else {
+            Dom.elements.charges.innerHTML = "";
+        }
+
+        // food
+        if (item.healthRestore !== undefined && item.healthRestoreTime !== undefined) {
+            Dom.elements.food.innerHTML = "Restores "+item.healthRestore+" health over "+item.healthRestoreTime+" seconds (whilst not in combat)";
+        }
+        else {
+            Dom.elements.food.innerHTML = "";
+        }
+
+        // item lore
+        if (item.lore !== undefined && item.lore !== "" && !Array.isArray(item.lore)) {
+            Dom.elements.lore.innerHTML = item.lore;
+        }else {
+            Dom.elements.lore.innerHTML = "";
+        }
+
+        // item buyer price
+        if (position === "buyer" && item.sellPrice !== undefined && (item.quest === undefined || !item.quest())) {
+            // the maths to work out the prices
+            let charges = item.charges || item.durability;
+            let maxCharges = item.maxCharges || item.maxDurability;
+
+            Dom.elements.buyer.innerHTML = "Sell "+(item.sellQuantity !== 1 ? item.sellQuantity : "")+" for "+(charges === undefined ? item.sellPrice : Math.ceil((item.sellPrice-1) * charges / maxCharges))+" "+Items.currency[item.sellCurrency].name.toLowerCase();
+        }
+        else {
+            Dom.elements.buyer.innerHTML = "";
+        }
+
+        // item cooldown (works as a misc timer)
+        if (item.cooldown !== undefined) {
+            // tbd change the system at some pt to work if the item has a countdown and a cooldown
+            item.countdownStart = item.cooldownStart;
+            item.countdown = item.cooldown;
+            item.countdownText = "On cooldown";
+        }
+
+        // misc timer
+        if (item.countdownStart !== undefined && parseInt(item.countdownStart) + item.countdown > parseInt(GetFullDateTime())) {
+            let answer = CalculateTime(GetFullDateTime(), (parseInt(item.countdownStart) + item.countdown).toString());
+            Dom.elements.cooldown.innerHTML = (Dom.elements.lore.innerHTML !== "" ? "<br><br>" : "") + item.countdownText+":<br>" + answer;
+            let instanceId = Dom.inventory.displayedInformation.item.instanceId;
+            setTimeout(function () {
+                if (typeof Dom.inventory.displayedInformation.item !== "undefined" && Dom.inventory.displayedInformation.item.instanceId === instanceId) {
+                    Dom.inventory.displayInformation(item, stacked, element, position);
+                }
+            },1000);
+        }
+        else {
+            Dom.elements.cooldown.innerHTML = "";
+        }
+
+        // finally set the width and make the information visible again
+        Dom.elements.information.style.width = 1 + Math.max(Dom.elements.name.offsetWidth, Dom.elements.stats.offsetWidth)+"px";
+        Dom.elements.name.style.width = Dom.elements.information.offsetWidth - 31 + "px";
+        Dom.elements.stats.style.width = Dom.elements.information.offsetWidth - 31 + "px";
+        Dom.elements.information.style.opacity = 1;
+    }
+}
+
+// checks if the current displayInformation hoverover is displaying information for the passed in item (by checking instanceId)
+// if it is, it reruns the function, thus updating the information
+Dom.inventory.displayInformationUpdate = function (item) {
+    if (typeof item !== "undefined" && typeof Dom.inventory.displayedInformation.item !== "undefined" && Dom.inventory.displayedInformation.item.instanceId === item.instanceId) {
+        Dom.inventory.displayInformation(Dom.inventory.displayedInformation.item, undefined, Dom.inventory.displayedInformation.element, Dom.inventory.displayedInformation.position)
+    }
 }
 
 Dom.inventory.removeItemCharge = function (inventoryPosition, hotbar) {
@@ -2320,7 +2384,7 @@ Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 // quest is the object as appears in questdata
 // npc is the npc that the quest is being started from (optional - retrieved from Player.quests.startedFromNpc otherwise)
 Dom.quest.prepareQuestObject = function (quest, npc) {
-	let ourQuest = {}; 
+	let ourQuest = {};
 	// shallow clone
 	Object.assign(ourQuest, quest);
 
@@ -2344,7 +2408,7 @@ Dom.quest.prepareQuestObject = function (quest, npc) {
 		Object.assign(ourQuest, ourQuest.differsOnTimesCompleted[timesCompleted]);
 	}
 
-	// note that none of the above preparation stuff should affect any conditions of the quest starting, as Dom.quests.possible doesn't work with this 
+	// note that none of the above preparation stuff should affect any conditions of the quest starting, as Dom.quests.possible doesn't work with this
 	// tbd make a way to verify that quests aren't doing this?
 
 	return ourQuest;
@@ -2404,7 +2468,7 @@ Dom.quest.start = function (quest, npc) {
 			let totalXp = 0;
 			let itemsArray = [];
 			let servicesArray = [];
-			for (let i = 1; i < quest.steps.length; i++) { // skips first step 
+			for (let i = 1; i < quest.steps.length; i++) { // skips first step
 				let step = quest.steps[i];
 
 				if (typeof step.rewards !== "undefined") {
@@ -2939,13 +3003,13 @@ Dom.quest.accept = function () {
 
 // update progress of currently active quests
 // a parameter being passed in means this has been called from Dom.quest.accept, and this quest should be added to Player.quests.activeQuestArray
-// the parameter should be the quest object, as appears in questdata.js 
+// the parameter should be the quest object, as appears in questdata.js
 Dom.quests.active = function (quest) {
 	if (quest !== undefined) {
 		Player.quests.activeQuestArray.push(quest.quest);
 	}
 
-	// update scoreboard (if one is active) 
+	// update scoreboard (if one is active)
 	Dom.scoreboardUpdate();
 
 	Dom.elements.activeQuestBox.style.textAlign = "left";
@@ -3097,7 +3161,7 @@ Dom.quests.active = function (quest) {
 				}
 			}
 			if (objectiveProgress[objectiveProgress.length - 1]) {
-				currentQuest.completed = true; // not sure the point of this - might be able to remove it 
+				currentQuest.completed = true; // not sure the point of this - might be able to remove it
 			}
 			else {
 				currentQuest.completed = false;
@@ -3292,12 +3356,12 @@ Dom.scoreboardInit = function (properties) {
     // this is the only way that Dom.scoreboard can be initialised! usually related to a quest (through the properties.questArea and questId values), but doesn't have to be
     // this function will fail and send a console.error if Dom.scoreboard is currently being used
     // the Dom.scoreboard is removed on area leave or on quest abandon (if a quest is specified in properties)
-   
+
     // the scoreboard is updated by Dom.scoreboard.update, which is called when Dom.quests.active is called
     // it should only be updated via Dom.quests.active to avoid scoreboard being updated without quest log update (as it is likely they will both share variables)
-   
+
     // properties parameter is an object which includes properties:
-   
+
     // timeLimit: IN SECONDS, the time after which the challenge ends. optional.
     // endOnceTargetReached: if set to true, the scoreboard is terminated once a target function returns true. otherwise, it keeps going until timeLimit is reached (or area is left in the case of no time limit)
     // targetFunction can access any values in Dom.scoreboard.variablesArray, and should return true if the scoreboard has been "succeeded"
@@ -3361,7 +3425,7 @@ Dom.scoreboardInit = function (properties) {
 		if (typeof this.scoreboard.displayTimer === "undefined") {
 			this.scoreboard.displayTimer = true;
 		}
-		
+
 		this.scoreboard.clearTimeoutsOnFinish = [];
 		// randomEvents: an array of objects. these will be chosen and run at random.
 		// ^^^^^^^^^^^^^ each object should have a func property which would be called, and a cooldown (delay until the next random event is chosen)
@@ -3461,7 +3525,7 @@ Dom.scoreboardUpdate = function () {
 			this.scoreboardFinish(result);
 		}
 		else if (result && this.endOnceTargetReached) {
-			// time has not yet finished yet (if there is time), but the player has succeeded at the minigame 
+			// time has not yet finished yet (if there is time), but the player has succeeded at the minigame
 			this.scoreboardFinish(result);
 		}
 		else if (this.scoreboard.displayScoreboard) {
@@ -3885,15 +3949,23 @@ Dom.identifier.identify = function (npc) {
 	}
 }
 
+// this is the only way that items should be added to the player's inventory.
 // returns the position of the item, or false if it couldn't be added (inventory full)
+// item is the item that should be given, num is the quantity to be given
+// position is an optional parameter, giving the position in Player.inventory.items that the item should be given at
+// if this position is not empty, then the item is not given and false is returned
+// noSave is true if the game should not be saved upon this function being called (i.e. if there is further processing required after the item is added)
+// noArchaeology is true if this should not count towards archaeology progress
 Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
-	let added = false; // true if you received the item and returned at the end of the function
+	let added = false; // true if item was succesfully given; this is what is returned at the end of the function
+	let finishedAdding = false; // set to true once the item has been finished adding
 	if (num === undefined) {
 		num = 1;
 	}
 	if (position === undefined) {
 		for (let y = 0; y < num; y++) {
-			let add = true; // true if the item still needs to be added
+
+			// see if the item can be added to an existing stack
 			for (let i = 0; i < Player.inventory.items.length; i++) {
 				// if the item is already in the inventory
 				if (Player.inventory.items[i].id === item.id && Player.inventory.items[i].type === item.type) {
@@ -3905,130 +3977,89 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 						added = true;
 						Player.inventory.items[i].stacked++;
 						Dom.elements.itemInventory.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.inventory.items, "+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
-						add = false;
+						finishedAdding = true;
 					}
 				}
 			}
-			// if the item still needs to be added
-			if (add) {
+
+			// the item could not be added to an existing stack; add it to the first empty slot found
+			if (!finishedAdding) {
 				for (let i = 0; i < Player.inventory.items.length; i++) {
 					// if the slot is empty then the item is added
 					if (Player.inventory.items[i].image === undefined) {
-
-						// if it is the bag slot then remove the background
-						/*if (i === 5) {
-							Dom.elements.itemInventory.getElementsByTagName("td")[5].style.backgroundImage = "none";
-						}*/
-
+					    // slot is empty; add the item
 						added = true;
 						position = i;
-						Player.inventory.items[i] = Object.assign({}, item);
-						if (Player.inventory.items[i].maxCharges !== undefined) {
-							Player.inventory.items[i].charges = Player.inventory.items[i].maxCharges;
-						}
-						if (Array.isArray(Player.inventory.items[i].lore)) {
-							let lores = item.lore;
-							if (Player.inventory.items[i].loreEventRequirements !== undefined) {
-								for (let x = 0; x < Player.inventory.items[i].lore.length; x++) {
-									if (Player.inventory.items[i].loreEventRequirements[x] !== "" && Player.inventory.items[i].loreEventRequirements[x] !== Event.event) {
-										lores.splice(x, 1);
-									}
-								}
-							}
-							Player.inventory.items[i].lore = lores[Random(0, lores.length-1)];
-						}
-
-						if (item.countdown !== undefined) {
-							Player.inventory.items[i].countdownStart = GetFullDateTime();
-						}
-
-						if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
-							let obtained = true;
-							for (let x = 0; x < Items.set[item.set].armour.length; x++) {
-								if (Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x]).length === 0) {
-									obtained = false;
-								}
-							}
-							if (obtained) {
-								User.archaeology.push(Items.set[item.set].name);
-							}
-						}
-						Dom.inventory.prepare(Player.inventory.items, i, Dom.elements.itemInventory.getElementsByTagName("td")[i]);
-
-						// if a bag is being given to the bag slot
-						/*if (i === 5 && item.type === "bag") {
-							for (let x = 0; x < Math.floor(item.size/6); x++) {
-								let str = "<tr>";
-								for (let inv = Player.inventory.items.length; inv < Player.inventory.items.length+6; inv++) {
-									str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
-								}
-								Dom.elements.itemInventory.innerHTML += str+"</tr>";
-								Player.inventory.items.push({},{},{},{},{},{});
-							}
-							Dom.inventory.update();
-						}*/
-
-						// if the item has not been obtained before and is in archaeology, add it to archaeology progress
-						if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow" || item.type === "rod" || item.type === "trinket") && !User.archaeology.includes(item.name) && item.name !== undefined) {
-							User.archaeology.push(item.name);
-						}
-
-						// special images to be loaded with item
-						Dom.inventory.loadItemRequiredImages(item);
 
 						break; // stops the item being placed in multiple slots
 					}
 				}
 			}
 		}
-	// specific position
 	}
 	else {
-		added = true;
-		Player.inventory.items[position] = Object.assign({},item);
-		if (Player.inventory.items[position].maxCharges !== undefined) {
-			Player.inventory.items[position].charges = Player.inventory.items[position].maxCharges;
-		}
-		if (Array.isArray(Player.inventory.items[position].lore)) {
-			let lores = item.lore;
-			if (Player.inventory.items[position].loreEventRequirements !== undefined) {
-				for (let x = 0; x < Player.inventory.items[position].lore.length; x++) {
-					if (Player.inventory.items[position].loreEventRequirements[x] !== "" && Player.inventory.items[position].loreEventRequirements[x] !== Event.event) {
-						lores.splice(x, 1);
-					}
-				}
-			}
-			Player.inventory.items[position].lore = lores[Random(0, lores.length-1)];
-		}
-		if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
-			let obtained = true;
-			for (let x = 0; x < Items.set[item.set].armour.length; x++) {
-				if (Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x]).length === 0) {
-					obtained = false;
-				}
-			}
-			if (obtained) {
-				User.archaeology.push(Items.set[item.set].name);
-			}
-		}
-		Player.inventory.items[position].stacked = num;
-		Dom.inventory.prepare(Player.inventory.items, position, Dom.elements.itemInventory.getElementsByTagName("td")[position]);
+	    // add the item to a specific position
+	    if (Player.inventory.items[position].image === undefined) {
+            added = true;
+	    }
+	}
 
-		// if a bag is being given to the bag slot
-		/*if (position === 5 && item.type === "bag") {
-			for (let x = 0; x < Math.floor(item.size/6); x++) {
-				let str = "<tr>";
-				for (let inv = Player.inventory.items.length; inv < Player.inventory.items.length+6; inv++) {
-					str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
-				}
-				Dom.elements.itemInventory.innerHTML += str+"</tr>";
-				Player.inventory.items.push({},{},{},{},{},{});
-			}
-			Dom.inventory.update();
-		}*/
-		if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
-			User.archaeology.push(item.name);
-		}
+	if (added && !finishedAdding) {
+	    // the item is ready to be given, but hasn't yet been prepared in the inventory
+        Player.inventory.items[position] = Object.assign({},item);
+
+        Dom.inventory.assignInstanceId(Player.inventory.items[position]); // assigns a unique id to this instance of the item in player's inventory
+
+        if (Player.inventory.items[position].maxCharges !== undefined) {
+            Player.inventory.items[position].charges = Player.inventory.items[position].maxCharges;
+        }
+
+        // assign a random lore from the item's lore array (if it has one)
+        if (Array.isArray(Player.inventory.items[position].lore)) {
+            let lores = item.lore;
+            if (Player.inventory.items[position].loreEventRequirements !== undefined) {
+                for (let x = 0; x < Player.inventory.items[position].lore.length; x++) {
+                    if (Player.inventory.items[position].loreEventRequirements[x] !== "" && Player.inventory.items[position].loreEventRequirements[x] !== Event.event) {
+                        lores.splice(x, 1);
+                    }
+                }
+            }
+            Player.inventory.items[position].lore = lores[Random(0, lores.length-1)];
+        }
+        if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
+            let obtained = true;
+            for (let x = 0; x < Items.set[item.set].armour.length; x++) {
+                if (Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x]).length === 0) {
+                    obtained = false;
+                }
+            }
+            if (obtained) {
+                User.archaeology.push(Items.set[item.set].name);
+            }
+        }
+
+        Player.inventory.items[position].stacked = num;
+
+        Dom.inventory.prepare(Player.inventory.items, position, Dom.elements.itemInventory.getElementsByTagName("td")[position]);
+
+        // if a bag is being given to the bag slot
+        /*if (position === 5 && item.type === "bag") {
+            for (let x = 0; x < Math.floor(item.size/6); x++) {
+                let str = "<tr>";
+                for (let inv = Player.inventory.items.length; inv < Player.inventory.items.length+6; inv++) {
+                    str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+                }
+                Dom.elements.itemInventory.innerHTML += str+"</tr>";
+                Player.inventory.items.push({},{},{},{},{},{});
+            }
+            Dom.inventory.update();
+        }*/
+        if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
+            User.archaeology.push(item.name);
+        }
+
+        // special images to be loaded with item
+        Dom.inventory.loadItemRequiredImages(item);
 	}
 
 	// increment any user progress variables
@@ -4065,10 +4096,27 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 	}
 }
 
+// prepares the object of image(s) to be loaded for an item that can be worn visibly
+// i.e. converts a playerCanWear property to a requiredImages property
+Dom.inventory.prepareWornItemImageObject = function (item) {
+    if (typeof item.playerCanWear !== "undefined") {
+        if (typeof item.requiredImages === "undefined") {
+            item.requiredImages = {};
+        }
+        let keyName = "player"+capitaliseFirstLetter(item.playerCanWear.type)+"Item_"+item.playerCanWear.src;
+        item.requiredImages[keyName] = {normal: "assets/playerCustom/"+item.playerCanWear.type+"/"+item.playerCanWear.src+".png"};
+        return true;
+    }
+    return false;
+}
+
 // load an item's additional required images (for use on the canvas), and don't let it be used until they have loaded
+// this is only called on item being given. on game being initialised, this is done in main, as there is no need to stop item from being used
 // the parameter should be the item object
 Dom.inventory.loadItemRequiredImages = function (item) {
-	if (item.requiredImages !== undefined) {
+    this.prepareWornItemImageObject(item);
+
+	if (typeof item.requiredImages !== "undefined") {
 		// item has image(s) that should be loaded with it
 
 		// item cannot be used until images are loaded
@@ -4081,6 +4129,9 @@ Dom.inventory.loadItemRequiredImages = function (item) {
 		// allow item to be used once image(s) have been loaded
 		Promise.all(p).then(function () {
 			item.imageLoading = false;
+
+			// update the information hoverover if this item is currently being hovered on
+			Dom.inventory.displayInformationUpdate(item);
 		}.bind(this));
 	}
 }
@@ -5005,6 +5056,7 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 				if (!stacked) {
 					this.toArray[this.toId] = Object.assign({}, this.fromArray[this.fromId]);
 					this.toArray[this.toId].stacked = 1;
+					Dom.inventory.assignInstanceId(this.toArray[this.toId]); // assign a new instance id as a new object is being made
 					this.toElement.innerHTML = "<img src='"+this.toArray[this.toId].image+"' draggable='true' ></img>";
 					this.setItemFunctions(this.toElement.getElementsByTagName("img")[0], this.toArray, this.toId);
 				}
@@ -5404,8 +5456,8 @@ else {
 }
 
 
-// 
-// SPELLBOOK : spell arsenal 
+//
+// SPELLBOOK : spell arsenal
 //
 
 Dom.spellbook.init = function () {
@@ -6470,7 +6522,7 @@ Dom.spellChoice.page = function (npc, spells) {
 			}
 		}
 
-		Dom.elements.driverPageBuy.onclick = function () { 
+		Dom.elements.driverPageBuy.onclick = function () {
 			/*let id = Spells[spells[Dom.driver.previous].spellId].id;
 			let tier = spells[Dom.driver.previous].spellTier;
 
@@ -6712,6 +6764,7 @@ Dom.inventory.prepare = function (array, i, element) {
 			}
 
 			// if not equipped then equip
+			// i.e. clicking from Dom.inventory.items
 			else if (!isNaN(i)) {
 				if (type === "mount" && !Player.overallProgress.mountSlotUnlocked) {
 					Dom.alert.page("You have not unlocked mounts yet!");
@@ -6720,9 +6773,14 @@ Dom.inventory.prepare = function (array, i, element) {
 					// allowed to equip
 					Dom.inventory.drop(Dom.elements[Dom.inventory.slotKeys[type]], Player.inventory, type, Dom.elements.itemInventory.getElementsByTagName("td")[i], Player.inventory.items, i); // to, from
 				}
+
+                // update the information hoverover
+                Dom.inventory.displayInformationUpdate(Player.inventory.items[i]);
 			}
 
-			// clicking on an equipped item, so chooseStats, onClickFunction, or unequip
+			// clicking on an equipped item
+			// so chooseStats, onClickFunction, or unequip
+			// note that, since we are dealing with an equipped item here, i is a keyname of Player.inventory
 			else {
 				let chooseStats = false;
 				let onClick = false;
@@ -6803,6 +6861,9 @@ Dom.inventory.prepare = function (array, i, element) {
 						Game.inventoryUpdate();
 					}
 				}
+
+                // update the information hoverover
+                Dom.inventory.displayInformationUpdate(Player.inventory[i]);
 			}
 		}
 	}
@@ -6821,7 +6882,7 @@ Dom.inventory.prepare = function (array, i, element) {
 				Dom.inventory.inOut("in", i, "trade");
 			}
 
-			let array = Player.inventory.items;
+			let array = Player.inventory.items; // can't be the bank or trading screen
 			if (isNaN(i)) {
 				array = Player.inventory;
 			}
@@ -6879,6 +6940,9 @@ Dom.inventory.prepare = function (array, i, element) {
 					}
 				}
 			}
+
+			// update the information hoverover
+			Dom.inventory.displayInformationUpdate(array[i]);
 		}
 	}
 	//}
@@ -7564,9 +7628,9 @@ Dom.quest.abandon = function (quest, step) {
 			}
 		}
 
-		if (typeof quest.callQuestFinishOnAbandon !== "undefined") { 
+		if (typeof quest.callQuestFinishOnAbandon !== "undefined") {
 			// this specifies the steps whose finish function should be called
-			// this includes the step that the player is currently working on 
+			// this includes the step that the player is currently working on
 
 			if (Dom.currentNPC.type !== undefined) { // pass in the currentNPC if poss :)
 				quest.steps[quest.callQuestFinishOnAbandon].onFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
@@ -7739,6 +7803,18 @@ Dom.init = function () {
 	// prepare the item inventory
 	// (this should probably have its own function and not all be init)
 	//
+
+	// prepare all player's items
+	// tbd should probably move some stuff from below to this loop
+	// note bank is considered as an extension of the inventory
+	let itemArray = Dom.inventory.playerInventoryArray();
+    for (let i = 0; i < itemArray.length; i++) {
+        let item = itemArray[i];
+
+        Dom.inventory.assignInstanceId(item); // assigns a unique id to the item's instance in the inventory (i.e. two stacks of gold would have different instanceIds)
+    }
+
+	// prepare the inventory
 	for (let i = 0; i < Player.inventory.items.length; i++) {
 		// check if the item should be removed according to its deleteIf
 		if (Player.inventory.items[i].image !== undefined && !Player.inventory.items[i].unidentified && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf !== undefined && Items[Player.inventory.items[i].type][Player.inventory.items[i].id].deleteIf()) {
@@ -7750,11 +7826,9 @@ Dom.init = function () {
 			}, 1000);
 		}
 
+        // if there is an item (which was not removed via a deleteIf)
 		else if (Player.inventory.items[i].image !== undefined) {
 			Dom.inventory.prepare(Player.inventory.items, i, Dom.elements.itemInventory.getElementsByTagName("td")[i]);
-
-			// if the item has image(s) that should be loaded with it for the canvas, load the image
-			Dom.inventory.loadItemRequiredImages(Player.inventory.items[i]);
 		}
 	}
 
@@ -7768,7 +7842,7 @@ Dom.init = function () {
 	// these locked slots work slightly differently because they're in a table
 	if (Player.level < 10000) {
 		Dom.elements.trinketSlot1.classList.add("trinketSlotLocked");
-		Dom.elements.trinketSlot1.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot1.onmouseover = function(){Dom.inventory.displayInformation(undefined, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Trinket slot locked')};
 		Dom.elements.trinketSlot1.removeAttribute("ondrag");
 		Dom.elements.trinketSlot1.removeAttribute("onclick");
 		Dom.elements.trinketSlot1.removeAttribute("ondrop");
@@ -7776,7 +7850,7 @@ Dom.init = function () {
 	}
 	if (Player.level < 10000) {
 		Dom.elements.trinketSlot2.classList.add("trinketSlotLocked");
-		Dom.elements.trinketSlot2.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot2.onmouseover = function(){Dom.inventory.displayInformation(undefined, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Trinket slot locked')};
 		Dom.elements.trinketSlot2.removeAttribute("ondrag");
 		Dom.elements.trinketSlot2.removeAttribute("onclick");
 		Dom.elements.trinketSlot2.removeAttribute("ondrop");
@@ -7784,7 +7858,7 @@ Dom.init = function () {
 	}
 	if (Player.level < 10000) {
 		Dom.elements.trinketSlot3.classList.add("trinketSlotLocked");
-		Dom.elements.trinketSlot3.onmouseover = function(){Dom.inventory.displayInformation({name: 'Trinket slot locked', image:''}, undefined, 'inventoryPage', 'equip')};
+		Dom.elements.trinketSlot3.onmouseover = function(){Dom.inventory.displayInformation(undefined, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Trinket slot locked')};
 		Dom.elements.trinketSlot3.removeAttribute("ondrag");
 		Dom.elements.trinketSlot3.removeAttribute("onclick");
 		Dom.elements.trinketSlot3.removeAttribute("ondrop");

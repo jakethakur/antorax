@@ -810,6 +810,10 @@ unidentifiedArea: ["caves"],
 				swimSpeed: 60,
 				breathing: 1,
 			},
+			playerCanWear: { // displays visually on player
+			    type: "hat",
+			    src: "breathingHelmet"
+			}
 		},
 		{
 			id: 45,
@@ -5658,7 +5662,12 @@ unidentifiedArea: ["caves"],
 					time: 15,
 					subSpecies: "nilbog goblin",
 				});
-			}
+			},
+			requiredImages: { // images that should be loaded for this item
+				t1: {normal: "./assets/tilemap/eaglecrest.png"},
+				t2: {normal: "./assets/tilemap/eaglecrestChristmas.png"},
+				t3: {normal: "./assets/tilemap/pawPeaks.png"},
+			},
 		},
 		{
 			id: 12,

@@ -9043,7 +9043,8 @@ Game.minigameReset = function () {
 // Init game / load new area
 //
 
-// load default images (e.g. player, status effect, etc.)
+// load default images on init (e.g. player, status effect, etc.)
+// these images are all never unloaded!
 // returns an array of these promises
 // called on init by loadArea
 Game.loadDefaultImages = function () {
@@ -9108,6 +9109,19 @@ Game.loadDefaultImages = function () {
 	if (Player.class === "m") {
 		toLoad.push(Loader.loadImage("icebolt", "./assets/projectiles/icebolt.png", false));
 		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
+	}
+
+	// images required by items
+	// tbd these should be unloaded when the item is discarded (same for in Dom.inventory.give)
+	let itemArray = Dom.inventory.playerInventoryArray();
+	for (let i = 0; i < itemArray.length; i++) {
+	    let item = itemArray[i];
+
+        Dom.inventory.prepareWornItemImageObject(item);
+        if (typeof item.requiredImages !== "undefined") {
+            // item has image(s) that should be loaded with it
+            toLoad = toLoad.concat(Loader.loadMultipleImages(item.requiredImages, false));
+        }
 	}
 
 	// knight summon images
