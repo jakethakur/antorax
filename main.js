@@ -7604,10 +7604,7 @@ class Camera extends Entity {
 // status effect constructor
 function statusEffect(properties) {
 	this.title = properties.title; // displayed title
-	this.effect = properties.effect; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
-
-	this.info = properties.info || {}; // extra information (e.g: total time of status effect; poison damage and length)
-	Object.assign(this.info, properties.extraInfo); // some additional information that is specific to the status effect might be stored in info
+	this.effect = properties.effectDescription; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
 
 	this.tick = properties.tick; // function to be carried out every second
 
@@ -7616,8 +7613,17 @@ function statusEffect(properties) {
 	this.type = properties.type; // status effect type
 
 	this.hidden = properties.hidden; // not visible to player
+    // check for hidden status effect
+    if (this.hidden) {
+        properties.target.numberOfHiddenStatusEffects++; // necessary for status effect display
+    }
 
-	this.showInfoBar = properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText)
+	this.showInfoBar = properties.showInfoBar; // infobar shown about status effect (with text properties.infoBarText)
+
+    this.curse = properties.curse; // transferred to enemies upon attacking them
+    this.worksForGames = properties.worksForGames; // also works in games such as tag (for speed status effects that normally wouldn't)
+    this.showTime = typeof properties.showTime==="undefined"?true:false;
+    this.removeOnAttack = properties.removeOnAttack; // if the status effect should be removed after player attacking - currently just works for player!
 }
 
 // check through owner's status effects to see which can be removed (due to having run out of time)
@@ -7830,11 +7836,12 @@ Game.statusEffects.generic = function (properties) {
 
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
-			effect: properties.effectDescription,
-			extraInfo: properties.extraInfo, // extra properties to be added to info
+			effectDescription: properties.effectDescription,
 			image: properties.imageName,
 			type: properties.type,
+
 			hidden: properties.hidden, // not visible to player
+			target: properties.target,
 
 			showInfoBar: properties.showInfoBar, // infobar shown about status effect (with text properties.infoBarText + colour properties.infoBarColour)
 
@@ -7845,18 +7852,12 @@ Game.statusEffects.generic = function (properties) {
 		}));
 
 		// the status effect that was just added
-		// "bound" to the original status effect - if this is editied, it is as well
 		let addedStatusEffect = properties.target.statusEffects[properties.target.statusEffects.length - 1];
 
 		// check if the status effect has an increaseProperty
 		if (properties.increasePropertyName !== undefined) {
 			// set the property of the status effect that says the increased stat
 			addedStatusEffect.info[properties.increasePropertyName] = properties.increasePropertyValue;
-		}
-
-		// check for hidden status effect
-		if (properties.hidden === true) {
-			properties.target.numberOfHiddenStatusEffects++; // necessary for status effect display
 		}
 
 		if (properties.time !== undefined) {
