@@ -1082,13 +1082,17 @@ Dom.chat.playerMessage = function (message) {
 
 			// send message which is thus broadcasted to all others (no KAO)
 			else {
-				
+				let playerLanguage = "default";
+				if (typeof Player.knownLanguages !== "undefined" && !Player.knownLanguages.includes("default")) {
+					// player does not speak default language
+					playerLanguage = Player.knownLanguages[0];
+				}
 
 				let messageObj = {
 			        type: "chat",
 			        name: Player.name,
 			        content: message,
-					language: Player.language,
+					language: playerLanguage,
 			    }
 			    let jsonMessage = JSON.stringify(messageObj);
 			    ws.send(jsonMessage);
