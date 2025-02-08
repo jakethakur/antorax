@@ -3250,7 +3250,7 @@ class Character extends Thing {
 	// set character's this.speed, based off this.(stats.)walkSpeed
 	// also returns the new value of this.speed
 	// baseSpeed = true stops the speed being changed from status effects and slow tiles (e.g. for displacement) - so just sets speed to walk speed
-	// game = true stops equipment and potions from changing walk speed (other than special status effects where info.worksForGames = true) (i.e. for tag minigame)
+	// game = true stops equipment and potions from changing walk speed (other than special status effects where worksForGames = true) (i.e. for tag minigame)
 	setSpeed (baseSpeed, game) {
 		let footY = this.y + this.height/2 - this.footHitbox.height/2; // y position of feet
 
@@ -3403,7 +3403,7 @@ class Character extends Thing {
 				if (statusEffect.info.speedIncrease !== undefined) {
 					// increase speed if the status effect does so
 					// check a minigame is not active OR the status effect works for minigames
-					if (!game || statusEffect.info.worksForGames) {
+					if (!game || statusEffect.worksForGames) {
 						// status effect is in percentage
 						this.speed += oldSpeed * (statusEffect.info.speedIncrease / 100);
 					}
@@ -5125,7 +5125,7 @@ class Hero extends Attacker {
 				// Status effects that are used on attack - remove them
 				// (their effects should have happened in dealDamage, if an enemy was hit)
 				for (let i = 0; i < this.statusEffects.length; i++) {
-					if (this.statusEffects[i].info.removeOnAttack) {
+					if (this.statusEffects[i].removeOnAttack) {
 						this.removeStatusEffect(i, "attack");
 						i--;
 					}
@@ -7604,20 +7604,118 @@ function statusEffect(properties) {
 	this.title = properties.title; // displayed title
 	this.effect = properties.effect; // displayed effect (displayed in the DOM as a description of the status effect, in player stats)
 
-	this.info = properties.info || {}; // extra information (e.g: total time of status effect; poison damage and length)
-	Object.assign(this.info, properties.extraInfo); // some additional information that is specific to the status effect might be stored in info
-
-	this.tick = properties.tick; // function to be carried out every second
-
-	this.image = properties.image; // image to be shown
+	this.time = properties.time; // if the status effect expires after a certain time, this is the time taken for the status effect to expire in SECONDS
+	this.ticks = 0; // tracks the time that the status effect has been running for
 
 	this.type = properties.type; // status effect type
 
-	this.changedStat = properties.changedStat; // used to change back changed stat on expire (same name as key name in target.stats)
+	this.info = properties.info || {}; // parameter information that is specific to this type of status effect (e.g. fishing skill level increase for bait; poison damage for poison)
+	Object.assign(this.info, properties.extraInfo); // some additional information that is specific to the status effect might be stored in extraInfo (tbd I'm not sure if this is necessary - look into removing)
+	if (properties.increasePropertyName !== undefined) {
+		this.info[properties.increasePropertyName] = properties.increasePropertyValue;
+	}
 
+	// functionality parameters
+	this.curse = properties.curse; // transferred on to enemies on attack [they can transfer it back to you]
+	this.worksForGames = properties.worksForGames; // also works in games such as tag (for speed status effects that normally wouldn't)
+	this.removeOnAttack = properties.removeOnAttack; // if it should be removed after player attacking - currently just works for player!
+
+	// visuals
+	this.image = properties.image; // image to be shown
 	this.hidden = properties.hidden; // not visible to player
-
+	if (this.hidden) {
+		properties.target.numberOfHiddenStatusEffects++; // necessary for status effect display
+	}
+	this.showTime = properties.showTime; // whether or not the time remaining should be shown
+	// infobar display
 	this.showInfoBar = properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText)
+	if (properties.showInfoBar === true) {
+		if (Dom.elements.infoBar.innerHTML === "") {
+			// infobar not occupied
+			Dom.infoBar.page(properties.infoBarText + " <span id='infobarTimeRemaining'></span>", properties.infoBarColour);
+			// infobar time
+			if (this.time !== undefined) {
+				document.getElementById("infobarTimeRemaining").innerHTML = properties.time + "s";
+			}
+			// information for status effect init on refresh
+			this.infoBarText = properties.infoBarText;
+			this.infoBarColour = properties.infoBarColour;
+		}
+		else {
+			console.error("The infobar was already occupied but was requested by status effect " + properties.effectTitle + ". Please tell Jake or Peter!");
+		}
+	}
+
+	// functions
+	if (typeof properties.time !== "undefined") {
+		// timed status effect
+
+		// add functions
+		// properties.onExpire and properties.onTick should be set to the functions' key names from Game.statusEffects.functions
+		// however they can also be an object, with their location as "itemdata" and a type and id if they want to refer to an item's onExpire on onTick instead
+		if (typeof properties.onExpire !== "undefined") {
+			// onExpire is called when the statuseffect expires naturally (not removed)
+			// can also be called on remove if properties.callExpireOnRemove is set to true
+			// this is bound to the status effect (hence this.owner and this.info work)
+
+			// find source of onExpire
+			if (typeof properties.onExpire.location === "undefined") {
+				// onExpire in Game.statusEffects.functions
+				this.onExpire = Game.statusEffects.functions[properties.onExpire].bind(this);
+			}
+			else if (properties.onExpire.location === "itemdata") {
+				// onExpire in itemdata
+				this.onExpire = Items[properties.onExpire.type][properties.onExpire.id].onExpire.bind(this);
+			}
+
+			// reference for savedata (used if the target is Game.hero)
+			this.onExpireSource = properties.onExpire; // key name of function reference in Game.statusEffects.functions
+
+			this.callExpireOnRemove = properties.callExpireOnRemove; // whether exire should be called on remove of the status effect (not just for time over)
+
+			this.onExpireParams = properties.onExpireParams; // must be an array! since spread syntax is used
+			if (typeof this.onExpireParams === "undefined") {
+				this.onExpireParams = [];
+			}
+			if (!Array.isArray(this.onExpireParams)) {
+				console.error("Parameters for onExpire must be an array, since spread syntax is used", this.onExpireParams)
+			}
+		}
+		if (properties.onTick !== undefined) {
+			// this is bound to the status effect (hence this.owner and this.info work)
+
+			 // find source of onTick
+			 if (properties.onTick.location === undefined) {
+				 // onTick in Game.statusEffects.functions
+				 this.onTick = Game.statusEffects.functions[properties.onTick].bind(this);
+			 }
+			 else if (properties.onTick.location === "itemdata") {
+				// onTick in itemdata
+				this.onTick = Items[properties.onTick.type][properties.onTick.id].onTick.bind(this);
+			 }
+
+			// reference for savedata (used if the target is Game.hero)
+			this.onTickSource = properties.onTick; // key name of function reference in Game.statusEffects.functions
+		}
+
+		// tick function (to be carried out every second)
+		// reduces status effect time, removes status effect when necessary, calls onTick and onExpire when necessary
+		this.tick = Game.statusEffects.functions.tick;
+
+		// calculate next tick time
+		let nextTickTime = 1000;
+		if (this.time <= 2 && properties.onTick === undefined) {
+			// faster tick if effect is approaching its end (and there is no onTick function)
+			nextTickTime = 100;
+		}
+
+		// begin tick
+		this.tickTimeout = Game.setTimeout(function (owner, nextTickTime) {
+			// nextTickTime is timeTicked
+			this.tick(owner, nextTickTime);
+		}.bind(this), nextTickTime, [properties.target, nextTickTime]);
+
+	}
 }
 
 // check through owner's status effects to see which can be removed (due to having run out of time)
@@ -7627,9 +7725,9 @@ function statusEffect(properties) {
 Game.removeExpiredStatusEffect = function (owner) {
 	for (let i = 0; i < owner.statusEffects.length; i++) { // iterate through owner's status effects
 		// check that the status effect can expire
-		if (typeof owner.statusEffects[i].info.time !== "undefined" && typeof owner.statusEffects[i].info.ticks !== "undefined") {
+		if (typeof owner.statusEffects[i].time !== "undefined" && typeof owner.statusEffects[i].ticks !== "undefined") {
 			// check if it has expired
-			if (owner.statusEffects[i].info.ticks >= owner.statusEffects[i].info.time) {
+			if (owner.statusEffects[i].ticks >= owner.statusEffects[i].time) {
 				owner.removeStatusEffect(i, "time"); // remove it, also calling onExpire
 				i--;
 			}
@@ -7654,7 +7752,7 @@ Game.removeStealthEffects = function (owner) {
 Game.spreadCurse = function (attacker, victim) {
 	let index = -2; // placeholder
 	while (index !== -1) { // repeat until there are no more curse status effects
-		index = attacker.statusEffects.findIndex(statusEffect => statusEffect.info.curse === true); // find a curse effect
+		index = attacker.statusEffects.findIndex(statusEffect => statusEffect.curse === true); // find a curse effect
 		if (index >= 0) { // if an effect was found...
 			victim.statusEffects.push(attacker.statusEffects[index]); // give the status effect to the victim
 			attacker.removeStatusEffect(index, "curse"); // remove the status effect from the attacker
@@ -7689,25 +7787,25 @@ Game.removeTileStatusEffects = function (target, keep) {
 Game.statusEffects.functions = {
 	// generic tick function for all timed status effects
 	tick: function (owner, timeTicked) { // decrease time
-		if (this.info.ticks < this.info.time) { // check effect has not expired
+		if (this.ticks < this.time) { // check effect has not expired
 			// call onTick
 			if (this.onTick !== undefined) {
 				this.onTick(owner);
 			}
 
-			this.info.ticks += timeTicked / 1000; // timeTicked is in ms
+			this.ticks += timeTicked / 1000; // timeTicked is in ms
 			if (owner.constructor.name === "Hero") { // refresh canvas status effects if the status effect was applied to player
 				Game.hero.updateStatusEffects();
 			}
 
 			// infobar time
-			if (this.showInfoBar && this.info.time !== undefined && Game.minigameInProgress === undefined) {
-				document.getElementById("infobarTimeRemaining").innerHTML = Round(this.info.time - this.info.ticks) + "s";
+			if (this.showInfoBar && this.time !== undefined && Game.minigameInProgress === undefined) {
+				document.getElementById("infobarTimeRemaining").innerHTML = Round(this.time - this.ticks) + "s";
 			}
 
 			// calculate next tick time
 			let nextTickTime = 1000;
-			if (this.info.time - this.info.ticks <= 2
+			if (this.time - this.ticks <= 2
 			&& this.onTick === undefined) {
 				// faster tick if effect is approaching its end (and there is no onTick function)
 				nextTickTime = 100;
@@ -7721,23 +7819,12 @@ Game.statusEffects.functions = {
 			}.bind(this), nextTickTime, [owner, nextTickTime]);
 		}
 
-		if (this.info.ticks >= this.info.time) { // remove effect interval
+		if (this.ticks >= this.time) { // remove effect interval
 
 			// remove effect
 			Game.removeExpiredStatusEffect(owner);
 		}
 	},
-
-	// decreases target's stat (changedStat) by value info[changedStat]
-	/*decreaseStat: function (target) {
-		if (target.stats[this.changedStat] !== undefined) {
-			// stat exists
-			target.stats[this.changedStat] -= this.info[this.changedStat];
-		}
-		else {
-			console.error("Stat " + this.changedStat + " does not exist, but status effect " + this.title + " wants to decrease it. Please tell Jake!");
-		}
-	},*/ // shouldn't really be used! see above
 
 	//
 	// please try to keep the following in alphabetical order :)
@@ -7755,17 +7842,16 @@ Game.statusEffects.functions = {
 
 	// food onTick
 	foodTick: function (owner) {
-		Game.restoreHealth(owner, Round(this.info.healthRestore / this.info.time, 1), this.info.bloodMoonRestore); // 1dp
+		Game.restoreHealth(owner, Round(this.info.healthRestore / this.time, 1), this.info.bloodMoonRestore); // 1dp
 	},
 
 	// poison onTick
 	poisonTick: function (owner) {
-		owner.takeDamage(this.info.poisonDamage / this.info.time);
+		owner.takeDamage(this.info.poisonDamage / this.time);
 	},
 
 	// stealth onExpire
 	stealthRemove: function (target) {
-		// remove stealth effect
 		target.stats.stealth = false;
 		Game.removeStealthEffects(target);
 	},
@@ -7821,8 +7907,12 @@ Game.statusEffects.functions = {
 	},
 };
 
-// give target a buff/debuff
-// properties includes target, effectTitle, effectDescription, increasePropertyName(optional), increasePropertyValue(optional), time(optional), imageName, onExpire(optional)
+// give target a status effect
+// status effect application should go through this generic function first to calculate if there is any effect stacking involved (a status effect being given won't necessarily result in a new status effect object being given)
+// many types of status effects call through a more specific function first (i.e. Game.statusEffects.fire) to format the input description, functions, etc. but this is not required.
+// properties includes target, effectTitle, effectDescription, increasePropertyName(optional), increasePropertyValue(optional), time(optional), imageName, onExpire(optional), ... - see statusEffect constructor
+// increasePropertyName refers to the keyname in statuseffect.info that is set to increasePropertyValue (effectively a parameter for the ability)
+// status effects are limited to one of these (i.e. one effect per object). tbd change this so a status effect can have multiple effects? or alternatively make grouping of effects a thing (but this feels like it would be more complicated)
 Game.statusEffects.generic = function (properties) {
 	// check that the effect stacks (note that this is opt-out not opt-in - properties.effectStack must be set to "noStack" if it doesn't stack)
 	let found = -1;
@@ -7832,151 +7922,55 @@ Game.statusEffects.generic = function (properties) {
 		found = properties.target.statusEffects.findIndex(function(element) {
 			return element.title === properties.effectTitle && // title same
 				(properties.increasePropertyName === undefined || // no property increased
-				element.info[properties.increasePropertyName] === properties.increasePropertyValue || // same property increased by same value
+				element.info[properties.increasePropertyName] === properties.increasePropertyValue || // same property(s) increased by same value
 				(properties.effectStack === "multiply" && element.info[properties.increasePropertyName] !== undefined)); // property exists and multiplied effect
 		});
 	}
 
 	if (found === -1) { // no similar effect currently applied to the target, or effect doesn't stack
-
-		// effect description
-		let effectText = properties.effectDescription;
-
 		properties.target.statusEffects.push(new statusEffect({
 			title: properties.effectTitle,
-			effect: effectText,
-			info: { // status effect in-game behaviour info (time remaining, etc.) - tbd needs removing..
-				curse: properties.curse, // transferred on to enemies on attack
-				worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
-				showTime: typeof properties.showTime==="undefined"?true:false,
-				removeOnAttack: properties.removeOnAttack, // if the status effect should be removed after player attacking - currently just works for player!
+			effect: properties.effectDescription, // effect description
+			target: properties.target, // used for tick function
+			time: properties.time,
+			type: properties.type, // generally set by which function it has come from (i.e. if this effect was made by Game.statusEffects.walkSpeed, it will set type to either "speed" or "slow"
+			info: { // parameters for specific status effect types [tbd remove]
 			},
 			extraInfo: properties.extraInfo, // extra properties to be added to info
+			increasePropertyName: properties.increasePropertyName,
+			increasePropertyValue: properties.increasePropertyValue,
+			// parameters
+			curse: properties.curse, // transferred on to enemies on attack
+			worksForGames: properties.worksForGames, // also works in games such as tag (for speed status effects that normally wouldn't)
+			removeOnAttack: properties.removeOnAttack, // if the status effect should be removed after player attacking - currently just works for player!
+			// visual
 			image: properties.imageName,
-			type: properties.type,
-			changedStat: properties.changedStat, // used to change back changed stat on expire (same name as key name in target.stats)
 			hidden: properties.hidden, // not visible to player
-			showInfoBar: properties.showInfoBar // infobar shown about status effect (with text properties.infoBarText + colour properties.infoBarColour)
+			showTime: typeof properties.showTime==="undefined"?true:false,
+			showInfoBar: properties.showInfoBar, // DOM infobar shown about status effect (with text properties.infoBarText + colour properties.infoBarColour)
+			infoBarText: properties.infoBarText,
+			infoBarColour: properties.infoBarColour,
+			// functions
+			onExpire: properties.onExpire,
+			callExpireOnRemove: properties.callExpireOnRemove,
+			onExpireParams: properties.onExpireParams,
+			onTick: properties.onTick,
 		}));
-
-		// the status effect that was just added
-		// "bound" to the original status effect - if this is editied, it is as well
-		let addedStatusEffect = properties.target.statusEffects[properties.target.statusEffects.length - 1];
-
-		// check if the status effect has an increaseProperty
-		if (properties.increasePropertyName !== undefined) {
-			// set the property of the status effect that says the increased stat
-			addedStatusEffect.info[properties.increasePropertyName] = properties.increasePropertyValue;
-		}
-
-		// check for hidden status effect
-		if (properties.hidden === true) {
-			properties.target.numberOfHiddenStatusEffects++; // necessary for status effect display
-		}
-
-		if (properties.time !== undefined) {
-			// timed status effect
-
-			// add time properties
-			addedStatusEffect.info.time = properties.time;
-			addedStatusEffect.info.ticks = 0;
-
-			// add functions
-			// properties.onExpire and properties.onTick are the key names from Game.statusEffects.functions
-			// however they can also be an object, with their location as "itemdata" and a type and id if they want to refer to an item's onExpire on onTick intead
-			if (properties.onExpire !== undefined) {
-				// onExpire is called when the statuseffect expires naturally (not removed)
-				// can also be called on remove if properties.callExpireOnRemove is set to true
-				// this is bound to the status effect (hence this.owner and this.info work)
-
-				// find source of onExpire
-				if (properties.onExpire.location === undefined) {
-					// onExpire in Game.statusEffects.functions
-					addedStatusEffect.onExpire = this.functions[properties.onExpire].bind(addedStatusEffect);
-				}
-				else if (properties.onExpire.location === "itemdata") {
-					// onExpire in itemdata
-					addedStatusEffect.onExpire = Items[properties.onExpire.type][properties.onExpire.id].onExpire.bind(addedStatusEffect);
-				}
-
-				// reference for savedata (used if the target is Game.hero)
-				addedStatusEffect.onExpireSource = properties.onExpire; // key name of function reference in Game.statusEffects.functions
-
-				addedStatusEffect.callExpireOnRemove = properties.callExpireOnRemove; // whether exire should be called on remove of the status effect (not just for time over)
-
-				addedStatusEffect.onExpireParams = properties.onExpireParams; // must be an array! since spread syntax is used
-				if (typeof addedStatusEffect.onExpireParams === "undefined") {
-					addedStatusEffect.onExpireParams = [];
-				}
-			}
-			if (properties.onTick !== undefined) {
-				// this is bound to the status effect (hence this.owner and this.info work)
-
- 				// find source of onTick
- 				if (properties.onTick.location === undefined) {
- 					// onTick in Game.statusEffects.functions
- 					addedStatusEffect.onTick = this.functions[properties.onTick].bind(addedStatusEffect);
- 				}
- 				else if (properties.onTick.location === "itemdata") {
-					// onTick in itemdata
-					addedStatusEffect.onTick = Items[properties.onTick.type][properties.onTick.id].onTick.bind(addedStatusEffect);
- 				}
-
-				// reference for savedata (used if the target is Game.hero)
-				addedStatusEffect.onTickSource = properties.onTick; // key name of function reference in Game.statusEffects.functions
-			}
-
-			// tick function
-			// reduces status effect time, removes status effect when necessary, calls onTick and onExpire when necessary
-			addedStatusEffect.tick = this.functions.tick;
-
-			// calculate next tick time
-			let nextTickTime = 1000;
-			if (properties.time <= 2 && properties.onTick === undefined) {
-				// faster tick if effect is approaching its end (and there is no onTick function)
-				nextTickTime = 100;
-			}
-
-			// begin tick
-			addedStatusEffect.tickTimeout = Game.setTimeout(function (owner, nextTickTime) {
-				// nextTickTime is timeTicked
-				this.tick(owner, nextTickTime);
-			}.bind(addedStatusEffect), nextTickTime, [properties.target, nextTickTime]);
-
-		}
-
-		// status effect infobar display
-		if (properties.showInfoBar === true) {
-			if (Dom.elements.infoBar.innerHTML === "") {
-				// infobar not occupied
-				Dom.infoBar.page(properties.infoBarText + " <span id='infobarTimeRemaining'></span>", properties.infoBarColour);
-				// infobar time
-				if (addedStatusEffect.info.time !== undefined) {
-					document.getElementById("infobarTimeRemaining").innerHTML = properties.time + "s";
-				}
-				// information for status effect init on refresh
-                addedStatusEffect.infoBarText = properties.infoBarText;
-                addedStatusEffect.infoBarColour = properties.infoBarColour;
-			}
-			else {
-				console.error("The infobar was already occupied but was requested by status effect " + properties.effectTitle + ". Please tell Jake or Peter!");
-			}
-		}
 	}
-	else if (found !== -1) { // extend existing status effect
+	else { // extend existing status effect instead of adding a new one
 		if (properties.effectStack === "refresh") {
 			// refresh time instead of adding time
-			properties.target.statusEffects[found].info.ticks = 0;
+			properties.target.statusEffects[found].ticks = 0;
 		}
 		else if (properties.effectStack === "multiply") {
 			// add to max time AND make the effect stronger
-			properties.target.statusEffects[found].info.time += properties.time;
+			properties.target.statusEffects[found].time += properties.time;
 			properties.target.statusEffects[found].info[properties.increasePropertyName] += properties.increasePropertyValue;
 			// tbd update description as well
 		}
 		else {
 			// default - add to max time
-			properties.target.statusEffects[found].info.time += properties.time;
+			properties.target.statusEffects[found].time += properties.time;
 		}
 	}
 
@@ -10306,7 +10300,7 @@ Game.initStatusEffects = function () {
 	for (let i = 0; i < this.hero.statusEffects.length; i++) {
 		let statusEffect = this.hero.statusEffects[i];
 
-		if (statusEffect.info.time !== undefined) { // check if status effect should tick
+		if (statusEffect.time !== undefined) { // check if status effect should tick
 			// give the status effect the tick function
 			statusEffect.tick = this.statusEffects.functions.tick;
 
@@ -10341,8 +10335,8 @@ Game.initStatusEffects = function () {
                     // infobar not occupied
                     Dom.infoBar.page(statusEffect.infoBarText + " <span id='infobarTimeRemaining'></span>");
                     // infobar time
-                    if (statusEffect.info.time !== undefined) {
-                        document.getElementById("infobarTimeRemaining").innerHTML = Round(statusEffect.info.time - statusEffect.info.ticks) + "s";
+                    if (statusEffect.time !== undefined) {
+                        document.getElementById("infobarTimeRemaining").innerHTML = Round(statusEffect.time - statusEffect.ticks) + "s";
                     }
                 }
                 else {
@@ -10352,7 +10346,7 @@ Game.initStatusEffects = function () {
 
 			// calculate next tick time
 			let nextTickTime = 1000;
-			if (statusEffect.info.time <= 2 && statusEffect.onTick === undefined) {
+			if (statusEffect.time <= 2 && statusEffect.onTick === undefined) {
 				// faster tick if effect is approaching its end (and there is no onTick function)
 				nextTickTime = 100;
 			}
@@ -13809,10 +13803,9 @@ Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
 			ctx.fillStyle = "black";
 			ctx.font = fontSize + "px El Messiri";
 			ctx.textAlign = "right";
-			if (typeof character.statusEffects[i].info !== "undefined") { // variable that contains time exists
-				if (character.statusEffects[i].info.showTime !== false && typeof character.statusEffects[i].info.time !== "undefined" && typeof character.statusEffects[i].info.ticks !== "undefined") { // variable exists
-					ctx.fillText(Math.ceil((character.statusEffects[i].info.time - character.statusEffects[i].info.ticks)*10)/10, (startX+height*0.9) + (i-offsetNumber) * (height*1.2), y+height);
-				}
+
+			if (character.statusEffects[i].showTime !== false && typeof character.statusEffects[i].time !== "undefined" && typeof character.statusEffects[i].ticks !== "undefined") { // variable exists
+				ctx.fillText(Math.ceil((character.statusEffects[i].time - character.statusEffects[i].ticks)*10)/10, (startX+height*0.9) + (i-offsetNumber) * (height*1.2), y+height);
 			}
 		}
 		else {

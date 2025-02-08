@@ -1873,7 +1873,7 @@ Dom.inventory.displayIdentification = function (display) {
 		Dom.elements.innerStatus.innerHTML = "<strong>Status Effects:</strong>";
 		for (let i = 0; i < Player.statusEffects.length; i++) {
 			if (!Player.statusEffects[i].hidden) {
-				Dom.elements.innerStatus.innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].info.time ? " (" + (Math.floor(Player.statusEffects[i].info.time) - Math.floor(Player.statusEffects[i].info.ticks)) + "s)" : "" : "");
+				Dom.elements.innerStatus.innerHTML += "<br>" + Player.statusEffects[i].title + ": " + Player.statusEffects[i].effect + (Player.statusEffects[i].info ? Player.statusEffects[i].time ? " (" + (Math.floor(Player.statusEffects[i].time) - Math.floor(Player.statusEffects[i].ticks)) + "s)" : "" : "");
 			}
 		}
 	}
@@ -8233,9 +8233,11 @@ Dom.init = function () {
 				}
 			}
 		}
-		for (let i = 0; i < Object.keys(Player.quests.randomDailyQuests).length; i++) {
-			if (!array.includes(Object.keys(Player.quests.randomDailyQuests)[i])) {
-				Player.quests.randomDailyQuests[Object.keys(Player.quests.randomDailyQuests)[i]] = undefined;
+		if (typeof Player.quests.randomDailyQuests !== "undefined") {
+			for (let i = 0; i < Object.keys(Player.quests.randomDailyQuests).length; i++) {
+				if (!array.includes(Object.keys(Player.quests.randomDailyQuests)[i])) {
+					Player.quests.randomDailyQuests[Object.keys(Player.quests.randomDailyQuests)[i]] = undefined;
+				}
 			}
 		}
 
