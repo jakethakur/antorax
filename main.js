@@ -244,6 +244,8 @@ Game.initWebSocket = function () {
 				case "chat":
 					// do not allow user ta use < or > in chat (stop HTML injection)
 					let messageContent = message.content.replace(/[<>]/g, "");
+					// translate message (do this now and not in Dom.chat.say as we want the notification to be similarly translated)
+					messageContent = Dom.chat.translate(messageContent, message.language);
 					// insert in chat
 					Dom.chat.insert(Dom.chat.say(message.name, messageContent));
 				    // notification if user has given permission
@@ -2474,9 +2476,12 @@ class Character extends Thing {
 
 		this.hostility = properties.hostility; // used for name colour and base aggro against hero
 
-		this.createdByPlayer = properties.createdByPlayer; // player and player's summons have this as true for damagedByHero
+		this.language = properties.language; // all languages that this npc can talk to (see Dom.chat.translate)
+		// can be an array ! if it's an array, the first element is the mother tongue of the npc
 
 		this.association = properties.association; // used e.g. by coyotes (set to "coyotePack") to see which are in a pack and should be healed by wrangler
+
+		this.createdByPlayer = properties.createdByPlayer; // player and player's summons have this as true for damagedByHero
 
 		this.spawnX = properties.x;
 		this.spawnY = properties.y;
@@ -2637,7 +2642,7 @@ class Character extends Thing {
 	// name is only shown if property "showNameInChat" of the NPC is true
 	// if message begins with "/me " (including space), the format changes to "this.name message"
 	// see sayChat for parameter descriptions
-	say (message, delay, singleUse, arrayType, language) {
+	say (message, delay, singleUse, arrayType) {
 		let name = this.name;
 		if (!this.showNameInChat) {
 			// name should not be shown in chat (e.g. because it is already included in chat messages)
@@ -2648,7 +2653,7 @@ class Character extends Thing {
 		arrayType = arrayType || this.chatArrayType; // set arrayType to the NPC's default arrayType if it is undefined as parameter
 
 		if (arrayType !== "all" || message.constructor === String) {
-			Dom.chat.insert(Dom.chat.say(name, message, language), delay, undefined, singleUse);
+			Dom.chat.insert(Dom.chat.say(name, message, this.language), delay, undefined, singleUse);
 		}
 		else {
 			Dom.chat.insertSequence(message);
@@ -3075,7 +3080,7 @@ class Character extends Thing {
 
 				// weapon chat message (some weapons have a chat message for when they kill something!)
 				if (Player.inventory.weapon.chat !== undefined && Player.inventory.weapon.chat.kill !== undefined && this.damageTakenFromHero) {
-					Dom.chat.insert(Dom.chat.say(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill));
+					Dom.chat.insert(Dom.chat.say(Player.inventory.weapon.name, Player.inventory.weapon.chat.kill, Player.inventory.weapon.language));
 				}
 
 				// death text

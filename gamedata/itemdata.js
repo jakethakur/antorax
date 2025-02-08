@@ -7345,11 +7345,11 @@ unidentifiedArea: ["caves"],
 							Dom.inventory.removeById(22, "fish", 1);
 							// chat
 							if (Event.event === "Christmas") {
-								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
+								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles.", Player.inventory.items[position].randomNPC.language));
 								Dom.inventory.give(Items.currency[5], 1);
 							}
 							else {
-								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
+								Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles.", Player.inventory.items[position].randomNPC.language));
 								Dom.inventory.give(Items.currency[5], 3);
 							}
 							// achievement progress
@@ -7375,11 +7375,11 @@ unidentifiedArea: ["caves"],
 						Dom.inventory.removeById(22, "fish", 1);
 						// chat
 						if (Event.event === "Christmas") {
-							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles."));
+							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's a Christmas Token for your troubles.", Player.inventory.items[position].randomNPC.language));
 							Dom.inventory.give(Items.currency[5], 1);
 						}
 						else {
-							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles."));
+							Dom.chat.insert(Dom.chat.say(Player.inventory.items[position].randomNPC.name, "Thank you for this present, here's some Gold for your troubles.", Player.inventory.items[position].randomNPC.language));
 							Dom.inventory.give(Items.currency[5], 3);
 						}
 						// achievement progress

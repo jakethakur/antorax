@@ -3262,13 +3262,13 @@ var Quests = {
 					},{
 						text: `Missing white cat with black smudge pattern.`,
 					},{
-						text: `Her name is <b>Smudge</b>.`,
+						text: `His name is <b>Amelio</b>.`,
 					},{
 						text: `She was last seen outside the <b>Eaglecrest tavern</b>.`,
 					},{
 						text: `Please talk to <b>Priest Kemp-Eau</b> in the <b>Eaglecrest Monastery</b> if you are able to assist.`,
 					},{
-						text: `<b>Generous reward</b> upon Smudge's finding.`,
+						text: `<b>Generous reward</b> upon Amelio's finding.`,
 					},],
 				},
 				{
@@ -3277,7 +3277,7 @@ var Quests = {
 					chat: [{
 						text: `${Player.name}! It must be by some divine destiny you've come by here!`,
 					},{
-						text: `Our cat <b>Smudge</b> has gone missing... for the third time this month...`,
+						text: `Our cat <b>Amelio</b> has gone missing... for the third time this month...`,
 					},{
 						text: `We treat him well! No other cat in the realm has such spiritual connection to those above. So, ${Player.name}, you must understand the divine shock we are in that she has gone missing so frequently.`,
 						long: true,
@@ -3301,11 +3301,10 @@ var Quests = {
 						text: `I've spoken to the Tinkerers' Guild and managed to get my hands on a rare prototype: the <b>PawPerceptors~1450α</b>.`,
 					},{
 						text: `I was told it works via.. something something ley emittance..`,
-						long: true,
 					},{
 						text: `<i>Sigh...</i> I'm not very technical myself. I gathered it leads your Psyche on a divine path to where you need to be.`
 					},{
-						text: `Anyway, follow the trail of paw prints and it should show us where Smudge is running off to!`,
+						text: `Anyway, follow the trail of paw prints and it should show us where Amelio is running off to!`,
 					},],
 					rewards: {
 						items: [{item: Items.helm[45]}],
@@ -3325,15 +3324,15 @@ var Quests = {
 					},{
 						text: `Down the sewer? ....<b>That is certainly not a holy place!!!</b>`,
 					},{
-						text: `I just can't think why Smudge would be going down.. <i>there</i>, rather than in the Monastery..`,
+						text: `I just can't think why Amelio would be going down.. <i>there</i>, rather than in the Monastery..`,
 					},{
 						text: `She's a cat of faith!!`,
 					},{
 						text: `Oh, and to think the sewers are getting demolished soon..`,
 					},{
-						text: `${Player.name}, this is not good - we need to do something about this before Smudge gets injured!`,
+						text: `${Player.name}, this is not good - we need to do something about this before Amelio gets injured!`,
 					},{
-						text: `I sense <b>Alchemist Tamtam</b> will be able to help with this. Whilst I was searching for a device to find Smudge with, he did mention an experimental recipe that could help...`,
+						text: `I sense <b>Alchemist Tamtam</b> will be able to help with this. Whilst I was searching for a device to find Amelio with, he did mention an experimental recipe that could help...`,
 						long: true,
 					},],
 					rewards: {
@@ -3670,7 +3669,7 @@ var Quests = {
 				text: `Good luck on your mission - bring me a souvenir!`,
 			},],
 
-			stepName1: "Smudge",
+			stepName1: "Amelio",
 			stepChat1: [{
 				text: `Oh hey! Didn't think I'd see another cat down here :)`,
 				options: [
@@ -3683,13 +3682,13 @@ var Quests = {
 
 			stepName2: "???",
 			stepChat2: [{
-				text: `hello again smudge.`, // tbd make this a different font
+				text: `hello again amelio.`, // tbd make this a different font
 			},{
 				text: `I see you've brought ${Player.name} with you. what a pleasant surprise.`,
 			},{
 				text: `${Player.name}, I've been wanting to meet you for a long, long time. we all have.`,
 			},{
-				text: `here's your ςคtภเթ as promised, smudge.`,
+				text: `here's your ςคtภเթ as promised, amelio.`,
 			},{
 				text: `you too, ${Player.name}. take some. cats can't resist it, though I'm not sure what effect it has on a ${Player.race} in cat form.`,
 			},],
@@ -4445,6 +4444,56 @@ var Quests = {
 			levelRequirement: 8, // realistically they'll be at least level 9-10 by now
 			questRequirements: ["tinkerer quest tbd"],
 		},
+		{
+			id: 29,
+			quest: "City Canal Cleanup",
+			questArea: "eaglecrest",
+
+			hiddenQuest: true,
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Solario Sunshadow",
+					chat: [{
+						text: `Hmmmmm,,`,
+					},{
+						text: `I think someone's been using the canals as garbage disposal!`,
+					},{
+						text: `I don't possess the gift of a fishing rod,, could you help clear the water instead?`,
+					},{
+						text: `May the Sun forever show its shadow.`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Solario Sunshadow",
+					chat: [{
+						text: `Wonderful! The water's looking cleaner already,, though I hope the City are getting to the bottom of where this junk is coming from.`,
+					},{
+						text: `May the shadows forever guide you.`,
+					},],
+					rewards: {
+						xp: 20,
+						reputation: {
+							eaglecrestCity: 50,
+						},
+					},
+					objectiveRequirement: 0
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Fish up three pieces of junk from the Eaglecrest City canal.",
+					associatedVariable: "canalJunkFishedUp", // tbd 
+				},
+				{id: 1, text: "Speak to <strong>Solario Sunshadow</strong>.",
+				},
+			],
+
+			howToStart: "Speak to <strong>Solario Sunshadow</strong>.",
+			levelRequirement: 6,
+		},
 		/*{
 			id: 17,
 			quest: "WANTED: Baron Foxglove!!",
@@ -4888,7 +4937,7 @@ var Quests = {
 							// quest progress
 							Game.villagers[i].tavernGoodsDelivered = true; // always the first NPC to be delivered to
 							// chat
-							Dom.chat.insert(Dom.chat.say(Game.villagers[i].name, Game.villagers[i].chat.receiveTavernGood));
+							Dom.chat.insert(Dom.chat.say(Game.villagers[i].name, Game.villagers[i].chat.receiveTavernGood, Game.villagers[i].language));
 							// because it thinks a dom page is open
 							Dom.currentlyDisplayed = "";
 							Dom.currentNPC = {};

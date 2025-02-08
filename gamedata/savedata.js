@@ -335,6 +335,8 @@ var Player = {
 	},
 	conditionalStats: [],
 
+	knownLanguages: ["default"], // npcs who don't speak any of these languages have their text obfuscated via Dom.chat.translateTo[languageName](text)
+
 	xp: 0,
 	level: 1,
 

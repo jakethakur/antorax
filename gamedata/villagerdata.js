@@ -401,9 +401,6 @@ var Villagers = [
         name: "Smudge",
         roles: [],
         speciesTemplate: SpeciesTemplates.cat,
-		canBeShown: function () {
-			return false; // cat quest
-		}
     },
 	{
         id: 15,
@@ -777,6 +774,7 @@ var Villagers = [
 			chooseChat: "They should hire cats here.",
 	        receiveTavernGood: "My kittens will love this.",
 		},
+		language: ["default", "cat"],
 	},
 	{
         id: 20,

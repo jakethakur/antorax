@@ -838,9 +838,10 @@ Dom.chat.say = function (name, message, language) {
 			message = message[Random(0, message.length - 1)];
 		}
 
-		if (language === "giblish") {
-			message = Dom.chat.toGiblish(message);
-		}
+		// message has now been decided
+
+		// translate message to language
+		message = this.translate(message, language);
 
 		if (typeof name === "undefined") {
 			// no name for NPC, post without a name
@@ -859,6 +860,93 @@ Dom.chat.say = function (name, message, language) {
 	else {
 		console.warn("undefined chat message for " + name);
 	}
+}
+
+// returns the message that should be displayed to the player
+// messageLanguage may be an array (i.e. if the npc is capable of speaking multiple languages)
+// if it's an array, the first element is the mother tongue of the npc
+Dom.chat.translate = function (message, messageLanguage) {
+	if (typeof messageLanguage === "undefined") {
+		// should always be able to be read
+		return message;
+	}
+	else {
+		if (!Array.isArray(messageLanguage)) {
+			messageLanguage = [messageLanguage];
+		}
+
+		if (Player.knownLanguages.includes("default") || typeof Player.knownLanguages === "undefined") {
+			// player speaks default language
+			if (messageLanguage.includes("default")) {
+				// so does the npc that said this message - no need to translate
+				return message;
+			}
+			else {
+				return this.translateTo[messageLanguage[0]](message);
+			}
+		}
+		else {
+			// see if player and npc have any languages in common
+			let langInCommon = false;
+			for (let i = 0; i < messageLanguage.length; i++) {
+				if (Player.knownLanguages.includes(messageLanguage[i])) {
+					langInCommon = true;
+					break;
+				}
+			}
+
+			if (langInCommon) {
+				// both player and npc speak the same language - no need to translate
+				return message;
+			}
+			else {
+				// player doesn't speak default language, and doesn't speak the same language as NPC
+				// translate the message into the player's first known language (mother tongue)
+				return this.translateTo[Player.knownLanguages[0]](message);
+			}
+		}
+	}
+}
+
+Dom.chat.translateTo = {}; // function object
+
+Dom.chat.translateTo.giblish = function (chat) {
+	chat = chat.replace(/z/g, "n");
+	chat = chat.replace(/y/g, "n");
+	chat = chat.replace(/x/g, "n");
+	chat = chat.replace(/w/g, "y");
+	chat = chat.replace(/v/g, "y");
+	chat = chat.replace(/t/g, "y");
+	chat = chat.replace(/s/g, "r");
+	chat = chat.replace(/q/g, "r");
+	chat = chat.replace(/p/g, "n");
+	chat = chat.replace(/m/g, "n");
+	chat = chat.replace(/k/g, "l");
+	chat = chat.replace(/j/g, "l");
+	chat = chat.replace(/g/g, "h");
+	chat = chat.replace(/f/g, "h");
+	chat = chat.replace(/d/g, "f");
+	chat = chat.replace(/c/g, "f");
+	chat = chat.replace(/b/g, "f");
+	// vowels
+	chat = chat.replace(/u/g, "b");
+	chat = chat.replace(/o/g, "u");
+	chat = chat.replace(/i/g, "o");
+	chat = chat.replace(/e/g, "i");
+	chat = chat.replace(/a/g, "e");
+	chat = chat.replace(/b/g, "a");
+	// deal with leftover symbols from html tags (in the future, make it so the above doesn't match any letters in html tags instead)
+	chat = chat.replace(/[<>\/]/g, "n");
+	
+	return chat;
+}
+
+Dom.chat.translateTo.cat = function (chat) {
+	chat = chat.replace(/(\w+)/g, "meow"); // replaces every whole word with meow
+	// deal with leftover symbols from html tags (in the future, make it so the above doesn't match any letters in html tags instead)
+	chat = chat.replace(/[<>\/]/g, "meow"); // replaces every whole word with meow
+	
+	return chat;
 }
 
 // text - array of strings
@@ -994,10 +1082,13 @@ Dom.chat.playerMessage = function (message) {
 
 			// send message which is thus broadcasted to all others (no KAO)
 			else {
+				
+
 				let messageObj = {
 			        type: "chat",
 			        name: Player.name,
 			        content: message,
+					language: Player.language,
 			    }
 			    let jsonMessage = JSON.stringify(messageObj);
 			    ws.send(jsonMessage);
@@ -1241,6 +1332,8 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 			}
 	
 			Dom.chat.npcBannerText = toShow.text;
+
+			Dom.chat.npcBannerText = Dom.chat.translate(Dom.chat.npcBannerText, npc.language); // translate to npc's language
 	
 			Dom.chat.npcBannerParams.onFinish = toShow.onFinish; // function or undefined
 			Dom.chat.npcBannerParams.onFinishParams = toShow.onFinishParams; // array or undefined
@@ -7045,44 +7138,6 @@ Dom.settings.transparency = function () {
 		for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 			document.getElementsByClassName("DOM")[i].style.opacity = 1;
 		}
-	}
-}
-
-Dom.chat.toGiblish = function (chat) {
-	let me = false;
-	if (chat.substring(0, 4) === "/me ") {
-		chat = chat.substr(4, message.length);
-		me = true;
-	}
-	chat = chat.replace(/z/g, "n");
-	chat = chat.replace(/y/g, "n");
-	chat = chat.replace(/x/g, "n");
-	chat = chat.replace(/w/g, "y");
-	chat = chat.replace(/v/g, "y");
-	chat = chat.replace(/t/g, "y");
-	chat = chat.replace(/s/g, "r");
-	chat = chat.replace(/q/g, "r");
-	chat = chat.replace(/p/g, "n");
-	chat = chat.replace(/m/g, "n");
-	chat = chat.replace(/k/g, "l");
-	chat = chat.replace(/j/g, "l");
-	chat = chat.replace(/g/g, "h");
-	chat = chat.replace(/f/g, "h");
-	chat = chat.replace(/d/g, "f");
-	chat = chat.replace(/c/g, "f");
-	chat = chat.replace(/b/g, "f");
-	// vowels
-	chat = chat.replace(/u/g, "b");
-	chat = chat.replace(/o/g, "u");
-	chat = chat.replace(/i/g, "o");
-	chat = chat.replace(/e/g, "i");
-	chat = chat.replace(/a/g, "e");
-	chat = chat.replace(/b/g, "a");
-	if (me) {
-		return "/me "+chat;
-	}
-	else {
-		return chat;
 	}
 }
 
