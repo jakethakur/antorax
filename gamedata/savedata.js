@@ -257,7 +257,7 @@ var Player = {
 		items: [{},{},{},{},{},{}],
 	},
 
-	bank: {
+	bank: { // considered as an extension of the player's inventory
 		unlockedSlots: 1,
 		items: [{},{},{},{},{},{}],
 	},

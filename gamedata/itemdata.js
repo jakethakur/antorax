@@ -810,6 +810,10 @@ unidentifiedArea: ["caves"],
 				swimSpeed: 60,
 				breathing: 1,
 			},
+			playerCanWear: { // displays visually on player
+			    type: "hat",
+			    src: "breathingHelmet"
+			}
 		},
 		{
 			id: 45,
