@@ -15,7 +15,7 @@ body{
 
 
 #bulletinBoard {
-	width: 500px;
+	width: 350px;
 	background-image: url("./assets/bulletinBackground.png");
 	height: 100vh;
 
@@ -31,7 +31,7 @@ body{
 	background-position: center center;
 	height: 100vh;
 
-	margin-left: 500px;
+	margin-left: 350px;
 	margin-right: 350px;
 
 	border-left: 5px solid #715d44;
@@ -109,7 +109,7 @@ body{
 }
 
 
-#logo, .customisationSelect, #customisationButton {
+#logo, .customisationSelect {
 	background-color: var(--bottom);
 	border: 5px solid var(--border);
 
@@ -151,6 +151,8 @@ top: 20px;
 	-moz-user-drag: none;
 	-o-user-drag: none;
 	user-drag: none;
+
+	width: 305px;
 }
 
 
@@ -226,7 +228,7 @@ top: 20px;
 	border-bottom: 5px solid #715d44;
 
 	margin-top: 10px;
-	margin-bottom: 13px;
+	margin-bottom: 3px;
 }
 
 .previewImage {
@@ -259,6 +261,7 @@ top: 20px;
 
 	padding: 10px;
 	margin: 15px;
+	margin-bottom: 0px;
 	cursor: pointer;
 
 	display: inline-block;
@@ -321,6 +324,7 @@ top: 20px;
 	width: 81px;
 	height: 98px;
 	display: inline-block;
+	cursor: pointer;
 }
 
 #skinToneView {
@@ -347,5 +351,4 @@ top: 20px;
 }
 #hatView.selected{
 	background-image: url("assets/customisationButtons/hatSelected.png");
-	border-right: 5px solid #5B462F;
 }
