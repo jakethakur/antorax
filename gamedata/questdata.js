@@ -4182,17 +4182,25 @@ var Quests = {
 					}],
 					onFinish: function () {
 						Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
-						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0; 
-						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 100; 
-						Player.quests.prog.eaglecrest[25].vars.percentageCorrectDisplay = "100%"; 
+						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0;
+						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 1;
 						Dom.scoreboardInit({
 							timeLimit: 110,
-							variablesArray: [{keyName: "percentageCorrect", title: "Success Rate", displayAs: "percentage"}],
+							variablesArray: [{
+							    keyName: "percentageCorrect",
+							    title: "Success Rate",
+							    displayAs: "percentage",
+							}],
 							targetVariableIndex: 0,
 							targetValue: 50,
 							title: "Quality Assurance",
 							questArea: "eaglecrest",
 							questId: 25,
+							successFunction: function () {
+                                if (Player.quests.prog.eaglecrest[25].vars.percentageCorrect === 1) {
+                                    User.progress.qualityAssuranceAchievement = true;
+                                }
+							},
 							randomEvents: [
 								{ // blue barrel
 									func: function () {

@@ -2679,7 +2679,7 @@ const QuestTemplates = {
 							// correct barrel; increase score upon route being finished
 							this.moveTowardsSequenceFinishFunc = function () {
 								Player.quests.prog.eaglecrest[25].vars.gameScore++;
-								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 								Dom.quests.active();
 							}
 						}
@@ -2687,7 +2687,7 @@ const QuestTemplates = {
 							// incorrect barrel
 							this.moveTowardsSequenceFinishFunc = function () {
 								Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
-								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 								Dom.quests.active();
 							}
 						}
@@ -2700,7 +2700,7 @@ const QuestTemplates = {
 									// correct barrel; increase score upon route being finished
 									this.moveTowardsSequenceFinishFunc = function () {
 										Player.quests.prog.eaglecrest[25].vars.gameScore++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 										Dom.quests.active();
 									}
 								}
@@ -2708,7 +2708,7 @@ const QuestTemplates = {
 									// incorrect barrel
 									this.moveTowardsSequenceFinishFunc = function () {
 										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 										Dom.quests.active();
 									}
 								}
@@ -2719,7 +2719,7 @@ const QuestTemplates = {
 									// correct barrel; increase score upon route being finished
 									this.moveTowardsSequenceFinishFunc = function () {
 										Player.quests.prog.eaglecrest[25].vars.gameScore++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 										Dom.quests.active();
 									}
 								}
@@ -2727,7 +2727,7 @@ const QuestTemplates = {
 									// incorrect barrel
 									this.moveTowardsSequenceFinishFunc = function () {
 										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels))*100,1);
+										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 										Dom.quests.active();
 									}
 								}

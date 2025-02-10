@@ -166,10 +166,12 @@ var Player = {
 	unlockedTabs: [],
 	skippedTabs: [],
 
+	// misc stats used for achivements mostly!
 	playtime: 0, // seconds on the game
 	days: [], // days logged on (yyyymmdd)
 	consecutiveDays: 0,
-	metNPCs: ["Cart Driver"],
+	metNPCs: [],
+	totalDeaths: 0, // doesn't include minigame deaths
 
 	chatOnJoin: [],
 

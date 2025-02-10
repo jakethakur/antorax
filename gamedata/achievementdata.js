@@ -12,6 +12,22 @@ for (let i = User.fish.length; i < Items.fish.length; i++) {
     User.fish.push(0);
 }
 
+const AchievementFunctions = { // functions used in Achivements variable
+    hardcoreMaxLevel: function () {
+        let currentMax = 0;
+        if (Archer.totalDeaths === 0 && Archer.level > currentMax) {
+            currentMax = Archer.level;
+        }
+        if (Mage.totalDeaths === 0 && Mage.level > currentMax) {
+            currentMax = Mage.level;
+        }
+        if (Knight.totalDeaths === 0 && Knight.level > currentMax) {
+            currentMax = Knight.level;
+        }
+        return currentMax;
+    }
+}
+
 var Achievements = [
 		//
 		// GENERAL
@@ -276,7 +292,7 @@ var Achievements = [
 	},
 	{
 		name: "They'll Never See It Coming",
-		description: "While in stealth, kill an enemy on maximum health with one hit.",
+		description: "While in stealth, kill a maximum health enemy with one hit.",
 		points: 5,
 		category: ["combat"],
 		area: ["global"],
@@ -290,7 +306,6 @@ var Achievements = [
 		// AREA SPECIFIC COMBAT
 		//
 	{
-		// id: 10,
 		name: "Goblin Slayer Bronze",
 		description: "Kill 100 Nilbog goblins.",
 		points: 10,
@@ -310,7 +325,6 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 11,
 		name: "Goblin Slayer Silver",
 		description: "Kill 250 Nilbog goblins.",
 		points: 10,
@@ -330,7 +344,6 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 12,
 		name: "Goblin Slayer Gold",
 		description: "Kill 500 Nilbog goblins.",
 		points: 10,
@@ -350,7 +363,6 @@ var Achievements = [
 		},
 	},
 	{
-		// id: 13,
 		name: "Kingslayer",
 		description: "Kill the Goblin King.",
 		points: 5,
@@ -420,6 +432,20 @@ var Achievements = [
 		},
 	},
 	{
+		name: "Slay Queen",
+		description: "Kill the Frog Queen.",
+		points: 10,
+		category: ["combat"],
+		area: ["eaglecrest"],
+		image: "../assets/enemies/frogQueen.png",
+		position: {x: 29.4, y: 7},
+		color: "#ddddff",
+		class: "single",
+		isCompleted: function () {
+			return Player.bossesKilled.frogQueen !== 0 && Player.bossesKilled.frogQueen !== undefined;
+		}
+	},
+	{
 		name: "Many Chickens Harmed in the Process",
 		description: "Obtain a golden feather.",
 		hidden: true,
@@ -487,7 +513,53 @@ var Achievements = [
 			total: 9,
 		},
 	},
-
+	{
+		name: "Bedtime",
+		description: "Kill The Underlord.",
+		points: 5,
+		category: ["combat"],
+		area: ["caves"],
+		image: "../assets/enemies/rockOverlord.png",
+		position: {x: 57, y: 0},
+		color: "#ddddff",
+		class: "single",
+		isCompleted: function () {
+			return Player.bossesKilled.underlord !== 0 && Player.bossesKilled.underlord !== undefined;
+		}
+	},
+	{
+		name: "Crystal Healing",
+		description: "Kill the bosses at each of the three Cave Chakras.",
+		points: 10,
+		category: ["combat"],
+		area: ["caves"],
+        image: "../assets/enemies/stoneElemental1.png", // tbd change this
+        color: "#540606", // tbd change this
+		class: "single",
+		isCompleted: function () {
+			return Player.bossesKilled.vomer && Player.bossesKilled.maxilla && Player.bossesKilled.palatine;
+		},
+		expand: {
+			type: "checkList",
+			saved: "boss",
+			text: ["Vomer", "Maxilla", "Palatine"],
+			complete: ["Vomer", "Maxilla", "Palatine"],
+		},
+	},
+	{
+		name: "Spectral Success", // tbd change
+		description: "Complete the Animated Mineshaft.",
+		points: 5,
+		category: ["combat"],
+		area: ["caves"],
+		image: "../assets/npcs/valAsh.png",
+		position: {x: 32, y: 5},
+		color: "#ddddff",
+		class: "single",
+		isCompleted: function () {
+			return false;
+		}
+	},
 	{
         name: "The Slayer of the Tattered Knight",
         description: "Kill the Tattered Knight.",
@@ -627,6 +699,73 @@ var Achievements = [
 		isCompleted: function () {
 			return Player.reputation.eaglecrestLoggingCamp.level >= 6;
 		}
+	},
+		//
+		// EXPLORATION
+		//
+	{
+		name: "Gnome World",
+		description: "Find 6 gnomes hidden around Eaglecrest.",
+		hidden: true,
+		points: 5,
+		category: ["exploration"],
+		area: ["eaglecrest"],
+		image: "../assets/objects/gnomeGreen.png",
+		class: "any",
+		isCompleted: function () {
+			if (typeof User.progress.gnomesFound !== "undefined"){return User.progress.gnomesFound.length} else {return 0};
+		},
+		expand: {
+			type: "progressBar",
+			value: function () {if (typeof User.progress.gnomesFound !== "undefined"){return User.progress.gnomesFound.length} else {return 0}},
+			total: 6,
+		},
+	},
+	{
+		name: "Midas' Spoils",
+		description: "Open a golden chest.",
+		points: 5,
+		category: ["exploration"],
+		area: ["caves"],
+		image: "../assets/objects/chest.png", // tbd change
+		class: "single",
+		isCompleted: function () {
+			return false;
+		},
+	},
+	{
+		name: "Lootrunner Jr.",
+		description: "Open 50 chests in the Caves.",
+		points: 5,
+		category: ["exploration"],
+		area: ["caves"],
+		image: "../assets/objects/chest.png", // tbd change
+		class: "cumulative",
+		isCompleted: function () {
+			return false;
+		},
+		expand: {
+			type: "progressBar",
+			value: 0,
+			total: 50,
+		},
+	},
+	{
+		name: "Lootrunner Sr.",
+		description: "Open 300 chests in the Caves.", // tbd change
+		points: 10,
+		category: ["exploration"],
+		area: ["caves"],
+		image: "../assets/objects/chest.png",
+		class: "cumulative",
+		isCompleted: function () {
+			return false;
+		},
+		expand: {
+			type: "progressBar",
+			value: 0,
+			total: 300,
+		},
 	},
 		//
 		// ARCHAEOLOGY
@@ -945,6 +1084,43 @@ var Achievements = [
 		},
 	},
 		//
+	    // HARDCORE MODE
+	    //
+	{
+		name: "Level 5: Hardcore",
+		description: "Reach level 5 without any deaths.",
+		points: 10,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/achievements/level5.png", // tbd different image
+		class: "single",
+		isCompleted: function () {
+			return Player.level >= 5 && Player.totalDeaths === 0;
+		},
+		expand: {
+			type: "progressBar",
+			value: AchievementFunctions.hardcoreMaxLevel,
+			total: 5,
+		},
+	},
+	{
+		name: "Level 10: Hardcore",
+		description: "Reach level 10 without any deaths.",
+		points: 20,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/achievements/level10.png", // tbd different image
+		class: "single",
+		isCompleted: function () {
+			return Player.level >= 10 && Player.totalDeaths === 0;
+		},
+		expand: {
+			type: "progressBar",
+			value: AchievementFunctions.hardcoreMaxLevel,
+			total: 10,
+		},
+	},
+		//
 		// FISHING
 		//
 	{
@@ -1157,6 +1333,88 @@ var Achievements = [
 			return User.progress.legacyOfCaptainCalaca;
 		}
 	},
+		//
+		// MISC II (quest challenges etc)
+		//
+	{
+		name: "Quality Assured!",
+		description: "Complete the 'Quality Assurance' minigame with a score of 100%.",
+		points: 5,
+		category: ["quests"],
+		area: ["eaglecrest"],
+		image: "../assets/achievements/qualityAssurance.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.qualityAssuranceAchievement === true;
+		},
+	},
+	{
+		name: "Where's my Reward?!",
+		description: "Find Amelio.",
+		points: 5,
+		category: ["quests"],
+		area: ["eaglecrest"],
+		image: "../assets/achievements/pawPrint.png",
+		class: "single",
+		isCompleted: function () {
+			return false;
+		},
+	},
+	{
+		name: "Enlightened Kitty",
+		description: "Meet the divine (???) and live to tell the tale!",
+		hidden: true,
+		points: 5,
+		category: ["quests"],
+		area: ["eaglecrest"],
+		image: "../assets/items/item/33.png",
+		class: "single",
+		isCompleted: function () {
+			return false;
+		},
+	},
+	/*{
+        name: "Speedy Cat",
+        description: "Complete Tamtam's obstacle course in less than .",
+		hidden: true,
+        points: 5,
+        category: ["quests"],
+        area: ["eaglecrest"],
+        image: "../assets/items/consumable/10.png",
+        class: "single",
+        isCompleted: function () {
+            return false;
+        },
+    },*/
+		//
+		// MISC III (seasonal quests etc)
+		//
+	{
+		name: "Master of Tag",
+		description: "Win a multiplayer game of tag with 5 or more players.",
+		points: 5,
+		category: ["general"],
+		area: ["global"],
+		image: "../assets/items/consumable/22.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.tagAchievement === true;
+		},
+	},
+	{
+        name: "A Blood Moon is Rising...",
+        description: "Assist in the rising of a blood moon.",
+        points: 5,
+        category: ["quests"],
+        area: ["eaglecrest"],
+        event: "Samhain",
+        image: "../assets/items/consumable/10.png",
+        color: "#540606",
+        class: "single",
+        isCompleted: function () {
+            return Player.quests.questProgress.bloodMoonUnlocked;
+        },
+    },
 	//
 	// SEASONAL FISHING
 	//
@@ -1178,7 +1436,7 @@ var Achievements = [
 		name: "Santa's Helper",
 		description: "Deliver 15 presents.",
 		points: 5,
-		category: ["general", "fishing"],
+		category: ["fishing"],
 		area: ["global"],
 		image: "../assets/achievements/present.png",
 		color: "lightgray",
@@ -1228,50 +1486,4 @@ var Achievements = [
 			total: 25,
 		},
 	},*/
-
-	//
-	// MISC II
-	//
-
-	{
-		name: "Master of Tag",
-		description: "Win a multiplayer game of tag with 5 or more players.",
-		points: 5,
-		category: ["general"],
-		area: ["global"],
-		image: "../assets/items/consumable/22.png",
-		class: "single",
-		isCompleted: function () {
-			return User.progress.tagAchievement === true;
-		},
-	},
-
-	{
-        name: "A Blood Moon is Rising...",
-        description: "Assist in the rising of a blood moon.",
-        points: 5,
-        category: ["quests"],
-        area: ["eaglecrest"],
-        event: "Samhain",
-        image: "../assets/items/consumable/10.png",
-        color: "#540606",
-        class: "single",
-        isCompleted: function () {
-            return Player.quests.questProgress.bloodMoonUnlocked;
-        },
-    },
-
-	/*{
-        name: "Speedy Cat",
-        description: "Complete Tamtam's obstacle course in less than .",
-		hidden: true,
-        points: 10,
-        category: ["quests"],
-        area: ["eaglecrest"],
-        image: "../assets/items/consumable/10.png",
-        class: "single",
-        isCompleted: function () {
-            return false;
-        },
-    },*/
 ]
