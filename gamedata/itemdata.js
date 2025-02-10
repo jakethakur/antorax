@@ -5324,6 +5324,16 @@ unidentifiedArea: ["caves"],
 			quest: true,
 			functionText: "Cleanses you of all timed status effects and transformations."
 		},
+		{
+			id: 78,
+			name: "Eaglecrest Plains Treasure Map",
+			type: "item",
+			category: "item",
+			image: "assets/items/item/78.png",
+			stack: 1,
+			quest: true,
+			functionText: "Click to view."
+		},
 	],
 	consumable: [
 		{

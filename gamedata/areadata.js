@@ -3945,7 +3945,6 @@ var Areas = {
 		eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
 		crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
 		melee: {samhain: "assets/projectiles/melee.png"},
-
 	},
 
 	callAreaJoinOnInit: true,
@@ -4042,7 +4041,7 @@ var Areas = {
 			removeIn: 1000,
 			rotation: 0,
 			variance: 50, // variance in position (in x/y axis in one direction from player)
-			intensity: 4, // no. of particles every 100ms
+			intensity: 1, // no. of particles every 100ms
 		});
 		// find nearest statue; give it trail and animate it
 		let statueArray = Game.things.filter(entity => entity.name === "Eagle Statue");
@@ -7082,6 +7081,7 @@ animation: {
 					maxHealth: 250,
 					defence: 4,
 				},
+				languge: ["default", "cat"],
 				roles: [
 					{
 						role: "text",
@@ -9402,12 +9402,16 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			demolitionistDarrow: {normal: "assets/npcs/demolitionist.png"},
 			demolitionistDarrowCorpse: {normal: "assets/npcs/demolitionist.png"},
 			dynamiteLit: {normal: "assets/projectiles/dynamiteLit.png"},
+			// back to not temp anymore
 			shrub: {normal: "assets/objects/shrub.png"},
 			shrub1: {normal: "assets/objects/shrub1.png"},
 			shrub2: {normal: "assets/objects/shrub2.png"},
 			plainsShrub1: {normal: "assets/objects/plainsShrub1.png"},
 			plainsShrub2: {normal: "assets/objects/plainsShrub2.png"},
 			plainsShrub3: {normal: "assets/objects/plainsShrub3.png"},
+			leyAggregate: {normal: "assets/objects/leyAggregate.png"},
+			crystalLarge: {normal: "assets/objects/plainsCrystalLarge.png"},
+			crystalSmall: {normal: "assets/objects/plainsCrystalSmall.png"},
 		},
 
 		areaTeleports: [
@@ -9496,6 +9500,85 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 				template: MountTemplates.default,
 			}
+		],
+
+		leyAggregates: [
+			{
+				x: 5703,
+				y: 5106,
+				name: "Ley Aggregate", // wise man island
+				image: "leyAggregate",
+				successFunction: function () {
+					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
+					riverIdol = riverIdolTouchingArray[0];
+					riverIdol.setAnimation({
+						type: "spritesheet",
+						frameTime: 216,
+						imagesPerRow: 12,
+						totalImages: 12,
+						startState: 0,
+						stateSubset: [9, 10, 11],
+					});
+				},
+				target: {x: 5300, y: 5000},
+			},
+			{
+				x: 3514,
+				y: 5910,
+				name: "Ley Aggregate", // crystal island
+				image: "leyAggregate",
+				successFunction: function () {
+					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
+					riverIdol = riverIdolTouchingArray[0];
+					riverIdol.setAnimation({
+						type: "spritesheet",
+						frameTime: 216,
+						imagesPerRow: 12,
+						totalImages: 12,
+						startState: 0,
+						stateSubset: [9, 10, 11],
+					});
+				},
+				target: {x: 5093, y: 4906},
+			},
+			{
+				x: 5749,
+				y: 3874,
+				name: "Ley Aggregate", // coyote island
+				image: "leyAggregate",
+				successFunction: function () {
+					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
+					riverIdol = riverIdolTouchingArray[0];
+					riverIdol.setAnimation({
+						type: "spritesheet",
+						frameTime: 216,
+						imagesPerRow: 12,
+						totalImages: 12,
+						startState: 0,
+						stateSubset: [9, 10, 11],
+					});
+				},
+				target: {x: 5437, y: 4797},
+			},
+			{
+				x: 4036,
+				y: 4252,
+				name: "Ley Aggregate", // river's blessing island
+				image: "leyAggregate",
+				successFunction: function () {
+					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
+					riverIdol = riverIdolTouchingArray[0];
+					riverIdol.setAnimation({
+						type: "spritesheet",
+						frameTime: 216,
+						imagesPerRow: 12,
+						totalImages: 12,
+						startState: 0,
+						stateSubset: [9, 10, 11],
+					});
+				},
+				target: {x: 5206, y: 4686},
+			},
 		],
 
 		npcs: [
@@ -10101,6 +10184,9 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				template: EnemyTemplates.eaglecrest.chicken,
 				repeatNumber: 7,
 			},
+			// crystals for the crystal island
+			{x: [4646, 4290], y: [5781, 5665], template: EnemyTemplates.eaglecrest.crystalLarge},
+			{x: [4377, 4439, 5042, 4738, 4081, 3901, 3662], y: [5475, 5834, 5778, 5353, 5901, 5961, 5239], template: EnemyTemplates.eaglecrest.crystalSmall},
 			//
 			// quest enemies:
 			//
@@ -10245,7 +10331,6 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				return Player.reputation.eaglecrestCity.level === 6; // venerated
 			}},
 
-
 			//greenery
 
 {x: [2362, 2336, 2302.9, 2332.7, 2362.3, 2066.8, 2040.5, 2012.6, 2040.6, 2071.5, 2072.7, 2679, 2630, 2654.5, 2682.3, 2934.1, 2955, 2972.5, 2927.1, 2947.9, 2878.5, 2907.4, 2868.5, 2823.6, 2827.2, 2586.4, 2586.4, 2623.1, 2601.2, 2633.2, 1890.3, 1867, 1847.4, 1896.2, 1863.6, 1833, 1848.6, 1875.4, 1903.6, 2307.8, 2967.2,], y: [916.7, 933.8, 954.6, 954.6, 933.8, 907.4, 931.9, 954.6, 954.6, 928.9, 961.6, 1543.1, 1546.6, 1572.8, 1567.9, 1198.9, 1226.7, 1242.5, 1221.7, 1242.5, 929.8, 948.1, 947.8, 923.8, 952, 2068.9, 2096.9, 2096.9, 2106.5, 2106.5, 1822.1, 1848.8, 1873.7, 1852.9, 1874.9, 1893.3, 1929.8, 1899.6, 1871.4, 919.8, 1271,], image: 'plainsShrub1', name: 'plainsShrub1'},
@@ -10335,7 +10420,16 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				return !Player.quests.questProgress.jesterBall3;
 			}},
 			// river idols / puzzle stuff
-			{x: [-89, -89, 50.2, -1, 57.1, 1779, -9.5, -4.6, -89.8, 1785.1, 2369.8, 2241.9, 2497.3, 2667.3, 2065.4, 3319.9, 5207.9, 5303.8, 5437.7, 5089.6, 4377.3, 6891.7, 6969, 6614.6, 7074.1, 7074.1, 7076.4, 6351.2, 5097.8, 4534.6, 3993.3, 3864.3], y: [482.3, 23, 1454.5, 1249, 989.1, 2272, 3657, 3307.7, 5944.1, 4795.9, 5726.4, 5964.9, 5964.2, 6060.9, 6060.9, 5670.8, 4677, 4981.5, 4784.6, 4888.5, 4848.7, 5336.5, 4874.9, 5013.1, 4060.6, 3791.6, 2637.4, 2397.4, 2194, 2209.7, 2122.4, 759.6], image: 'riverIdol', name: '∞River Idol'},
+			{x: [-89, -89, 50.2, -1, 57.1, 1779, -9.5, -4.6, -89.8, 1785.1, 2369.8, 2241.9, 2497.3, 2667.3, 2065.4, 3319.9, 5207.9, 5303.8, 5437.7, 5089.6, 4377.3, 6891.7, 6969, 6614.6, 7074.1, 7074.1, 7076.4, 6351.2, 5097.8, 4534.6, 3993.3, 3864.3], y: [482.3, 23, 1454.5, 1249, 989.1, 2272, 3657, 3307.7, 5944.1, 4795.9, 5726.4, 5964.9, 5964.2, 6060.9, 6060.9, 5670.8, 4677, 4981.5, 4784.6, 4888.5, 4848.7, 5336.5, 4874.9, 5013.1, 4060.6, 3791.6, 2637.4, 2397.4, 2194, 2209.7, 2122.4, 759.6],
+				image: 'riverIdol',
+				name: 'River Idol',
+				crop: {
+					x: 0,
+					y: 0, 
+					width: 67,
+					height: 177,
+				}
+			},
 			// forest trees
 			{x: -203.8, y: 2944.9, image: 'tree1A', name: 'Tree'},
 			{x: -131.1, y: 3686.7, image: 'tree2A', name: 'Tree'},
@@ -12123,24 +12217,24 @@ eaglecrestWell: {
 
 	entities: [
 		{
-				x: 750,
-				y: 200,
-				width: 100,
-				height: 150,
-				onInteract: function () {
-						Game.hero.channel(function () {
-								Game.hero.direction = 1;
-								Game.hero.moveTowards = {
-									x: 760,
-									y: -300,
-									speedScalar: 0.6,
-									moveTowardsFinishFunction: function () {
-										Game.loadArea("eaglecrestPlains", {x: 4130, y: 2970});
-									}
-								};
-								Game.hero.updateRotation();
-		        }, [], 1000, "Leaving well");
-				}
+			x: 750,
+			y: 200,
+			width: 100,
+			height: 150,
+			onInteract: function () {
+				Game.hero.channel(function () {
+					Game.hero.direction = 1;
+					Game.hero.moveTowards = {
+						x: 760,
+						y: -300,
+						speedScalar: 0.6,
+					};
+					Game.hero.moveTowardsFinishFunction = function () {
+						Game.loadArea("eaglecrestPlains", {x: 4130, y: 2970});
+					};
+					Game.hero.updateRotation();
+				}, [], 1000, "Leaving well");
+			}
 		},
 	],
 

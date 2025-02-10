@@ -1489,7 +1489,9 @@ class Entity {
 
 
 		this.moveTowards = properties.moveTowards; // should be an object with an x and y, and a speed property if this entity doesn't have a .speed/this speed should be overriden
-		// movetowards can also be given a moveTowardsFinishFunction which is called when the locations is reached (not if it's interrupted before this!)
+		this.moveTowardsFinishFunction = properties.moveTowardsFinishFunction; // called when the locations is reached (not if it's interrupted before this!)
+		// note this is cleared alongside the moveTowards upon being called, but may not be deleted if movetowards is cancelled for another reason
+		// tbd combine moveTowards and moveTowardsFinishFunction into the same object, where the movetowards destination is a separate property so it can be set to an existing entity still
 		// note moveTowards is currently incompatible with player / enemy / projectile move towards - tbd merge them into this one :)
 
 		// moveTowardsLoop is an optional array of moveTowards objects which are looped through one after another 
@@ -1688,13 +1690,22 @@ class Entity {
 		return false;
 	}
 
-	// return an array of touched entities
-	getTouching () {
+	// return an array of touched entities, which optionally satisfy a passed in function
+	getTouching (satisfiedFunction) {
 		let touchingArray = [];
 
 		for (let i = 0; i < Game.allEntities.length; i++) {
 			if (this.isTouching(Game.allEntities[i])) {
 				touchingArray.push(Game.allEntities[i]);
+			}
+		}
+
+		if (typeof satisfiedFunction !== "undefined") {
+			for (let i = 0; i < touchingArray.length; i++) {
+				if (!satisfiedFunction(touchingArray[i])) {
+					touchingArray.splice(i, 1);
+					i--;
+				}
 			}
 		}
 
@@ -2221,6 +2232,9 @@ class Thing extends Visible {
 		// .. and "spritesheet" type needs an imagesPerRow and totalImages property. the border width (if any) between the images is figured out from the current object.crop properties
 		// also, animation.state is set to the index of the current image, animation.animateObj is set to this, and animation.lastAnimated is set to the time in ms since it was last animated
 		// a random state is chosen to begin with, but if this isn't desired then it can be set using animation.startState
+		// "stopAnimationOnState" stops and deletes the animatoin once the specified state is reached
+		// "onAnimationStop" is a function that is called after the animaton is deleted. "this" is passed in as a parameter
+		// "stateSubset" means that only the states in this array will be used for the animation. if the current state isn't one of these states, the state is just increased by 1 as usual until one of these is reached
 
 		// input validation for animation.type:
 		if (typeof this.animation !== "undefined" && this.animation.type !== "carousel" && this.animation.type !== "spritesheet" && this.animation.type !== "function") {
@@ -2240,8 +2254,10 @@ class Thing extends Visible {
 				this.animation.totalImages = this.animation.images.length;
 			}
 			if (this.animation.type === "function" && typeof this.animation.totalImages === "undefined") {
-				this.animation.totalImages = 1; // some random default value since it doesn't matter for function type
+				this.animation.totalImages = 1; // some arbitrary default value since it doesn't matter for function type
 			}
+			// total images will have already been set manually if "spritesheet" type is used
+			// note these totalImages don't need to account for a stateSubset
 
 			this.animation.lastAnimated = 0; // in ms, time it was last animated (used with frameTime)
 
@@ -2251,7 +2267,12 @@ class Thing extends Visible {
 				this.animation.state = this.animation.startState;
 			}
 			else {
-				this.animation.state = Random(0, this.animation.totalImages-1);
+				if (typeof this.animation.stateSubset !== "undefined") {
+					this.animation.state = this.animation.stateSubset[Random(0, this.animation.stateSubset.length-1)];
+				}
+				else {
+					this.animation.state = Random(0, this.animation.totalImages-1);
+				}
 			}
 
 			// let Game know this should be animated in animationTick (and that there should be an animationTick at all)
@@ -2260,7 +2281,7 @@ class Thing extends Visible {
 	}
 
 	removeAnimation () {
-		// remove all animatoin properties
+		// remove all animation properties
 		this.animation = undefined;
 
 		// remove this from game animationlist
@@ -2506,9 +2527,9 @@ class Character extends Thing {
 		// it is recommended that you pick a value for these, but not necessary
 		this.stats.defence = properties.stats.defence || 0;
 		this.stats.healthRegen = typeof properties.stats.healthRegen !== "undefined" ? properties.stats.healthRegen : 0.5;
-		this.stats.walkSpeed = properties.stats.walkSpeed || 180; // base speed values are same as player
-		this.stats.swimSpeed = properties.stats.swimSpeed || 60;
-		this.stats.iceSpeed = properties.stats.iceSpeed || 270;
+		this.stats.walkSpeed = typeof properties.stats.walkSpeed !== "undefined" ? properties.stats.walkSpeed : 180; // base speed values are same as player
+		this.stats.swimSpeed = typeof properties.stats.swimSpeed !== "undefined" ? properties.stats.swimSpeed : 60;
+		this.stats.iceSpeed = typeof properties.stats.iceSpeed !== "undefined" ? properties.stats.iceSpeed : 270;
 		this.stats.channellingMoveSpeed = properties.stats.channellingMoveSpeed || 100; // percentage scalar of speed if moving whilst channelling smth
 		this.stats.lootTime = properties.stats.lootTime || 10000; // time that it can be looted for
 		this.stats.respawnTime = properties.stats.respawnTime || 11000; // time to respawn (should be more than lootTime)
@@ -2627,13 +2648,15 @@ class Character extends Thing {
 			});
 		}
 
+		if (typeof properties.showNameTag === "undefined") {
+			this.showNameTag = true; // same as property in Thing, but now defaults to true
+		}
+
+		this.showHealthBar = properties.showHealthBar; // only hides health bar if set to true
+
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
-		}
-
-		if (typeof properties.showNameTag === "undefined") {
-			this.showNameTag = true; // same as property in Thing, but now defaults to true
 		}
 	}
 
@@ -3060,7 +3083,7 @@ class Character extends Thing {
 							successiveExplosions: successiveExplosions,
 						}));
 						let shotProjectile = Game.projectiles[Game.projectiles.length-1];
-						// remove in 0.5s
+						// after a timeout (stayOnScreen), remove the projectile that was just shot
 						shotProjectile.startRemoveTimeout();
 					}, 300, [this.x, this.y, successiveExplosions]);
 				}
@@ -3101,6 +3124,12 @@ class Character extends Thing {
 				if (typeof Player.inventory.items[check[i]] !== "undefined" && typeof Player.inventory.items[check[i]].onDamaged !== "undefined") {
 					Player.inventory.items[check[i]].onDamaged();
 				}
+			}
+
+			// remove any ley aggregate that is on the hero
+			if (this.hasLey) {
+				this.hasLey.status = "damaged"; // hasLey is set to the ley aggregate's object itself
+				this.hasLey = false;
 			}
 
 			if (this.health <= 0 && !this.respawning) { // check it is dead and not already respawning
@@ -3408,6 +3437,11 @@ class Character extends Thing {
 						this.speed += oldSpeed * (statusEffect.info.speedIncrease / 100);
 					}
 				}
+			}
+
+			// ley aggregate
+			if (this.hasLey) {
+				this.speed += oldSpeed * (this.hasLey.heroSpeedMultiplier-1);
 			}
 
 			// xp fatigue at max level
@@ -3786,7 +3820,8 @@ class Attacker extends Character {
 		}
 		// projectile stats
 		this.stats.projectileRange = properties.stats.projectileRange; // for travelling projectiles - how far it travels before being removed
-		this.stats.projectileRemoveAfterRest = properties.stats.projectileRemoveAfterRest; // for travelling projectiles - in SECONDS - projectile is removed after being at rest (because of accel for example) for this period of time
+		this.stats.projectileStayOnScreen = properties.stats.projectileStayOnScreen; // in SECONDS - projectile is removed when at max range after this period of time
+		this.stats.projectileRemoveAfterRest = properties.stats.projectileRemoveAfterRest; // tbd doesn't work yet ! for travelling projectiles - in SECONDS - projectile is removed after being at rest (because of accel for example) for this period of time
 		this.stats.projectileSpeed = properties.stats.projectileSpeed; // for travelling projectiles
 		this.stats.projectileAcceleration = properties.stats.projectileAcceleration;
 		this.stats.variance = properties.stats.variance || 0; // for travelling projectiles; angle variance in DEGREES (plus minus this value)
@@ -3817,6 +3852,7 @@ class Attacker extends Character {
 			this.projectile.adjust = properties.projectile.adjust || {};
 			this.projectile.animation = properties.projectile.animation;
 			this.projectile.crop = properties.projectile.crop;
+			this.projectile.trails = properties.projectile.trails;
 		}
 
 
@@ -4092,6 +4128,8 @@ class Hero extends Attacker {
 		this.transformed = false;
 
 		this.spritesheetRotate = true; // spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. always the case for the hero unless transformed
+	
+		this.hasLey = false; // set to a ley aggregate if one is attached to the hero (only one can be attached at a time)
 	}
 
 	// "into" parameter is the keyname of the object in PlayerTransformations in savedata
@@ -4276,8 +4314,8 @@ class Hero extends Attacker {
 				// destination reached
 
 				// call move towards finish function
-				if (typeof this.moveTowards.moveTowardsFinishFunction !== "undefined") {
-					this.moveTowards.moveTowardsFinishFunction();
+				if (typeof this.moveTowardsFinishFunction !== "undefined") {
+					this.moveTowardsFinishFunction();
 				}
 
 				// remove moveTowards
@@ -4442,12 +4480,12 @@ class Hero extends Attacker {
 							damageAllHit: this.stats.damageAllHit, // usually true
 
 							// optional stuff:
-							// aaaaaaaaaaaaa look at ; might need to fix some of these
+							// tbd look at ; might need to fix some of these
 							crop: Game.heroProjectileInfo.crop,
 							animation: Game.heroProjectileInfo.animation,
 							frameTime: Game.heroProjectileInfo.frameTime,
-							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for (default 1500) or true if never removed
-							//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
+							stayOnScreen: Game.heroProjectileInfo.stayOnScreen, // set to the time it stays on the screen for, or true if never removed
+							//doNotRotate: Game.heroProjectileInfo.doNotRotate, // tbd readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
 							onInteract: Game.heroProjectileInfo.onInteract,
 							z: Game.heroProjectileInfo.z,
 						}));
@@ -4499,8 +4537,6 @@ class Hero extends Attacker {
 								totalImages: 9,
 								startState: 0,
 								stopAnimationOnState: 8,
-
-
 							},
 							stayOnScreen: 450, // set to the time it stays on the screen for (default 1500) or true if never removed
 							//doNotRotate: Game.heroProjectileInfo.doNotRotate, // aaaaaaaaaaaaaa readd but just as a visual thing - not affecting the projectile's direction as it would because this is needed for variance
@@ -4645,7 +4681,7 @@ class Hero extends Attacker {
 							}
 						}
 
-						if (typeof fishUp !== "undefined" ||this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
+						if (typeof fishUp !== "undefined" || this.map.isSlowTileAtXY(mouseX, mouseY) === "water") {
 							// player clicked in water, or has an entity to fish up !!
 
 							this.setChannelling("fishing", undefined, undefined);
@@ -5662,12 +5698,6 @@ class Projectile extends Thing {
 		// projectiles can either move with a moveTowards or a moveDirection (should not have both properties set)
 		// all of these properties are optional
 
-		// position the projectile should move towards
-		// this object should contain an x and y if you want the projectile to move
-		// could be set to an enemy, for example, if you want the projectile to home into that enemy
-		// movetowards can also be given a moveTowardsFinishFunction which is called when the locations is reached (not if it's interrupted before this!)
-		this.moveTowards = properties.moveTowards;
-
 		// alternatively...
 		// direction the projectile should move towards
 		// input should be in radians, works in samme  fashion to unit circle (anticlockwise from east)
@@ -5684,7 +5714,7 @@ class Projectile extends Thing {
 
 		this.movementRange = properties.projectileRange || 2000; // maximum displacement that can be moved (for a moveTowards rather than moveDirection this is not necessary to be set)
 		// add a bit of variance so not all of the projectiles land in the same place
-		this.movementRange += Random(-30, 30);
+		this.movementRange += Random(-1*this.movementRange/100, this.movementRange/100);
 
 		this.startPosition = {x: this.x, y: this.y}; // saved so the displacement is known
 
@@ -5692,9 +5722,6 @@ class Projectile extends Thing {
 		// stopMovingOnDamage is not required if projectile has a moveTowards
 
 		// pierce and damageAllHit are in this.projectileStats since they are required for dealDamage
-
-		this.removeAfterRest = properties.projectileRemoveAfterRest; // projectile is removed after being at rest for this period of time, in SECONDS (optional)
-//tbdddddddddddddddddddddddddd ^^^^^^^^^^^^^^^^^ aaaaaaaaaaaaaaaaaaaaaa
 
 		this.variance = properties.variance; // just for player - variance is always dealt with outside of projectile (since player wants it varied after proejctile is acc made)
 
@@ -5733,7 +5760,7 @@ class Projectile extends Thing {
 			// damage enemies that the projectile is touching
 			this.dealDamage(this.projectileStats, this.targets);
 
-			// start remove timeout (remove it in a couple of secs)
+			// after a timeout (stayOnScreen), remove the projectile that was just shot
 			this.startRemoveTimeout();
 		}
 		else if (typeof this.moveSpeed !== "undefined" || typeof this.moveTowards !== "undefined") {
@@ -5747,7 +5774,7 @@ class Projectile extends Thing {
 			if (!properties.nonDamaging) { // i.e. bobber
 				this.dealDamage(this.projectileStats, this.targets);
 
-				// start remove timeout (remove it in a couple of secs)
+				// after a timeout (stayOnScreen), remove the projectile that was just shot
 				this.startRemoveTimeout();
 			}
 		}
@@ -5802,7 +5829,7 @@ class Projectile extends Thing {
 					// stop moving
 					this.moveTowards = undefined;
 					this.moveDirection = undefined;
-					// after a timeout (1.5s), remove the this that was just shot
+					// after a timeout (stayOnScreen), remove the projectile that was just shot
 					this.startRemoveTimeout();
 				}
 
@@ -5817,7 +5844,7 @@ class Projectile extends Thing {
 						if (this.stopMovingOnDamage) {
 							this.moveTowards = undefined;
 							this.moveDirection = undefined;
-							// after a timeout (1.5s), remove the projectile that was just shot
+							// after a timeout (stayOnScreen), remove the projectile that was just shot
 							this.startRemoveTimeout();
 						}
 					}
@@ -6274,7 +6301,7 @@ class Projectile extends Thing {
 		return enemyHit;
 	}
 
-	// initiates removing of projectile, usually in 1500s time
+	// after a timeout (stayOnScreen), remove the projectile that was just shot
 	startRemoveTimeout () {
 		if (!this.onRemoveTimeout) { // check it's not already being removed
 			if (typeof this.stayOnScreen !== "undefined") {
@@ -6411,7 +6438,7 @@ class Mount extends Character {
 		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
 		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY));
 
-		// animation
+		// animation (tbd make this use the game's animation system instead)
 		if (this.totalDistanceWalked > this.lastAnimatedDistance + this.animateDistance) {
 			this.state++;
 			this.lastAnimatedDistance += this.animateDistance;
@@ -7021,6 +7048,9 @@ class NonPlayerAttacker extends Attacker {
 			moveAcceleration: this.stats.projectileAcceleration,
 			projectileRange: this.stats.projectileRange,
 			stopMovingOnDamage: this.stats.projectileStopMovingOnDamage,
+			stayOnScreen: this.stats.projectileStayOnScreen,
+			// visual
+			trails: this.projectile.trails,
 		});
 
 		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
@@ -7324,34 +7354,124 @@ class Mailbox extends Thing {
     }
 }
 
-// used for area puzzles - these will attach to the player when they walk near, reducing their speed by 40%
-// if the player takes damage they will leave the player
-// if they reach near their target coordinates / entity, they leave the player and set a certain quest variable to be true (if desired)
+// used for area puzzles - these will attach to the player when they walk near, usually reducing their speed by some amount
+// if the player takes damage they will leave the player and return to their starting location, unable to be picked back up by the player until they are back at their location
+// if they reach near their target coordinates / entity, they leave the player and drift towards their target, then despawn
+// they then set a certain quest variable to be true (if desired), and/or trigger a function
 class Ley extends Thing {
     constructor(properties) {
         super(properties);
 
-		this.connectedToHero = false;
-		this.connectedHeroHealth 
+		this.status = "onHome";
+		// sets to "movingToHero" when it's moving to hero (the hero is also given a .hasLey which is set to this)
+		// sets to "onHero" when it's connected to hero
+		// when hero gets damaged, it sets the status of this to "damaged"
+		// sets to "movingToHome" when hero gets damanged and it's got a moveTowards back to its starting location
+		// sets to "movingToTarget" when it's got a moveTowards towards its destination
+		// sets to "onTarget" when it's at its destination (i.e. ready to be removed)
 
-        this.range = properties.range || 70; // distance this must be from hero latch on / from target to leave hero
+		this.home = {x: this.x, y: this.y};
 
-		this.speed = properties.speed || 50;
+        this.range = properties.range || 90; // distance this must be from hero latch on / from target to leave hero
+
+		this.speed = properties.speed || 150; // speed this moves at when not attached to hero
+
+		this.heroSpeedMultiplier = properties.heroSpeedMultiplier || 0.7;
+
+		this.target = properties.target; // target coordinates {x:x, y:y}. no need to set if you've got a targetFunction instead
+		this.targetFunction = properties.targetFunction; // function that returns target location. no need to set if there's a this.target instead
+
+		this.successFunction = properties.successFunction; // optional function to be called upon this reaching its destination and being removed
+
+		// Player.quests.prog[questArea][questId].vars[progressKey] is the quest variable that would be set to true upon this arriving at its destination
+		this.questArea = properties.questArea;
+		this.questId = properties.questId;
+		this.progressKey = properties.progressKey || "leyAggregateEscorted";
+
+		this.orderOffsetY = properties.orderOffsetY || 53; // for animation - so it orbits around hero
+		this.animStage = 0; // for animation
     }
 
-	update () {
-		// see if it can disconnect
-		if (this.connectedToHero) {
-			
+	update (delta) {
+		if (this.status === "onTarget") {
+			// at it's destination; remove this object and run success function
+			if (typeof this.successFunction !== "undefined") {
+				this.successFunction();
+			}
+			if (typeof this.questArea !== "undefined" && typeof this.questId !== "undefined") {
+				Player.quests.prog[this.questArea][this.questId].vars[this.progressKey] = true;
+			}
+			Game.removeObject(this.id, "leyAggregates");
 		}
+		else if (this.status === "movingToTarget") {
+			// it's on its way to its destination
+			if (typeof this.targetFunction !== "undefined") {
+				// update target location
+				this.target = this.targetFunction();
+				this.moveTowards = this.target;
+			}
+		}
+		else {
+			// check if it is close enough to its destination
+			if (typeof this.targetFunction !== "undefined") {
+				this.target = this.targetFunction();
+			}
 
-		// see if it can connect
-		if (!this.connectedToHero && !Game.hero.hasLey && Game.distance(this, Game.hero) <= this.range) {
-			this.connectedToHero = true;
-			Game.hero.hasLey = true;
+			if (Game.distance(this, this.target) <= this.range) {
+				// arrived at destination
+				this.moveTowards = this.target;
+				this.status = "movingToTarget";
+				Game.hero.hasLey = undefined; // remove speed debuff from player
+				this.moveTowardsFinishFunction = function () {
+					// reached destination; ready to be removed and run any finish function
+					this.status = "onTarget";
+				}
+			}
+			else if (this.status === "damaged") {
+				// hero has been damaged whilst it's been attached to the hero
+				// disconnect from the hero
+				this.moveTowards = this.home;
+				this.status = "movingToHome";
+				this.moveTowardsFinishFunction = function () {
+					// reached home again; available to connect to hero once more
+					this.status = "onHome";
+					this.animStage = 0; // prepare for animation
+				}
+			}
+			else if (this.status === "onHome") {
+				// not en route anywhere
+				// see if it can connect
+				if (!Game.hero.hasLey && Game.distance(this, Game.hero) <= this.range) {
+					// connected to hero
+					this.status = "movingToHero";
+					Game.hero.hasLey = this;
+				
+					// move towards the hero
+					this.moveTowards = Game.hero;
+					this.moveTowardsFinishFunction = function () {
+						// reached destination; ready to be removed and run any finish function
+						this.animStage = 0; // reset animation
+						this.status = "onHero";
+					};
+				}
+				else {
+					// animate - bob up and down
+					this.animStage += delta; 
+					let radians = this.animStage*6.282/4; // multiples of 4 of this.animStage are full periods i.e. tau (i.e. should take roughly 4 seconds)
+					this.y = this.home.y + Math.sin(radians)*9;
+				}
+			}
+			else if (this.status === "movingToHero") {
+				// nothing needed to be done here
+			}
+			else if (this.status === "onHero") {
+				// idle anim as it circles around hero
+				this.animStage += delta; 
+				let radians = this.animStage*6.282/5; // multiples of 5 of this.animStage are full periods i.e. tau (i.e. should take roughly 5 seconds)
+				this.x = Game.hero.x + Math.sin(radians)*40;
+				this.y = Game.hero.y + Math.cos(radians)*10;
+			}
 		}
-		
-		// if it's connected to the hero, move towards the hero's head
 	}
 }
 
@@ -8609,7 +8729,7 @@ Game.drawTrail = function (entity, trail) {
 	trail.x = entity.x;
 	trail.y = entity.y;
 	// draw particles
-	for (let i = 0; i < trail.intensity/10; i++) {
+	for (let i = 0; i < trail.intensity; i++) {
 		this.createParticle(trail); // Game not this because it is called by setInterval
 	}
 }
@@ -9468,6 +9588,7 @@ Game.loadArea = function (areaName, destination) {
 			shapes: Shape,
 			nonPlayerAttackers: NonPlayerAttacker,
 			entities: Entity,
+			leyAggregates: Ley,
 		};
 
 		let typeArray = Object.keys(this.typeClasses);
@@ -11941,6 +12062,11 @@ Game.update = function (delta) {
 		this.projectiles[i].update(delta);
 	}
 
+	// update ley aggregates
+	for (let i = 0; i < this.leyAggregates.length; i++) {
+		this.leyAggregates[i].update(delta);
+	}
+
 	// check collision with mailboxes
 	for (let i = 0; i < this.mailboxes.length; i++) {
 		let mailbox = this.mailboxes[i];
@@ -12323,8 +12449,9 @@ Game.update = function (delta) {
 				entity.y = entity.moveTowards.y;
 
 				// call move towards finish function
-				if (typeof entity.moveTowards.moveTowardsFinishFunction !== "undefined") {
-					entity.moveTowards.moveTowardsFinishFunction();
+				if (typeof entity.moveTowardsFinishFunction !== "undefined") {
+					entity.moveTowardsFinishFunction();
+					entity.moveTowardsFinishFunction = undefined;
 				}
 
 				// remove moveTowards
@@ -12431,22 +12558,53 @@ Game.update = function (delta) {
 			if (nextFrame) {
 				// should be animated
 
-				if (animate.reverse) {
-					// decrement state
-					if (animate.state <= 0) {
-						animate.state = animate.totalImages-1;
-					}
-					else {
-						animate.state--;
+				// animating where a subset of states has been specified (instead of every state)
+				let index;
+				if (typeof animate.stateSubset !== "undefined") {
+					index = animate.stateSubset.findIndex(state => state===animate.state);
+					if (index !== -1) {
+						// the state isn't one that appears in the state subset - just animate as usual for this frame
+						// otherwise animate to the next state that appears in stateSubset
+						if (animate.reverse) {
+							// decrement state
+							if (index <= 0) {
+								index = animate.stateSubset.length-1;
+							}
+							else {
+								index--;
+							}
+						}
+						else {
+							// increment state
+							if (index >= animate.stateSubset.length-1) {
+								index = 0;
+							}
+							else {
+								index++;
+							}
+						}
+						animate.state = animate.stateSubset[index];
 					}
 				}
-				else {
-					// increment state
-					if (animate.state >= animate.totalImages-1) {
-						animate.state = 0;
+
+				if (typeof animate.stateSubset === "undefined" || index === -1) {
+					if (animate.reverse) {
+						// decrement state
+						if (animate.state <= 0) {
+							animate.state = animate.totalImages-1;
+						}
+						else {
+							animate.state--;
+						}
 					}
 					else {
-						animate.state++;
+						// increment state
+						if (animate.state >= animate.totalImages-1) {
+							animate.state = 0;
+						}
+						else {
+							animate.state++;
+						}
 					}
 				}
 
@@ -12482,9 +12640,13 @@ Game.update = function (delta) {
 				}
 
 				if (typeof animate.stopAnimationOnState !== "undefined" && animate.state === animate.stopAnimationOnState) {
+					let onAnimationStop = animate.onAnimationStop;
 					animate = undefined;
 					this.animationList.splice(i, 1);
 					i--;
+					if (typeof onAnimationStop !== "undefined") {
+						onAnimationStop(object); // could be used to start a different animation
+					}
 				}
 			}
 		}
@@ -13492,30 +13654,32 @@ Game.drawCharacterInformation = function (ctx, character) {
 	let characterInformationHeight = 3; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset other information by (in y axis)
 	// starts at 3 for initial padding of first thing that is drawn
 
-	if (character.hostility === "friendly" || character.hostility === "neutral" || character.hostility === "gameHostile") {
-		// only draw health bar if character is damaged
-		if (character.health !== character.stats.maxHealth) {
+	if (character.showHealthBar !== false) {
+		if (character.hostility === "friendly" || character.hostility === "neutral" || character.hostility === "gameHostile") {
+			// only draw health bar if character is damaged
+			if (character.health !== character.stats.maxHealth) {
+				this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
+				characterInformationHeight += 15;
+				characterInformationHeight += 3; // padding
+			}
+		}
+		else if (character.hostility === "dummy") {
+			// show damage taken above head instead of health bar (if the character has taken any damage)
+			if (character.damageTaken > 0) {
+				this.drawDamageTaken(ctx, character, character.screenX, character.screenY - character.height / 2 - 1 - characterInformationHeight, 18);
+				characterInformationHeight += 16;
+				characterInformationHeight += 3; // padding
+			}
+		}
+		else if (character.hostility === "hostile" || character.hostility === "boss") {
+			// always draw health bar
 			this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
 			characterInformationHeight += 15;
 			characterInformationHeight += 3; // padding
 		}
-	}
-	else if (character.hostility === "dummy") {
-		// show damage taken above head instead of health bar (if the character has taken any damage)
-		if (character.damageTaken > 0) {
-			this.drawDamageTaken(ctx, character, character.screenX, character.screenY - character.height / 2 - 1 - characterInformationHeight, 18);
-			characterInformationHeight += 16;
-			characterInformationHeight += 3; // padding
+		else if (typeof character.hostility !== "undefined" && character.hostility !== "object" && character.hostility !== "hero") {
+			console.error("Unknown character hostility: ", character.hostility);
 		}
-	}
-	else if (character.hostility === "hostile" || character.hostility === "boss") {
-		// always draw health bar
-		this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
-		characterInformationHeight += 15;
-		characterInformationHeight += 3; // padding
-	}
-	else if (typeof character.hostility !== "undefined" && character.hostility !== "object" && character.hostility !== "hero") {
-		console.error("Unknown character hostility: ", character.hostility);
 	}
 
 	if (character.channellingInfo !== false && typeof character.channellingInfo.description !== "undefined") {

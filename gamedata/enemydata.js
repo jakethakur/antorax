@@ -1146,6 +1146,86 @@ const EnemyTemplates = {
 				death: "For the city...",
 			},
 		},
+		crystalSmall: {
+	        image: "crystalSmall",
+			deathImage: "crystalSmallDestroyed", // to be drawn
+			name: "Ley Crystal",
+			hostility: "hostile",
+			level: 0,
+			stats: {
+				maxHealth: 11111,
+				damage: 3,
+				walkSpeed: 0,
+				swimSpeed: 0,
+				iceSpeed: 0,
+				defence: 33,
+				range: 330,
+				reloadTime: 1000,
+				healthRegen: 4,
+				lootTime: 100000,
+				respawnTime: 200000,
+				projectileSpeed: 1422,
+				projectileRange: 400,
+				projectileStayOnScreen: 0,
+			},
+			xpGiven: 100,
+			projectile: {
+				image: "melee",
+				trails: [{
+					width: 3,
+					height: 3,
+					colour: ["#8317C6", "#621191"], // purple
+					removeIn: 1000,
+					rotation: 0,
+					variance: 10, // variance in position (in x/y axis in one direction from player)
+					intensity: 10, // no. of particles every 100ms
+				}]
+			},
+			lootTableTemplate: [EnemyLootTables.crystalSmall], // tbd
+			inventorySpace: 8,
+			showNameTag: false,
+			showHealthBar: false,
+		},
+		crystalLarge: {
+	        image: "crystalLarge",
+			deathImage: "crystalLargeDestroyed", // to be drawn
+			name: "Large Ley Crystal",
+			hostility: "hostile",
+			level: 0,
+			stats: {
+				maxHealth: 22222,
+				damage: 6,
+				walkSpeed: 0,
+				swimSpeed: 0,
+				iceSpeed: 0,
+				defence: 44,
+				range: 400,
+				reloadTime: 1000,
+				healthRegen: 6,
+				lootTime: 100000,
+				respawnTime: 200000,
+				projectileSpeed: 1422,
+				projectileRange: 400,
+				projectileStayOnScreen: 0,
+			},
+			xpGiven: 200,
+			projectile: {
+				image: "melee",
+				trails: [{
+					width: 3,
+					height: 3,
+					colour: ["#8317C6", "#621191"], // purple
+					removeIn: 1000,
+					rotation: 0,
+					variance: 10, // variance in position (in x/y axis in one direction from player)
+					intensity: 10, // no. of particles every 100ms
+				}]
+			},
+			lootTableTemplate: [EnemyLootTables.crystalLarge], // tbd
+			inventorySpace: 8,
+			showNameTag: false,
+			showHealthBar: false,
+		},
 
 		cutpurse1: {
 			speciesTemplate: SpeciesTemplates.cutpurse,

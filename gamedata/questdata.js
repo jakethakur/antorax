@@ -3923,7 +3923,7 @@ var Quests = {
 		},
 		{
 			id: 22,
-			quest: "Catfish!",
+			quest: "Phishing for Treasure",
 			questArea: "eaglecrest",
 
 			steps: [
@@ -3931,59 +3931,87 @@ var Quests = {
 					stepNum: 0,
 					name: "???", // mail
 					chat: [{
-						text: "Hey! You! You're the one that made me "
-					}],
-				},
-				{
-					stepNum: 1,
-					name: "Captain Greenbeard",
-					chat: [{
-						text: `My ingredients!`,
+						text: `<s>AHOY</s> HELLO ${Player.name}, for your services at eaglecrest, we bestow upon you 1000 gold. Visit the tavern to claim your <s>booty</s> reward.`
 					},],
 				},
 				{
-					stepNum: 2,
+					stepNum: 1, // triggered upon entering the tavern and being ambushed by Greenbeard
 					name: "Captain Greenbeard",
 					chat: [{
-						text: `My ingredients!`,
+						text: `YARR I didn’t think you’d fall for it you FOOL! It’s about time you paid for the trouble you’ve caused me.`
+					},{
+						text: `Help me find this treasure in the plains... and then consider us even.`
+					},{
+						text: `Arrr, take this <b>Eaglecrest Plains Treasure Map</b> I found the other day and meet me at the X! Yer'll see what I mean.`
 					},],
 				},
 				{
-					stepNum: 3,
+					stepNum: 2, // meeting him at the plains
 					name: "Captain Greenbeard",
 					chat: [{
-						text: `My ingredients!`,
+						text: `Ahoy, ${Player.name}!`,
 					},{
-						text: `Wait. Did I say 'ingredients'? Well I meant... <i>ahaha</i> my pyromancer potion ingredients! For a potion! <i>oh no.</i>.`,
+						text: `Yer see, I can see the booty, but the chest won't open!`,
 					},{
-						text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
+						text: `Bet it's got something to do with those damned <b>River Idol</b> statues.`,
+					},{
+						text: `Have yer seen any of those purple orbs anywhere? Word on the street be that they appease the River Idols.`,
+					},],
+				},
+				{
+					stepNum: 3, // triggers straight after completing the puzzle
+					name: "Captain Greenbeard",
+					chat: [{
+						text: `YARRR WE SOLVED IT!  Finally the Loan Sharks will never bother me again!`,
+					},{
+						text: `You be making a better first mate than I expected. Do you want to do the honours and open the chest?`,
 					},],
 					objectiveRequirement: [2], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					autofinish: true,
+				},
+				{
+					stepNum: 4, // triggers after closing the chest
+					name: "Captain Greenbeard",
+					chat: [{
+						text: `What’s this?! A breathing helmet? I’d never find any use for this!!`,
+					},{
+						text: `You know what... keep it all for yourself. This isn't worth my time!`,
+					},],
+					objectiveRequirement: [4], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					autofinish: true,
 					removeItems: [
-						{item: Items.item[77], quantity: 1},
+						{item: Items.item[78], quantity: 1}, // remove the treasure map
 					],
 					rewards: {
 						xp: 100,
 						items: [
-							{item: Items.item[1]}, // mystery (get the helm the next day)
-							{item: Items.currency[2], quantity: 5,},
+							{item: Items.item[1]}, // mystery (chest contents)
 						],
 					},
 				},
 			],
 
 			objectivesList: [
-				{id: 0, text: "Speak to <b>Captain Greenbeard</b> in the <b>Eagle's Span Tavern</b>.",
+				{id: 0, text: "Meet the mysterious mailer in the <b>Eagle's Span Tavern</b> in Eaglecrest.",
 					completeStep: 1, // if this step is completed, then this objective is always completed
 				},
 				{id: 1, text: "Meet <b>Captain Greenbeard</b> at the spot marked on the map he gave to you.",
 					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+					completeStep: 2,
 				},
-				{id: 2, text: "Solve the puzzle.",
+				{id: 2, text: "Appease the River Idols by guiding the purple orbs to them.",
 					revealStep: 2,
 				},
 				{id: 3, text: "Speak to Captain Greenbeard.",
 					revealStep: 2,
+					completeStep: 3,
+				},
+				{id: 4, text: "Open the chest",
+					revealStep: 3,
+				},
+				{id: 3, text: "Speak to Captain Greenbeard.",
+					revealStep: 3,
+					completeStep: 4,
 				},
 			],
 
