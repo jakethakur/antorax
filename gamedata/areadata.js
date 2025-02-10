@@ -14114,6 +14114,7 @@ chloroville: {
 			ustinov: {normal: "assets/npcs/ustinov.png"},
 			dolph: {normal: "assets/npcs/dolph.png"},
 			penelope: {normal: "assets/npcs/penelope.png"},
+			harroway: {normal: "assets/npcs/harroway.png"},
 		},
 		npcs: [
 			{
@@ -14189,6 +14190,27 @@ chloroville: {
 				],
 				chat: {
 					notUnlockedRoles: "Yes?",
+					questProgress: "",
+					questComplete: "",
+					inventoryFull: "",
+				},
+			},
+			{
+				x: 1365,
+				y: 735,
+				image: "harroway",
+				name: "Head Tinkerer Harroway",
+				hostility: "friendly",
+				level: 35,
+				stats: {
+					maxHealth: 361,
+					defence: 99,
+					healthRegen: 1,
+				},
+				roles: [
+				],
+				chat: {
+					notUnlockedRoles: "",
 					questProgress: "",
 					questComplete: "",
 					inventoryFull: "",
