@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.9" tiledversion="1.9.0" orientation="orthogonal" renderorder="right-down" width="13" height="14" tilewidth="60" tileheight="60" infinite="0" nextlayerid="5" nextobjectid="1">
+ <tileset firstgid="1" name="shopTiles" tilewidth="60" tileheight="60" tilecount="696" columns="8">
+  <image source="../../assets/tilemap/eaglecrest.png" width="480" height="5260"/>
+ </tileset>
+ <layer id="4" name="Tile Layer 1" width="13" height="14">
+  <data encoding="csv">
+6,6,6,23,47,31,55,31,55,39,6,6,6,
+6,7,6,31,55,39,7,39,23,47,6,7,6,
+6,6,6,39,23,47,23,47,31,55,6,6,6,
+6,6,6,6,6,6,6,6,6,6,6,6,6,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,46,46,46,46,46,46,46,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30,
+30,30,30,30,30,30,30,30,30,30,30,30,30
+</data>
+ </layer>
+</map>
