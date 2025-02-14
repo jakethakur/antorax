@@ -208,12 +208,33 @@ var Villagers = [
         ],
         roles: [],
         chat: {
-            notUnlockedRoles: "Yarr harr! Have ye spied me ship nearby?",
+            notUnlockedRoles: [
+				{
+					text: "Well if it isn't my new first mate!",
+					condition: function () {
+						return Player.quests.completedQuestArray.includes("Underwater"); // tbd base off reputation
+					}
+				},
+				{
+					text: "Get out of my face y' knave!",
+					condition: function () {
+						return Player.quests.completedQuestArray.includes("Overdraft"); // tbd base off reputation
+					}
+				},
+				{
+					text: "Yarr harr! Have ye spied me ship nearby?",
+				},
+			],
             chooseChat: "Ahoy there!",
             receiveTavernGood: "Nothin' better than a hearty supper at the tavern.",
+			questComplete: "",
+			questActive: "",
+			inventoryFull: "",
         },
 		canBeShown: function () {
-			return !Player.quests.activeQuestArray.includes("Overdraft");
+			return (!Player.quests.activeQuestArray.includes("Overdraft")
+				&& !Player.quests.possibleQuestArray.includes("Phishing for Treasure") && !Player.quests.activeQuestArray.includes("Phishing for Treasure")
+				&& !Player.quests.possibleQuestArray.includes("Underwater") && !Player.quests.activeQuestArray.includes("Underwater"));
 		}
     },
     {
@@ -846,34 +867,65 @@ var Villagers = [
         ],
 		roles: [
 			{
-				role: "text",
+				role: "chatBanner",
 				chooseText: "Free gold!",
-				chat: function () {
-					if (typeof Player.quests.questProgress.othmarGold === "undefined") {
-						return `You're the new farmer, aren't you? Oh you're not?! ...Well I've not seen you round here much anyway. What's your name?<br><br>That's a great name, ${Player.name}! Well, I'm Othmar, and nothing makes me content like helping out new recruits like yourself. So say, how does <b>3 Gold</b> sound?`;
+				chat: [{
+					text: `You're the new farmer, aren't you?`
+				},{
+					text: `Oh you're not?! ...Well I've not seen you round here much anyway. What's your name?`,
+					options: [
+						{
+							text: `${Player.name}`,
+							action: "progress",
+						},
+					],
+				},{
+					text: `That's a great name, ${Player.name}! Well, I'm Othmar, and nothing makes me content like helping out new recruits like yourself. So say, how does <b>3 Gold</b> sound?`,
+					options: [
+						{
+							text: "Thanks!",
+							action: "progress",
+						},
+					],
+					onFinish: function () {
+						// give player the gold for today
+						Dom.inventory.give(Items.currency[2], 3);
+						// set progress variable
+						let today = GetFullDate();
+						Player.quests.questProgress.othmarGold = today;
 					}
-					else {
-						return `Hey again ${Player.name}! Hope your adventures have been going well - I hope this gold helps out!<br><br>Have a great day!`
-					}
-					// tbd maybe add one for if he's not spoken to player in a while like AC - need a daysbetween function for this
-					// maybe also a few text variants?
+				},],
+				roleRequirement: function () {
+					return typeof Player.quests.questProgress.othmarGold === "undefined"; // never met othmar before
 				},
-				buttons: ["Thanks!"],
-				showCloseButton: false,
-				give: [{item: Items.currency[2], quantity: 3}],
-				functions: [function () {
-					// close page
-					Dom.closePage("textPage");
-					// give player the gold for today
-					Dom.inventory.give(Items.currency[2], 3);
-					// set progress variable
-					let today = GetFullDate();
-					Player.quests.questProgress.othmarGold = today;
-				}],
+			},
+			{
+				role: "chatBanner",
+				chooseText: "Free gold!",
+				chat: [{
+					text: `Hey again ${Player.name}! Hope your adventures have been going well - I hope this gold helps out!`
+				},{
+					text: `Have a great day!`,
+					options: [
+						{
+							text: "Thanks!",
+							action: "progress",
+						},
+					],
+					onFinish: function () {
+						// give player the gold for today
+						Dom.inventory.give(Items.currency[2], 3);
+						// set progress variable
+						let today = GetFullDate();
+						Player.quests.questProgress.othmarGold = today;
+					}
+				},],
 				roleRequirement: function () {
 					let today = GetFullDate();
-					return typeof Player.quests.questProgress.othmarGold === "undefined" || Player.quests.questProgress.othmarGold !== today;
+					return typeof Player.quests.questProgress.othmarGold !== "undefined" && Player.quests.questProgress.othmarGold !== today; // met othmar before but not today
 				},
+				// tbd maybe add one for if he's not spoken to player in a while like AC - need a daysbetween function for this
+				// maybe also a few text variants?
 			},
 		],
 		chat: {
@@ -921,6 +973,7 @@ var Villagers = [
             "eaglecrestLoggingCamp",
         ],
 		roles: [{
+			quest: Quests.eaglecrest[8],
 			role: "questProgress",
 			step: [0],
 			roleRequirement: function () {
@@ -952,6 +1005,7 @@ var Villagers = [
 			}
 		},
 		{
+			quest: Quests.eaglecrest[8],
 			role: "questProgress",
 			step: [1],
 		},

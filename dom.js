@@ -501,10 +501,12 @@ Dom.achievements.update = function () {
 }
 
 // called to update all player quest etc. progress
+// this is called whenever anything is done that could be seen as progress in a quest. i.e. getting xp, killing an enemy
 Dom.checkProgress = function () {
 	Dom.achievements.update();
 	Dom.quests.active();
 	Dom.quests.possible();
+	Dom.mail.check("progress");
 }
 
 // called when the player has walked further than its domRange away from the npc that it is talking to (saved in Dom.currentNPC)
@@ -1269,6 +1271,10 @@ Dom.chat.timeoutTime = 20; // ms between each character being shown
 // skippable is whether the text can be skipped by pressing enter
 Dom.chat.npcBanner = function (npc, text, skippable) {
 	// prepare the text that is about to be shown
+	if (!Array.isArray(text) && typeof text.showCondition !== "undefined") {
+		// text is an array of objects where  
+	}
+
 	if (Array.isArray(text)) {
 		if (typeof text[0].text === "undefined") {
 			// first element in array is a string
@@ -3091,7 +3097,7 @@ Dom.quest.accept = function () {
 // quest log
 //
 
-// update progress of currently active quests
+// update progress of currently active quests. called by Dom.checkProgress mostly
 // a parameter being passed in means this has been called from Dom.quest.accept, and this quest should be added to Player.quests.activeQuestArray
 // the parameter should be the quest object, as appears in questdata.js 
 Dom.quests.active = function (quest) {
@@ -3226,6 +3232,7 @@ Dom.quests.active = function (quest) {
 			}
 			if (currentQuest.autofinish && completedObjectives >= objectives.length) {
 				// quest should finish once all objectives are done (wothout needing to speak directly to npc), and all objectives are done
+				// note that there shouls always be an alternate way to finish such quests, in case the player has a DOM page already open when this is triggered
 				let npcName = currentQuest.steps[currentQuest.steps.length-1].name;
 				Dom.choose.page([{
 					npc:npcName,
@@ -3734,7 +3741,7 @@ Dom.scoreboardFinish = function (result) {
 	this.scoreboard = undefined;
 	Dom.elements.scoreboard.hidden = true;
 
-	Dom.quests.active();
+	Dom.checkProgress();
 }
 
 
@@ -6624,6 +6631,10 @@ Dom.spellChoice.page = function (npc, spells) {
 	}
 }
 
+//
+// Mail
+//
+
 Dom.mail.page = function (override) {
 	if (Dom.changeBook("mailPage") || override) {//, true/*false*/, true);
 		Dom.elements.mailPage.innerHTML = "<br><h1>Mailbox</h1><br>";
@@ -6683,34 +6694,50 @@ Dom.mail.page = function (override) {
 				// if you did not click on delete or flag
 				if (!Dom.mail.notOpen) {
 					let first = false;
-					// if it is unopened
+					// if it is unopened, give the player any items that should be given on open
+					// this is a fairly old system and it is advised to use the newer way of an npcBanner with a "give" property given to some of the chat
 					if (!Player.mail.opened.includes(Player.mail.mail[i].title)) {
 						first = true;
-						Player.mail.opened.push(Player.mail.mail[i].title);
-						if (Player.mail.mail[i].give !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].give)) {
-							for (let x = 0; x < Player.mail.mail[i].give.length; x++) {
-								Dom.inventory.give(Player.mail.mail[i].give[x].item, Player.mail.mail[i].give[x].quantity);
+						Player.mail.opened.push(Player.mail.mail[i].title); // mail counts as opened as soon as it is clicked on
+						if (Player.mail.mail[i].giveOnMailOpen !== undefined && Dom.inventory.requiredSpace(Player.mail.mail[i].giveOnMailOpen)) {
+							for (let x = 0; x < Player.mail.mail[i].giveOnMailOpen.length; x++) {
+								Dom.inventory.give(Player.mail.mail[i].giveOnMailOpen[x].item, Player.mail.mail[i].giveOnMailOpen[x].quantity);
 							}
-						}else if (Player.mail.mail[i].give !== undefined) {
+						}else if (Player.mail.mail[i].giveOnMailOpen !== undefined) {
 							Player.mail.opened.pop();
 							Dom.alert.page("You do not have sufficient inventory space to hold the items attached to this mail. Come back to collect them when you have more space.", 0, undefined, "mailPage");
 						}
 					}
+
+					// set a variable of NPC associated with the message that's being opened (a hybrid of the mailbox (Dom.currentNPC) and the sender)
+					let mailNPC = {x: Dom.currentNPC.x, y: Dom.currentNPC.y, image: Player.mail.mail[i].image, name: Player.mail.mail[i].sender};
+
 					Dom.closePage("mailPage", true);
-					if (Player.mail.mail[i].openFunction !== "quest.start") {
-						ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
+
+					if (typeof Player.mail.mail[i].openFunction === "undefined" || Player.mail.mail[i].openFunction === "chat.npcBanner") {
+						// use chat banner by default
+						Dom.chat.npcBanner(mailNPC, Player.mail.mail[i].chat);
 					}
-					else {
-						let quest = Quests[Player.mail.mail[i].openParameters[0]][Player.mail.mail[i].openParameters[1]];
-						if (Player.quests.possibleQuestArray.includes(quest.quest)) {
-							ExecuteFunctionByName("quest.start", Dom, [quest]);
+					else if (Player.mail.mail[i].openFunction === "quest.progressFromNpc") {
+						// mail starts a quest
+						let quest = Player.mail.mail[i].questObj;
+						let step = Player.mail.mail[i].questStep;
+						if (Game.questCanBeProgressed(quest, step)[step]) {
+							// quest step can be started - start it!
+							Dom.quest.progressFromNpc(quest, mailNPC, step);
 						}
 						else {
-							ExecuteFunctionByName("text.page", Dom, [quest.quest, "<strong>"+(quest.startName)+"</strong><br>"+(quest.startChat), true, [], []]);
+							// quest step can't be started (most likely has been done already! or possibly hasn't been unlocked yet)
+							Dom.alert.page("<i>You have already progressed the quest associated with this mail.</i>", 0);
 						}
 					}
+					else {
+						ExecuteFunctionByName(Player.mail.mail[i].openFunction, Dom, Player.mail.mail[i].openParameters);
+					}
+
 					Game.mailboxUpdate("read");
-				}else {
+				}
+				else {
 					Dom.mail.notOpen = false;
 				}
 			}
@@ -6718,19 +6745,63 @@ Dom.mail.page = function (override) {
 	}
 }
 
-Dom.mail.give = function (title, sender, image, openFunction, openParameters, give, noRepeat) {
-	if (!Player.mail.received.includes(title) || !noRepeat) {
+// looks through maildata.js and finds if any new mail is able to be given
+// parameter should be set to "init" to check mail that can only be given on logon (i.e. event mail) (this is called from Dom.init)
+// parameter should be chgeck to "levelUp" to check mail that can only be given on level up (this is called from Game.getXP)
+// parameter should be set to "progress" to check mail that can be given at any point in the game (this is called from Dom.checkProgress)
+Dom.mail.check = function (checkType) {
+	let arr;
+	if (checkType === "init") {
+		arr = Mail.onInit;
+	}
+	else if (checkType === "levelUp") {
+		arr = Mail.onLevelUp;
+	}
+	else if (checkType === "progress") {
+		arr = Mail.onProgress;
+	}
+	for (let i = 0; i < arr.length; i++) {
+		if (arr[i].condition()) {
+			Dom.mail.give(arr[i]); // this function also checks noRepeat
+		}
+	}
+}
+
+// properties parameter object includes: [note these are all optional unless specified]
+// title [mandatory]
+// sender [mandatory] (a string of their name)
+// image (will be set to "shadow" by default)
+// -
+// chat (by default, Dom.chat.npcBanner is run with parameter properties.chat)
+// giveOnChatFinish (another parameter for Dom.chat.npcBanner)
+// -
+// openFunction (specifies a different function to be run upon opening, as a string. i.e. "quest.npcProgress" runs Dom.quest.npcProgress)
+// openParameters (array of params to be used with openFunction if it's *not* set to chat.npcBanner or quest.npcProgress)
+// -
+// questObj (full quest object - parameter for quest.npcProgress if openFunction is "quest.npcProgress")
+// questStep (step id - parameter for quest.npcProgress if openFunction is "quest.npcProgress")
+// -
+// giveOnMailOpen (array of items to be given upon opening the mail)
+//		^ this is a fairly old system and it is advisable to use the newer way of an npcBanner with a "give" property given to some of the chat)
+// -
+// noRepeat (optional, means the player can't get the same mail twice)
+Dom.mail.give = function (properties) {
+	if (!Player.mail.received.includes(properties.title) || !properties.noRepeat) {
 		Player.mail.mail.push({
-			title: title,
-			sender: sender,
-			image: image,
+			title: properties.title,
+			sender: properties.sender,
+			image: properties.image,
 			date: GetFullDateString(),
-			openFunction: openFunction,
-			openParameters: openParameters,
-			give: give,
+			chat: properties.chat,
+			giveOnChatFinish: properties.giveOnChatFinish,
+			openFunction: properties.openFunction, // if this is undefined, mail.page defaults to "chat.npcBanner"
+			openParameters: properties.openParameters,
+			questObj: properties.questObj,
+			questStep: properties.questStep,
+			giveOnMailOpen: properties.giveOnMailOpen,
 		});
-		if (!Player.mail.received.includes(title)) {
-			Player.mail.received.push(title);
+		if (!Player.mail.received.includes(properties.title)) {
+			Player.mail.received.push(properties.title);
 		}
 		if (typeof Game !== "undefined") {
 			Game.mailboxUpdate("received");
@@ -6738,6 +6809,7 @@ Dom.mail.give = function (title, sender, image, openFunction, openParameters, gi
 	}
 }
 
+// tracks number of unread mail
 Dom.mail.unread = function () {
 	let unreadMail = 0;
 	for (let i = 0; i < Player.mail.mail.length; i++) {
@@ -6747,6 +6819,9 @@ Dom.mail.unread = function () {
 	}
 	return unreadMail;
 }
+
+
+
 
 Dom.adventure.update = function () {
 	Dom.elements.adventureWrapper.innerHTML = `<div id="level" style="display:inline;">Level ${Player.level}</div>
@@ -8033,7 +8108,6 @@ Dom.init = function () {
 		}
 	}
 
-	// MAIL (mostly)
 	let date = GetFullDate();
 	let yesterdayDate = GetFullDate(1);
 	// the first time the player logs on each day
@@ -8042,229 +8116,17 @@ Dom.init = function () {
 		if (localStorage.getItem(Player.class) === null) {
 
 			//
-			// Load a new class: gold, mail, instructions
+			// Load a new class: gold, instructions
 			//
 
 			Dom.inventory.give(Items.currency[2],3);
 
-			Dom.mail.give(
-	            "Welcome to Antorax!",
-	            "The Tinkering Guild",
-	            "dolph",
-	            "text.page",
-	            ["Welcome to Antorax!",
-	            `Hello ${Player.name}!<br><br>It's great to have new people joining us in Antorax. We look forward to meeting you very soon in Eaglecrest City. Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!<br><br>From the Tinkering Guild`, true, [], [],
-	            [{item: Items.item[14]}]], [{item: Items.item[14]}],
-	        );
-
 			Dom.instructions.page(0);
-
-		}
-
-		//
-		// Mail, to be sent on first day the player logs in
-		//
-
-		// christmas daily rewards
-		if (Event.event === "Christmas") {
-			let randomNPC = "";
-			// keep finding a new npc the player has met until we find one that has information in Offsets
-			while (typeof Offsets[ToCamelCase(randomNPC)] === "undefined") {
-				randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message (one the player's met before!)
-			}
-			if (Event.christmasDay) { // christmas day
-				/*
-				// 2018 message
-				Dom.mail.give(
-					"Merry Christmas!",
-					"Father Christmas",
-					"fatherChristmas",
-					"text.page",
-					["Merry Christmas!",
-					"Have a great Christmas! Please enjoy the 2018 Christmas gift.", true, [], [],
-					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
-					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
-				);
-				*/
-				// 2022 message
-				Dom.mail.give(
-					"Merry Christmas!",
-					"Father Christmas",
-					"fatherChristmas",
-					"text.page",
-					["Merry Christmas!",
-					"Have a great Christmas! Please enjoy the 2022 Christmas gift.", true, [], [],
-					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}]],
-					[{item: Items.item[17],},{item: Items.currency[5], quantity: 5,}],
-				);
-			}
-			else if (date.substring(6) < "25") { // before christmas
-				Dom.mail.give(
-					25 - parseInt(date.substring(6)) + " Day"+(parseInt(date.substring(6)) !== 24 ? "s" : "")+" To Go!",
-					randomNPC,
-					ToCamelCase(randomNPC),
-					"text.page",
-					["Merry Christmas!",
-					"This is your free daily chistmas token. Spend it wisely!", true, [], [],
-					[{item: Items.currency[5]}]], [{item: Items.currency[5]}],
-				);
-			}
-		}
-
-		// Antorax Day mail
-		if (Event.event === "Antorax") {
-			/*
-			// 2019 message
-			Dom.mail.give(
-				"Antorax is " + Event.antoraxAge + " today!",
-				"The King of Eaglecrest",
-				"eaglecrestKing",
-				"text.page",
-				["Antorax is " + Event.antoraxAge + " today!",
-				`<p>${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.</p>
-				<p>This year, there have been countless advancements in the fields of Archaeology, with huge discoveries of mythic items. There have also been developments to the Eaglecrest Logging Camp, and improvements to the accessibility of Antorax for its citizens.</p>
-				<p>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.</p>`, true, [], [],
-				[{item: Items.helm[10]}]], [{item: Items.helm[10]}],
-			);*/
-
-			// 2022 message
-			Dom.mail.give(
-				"Antorax is " + Event.antoraxAge + " today!",
-				"The King of Eaglecrest",
-				"eaglecrestKing",
-				"text.page",
-				["Antorax is " + Event.antoraxAge + " today!",
-				`<p>${Event.antoraxAge} years ago today, the realms of Antorax settled on an agreement to cooperate in the archaeology and exploration of these beautiful lands. Although there have been conflicts since then, there have been countless discoveries made by the Antorax alliance, and we endevour to continue.</p>
-				<p>This year, there have been countless advancements in the fields of Archaeology - mythic items have been unearthed from past and faraway lands, many within the realm of Eaglecrest's local plains. There have additionally been huge developments in the teaching of magic, which will be further consolidated in the coming years. Morever, we cannot go without mentioning the countless new citizens of Eaglecrest, to whom I hope you have given a warm welcome!</p>
-				<p>Antorax has not been without its challenges this year, facing a colder winter than ever, and a serpentine assault of Eaglecrest City. However these complications have been endured and resolved thanks to all of you adventurers, archaeologists, and even fishers.</p>
-				<p>We hope you enjoy this special day, and that we will celebrate the many more Antorax Days to come together.</p>`, true, [], [],
-				[{item: Items.helm[28]}]], [{item: Items.helm[28]}],
-			);
-
-			if (!Player.quests.completedQuestArray.includes("The Legend of the Tattered Knight")) {
-				Dom.mail.give(
-					"The Legend of the Tattered Knight",
-					"unknown sender",
-					"./assets/items/item/16",
-					"quest.start",
-					["eaglecrestLoggingCamp", 22],
-				);
-			}
-		}
-
-		// Fish mail
-        else if (Event.event === "Fish") {
-            Dom.mail.give(
-                "A Soggy Surprise...",
-                "unknown sender",
-                "./assets/items/sword/10",
-                "text.page",
-                ["A Soggy Surprise...",
-                `A fish fell in your mailbox!`, true, [], [],
-                [{item: Items.sword[10]}]], [{item: Items.sword[10]}],
-            );
-        }
-
-		// Heroes of Antorax mail
-		else if (Event.event === "Heroes") {
-			Dom.mail.give(
-			    "A Gift for the Worthy",
-			    "The Lord of Thunder",
-			    "lordOfThunder",
-			    "text.page",
-			    ["A Gift for the Worthy",
-			    `<p>Six fragments of incredibly rare gemstones - objects with the power to wipe out entire civilizations – have been found in Antorax. The stones are useful in the right hands, but I fear the forces of evil may get to them first. Only the strongest of beings can safely use the stones, which is why I have entrusted you with this <strong>Eternity Glove</strong>, a container for that power.<p>
-				<p>It is your duty to locate all six stones and add them to the Glove, so they are safe from any villains who would use them for ill.</p>
-				<p>Good luck, adventurer… and send a raven if you have any questions.</p>`, true, [], [],
-			    [{item: Items.sword[11]}]], [{item: Items.sword[11]}], true // noRepeat
-			);
-		}
-
-		// James Day mail
-		else if (Event.event === "James") {
-			Dom.mail.give(
-			    "Happy James Day!",
-			    "Marshall Teper",
-			    "marshallTeper",
-			    "text.page",
-			    ["Happy James Day!",
-			    "For some reason they asked <em>me</em> to send some mail out to everyone today. There might be an event on, but that doesn't mean you can stop working. We need more workers in the Logging Camp.<br><br>Marshall Teper", true, [], [],
-			    [{item: Items.boots[7]}]], [{item: Items.boots[7]}],
-			);
-		}
-
-		// Samhain mail
-		else if (Event.event === "Samhain") {
-			Dom.mail.give(
-			    "Bumper Samhain Harvest!",
-			    "Farmer Lennie",
-                "./assets/items/helm/23",
-			    "text.page",
-			    ["Bumper Samhain Harvest!",
-			    `It's the season of Samhain once again! What's a pumpkin doing in your mailbox? Well, out at the Eaglecrest Ranch we've had a bumper harvest of pumpkins, only makes sense to share them with everyone. Oh - and don't forget to try some of the pumpkin treats in a tavern. They're made entirely with Eaglecrest produce!<br><br>From Farmer Lennie`, true, [], [],
-			    [{item: Items.helm[23]}]], [{item: Items.helm[23]}], true // noRepeat
-			);
-
-			if (!Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.activeQuestArray.includes("The Slithering Truth") && Player.quests.prog.eaglecrest[1].timesCompleted >= 0) {
-				// they haven't completed the quest this mail starts before, and they have completed "snakes and the city" at least once
-				Dom.mail.give(
-					"The Slithering Truth",
-					"unknown sender",
-					"./assets/items/item/36",
-					"quest.start",
-					["eaglecrest", 3], true // noRepeat
-				);
-			}
-
-			else if (Player.quests.completedQuestArray.includes("The Slithering Truth") && !Player.quests.questProgress.hasSkeletonKey) { // aaaaaaaaaaaaaaaaaaaaaa tbd don't use questProgress
-				let name = "???";
-				if (Player.quests.completedQuestArray.includes("Snaking Bad")) {
-					name = "The Soothsssayer";
-				}
-				Player.quests.questProgress.hasSkeletonKey = true; // aaaaaaaaaaaaaaaaaaaaaa tbd don't use questProgress
-				Dom.mail.give(
-				    "Sssssurprise Return",
-				    name,
-	                "./assets/items/item/36",
-				    "text.page",
-				    ["BOO!",
-				    `I'm back.<br><br>How about you sssslither back to my lair?<br><br>Ssssee you ssssoon.<br>xx`, true, [], [],
-				    [{item: Items.item[36]}]], [{item: Items.item[36]}],
-				);
-			}
-		}
-
-		// Valentine's mail
-		else if (Event.event === "Valentine") {
-			Dom.mail.give(
-			    "Love Is in the Air!",
-			    "Mysterious Lover",
-			    "shadow",
-			    "text.page",
-			    ["Love Is in the Air!",
-			    `<p>${Player.name},</p>
-				<p>You may not know me, but I have been watching your deeds and have been very impressed. It may seem like your doings are unrewarded, but know that there are always those who appreciate your every move.</p>
-				<p>On this day of giving and feasting, please celebrate with a token of my undying appreciation.</p>`, true, [], [],
-			    [{item: Items.boots[12]}]], [{item: Items.boots[12]}],
-			);
-		}
-
-		// Samme Day mail
-		else if (Event.event === "Samme") {
-			Dom.mail.give(
-			    "Happy Samme Day!",
-			    "Fish Tank",
-			    "fishTank",
-			    "text.page",
-			    ["Happy Samme Day!",
-			    "Happy Samme Day!", true, [], [],
-			    [{item: Items.chest[21]}]], [{item: Items.chest[21]}],
-			);
 		}
 
 		Player.days.push(date);
 
-		// login rewards
+		// for login rewards
 		if (typeof Player.consecutiveDays === "undefined") {
 			Player.consecutiveDays = 0;
 		}
@@ -8273,20 +8135,6 @@ Dom.init = function () {
 		}
 		else {
 			Player.consecutiveDays = 1;
-		}
-
-		// seven days in a row
-		if (Player.consecutiveDays === 7) {
-			Dom.mail.give(
-				"We've Seen a Lot of You",
-				"The King of Eaglecrest",
-				"eaglecrestKing",
-				"text.page",
-				["We've Seen a Lot of You",
-				`<p>${Player.name}, I hope this letter finds you well and safe.</p>
-				<p>Your dedication to Eaglecrest's, and Antorax's, cause is truly remarkable. The Kingdom would like to personally thank you for your contributions with this <b style="color:orange;">Antorak</b>. We hope it will prove useful on your further adventures.</p>`, true, [], [],
-				[{item: Items.chest[11]}]], [{item: Items.chest[11]}],
-			);
 		}
 
 		// reset chest locations
@@ -8312,31 +8160,6 @@ Dom.init = function () {
 		Player.chests.positions = {}; // chests change position each day
 	}
 
-	// Archaeology mail
-	let done = true;
-	for (let i = 0; i < 7; i++) {
-		for (let x = 0; x < Items[Object.keys(Items)[i]].length; x++) {
-			if (!Items[Object.keys(Items)[i]][x].uncollectable && !User.archaeology.includes(Items[Object.keys(Items)[i]][x].name) && Items[Object.keys(Items)[i]][x].name !== "Master Archaeologist's Hat") {
-				done = false;
-			}
-		}
-	}
-	if (done) {
-		Dom.mail.give(
-			"Master Archaeologist",
-			"Alys Loreworth",
-			"alysLoreworth",
-			"text.page",
-			["Master Archaeologist",
-			`<p>Dear ${playerName},</p>
-			<p>I am Alys Loreworth, the lead archaeologist of Antorax. I have noticed your incredible contributions to Antorax's archaeology effort, and would like to congratulate and thank you for them. Without you, we would not have uncovered many of the rare and significant items that are currently residing in the Great Museum, Wizard Island. I trust that we will continue to receive contributions from you in the years to come - there is still lots that has not been discovered.</p>
-			<p>I have attached a <strong>Master Archaeologist's Hat</strong>, which I hope you will find of use when uncovering items in the future. A hat like this is incredibly rare and remarkably powerful, only owned by the most accomplished of archaeologists. Many who have worn it say they find themselves to be much luckier with their archaeological finds...</p>
-			<p>Good luck on your continued travels,
-			<br>Alys Loreworth, Lead Archaeologist</p>`, true, [], [],
-			[{item: Items.helm[9]}]], [{item: Items.helm[9]}], true // noRepeat
-		);
-	}
-
 	Dom.hotbar.update();
 	Dom.inventory.update();
 
@@ -8353,7 +8176,8 @@ Dom.init = function () {
 		}
 	}
 
-	Dom.checkProgress(); // calls Dom.quests.active()
+	Dom.mail.check("init"); // gives mail that can only be given on init
+	Dom.checkProgress(); // calls Dom.quests.active(), gives all other mail, etc.
 	Dom.quests.completed();
 	Dom.adventure.update(); // chooses what should be shown in adventurer's log
 
@@ -8383,6 +8207,9 @@ Dom.init = function () {
 		}
 		else if (Player.consecutiveDays === 20) {
 		    Dom.chat.insert("What a surprise, " + Player.name + "'s back!", 0, undefined, true);
+		}
+		else if (Player.consecutiveDays === 30) {
+		    Dom.chat.insert("Well if it isn't " + Player.name + "!", 0, undefined, true);
 		}
 		else if (Player.consecutiveDays === -1) {
 			// needs finishing lol
@@ -8442,13 +8269,9 @@ Dom.init = function () {
 	// tell the player if they have unread mail
 	let unreadMail = Dom.mail.unread();
 	if (Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-		if (unreadMail > 1) {
-			// plural
-			Dom.chat.insert("You have " + unreadMail + " new messages!"); // maybe make it more obvious that player has to check their mailbox for this?
-		}
-		else if (unreadMail > 0) {
+		if (unreadMail > 0) {
 			// singular
-			Dom.chat.insert("You have " + unreadMail + " new message!"); // maybe make it more obvious that player has to check their mailbox for this?
+			Dom.chat.insert("You have " + unreadMail + " new mail!"); // maybe make it more obvious that player has to check their mailbox for this?
 		}
 	}
 
@@ -8457,6 +8280,7 @@ Dom.init = function () {
 	}
 	Player.chatOnJoin = [];
 
+	// settings
 	Dom.elements.weatherOn.onclick = function () {
 		User.settings.weather = true;
 		Game.dayNightUpdate();
@@ -8495,7 +8319,6 @@ Dom.init = function () {
 	if (User.settings.nametag) {
 		Dom.elements.nametagOn.checked = true;
 	}
-
 
 	// permission settings
 	// local storage

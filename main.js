@@ -3026,7 +3026,7 @@ class Character extends Thing {
 							Game.removeObject(this.id, this.type);
 						}
 
-						// call Dom.quests.active if it is needed for a quest regarding this enemy
+						// call Dom.quests.active if it is needed for a quest regarding this enemy's corpse disappearing
 						if (this.name === "The Tattered Knight") {
 							Dom.quests.active();
 						}
@@ -3550,6 +3550,13 @@ class Character extends Thing {
 		else { // displacement finished
 			return {x:0, y:0};
 		}
+	}
+
+	displaceToLocation (location, time, canGoOverWalls) {
+		let distance = Game.distance(this, location);
+		let velocity = distance/time;
+		let direction = Game.bearing(this, location);
+		this.displace(delta, velocity, time, direction, canGoOverWalls);
 	}
 
 	// remove all status effects where statusEffect[key] === value
@@ -8766,7 +8773,7 @@ Game.questPresets.protect = function (properties) {
 			properties.onFinish();
 		}
 
-		Dom.quests.active();
+		Dom.checkProgress();
 	};
 	properties.protectObject.channel(channelSuccessFunction, [], properties.timePeriod, properties.progressBarDescription, {colour: properties.progressBarColour});
 
@@ -8832,7 +8839,7 @@ Game.questPresets.protect = function (properties) {
 			properties.onFinish();
 		}
 
-		Dom.quests.active();
+		Dom.checkProgress();
 	};
 	properties.protectObject.channel(channelSuccessFunction, [], properties.timePeriod, properties.progressBarDescription, {colour: properties.progressBarColour});
 
@@ -11209,6 +11216,228 @@ Game.underwaterBreathingTick = function (target, delta) {
 	}
 }
 
+// quest should be the quest object, or an array of quest objects
+// step should be either the single step number that is to be completed (i.e. step 0 corresponds to starting the quest), or an array of such steps
+// newQuestFrequency and questVariable are optional, and is only used when an array of quests is given
+// note that this does NOT check if the player has enough inventory space to do said step (this is instead done by the choose dom)
+// also note that, if there are multiple possible quest steps that can be completed, the player is only offered the first of these to complete
+Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVariable) {
+	if (!Array.isArray(step)) { // ensure step is an array
+		step = [step];
+	}
+
+	let returnObj = {
+		questComplete: false, // if one of the npc's quests has been completed
+		questActive: false, // if one of the npc's quests is currently active
+		notUnlockedRoles: false, // if one of the npc's roles has not been unlocked
+		questFinish: false, // whether the quest will be finished upon completing the 
+	};
+	for (let i = 0; i < step.length; i++) { // one property for each step
+		returnObj[step[i]] = false;
+	}
+
+	let questCanBeStarted = true; // set to false if the quest cannot be started
+
+	if (step.includes(0)) {
+		// check if quest is ready to be started
+
+		if (quest.constructor === Array && (newQuestFrequency === "daily" || newQuestFrequency === "repeatable")) {
+			// quest is an array (hence a random one is picked each questing time period)
+			// all of these quests are daily quests or jobs (repeatable)
+			if (quest.some(quest => Player.quests.activeQuestArray.includes(quest.quest))) {
+				// one of the quests is currently active
+				questCanBeStarted = false;
+				returnObj.questActive = true; // for npc dialogue
+			}
+			else if (newQuestFrequency === "daily" && quest.some(quest => Player.quests.prog[quest.questArea][quest.id].questLastFinished >= GetFullDate())) {
+				// daily quest and one of the quests has already been done today (or after today o.O)
+				questCanBeStarted = false;
+				returnObj.questComplete = true; // for npc dialogue
+			}
+			else {
+				// pick a quest to be started
+				if (Player.quests.randomDailyQuests[questVariable] !== undefined) {
+					// a quest has already been chosen for the player today
+					// note the same system is used for daily and repeatable, because at the moment the chosen repeatable quest is reset every day
+					quest = quest.find(quest => quest.quest === Player.quests.randomDailyQuests[questVariable]);
+				}
+				else {
+					// a quest has not been chosen for the player today
+					quest = quest.filter(quest => Player.quests.possibleQuestArray.includes(quest.quest));
+					if (quest.length > 0) { // at least one quest survived the level and quest requirements
+						// pick random quest
+						quest = quest[Random(0, quest.length - 1)];
+
+						// set variable so future quests today are the same
+						Player.quests.randomDailyQuests[questVariable] = quest.quest;
+					}
+					else {
+						questCanBeStarted = false;
+						returnObj.notUnlockedRoles = true;
+					}
+				}
+			}
+		}
+		else {
+			// single quest
+			if (!Player.quests.possibleQuestArray.includes(quest.quest)) {
+				// quest is not possible
+				questCanBeStarted = false;
+
+				// figure out what NPC should say to the player
+				if (Player.quests.activeQuestArray.includes(quest.quest)) { // quest is already active
+					returnObj.questActive = true; // for npc dialogue
+				}
+				else {
+					// check if it is daily or one time
+					if (quest.repeatTime === undefined) {
+						// one time
+						if (Player.quests.completedQuestArray.includes(quest.quest)) {
+							// quest has already been completed
+							returnObj.questComplete = true; // for npc dialogue
+						}
+						else {
+							// quest not unlocked at all (is in "other quests")
+							returnObj.notUnlockedRoles = true;
+						}
+					}
+					else if (quest.repeatTime === "daily") {
+						// daily
+						if (Player.quests.prog[quest.questArea][quest.id].questLastFinished >= GetFullDate()) { // quest has already been done today (or after today o.O)
+							// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
+							returnObj.questComplete = true; // for npc dialogue
+						}
+						else {
+							// quest not unlocked at all (is in "other quests")
+							returnObj.notUnlockedRoles = true;
+						}
+					}
+				}
+
+			}
+		}
+
+		if (questCanBeStarted) {
+			returnObj[0] = true;
+			return returnObj; // quest step 0 can be started (thus no other steps can)
+		}
+	}
+
+	if (!questCanBeStarted) {
+		// check if a quest step is ready to be finished
+
+		let canBeFinished = true; // set to false if the quest step cannot be finished
+
+		if (quest.constructor === Array && (newQuestFrequency === "daily" || newQuestFrequency === "repeatable")) {
+			// quest is an array (hence a Random one is picked each questing time period)
+			// all of these quests are daily quests or repeatable quests
+
+			quest = quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
+
+			if (quest === undefined) { // none of the quests are currently active
+				canBeFinished = false;
+				returnObj.notUnlockedRoles = true;
+			}
+
+			// no need to check if it has already been completed as these are all daily
+		}
+		else {
+			// single quest
+			if (!Player.quests.activeQuestArray.includes(quest.quest)) { // quest is not already active
+				canBeFinished = false;
+				returnObj.notUnlockedRoles = true; // for chat message
+			}
+		}
+
+		if (canBeFinished) {
+			// quest is currently active
+			// loop through each possible step of the quest and see if it's been done or not
+			for (let stepIndex = 0; stepIndex < step.length; stepIndex++) {
+				if (step[stepIndex] === 0) {
+					// not starting quest - skip this step
+					stepIndex++;
+					if (stepIndex >= step.length) {
+						break;
+					}
+				}
+
+				let stepId = step[stepIndex]; // the actual step id number (step is the array of steps that are offered by the NPC, i.e. not all of the possible steps of the quest)
+
+				let stepDone = true;
+
+				if (Player.quests.prog[quest.questArea][quest.id].stepProgress[stepId]) {
+					// step already been completed
+					stepDone = false;
+				}
+				else if (typeof quest.steps[stepId].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[stepId].availableUntilStepDone]) {
+					// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
+					stepDone = false;
+				}
+				else if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
+					// as the quest is chronological, quest's steps must all be completed in order (other than optional steps)
+					// find the highest non-optional step below the current step we are checking
+					let checkStep = stepId-1;
+					while (checkStep >= 0 && quest.steps[checkStep].optional) {
+						checkStep--;
+					}
+					if (checkStep >= 0 && !Player.quests.prog[quest.questArea][quest.id].stepProgress[checkStep]) {
+						// previous step not been done yet
+						stepDone = false;
+					}
+				}
+
+				if (stepDone) {
+					// keep checking ..
+					if (typeof quest.steps[stepId].objectiveRequirement === "undefined") {
+						// no objectives need to be completed for this step
+						stepDone = true;
+					}
+					else {
+						// there are objectives that need to be completed for this step
+						if (!Array.isArray(quest.steps[stepId].objectiveRequirement)) {
+							quest.steps[stepId].objectiveRequirement = [quest.steps[stepId].objectiveRequirement];
+						}
+						for (let objIndex = 0; objIndex < quest.steps[stepId].objectiveRequirement.length; objIndex++) {
+							let obj = quest.steps[stepId].objectiveRequirement[objIndex];
+							if (Player.quests.prog[quest.questArea][quest.id].objectiveProgress[obj] !== true) {
+								// objective is not done
+								stepDone = false;
+								break;
+							}
+						}
+					}
+				}
+
+				// check if ready for this step to be completed
+				if (stepDone) {
+					returnObj[stepId] = true; // this step can be completed!
+					// (inventory space has not been checked yet and is checked by choose DOM)
+
+					// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
+					returnObj.questFinish = true;
+					for (let i = 0; i < quest.steps.length; i++) {
+						if (!Player.quests.prog[quest.questArea][quest.id].stepProgress[i] && !quest.steps[i].optional && i!==stepId) {
+							// the step is not finished, isn't optional, and isn't the step that's just about to be done
+							// therefore there is at least one step that hasn't been finished
+							returnObj.questFinish = false;
+							break;
+						}
+					}
+
+					// we could very well stop here, as player has to complete the first available step...
+					// ...but might as well see if the other steps can be completed in case it's required
+				}
+			}
+
+		}
+		// quest has already been completed
+		else if (Player.quests.completedQuestArray.includes(quest.quest)) {
+			returnObj.questComplete = true;
+			return returnObj;
+		}
+	}
+}
+
 
 //
 // Update game state
@@ -11455,302 +11684,56 @@ Game.update = function (delta) {
 						// quest starts and step finishes
 						// the exact step(s) are specified in the role.step integer/array
 						if (role.role === "questProgress") {
-							let questCanBeStarted = true; // set to false if the quest cannot be started
+							let result = this.questCanBeProgressed(role.quest, role.step, role.newQuestFrequency, role.questVariable)
+						
+							questActive = result.questActive;
+							questComplete = result.questComplete;
+							notUnlockedRoles = result.notUnlockedRoles;
+							let questFinish = result.questFinish;
 
-							if (role.step === 0 || (Array.isArray(role.step) && role.step.includes(0))) {
-								// check if quest is ready to be started
-								let questToBeStarted = role.quest;
-	
-								if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
-									// quest is an array (hence a random one is picked each questing time period)
-									// all of these quests are daily quests or jobs (repeatable)
-									if (role.quest.some(quest => Player.quests.activeQuestArray.includes(quest.quest))) {
-										// one of the quests is currently active
-										questCanBeStarted = false;
-										questActive = true; // for npc dialogue
-									}
-									else if (role.newQuestFrequency === "daily" && role.quest.some(quest => Player.quests.prog[quest.questArea][quest.id].questLastFinished >= GetFullDate())) {
-										// daily quest and one of the quests has already been done today (or after today o.O)
-										questCanBeStarted = false;
-										questComplete = true; // for npc dialogue
-									}
-									else {
-										// pick a quest to be started
-										if (Player.quests.randomDailyQuests[role.questVariable] !== undefined) {
-											// a quest has already been chosen for the player today
-											// note the same system is used for daily and repeatable, because at the moment the chosen repeatable quest is reset every day
-											questToBeStarted = questToBeStarted.find(quest => quest.quest === Player.quests.randomDailyQuests[role.questVariable]);
-										}
-										else {
-											// a quest has not been chosen for the player today
-											questToBeStarted = questToBeStarted.filter(quest => Player.quests.possibleQuestArray.includes(quest.quest));
-											if (questToBeStarted.length > 0) { // at least one quest survived the level and quest requirements
-												// pick random quest
-												questToBeStarted = questToBeStarted[Random(0, questToBeStarted.length - 1)];
-	
-												// set variable so future quests today are the same
-												Player.quests.randomDailyQuests[role.questVariable] = questToBeStarted.quest;
-											}
-											else {
-												questCanBeStarted = false;
-												notUnlockedRoles = true;
-											}
-										}
-									}
-								}
-								else {
-									// single quest
-									if (!Player.quests.possibleQuestArray.includes(role.quest.quest)) {
-										// quest is not possible
-										questCanBeStarted = false;
-	
-										// figure out what NPC should say to the player
-										if (Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is already active
-											questActive = true; // for npc dialogue
-										}
-										else {
-											// check if it is daily or one time
-											if (role.quest.repeatTime === undefined) {
-												// one time
-												if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-													// quest has already been completed
-													questComplete = true; // for npc dialogue
-												}
-												else {
-													// quest not unlocked at all (is in "other quests")
-													notUnlockedRoles = true;
-												}
-											}
-											else if (role.quest.repeatTime === "daily") {
-												// daily
-												if (Player.quests.prog[role.quest.questArea][role.quest.id].questLastFinished >= GetFullDate()) { // quest has already been done today (or after today o.O)
-													// note that if the quest has not been finished (hence questLastFinished is undefined) the condition will always return false
-													questComplete = true; // for npc dialogue
-												}
-												else {
-													// quest not unlocked at all (is in "other quests")
-													notUnlockedRoles = true;
-												}
-											}
-										}
-	
-									}
-								}
-	
-								if (questCanBeStarted) {
-									// choose dom checks inventory space
-									textArray.push("Quest start: " + questToBeStarted.quest);
-									functionArray.push(Dom.quest.progressFromNpc);
-									parameterArray.push([questToBeStarted, npc, 0]);
-									additionalOnClickArray.push(role.additionalOnClick);
+							if (!Array.isArray(role.step)) {
+								role.step = [role.step];
+							}
+							let numSteps = role.step.length;
+
+							let stepCanBeCompleted = false;
+							for (let stepNum = 1; stepNum < numSteps; i++)  { // step 0 is checked separately
+								if (result[stepNum]) {
+									stepCanBeCompleted = stepNum; // just take the first possible step to be completed
+									break;
 								}
 							}
 
-							if (!questCanBeStarted) {
-								// check if a quest step is ready to be finished
-
-								let canBeFinished = true; // set to false if the quest step cannot be finished
-								let quest = role.quest;
-								let stepArray = role.step; // this could be an array
-								if (!Array.isArray(stepArray)) {
-									stepArray = [stepArray];
+							if (result[0]) {
+								// quest can be started
+								// choose dom checks inventory space
+								textArray.push("Quest start: " + role.quest.quest);
+								functionArray.push(Dom.quest.progressFromNpc);
+								parameterArray.push([role.quest, npc, 0]);
+								additionalOnClickArray.push(role.additionalOnClick);
+							}
+							else if (stepCanBeCompleted !== false) {
+								if (typeof quest.steps[stepCanBeCompleted].chooseText !== "undefined") {
+									// custon choose text
+									textArray.push(quest.steps[stepCanBeCompleted].chooseText);
 								}
-
-								if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
-									// quest is an array (hence a Random one is picked each questing time period)
-									// all of these quests are daily quests or repeatable quests
-
-									quest = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
-
-									if (quest === undefined) { // none of the quests are currently active
-										canBeFinished = false;
-										notUnlockedRoles = true;
-									}
-
-									// no need to check if it has already been completed as these are all daily
+								else if (questFinish) {
+									// quest is to be finished
+									textArray.push(role.chooseText || "Quest finish: " + quest.quest);
 								}
 								else {
-									// single quest
-									if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
-										canBeFinished = false;
-										notUnlockedRoles = true; // for chat message
-									}
+									textArray.push(role.chooseText || "Quest progress: " + quest.quest);
 								}
-
-								if (canBeFinished) {
-									// quest is currently active
-									// loop through each possible step of the quest and see if it's been done or not
-									for (let stepIndex = 0; stepIndex < stepArray.length; stepIndex++) {
-										if (stepArray[stepIndex] === 0) {
-											// not starting quest - skip this step
-											stepIndex++;
-											if (stepIndex >= stepArray.length) {
-												break;
-											}
-										}
-
-										let step = stepArray[stepIndex]; // the actual step id number (stepArray is the steps that are offered by the NPC, i.e. not all of the possible steps of the quest)
-
-										let stepDone = true;
-
-										if (Player.quests.prog[quest.questArea][quest.id].stepProgress[step]) {
-											// step already been completed
-											stepDone = false;
-										}
-										else if (typeof quest.steps[step].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[step].availableUntilStepDone]) {
-											// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
-											stepDone = false;
-										}
-										else if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
-											// as the quest is chronological, quest's steps must all be completed in order (other than optional steps)
-											// find the highest non-optional step below the current step we are checking
-											let checkStep = step-1;
-											while (checkStep >= 0 && quest.steps[checkStep].optional) {
-												checkStep--;
-											}
-											if (checkStep >= 0 && !Player.quests.prog[quest.questArea][quest.id].stepProgress[checkStep]) {
-												// previous step not been done yet
-												stepDone = false;
-											}
-										}
-
-										if (stepDone) {
-											// keep checking ..
-											if (typeof quest.steps[step].objectiveRequirement === "undefined") {
-												// no objectives need to be completed for this step
-												stepDone = true;
-											}
-											else {
-												// there are objectives that need to be completed for this step
-												if (!Array.isArray(quest.steps[step].objectiveRequirement)) {
-													quest.steps[step].objectiveRequirement = [quest.steps[step].objectiveRequirement];
-												}
-												for (let objIndex = 0; objIndex < quest.steps[step].objectiveRequirement.length; objIndex++) {
-													let obj = quest.steps[step].objectiveRequirement[objIndex];
-													if (Player.quests.prog[quest.questArea][quest.id].objectiveProgress[obj] !== true) {
-														// objective is not done
-														stepDone = false;
-														break;
-													}
-												}
-											}
-										}
-
-										// check if ready for this step to be completed
-										if (stepDone) {
-											// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
-											questFinish = true;
-											for (let i = 0; i < quest.steps.length; i++) {
-												if (!Player.quests.prog[quest.questArea][quest.id].stepProgress[i] && !quest.steps[i].optional && i!==step) {
-													// the step is not finished, isn't optional, and isn't the step that's just about to be done
-													questFinish = false;
-													break;
-												}
-											}
-
-											if (typeof quest.steps[step].chooseText !== "undefined") {
-												textArray.push(quest.steps[step].chooseText);
-											}
-											else if (questFinish) {
-												// quest is to be finished
-												textArray.push(role.chooseText || "Quest finish: " + quest.quest);
-											}
-											else {
-												textArray.push(role.chooseText || "Quest progress: " + quest.quest);
-											}
-											parameterArray.push([quest, npc, step, questFinish]);
-											functionArray.push(Dom.quest.progressFromNpc);
-											additionalOnClickArray.push(role.additionalOnClick);
-											// (inventory space is checked by choose DOM)
-
-											if (quest.steps[step].forceChoose) {
-												forceChoose = true;
-											}
-
-											break; // don't check any other steps - this npc just progresses the first available step in the steps array
-										}
-
-										// check if quest conditions have been fulfilled
-										// old::
-										/*if (Player.quests.canBeFinishedArray.includes(quest.quest)) {
-											// inventory space is checked by choose DOM
-											textArray.push("Quest finish: " + quest.quest);
-											functionArray.push(Dom.quest.finishFromNpc);
-											parameterArray.push([quest, npc]);
-											additionalOnClickArray.push(role.additionalOnClick);
-										}
-										// quest conditions have not been fulfilled
-										else {
-											questActive = true;
-										}*/
-									}
-
-								}
-								// quest has already been completed
-								else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-									questComplete = true;
+								parameterArray.push([quest, npc, stepCanBeCompleted, questFinish]);
+								functionArray.push(Dom.quest.progressFromNpc);
+								additionalOnClickArray.push(role.additionalOnClick);
+								// (inventory space is checked by choose DOM)
+	
+								if (quest.steps[stepCanBeCompleted].forceChoose) {
+									forceChoose = true;
 								}
 							}
 						}
-
-						// quest progression
-						/*if (role.role === "questProgress") {
-							// check if quest is ready to be progressed
-
-							let questCanBeProgressed = true; // set to false if the quest cannot be finished
-							let questToBeProgressed = role.quest;
-							let questSteps = role.steps;
-
-							if (role.quest.constructor === Array && (role.newQuestFrequency === "daily" || role.newQuestFrequency === "repeatable")) {
-								// quest is an array (hence a Random one is picked each questing time period)
-								// all of these quests are daily quests or repeatable quests
-
-								questToBeProgressed = role.quest.find(quest => Player.quests.activeQuestArray.includes(quest.quest)); // find which quest the active one is
-
-								if (questToBeProgressed === undefined) { // none of the quests are currently active
-									questCanBeProgressed = false;
-									notUnlockedRoles = true;
-								}
-
-								// no need to check if it has already been completed as these are all daily
-							}
-							else {
-								// single quest
-								if (!Player.quests.activeQuestArray.includes(role.quest.quest)) { // quest is not already active
-									questCanBeProgressed = false;
-									notUnlockedRoles = true;
-								}
-							}
-
-							if (questCanBeProgressed) {
-								// check if quest conditions have been fulfilled
-
-								let isCompleted = questToBeProgressed.isCompleted();
-								for (let i = 0; i < role.step; i++) { // one step for each quest objective
-									if (isCompleted[i] !== true) {
-										questCanBeProgressed = false;
-										break;
-									}
-								}
-
-								if (questCanBeProgressed) {
-									// inventory space is checked by choose DOM
-									textArray.push(role.chooseText || "Quest progress: " + questToBeProgressed.quest);
-									functionArray.push(Dom.quest.progressFromNpc);
-									parameterArray.push([questToBeProgressed, npc, role.step]);
-									additionalOnClickArray.push(role.additionalOnClick);
-								}
-								// quest progress conditions have not been fulfilled
-								else {
-									questActive = true;
-								}
-
-							}
-							// quest has already been completed
-							else if (Player.quests.completedQuestArray.includes(role.quest.quest)) {
-								questComplete = true;
-							}
-						}*/
 
 						// merchants
 						else if (role.role === "merchant") {
@@ -12864,6 +12847,9 @@ Game.getXP = function (xpGiven, xpBonus) {
 
 				// increase player health
 				Player.stats.maxHealth += 5;
+
+				// mail
+				Dom.mail.check("levelUp");
 
 				// if they just levelled to level 7, they unlock spells and mana
 				if (Player.level === 7) {

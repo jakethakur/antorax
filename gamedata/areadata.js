@@ -4048,7 +4048,7 @@ var Areas = {
 			removeIn: 1000,
 			rotation: 0,
 			variance: 50, // variance in position (in x/y axis in one direction from player)
-			intensity: 4, // no. of particles every 100ms
+			intensity: 1, // no. of particles every 100ms
 		});
 		// find nearest statue; give it trail and animate it
 		let statueArray = Game.things.filter(entity => entity.name === "Eagle Statue");
@@ -6160,6 +6160,27 @@ animation: {
 			},
 		],
 
+		onAreaJoin: function () {
+			// phishing for treasure - they've opened greenbeard's letter but haven't spoken to him in the tavern yet
+			if (Player.quests.prog.eaglecrest[22][0] && !Player.quests.prog.eaglecrest[22][1]) {
+				let greenbeard = this.npcs.find(npc => npc.name === "Captain Greenbeard");
+				Game.setTimeout(function () {
+					let location = {x: Game.hero.x + 50, y: Game.hero.y - 20};
+					greenbeard.displaceToLocation(location, 3, true);
+					// stun hero
+					Game.statusEffects.stun({
+						target: Game.hero,
+						effectTitle: "Greenbeard",
+						time: 4,
+					});
+				}, 1000);
+				// quest progress dialogue
+				Game.setTimeout(function () {
+					Dom.quest.progressFromNpc(Quests.eaglecrest[22], greenbeard, 1);
+				}, 4000);
+			}
+		},
+
 		villagerData: {
 			minPeople: 3,
 			maxPeople: 5,
@@ -6277,10 +6298,10 @@ animation: {
 
 		villagers: [
 			{
-				image: "greenbeard",
+				image: "greenbeard", // Overdraft quest
 				template: Villagers[7],
 				canBeShown: function () {
-					return Player.quests.activeQuestArray.includes("Overdraft");
+					return Player.quests.activeQuestArray.includes("Overdraft"); // overwrite's villager template's canBeShown
 				},
 				roles: [
 					{
@@ -6313,6 +6334,16 @@ animation: {
 				],
 			},
 			{
+				x: 990,
+				y: 601,
+				image: "greenbeard", // Phishing for Treasure quest
+				template: Villagers[7],
+				canBeShown: function () {
+					return Player.quests.prog.eaglecrest[22][0] && !Player.quests.prog.eaglecrest[22][1]; // they've opened greenbeard's letter but haven't spoken to him in the tavern yet
+				},
+				// no need to give him the quest progress role as this is triggered automatically in the onAreaJoin
+			},
+			/*{
 				image: "catAmelioLeft",
         		rotationImages: {
             		left: "catAmelioLeft",
@@ -6333,7 +6364,7 @@ animation: {
 				},
                 name: "Amelio",
                 speciesTemplate: SpeciesTemplates.cat,
-			},
+			},*/
 		],
 
 		things: [
@@ -9386,6 +9417,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			scarecrow: {normal: "assets/enemies/scarecrow.png"},
 			wiseMan: {normal: "assets/npcs/wiseMan.png"},
 			jester: {normal: "assets/npcs/jester.png"},
+			greenbeard: {normal: "assets/npcs/greenbeard.png"}, // for quests
 			trainDriver: {normal: "assets/npcs/trainDriver.png"},
 			signFarm: {normal: "assets/objects/signFarm.png"},
 			sheepRight: {normal: "./assets/enemies/sheep.png"},
@@ -9867,6 +9899,22 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				canBeShown: function () {
 					return Player.quests.possibleQuestArray.includes("A Fool's Errand") || Player.quests.activeQuestArray.includes("A Fool's Errand");
 				},
+			},
+			{
+				x: 5088,
+				y: 4526,
+				image: "greenbeard",
+				template: Villagers[7],
+				canBeShown: function () {
+					return Player.quests.prog.eaglecrest[22][1] && !Player.quests.prog.eaglecrest[22][4]; // they've met greenbeard in tavern but haven't finished the quest yet
+				},
+				roles: [
+					{
+						quest: Quests.eaglecrest[22],
+						role: "questProgress",
+						step: [2, 3, 4],
+					},
+				],
 			},
 			{
 				x: 354,

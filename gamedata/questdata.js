@@ -4345,10 +4345,8 @@ var Quests = {
 			],
 
 			howToStart: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",
-			//levelRequirement: 8,
-			//questRequirements: ["Underwater"],
-			levelRequirement: 1,
-			questRequirements: [],
+			levelRequirement: 8,
+			questRequirements: ["Underwater"],
 			requirement: function () {
 				return true;
 				//return Player.quests.prog.eaglecrest[24].stepProgress[1]; // completed step with id 2 of the tinkerer quest, i.e. spoken to the lead tinkerer
