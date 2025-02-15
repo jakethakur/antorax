@@ -15,3 +15,26 @@ Interested in the game's development or want to leave us a message? [We have a f
 ![Troubled Waters update banner](selection/assets/news/troubledWaters.png)
   
 </div>
+
+## Development setup
+To run the game on your local machine for development, first clone the repository:
+
+```bash
+git clone https://github.com/jakethakur/antorax.git
+```
+
+Then install dependencies (I'm using npm, but you can use pnpm or yarn instead):
+
+```bash
+npm install
+```
+
+### Launching
+
+In the root directory, you can run:
+
+```
+npm start
+```
+
+Then navigate to localhost:3000 in your browser to access the game.
