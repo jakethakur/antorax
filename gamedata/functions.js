@@ -236,7 +236,7 @@ Loader.prepareImageInformation = function (images) {
 // XML requests
 //
 
-// thanks to https://stackoverflow.com/a/30008115/9713957
+// Adapted from https://stackoverflow.com/a/30008115/9713957
 function MakeXMLHttpRequest (method, url) {
 	return new Promise(function (resolve, reject) {
 		var xhr = new XMLHttpRequest();
@@ -588,7 +588,7 @@ function GetFullDateString () {
 }*/
 
 // convert number to roman numerals
-// thanks to https://stackoverflow.com/a/32851198/9713957
+// Adapted from https://stackoverflow.com/a/32851198/9713957
 function Romanize (num) {
 	let lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1},roman = '',i;
 	for (i in lookup) {
@@ -623,7 +623,7 @@ function capitalizeFirstLetter (str) {
 
 // random number between min and max, biased around certain value (bias)
 // influence is how much influence on the random number this should have (should normally be set to 1)
-// thanks to https://stackoverflow.com/a/29325222/9713957
+// Adapted from https://stackoverflow.com/a/29325222/9713957
 function BiasedRandom (min, max, bias, influence) {
     let rnd = Math.random() * (max - min) + min,   // random in range
         mix = Math.random() * influence;           // random mixer
@@ -647,7 +647,7 @@ function ToDegrees (radians) {
 }
 
 // checks if a click event was a right click
-// thanks to https://stackoverflow.com/a/4235486/9713957
+// Adapted from https://stackoverflow.com/a/4235486/9713957
 function CheckRightClick (e) {
     let rightclick;
     if (e.which) {
@@ -659,7 +659,7 @@ function CheckRightClick (e) {
     return(rightclick); // true or false, you can trap right click here by if comparison
 }
 
-// thanks to https://stackoverflow.com/a/4351575
+// Adapted from https://stackoverflow.com/a/4351575
 function ExecuteFunctionByName (functionName, context, args) {
 	let namespaces = functionName.split("."); // array of function namespaces
 	let func = namespaces.pop(); // set last function namespace
@@ -744,7 +744,7 @@ function CalculateTime (start, end) {
 }
 
 // gets the current week of the year
-// thanks to https://stackoverflow.com/a/27125580/9713957
+// Adapted from https://stackoverflow.com/a/27125580/9713957
 function GetWeek() {
 	let now = new Date();
 	let onejan = new Date(now.getFullYear(), 0, 1);

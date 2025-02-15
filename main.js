@@ -13658,7 +13658,7 @@ Game.resetFormatting = function () {
 }
 
 // draw a rotated image (rotated in radians)
-// source: https://stackoverflow.com/a/11985464/9713957 --- thank you! <3
+// Adapted from https://stackoverflow.com/a/11985464/9713957 --- thank you! <3
 Game.drawImageRotated = function (ctx, img, cropX, cropY, cropWidth, cropHeight, x, y, width, height, rad) {
     // convert degrees to radian
     //var rad = deg * Math.PI / 180;

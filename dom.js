@@ -8387,7 +8387,7 @@ Dom.init = function () {
 
 	Dom.chat.offset = 40; // distance of chat from bottom of canvas (because input is hidden)
 	// add a 'space' button on mobile devices and hide canvas chat input
-	// thanks to https://stackoverflow.com/a/29509267/9713957
+	// Adapted from https://stackoverflow.com/a/29509267/9713957
 	if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
 		Dom.elements.canvasChatInput.style.zIndex = 0;
 		Dom.elements.canvasSend.style.zIndex = 0;
