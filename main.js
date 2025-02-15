@@ -9201,18 +9201,19 @@ Game.loadDefaultImages = function () {
 		Player.skinTone = "fish"
 		Player.hair = "null";
 		Player.beard = "null";
+		Player.face = "null";
 	}
-
 	if (Player.name === "Pingu") {
 		Player.skinTone = "penguin"
 		Player.hair = "null";
 		Player.beard = "null";
+		Player.face = "null";
 	}
-
 	if (Player.name === "James") {
 		Player.skinTone = "slug";
 		Player.hair = "null";
 		Player.beard = "null";
+		Player.face = "null";
 	}
 	if (Player.name === "Axparagus") {
 		Player.skinTone = "humanDark2"
@@ -9225,7 +9226,6 @@ Game.loadDefaultImages = function () {
 
 	// load player images
 	toLoad.push(Loader.loadImage("playerSkin_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
-	//toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
 	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
 	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
 	toLoad.push(Loader.loadImage("playerBeard_"+Player.beard, "./assets/playerCustom/beard/" + Player.beard + ".png", false));
