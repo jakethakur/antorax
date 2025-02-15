@@ -10137,11 +10137,16 @@ Game.formatNpcImages = function (properties) {
 			loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/" + properties.image.face + ".png"};
 		}
 		else {
-			// base face, unless they're an orc
+			// base face, unless they're an orc or special skin
 			if (properties.image.skinTone.substring(0,3) === "orc") {
 				imgName = "playerFace_baseOrc";
 				properties.images.push({imageName: imgName, doNotAnimate: true});
 				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/baseOrc.png"};
+			}
+			else if (properties.image.skinTone === "fish" || properties.image.skinTone === "panda" || properties.image.skinTone === "penguin" || properties.image.skinTone === "slug") {
+				imgName = "playerFace_null";
+				properties.images.push({imageName: imgName, doNotAnimate: true});
+				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/null.png"};
 			}
 			else {
 				imgName = "playerFace_base";

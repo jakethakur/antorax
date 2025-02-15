@@ -9055,7 +9055,8 @@ mapData: {
 							Dom.quests.active();
 						}],
 						roleRequirement: function () {
-							return Player.quests.npcProgress.eaglecrest[2] === 2 && Player.quests.questProgress.overdraftFrogDeadOne && Player.quests.questProgress.overdraftFrogDeadTwo;
+							return false; // temp
+							//return Player.quests.npcProgress.eaglecrest[2] === 2 && Player.quests.questProgress.overdraftFrogDeadOne && Player.quests.questProgress.overdraftFrogDeadTwo;
 						},
 					},
 				],
