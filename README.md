@@ -29,7 +29,7 @@ Then install dependencies (I'm using npm, but you can use pnpm or yarn instead):
 npm install
 ```
 
-### Launching
+## Launching
 
 In the root directory, you can run:
 
