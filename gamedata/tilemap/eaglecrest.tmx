@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.11.1" orientation="orthogonal" renderorder="right-down" width="191" height="80" tilewidth="60" tileheight="60" infinite="0" nextlayerid="4" nextobjectid="1">
- <tileset firstgid="1" source="../../../../../Desktop/Antorax/Tilemap/eaglecrest.tsx"/>
+ <tileset firstgid="1" name="eaglecrest" tilewidth="60" tileheight="60" tilecount="776" columns="8">
+  <image source="../../assets/tilemap/eaglecrest.png" width="480" height="5820"/>
+ </tileset>
  <layer id="1" name="Tile Layer 1" width="191" height="80">
   <data encoding="csv">
 49,49,49,49,49,49,49,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,6,164,6,624,6,6,6,6,164,414,414,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,161,6,6,6,6,6,43,164,161,161,161,161,161,161,161,624,624,161,161,161,161,161,43,164,164,161,161,161,161,161,624,624,624,6,6,6,6,6,161,49,49,49,49,49,49,49,49,49,49,49,49,49,49,49,414,414,164,6,6,6,6,43,43,43,164,6,6,6,6,6,6,6,6,6,6,6,6,6,36,43,43,164,6,6,6,6,6,6,6,6,6,6,6,6,6,36,43,43,164,6,6,6,6,6,6,6,6,6,6,6,6,6,36,43,43,164,6,6,6,6,6,6,6,6,6,6,6,6,6,36,43,43,
