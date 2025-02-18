@@ -194,7 +194,12 @@ var Villagers = [
     },
     {
         id: 7,
-        images: {greenbeard: {normal: "assets/npcs/greenbeard.png"}},
+        image: {
+			skinTone: "humanLight1",
+			clothing: "greenbeard",
+			hair: "greenbeard",
+			hat: "pirateHat",
+		},
         name: "Captain Greenbeard",
         level: 40,
         stats: {
