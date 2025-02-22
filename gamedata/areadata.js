@@ -5869,7 +5869,6 @@ animation: {
             catAmelioRight: {normal: "assets/npcs/catAmelioLeft.png", flip: "vertical"},
 			yellowSnakeRight: {samhain: "assets/enemies/yellowSnake.png"},
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
-			greenbeard: {normal: "assets/npcs/greenbeard.png"}, // for overdraft
 		},
 
 		areaTeleports: [
@@ -6035,7 +6034,12 @@ animation: {
 
 		villagers: [
 			{
-				image: "greenbeard", // Overdraft quest
+				image: { // Greenberad, for overdraft quest
+					skinTone: "humanLight1",
+					clothing: "greenbeard",
+					hair: "greenbeard",
+					hat: "pirateHat",
+				},
 				template: Villagers[7],
 				canBeShown: function () {
 					return Player.quests.activeQuestArray.includes("Overdraft"); // overwrite's villager template's canBeShown
@@ -6073,7 +6077,12 @@ animation: {
 			{
 				x: 990,
 				y: 601,
-				image: "greenbeard", // Phishing for Treasure quest
+				image: {
+					skinTone: "humanLight1",
+					clothing: "greenbeard",
+					hair: "greenbeard",
+					hat: "pirateHat",
+				}, // Phishing for Treasure quest
 				template: Villagers[7],
 				canBeShown: function () {
 					return Player.quests.prog.eaglecrest[22][0] && !Player.quests.prog.eaglecrest[22][1]; // they've opened greenbeard's letter but haven't spoken to him in the tavern yet
@@ -8806,7 +8815,6 @@ mapData: {
 			scarecrow: {normal: "assets/enemies/scarecrow.png"},
 			wiseMan: {normal: "assets/npcs/wiseMan.png"},
 			jester: {normal: "assets/npcs/jester.png"},
-			greenbeard: {normal: "assets/npcs/greenbeard.png"}, // for quests
 			trainDriver: {normal: "assets/npcs/trainDriver.png"},
 			signFarm: {normal: "assets/objects/signFarm.png"},
 			sheepRight: {normal: "./assets/enemies/sheep.png"},
@@ -9293,7 +9301,12 @@ mapData: {
 			{
 				x: 5088,
 				y: 4526,
-				image: "greenbeard",
+				image: {
+					skinTone: "humanLight1",
+					clothing: "greenbeard",
+					hair: "greenbeard",
+					hat: "pirateHat",
+				},
 				template: Villagers[7],
 				canBeShown: function () {
 					return Player.quests.prog.eaglecrest[22][1] && !Player.quests.prog.eaglecrest[22][4]; // they've met greenbeard in tavern but haven't finished the quest yet
