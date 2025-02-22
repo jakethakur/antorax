@@ -9325,11 +9325,58 @@ Game.loadArea = function (areaName, destination) {
 		Object.keys(Areas).forEach((areaName) => {
 			if (typeof Areas[areaName].mapData.layers === "undefined") {
 				// tilemap is not specified in areadata, so find the tilemap XML
-				promiseArray.push(MakeXMLHttpRequest("GET", "gamedata/tilemap/"+areaName+".tmx")
+				promiseArray.push(makeXMLHttpRequest("GET", "gamedata/tilemap/"+areaName+".tmx")
 				.then(function (data) {
 					Areas[areaName].mapData.requestedXML = data;
-
 					Areas[areaName].mapData.layers = [];
+
+					let xmlObject = parseXml(data);
+
+					// object layer on map
+					// these get added to the "things" array in Areas[areaName]
+					if (typeof Areas[areaName].things === "undefined") {
+						Areas[areaName].things = [];
+					}
+					if (typeof xmlObject.map.objectgroup !== "undefined" && typeof xmlObject.map.objectgroup.object !== "undefined") {
+						// currently only supports objects
+						let objectArray = xmlObject.map.objectgroup.object;
+						for (let i = 0; i < objectArray.length; i++) {
+							let object = objectArray[i];
+
+							// find the image in the tileset
+							let imageSrc;
+							let imageKey = "tmxImage"+object.gid;
+							for (let j = 0; j < xmlObject.map.tileset.length; j++) {
+								let finalGid = Number(xmlObject.map.tileset[j].firstgid)+Number(xmlObject.map.tileset[j].tilecount)-1;
+								if (finalGid >= Number(object.gid) && Number(xmlObject.map.tileset[j].firstgid <= Number(object.gid))) {
+									// image lies in tileset j
+									let index = Number(object.gid)-Number(xmlObject.map.tileset[j].firstgid);
+									imageSrc = xmlObject.map.tileset[j].tile[index].image.source;
+									break;
+								}
+							}
+							if (typeof imageSrc === "undefined") {
+								console.error("Unable to find image src in tmx image collection for object", object);
+							}
+							Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2]}; // without the split command, image source would start with "../../assets/", where we want "assets/"
+
+							// change the x and y to account for shifted origin of area
+							object.x = Number(object.x);
+							object.y = Number(object.y);
+							if (typeof Areas[areaName].mapData.origin !== "undefined") {
+								object.x -= Areas[areaName].mapData.origin.x;
+								object.y -= Areas[areaName].mapData.origin.y;
+							}
+
+							// add the object to areadata!
+							Areas[areaName].things.push({
+								x: object.x,
+								y: object.y,
+								image: imageKey,
+							});
+						}
+					}
+
 
 					// format data
 					let a = data.split('<data encoding="csv">');

@@ -1019,17 +1019,18 @@ Dom.chat.playerMessage = function (message) {
 			<br>/ping - see your connection speed with server.
 			<br><br>If you require help with the game, click your yellow bookmark with a compass on.`));
 		}
+		
+		if (message === "/creative") {
+			Game.toggleCreativeMode();
+		}
+		else if (message.substring(0, 7) === "/image ") {
+			Game.setCreativeItem(message.substr(7));
+		}
 
 		// message intended to be sent to other players
 		else if (ws === false || ws.readyState !== 1) {
 			// server off
 			Dom.chat.insert(Dom.chat.say(Player.name, message));
-			if (message === "/creative") {
-				Game.toggleCreativeMode();
-			}
-			else if (message.substring(0, 7) === "/image ") {
-				Game.setCreativeItem(message.substr(7));
-			}
 		}
 		else {
 			// server on
