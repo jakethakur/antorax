@@ -1917,6 +1917,35 @@ const EnemyTemplates = {
 	        ],
 		},
 
+		leyAggregate: {
+			name: "Ley Aggregate",
+			image: "leyAggregate",
+			crop: {
+				x: 0,
+				y: 0,
+				width: 21,
+				height: 21
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 170,
+				imagesPerRow: 7,
+				totalImages: 7,
+			},
+			successFunction: function () {
+				let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
+				riverIdol = riverIdolTouchingArray[0];
+				riverIdol.setAnimation({
+					type: "spritesheet",
+					frameTime: 216,
+					imagesPerRow: 12,
+					totalImages: 12,
+					startState: 0,
+					stateSubset: [9, 10, 11],
+				});
+			},
+		},
+
 		// tbd need to move the following to a new cave section
 
 //maxilla

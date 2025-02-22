@@ -8948,79 +8948,27 @@ mapData: {
 
 		leyAggregates: [
 			{
-				x: 5703,
+				x: 5703, // wise man island
 				y: 5106,
-				name: "Ley Aggregate", // wise man island
-				image: "leyAggregate",
-				successFunction: function () {
-					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
-					riverIdol = riverIdolTouchingArray[0];
-					riverIdol.setAnimation({
-						type: "spritesheet",
-						frameTime: 216,
-						imagesPerRow: 12,
-						totalImages: 12,
-						startState: 0,
-						stateSubset: [9, 10, 11],
-					});
-				},
+				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5300, y: 5000},
 			},
 			{
-				x: 3514,
+				x: 3514, // crystal island
 				y: 5910,
-				name: "Ley Aggregate", // crystal island
-				image: "leyAggregate",
-				successFunction: function () {
-					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
-					riverIdol = riverIdolTouchingArray[0];
-					riverIdol.setAnimation({
-						type: "spritesheet",
-						frameTime: 216,
-						imagesPerRow: 12,
-						totalImages: 12,
-						startState: 0,
-						stateSubset: [9, 10, 11],
-					});
-				},
+				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5093, y: 4906},
 			},
 			{
-				x: 5749,
+				x: 5749, // coyote island
 				y: 3874,
-				name: "Ley Aggregate", // coyote island
-				image: "leyAggregate",
-				successFunction: function () {
-					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
-					riverIdol = riverIdolTouchingArray[0];
-					riverIdol.setAnimation({
-						type: "spritesheet",
-						frameTime: 216,
-						imagesPerRow: 12,
-						totalImages: 12,
-						startState: 0,
-						stateSubset: [9, 10, 11],
-					});
-				},
+				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5437, y: 4797},
 			},
 			{
-				x: 4036,
+				x: 4036, // river's blessing island
 				y: 4252,
-				name: "Ley Aggregate", // river's blessing island
-				image: "leyAggregate",
-				successFunction: function () {
-					let riverIdolTouchingArray = this.getTouching(function (entity) {return entity.name === "River Idol"});
-					riverIdol = riverIdolTouchingArray[0];
-					riverIdol.setAnimation({
-						type: "spritesheet",
-						frameTime: 216,
-						imagesPerRow: 12,
-						totalImages: 12,
-						startState: 0,
-						stateSubset: [9, 10, 11],
-					});
-				},
+				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5206, y: 4686},
 			},
 		],
