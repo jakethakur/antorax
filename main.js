@@ -9355,8 +9355,11 @@ Game.loadArea = function (areaName, destination) {
 						Areas[areaName].things = [];
 					}
 					if (typeof xmlObject.map.objectgroup !== "undefined" && typeof xmlObject.map.objectgroup.object !== "undefined") {
-						// currently only supports objects
+						// currently only supports entities of type "thing"
 						let objectArray = xmlObject.map.objectgroup.object;
+						if (!Array.isArray(objectArray)) {
+							objectArray = [objectArray];
+						}
 						for (let i = 0; i < objectArray.length; i++) {
 							let object = objectArray[i];
 
@@ -9378,8 +9381,10 @@ Game.loadArea = function (areaName, destination) {
 							Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2]}; // without the split command, image source would start with "../../assets/", where we want "assets/"
 
 							// change the x and y to account for shifted origin of area
-							object.x = Number(object.x);
+							object.x = Number(object.x)-60;
 							object.y = Number(object.y);
+							object.width = Number(object.width);
+							object.height = Number(object.height);
 							if (typeof Areas[areaName].mapData.origin !== "undefined") {
 								object.x -= Areas[areaName].mapData.origin.x;
 								object.y -= Areas[areaName].mapData.origin.y;
@@ -9387,8 +9392,8 @@ Game.loadArea = function (areaName, destination) {
 
 							// add the object to areadata!
 							Areas[areaName].things.push({
-								x: object.x,
-								y: object.y,
+								x: object.x+object.width/2+60, // add on the width and height because we take position from the centre of the object, but tiled takes it from 
+								y: object.y+object.height-60,
 								image: imageKey,
 							});
 						}
