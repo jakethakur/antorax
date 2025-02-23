@@ -647,14 +647,14 @@ const Spells = {
 			// stat values
 			// enemy spells only: values in an array are determined by the tier of the spell ( index 0 is tier 1 )
 			// values not in an array remain constant for all tiers
-			stats: {
+			stats: { // depend on tier - the tier 2 ones are used by giant toad in the frog queen base!
 				// the following stats are required for all spells
-				channelTime: 500,
+				channelTime: [500, 1250],
 				manaCost: 0,
-				cooldown: 1000,
+				cooldown: [1000, 2500],
 				// the following stats are specific to this spell
-				velocity: 500,
-				distance: 120
+				velocity: [500, 1000],
+				distance: [120, 380],
 			},
 		},
         {
@@ -948,6 +948,35 @@ const Spells = {
 				distance: 30
 			},
 		},
+        {
+            name: "Regeneration",
+            id: 13,
+			type: "spell",
+			class: "enemy", 
+            description: "Self-healing",
+
+            func: function (caster) {
+				Game.restoreHealth(caster, this.stats.healthRestored);
+
+				properties.pets[i].addTrail("mended", {
+					width: 3,
+					colour: ["#2CE831"],
+					removeIn: 500,
+					variance: 50,
+					intensity: 4,
+					duration: 2.5,
+				});
+			},
+
+            stats: {
+				// the following stats are required for all spells
+				channelTime: 2000,
+				manaCost: 0,
+				cooldown: 9000,
+				// optional stats
+				healthRestored: 25,
+			},
+        },
 	
 	],
 }

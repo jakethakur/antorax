@@ -2972,6 +2972,8 @@ class Character extends Thing {
 
 				// remove channelling
 				this.removeChannelling("death");
+				
+				this.totalShotProjectiles = 0; // tracks number of projectiles this has shot; reset on death
 
 				// on kill function (of weapon)
 				if (Player.inventory.weapon.onKill !== undefined && !inMinigame && this.damageTakenFromHero) {
@@ -3849,6 +3851,11 @@ class Attacker extends Character {
 		if (typeof this.stats.damageAllHit === "undefined") {
 			this.stats.damageAllHit = true;
 		}
+		// burst attacks - a few shots in quick succession (reloadTime), then needs to take a longer reload (projectileBurstReloadTime)
+		// tbd this functionality only works for enemies atm
+		this.stats.projectileBurstNumber = properties.stats.projectileBurstNumber;
+		this.stats.projectileBurstReloadTime = properties.stats.projectileBurstReloadTime;
+		this.totalShotProjectiles = 0; // tracks number of projectiles this has shot (for projectile bursts); reset on death
 
 
 		// information about projectile (how it looks)
@@ -6734,7 +6741,6 @@ class NonPlayerAttacker extends Attacker {
 
 		this.stats.doesNotAttack = properties.stats.doesNotAttack;
 
-
 		//
 		// aggro
 		//
@@ -7068,6 +7074,8 @@ class NonPlayerAttacker extends Attacker {
 
 		Game.projectiles.push(shotProjectile); // add projectile to array of projectiles
 
+		this.totalShotProjectiles++; // tracks number of projectiles this has shot (for projectile bursts); reset on death
+
 		// check it didn't die lolll
 		if (!this.removed) {
 			// onAttack function for enemy
@@ -7076,9 +7084,18 @@ class NonPlayerAttacker extends Attacker {
 			}
 
 			// wait to shoot next projectile
+			let reloadTime = this.stats.reloadTime;
+			// projectile bursts (a burst of projectiles then a longer reload time)
+			if (typeof this.stats.projectileBurstNumber !== "undefined") {
+				if (this.totalShotProjectiles % this.stats.projectileBurstNumber === 0) {
+					// just finished a projectile burst - longer reload time
+					reloadTime = this.stats.projectileBurstReloadTime;
+				}
+			}
+
 			Game.setTimeout(function () {
 				this.canAttack = true;
-			}.bind(this), this.stats.reloadTime);
+			}.bind(this), reloadTime);
 
 			// after a timeout (2s), remove the projectile that was just shot
 			// taken from Player

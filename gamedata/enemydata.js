@@ -1049,6 +1049,50 @@ const EnemyTemplates = {
 			],
 			inventorySpace: 16,
 		},
+		enormousToad: { // frog queen base
+			speciesTemplate: SpeciesTemplates.plainsToad,
+	        rotationImages: {
+	            left: "enormousToadLeft",
+	            right: "enormousToadRight"
+	        },
+			deathImage: "enormousToadCorpse",
+			name: "Enormous Toad!!",
+			hostility: "hostile",
+			level: 15,
+			stats: {
+				damage: 12,
+				walkSpeed: 25,
+				swimSpeed: 25,
+				iceSpeed: 50,
+				maxHealth: 110,
+				defence: 5,
+				range: 560,
+				reloadTime: 400,
+				projectileBurstNumber: 3,
+				projectileBurstReloadTime: 2600,
+				healthRegen: 0.5,
+				lootTime: 10000,
+				respawnTime: 20000,
+				projectileSpeed: 160,
+				projectileRange: 400,
+			},
+			xpGiven: 200,
+			projectile: {
+				image: "waterball",
+			},
+			spells: [
+				{
+			        class: "enemy",
+					id: 5,
+					tier: 2,
+					castCondition: function (caster, target) {
+						return Game.distance(caster, target) > 200;
+	                },
+				},
+	        ],
+			lootTableTemplate: [EnemyLootTables.plainsToad, EnemyLootTables.giantToad],
+			inventorySpace: 32,
+		},
 		chicken: {
 			speciesTemplate: SpeciesTemplates.chicken,
 	        rotationImages: {
@@ -1945,6 +1989,44 @@ const EnemyTemplates = {
 				});
 			},
 		},
+
+		frogQueenGuard: {
+	        image: "frogQueenGuard",
+			deathImage: "frogQueenGuardCorpse",
+			name: "Guard",
+			hostility: "hostile",
+			level: 10,
+			stats: {
+				damage: 14,
+				walkSpeed: 90,
+				swimSpeed: 60,
+				iceSpeed: 90,
+				maxHealth: 102,
+				defence: 31,
+				range: 80,
+				reloadTime: 1500,
+				healthRegen: 0.5,
+				lootTime: 10000,
+				respawnTime: 20000,
+			},
+			xpGiven: 150,
+			projectile: {
+				image: "melee",
+			},
+			spells: [
+				{
+			        class: "enemy",
+					id: 13, // self heal
+					tier: 1,
+					castCondition: function (caster) {
+						return caster.health < caster.stats.maxHealth - 15;
+	                },
+				},
+	        ],
+			lootTableTemplate: [EnemyLootTables.plainsToad, EnemyLootTables.frogQueenGuard],
+			inventorySpace: 16,
+		},
+
 
 		// tbd need to move the following to a new cave section
 
