@@ -9381,7 +9381,7 @@ Game.loadArea = function (areaName, destination) {
 							Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2]}; // without the split command, image source would start with "../../assets/", where we want "assets/"
 
 							// change the x and y to account for shifted origin of area
-							object.x = Number(object.x)-60;
+							object.x = Number(object.x);
 							object.y = Number(object.y);
 							object.width = Number(object.width);
 							object.height = Number(object.height);
@@ -9392,8 +9392,8 @@ Game.loadArea = function (areaName, destination) {
 
 							// add the object to areadata!
 							Areas[areaName].things.push({
-								x: object.x+object.width/2+60, // add on the width and height because we take position from the centre of the object, but tiled takes it from 
-								y: object.y+object.height-60,
+								x: object.x+object.width/2,
+								y: object.y-object.height/2,
 								image: imageKey,
 							});
 						}
