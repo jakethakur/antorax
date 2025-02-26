@@ -431,12 +431,6 @@ Weather.respawnParticle = function (particle, index) {
 // since there are two strikes, the parameter is set to true if it is the second strike (so a third one is not triggered)
 Weather.commenceLightningStrike = function (secondStrike) {
 	Weather.lightningOnScreen = true;
-	Game.renderDayNight();
-
-	setTimeout(function () {
-		Weather.lightningOnScreen = false;
-		Game.renderDayNight();
-	}, 100);
 
 	if (!secondStrike) {
 		// first strike, trigger second strike

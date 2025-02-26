@@ -1588,6 +1588,9 @@ class Entity {
 			// sets this.sparkling to true
 		}
 
+		// clears any darkness visual effect around it (i.e. nighttime, or dark ambience i.e. caves)
+		this.lightEmit = properties.lightEmit; // lightEmit is either set to the radius of glow, or just to "true", which defaults the radius to 150
+
 
 		this.fishable = properties.fishable; // an object, if fishing rod can interact with it
 		// object properties: giveItem should be set to an item if an item should be given on fishing up
@@ -3425,11 +3428,9 @@ class Character extends Thing {
 		// toggle this.underwater
 		if (slowTile === "underwater" && !this.underwater) {
 			this.underwater = true;
-			Game.renderDayNight(); // for screen tint
 		}
 		else if (slowTile !== "underwater" && this.underwater) {
 			this.underwater = false;
-			Game.renderDayNight(); // for screen tint
 		}
 
 		if (!baseSpeed) {
@@ -10756,8 +10757,8 @@ Game.setMailboxImage = function (npc) {
 
 // called every 10s by weather when day and night is updated
 // also called by weather setting being changed
+// note day night canvas is rendered every tick, because of the lighting system
 Game.dayNightUpdate = function () {
-	Game.renderDayNight();
 	Game.setDayNightImages();
 	map.setDayNightTiles();
 }
@@ -13179,9 +13180,6 @@ Game.equipmentUpdate = function () {
             }
         }));
     }
-
-	// for screentint:
-	Game.renderDayNight();
 }
 
 // called whenever an item is removed / equipped / given / moved
@@ -14534,6 +14532,9 @@ Game.render = function (delta) {
 		}
 	}
 
+	// render day night canvas
+	Game.renderDayNight();
+
 	if (this.takePhoto) {
 		this.screenshot();
 	}
@@ -14909,8 +14910,9 @@ Game.secondary.render = function () {
 	}
 }
 
-// only called whenever loadArea is called (for efficiency) - called as often as getTime
-// night effect
+// called every tick due to lighting system. called at the end of Game.render.
+// night/darkness effect
+// not always for nighttime - used in caves for example
 Game.renderDayNight = function () {
 	// wipe canvas
 	this.ctxDayNight.clearRect(0, 0, Dom.canvas.width, Dom.canvas.height);
@@ -14923,18 +14925,32 @@ Game.renderDayNight = function () {
 	}
 	else {
 		// make canvas darker if it is night time and the player is not indoors
-		if (!Areas[Game.areaName].indoors) {
+		if (!Areas[this.areaName].indoors) {
+			// first draw glows around any "lightEmit" entities
+			for (let i = 0; i < this.allEntities.length; i++) {
+				let entity = this.allEntities[i];
+				if (typeof entity.lightEmit !== "undefined") {
+					// lightEmit is either set to the radius of glow, or just to "true", which defaults the radius to 150
+					let radius = entity.lightEmit;
+					if (entity.lightEmit === true) {
+						radius = 150;
+					}
+					this.drawGlow(this.ctxDayNight, entity.screenX, entity.screenY, radius); 
+				}
+			}
+
+			// now draw the darkness using source-out mode, so anything already drawn on this canvas blocks darkness from being drawn there
 			if (Event.redSky === true) {
 				// blood moon (or one developing)
 				this.ctxDayNight.fillStyle = "#2d0101"; // red tint
-				this.ctxDayNight.globalAlpha = Event.darkness;
-				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 			}
 			else {
 				this.ctxDayNight.fillStyle = "black";
-				this.ctxDayNight.globalAlpha = Event.darkness;
-				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 			}
+			this.ctxDayNight.globalAlpha = Event.darkness;
+			this.ctxDayNight.globalCompositeOperation = "source-out";
+			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+			this.ctxDayNight.globalCompositeOperation = "source-over"; // back to default
 
 			// fog
 			if (document.getElementById("weatherOn").checked) {
@@ -14961,6 +14977,20 @@ Game.renderDayNight = function () {
 	}
 
 	// use https://stackoverflow.com/questions/33351074/drawing-lights-on-a-canvas
+}
+
+// for lighting system - draws a radial gradient around an object at (x,y) which gets drawn over by nighttime darkness with source-out mode
+Game.drawGlow = function (ctx, x, y, radius) {
+	if (typeof radius === "undefined") {
+		radius = 150;
+	}
+	// create radial gradient
+	let grd = ctx.createRadialGradient(x, y, 30, x, y, radius);
+	grd.addColorStop(0, "rgba(255, 0, 0, 1)");
+	grd.addColorStop(1, "rgba(255, 0, 0, 0)");
+	// draw rectangle filled with gradient
+	ctx.fillStyle = grd;
+	ctx.fillRect(x-radius, y-radius, radius*2, radius*2);
 }
 
 //
