@@ -4673,6 +4673,8 @@ animation: {
 			imageDay: "eaglecrestLampDay",
 			imageNight: "eaglecrestLampNight",
 			name: "Eaglecrest Lamp",
+			lightEmit: true,
+			
 		},
 
 		{
@@ -12126,115 +12128,11 @@ things: [
 
 
 
-{x:[3555.8, 3805.8],y:[3110.8, 3233.2],image:"tent2",name:"tent2"},
-{x:[2362, 1316.2, 1879.6, 1233.3, 2537.5, 2841.7, 2299.5, 1568, 979.5, 2532.8, 3276.1, 3987.3, 3558.1, 4913.6, 5228.9, 4337.7, 3950.3, 4105.8, 2567.5,4583.1, 3763.4, 5744.8, 5303, 5755.6, 5271, 4089.3, 2681.4, 1857.6, 1151.3, 2730],y:[4081.6, 3773.9, 5106.4, 5041.4, 4813.3, 5447, 6091.3, 6245.8, 6019.3, 5907.8, 5887.8, 6350, 5393.7, 5035.6, 5012.8, 5162.8, 4965.9, 4724.9, 3444.7,1642, 904.7, 1487.6, 2235.6, 2992.7, 299.7, -75.6, 203, 1478.8, 2082.9, 1121],image:"rockSpike",name:"rockSpike"},
-{x:[2115.5, 2723.4, 3485.5, 5445.1, 892.1],y:[6351.4, 4729.6, 4724.1, 5184.3, 5537.5],image:"chest",name:"chest"},
-{x:[2496.9, 3932.4, 2788.1, 3634.1, 2378.4],y:[3020.2, 3020.2, 2729.4, 2729.4, 3258.4],image:"lanternCave",name:"lanternCave"},
-{x:[3387.1, 3423.1, 3458.9, 1831.7, 752.3, 1262.3, 2068.4, 3288.2],y:[2939.1, 2964.6, 2936.3, 4298.8, 5450.6, 6395.6, 4957.2, 5312.5],image:"archaeologistBag",name:"archaeologistBag"},
-{x:[3339.3, 3665.7, 1549.8, 2493.2, 3577.9],y:[5314.4, 4802.7, 3889.4, 3411.6, 2864.9],image:"archaeologistBrush1",name:"archaeologistBrush1"},
-{x:[2606.7, 1062.9, 877.3],y:[4086.5, 3780.5, 5395.3],image:"archaeologistBrush2",name:"archaeologistBrush2"},
-{x:[2386, 1376.2, 4141.4, 5394.9, 4020.7],y:[4775.6, 6342.7, 6345.4, 5019.6, 4067.4],image:"bookPage",name:"bookPage"},
-{x:[2408.5, 2424.5, 2579.2, 3882.1, 3923.4, 3506.4, 3548.6, 2705.1, 2759, 2408, 2735.9, 3733.4,1585, 2219.2, 3561.9, 4555.9, 4943.5, 4299],y:[3356.6, 3289.7, 2979.4, 3081.6, 3143.4, 2790.9, 2819.6, 3090.3, 3090.3, 3038.3, 2791.3, 2847.3,2132.6, 1315, 113.9, -75, 1205.5, 1351],image:"barrel",name:"barrel"},
-{x: 2808.3, y: 3455.5, image: 'tent1', name: ''},
-{x: 2795, y: 4058, image: 'archaeologistMap', name: ''},
-{x: 3207, y: 2837.1, image: 'tent', name: ''},
-{x: [4071.9, 1178.5], y: [5464.7, 1000], image: 'caveShrineGreen', name: ''},
-{x: [2200.6, 2603.7], y: [5211, 2121.5], image: 'caveShrineOrange', name: ''},
-{x: [917.3, 5456.5], y: [6241.8, -474.8], image: 'caveShrineBlue', name: ''},
-
-{x: [1520.3, 1520.3], y: [-350.6, 100], image: 'animatedMineshaftCrystal', name: 'animatedMineshaftCrystal',
-animation: {
-	type: "spritesheet",
-	frameTime: 360,
-	imagesPerRow: 4,
-	totalImages: 4,
-},
-crop: {
-	x: 0,
-	y: 0,
-	width: 60,
-	height: 60,
-},
-},
-
-{x: [1840, 2185.9], y: [-202.5, 22.8], image: 'animatedMineshaftCrystalTR', name: 'animatedMineshaftCrystalTR',
-animation: {
-	type: "spritesheet",
-	frameTime: 300,
-	imagesPerRow: 4,
-	totalImages: 4,
-},
-crop: {
-	x: 0,
-	y: 0,
-	width: 60,
-	height: 60,
-},
-},
-
-
-{x: [1917.8], y: [107], image: 'animatedMineshaftCrystalBR', name: 'animatedMineshaftCrystalBR',
-animation: {
-	type: "spritesheet",
-	frameTime: 280,
-	imagesPerRow: 4,
-	totalImages: 4,
-},
-crop: {
-	x: 0,
-	y: 0,
-	width: 60,
-	height: 60,
-},
-},
-{x: [4318.8, 4139.2], y: [-416, 544.5], z:-1, image: 'caveDoor', name: 'caveDoor',
-crop: {
-	x: 0,
-	y: 0,
-	width: 228,
-	height: 232,
-},},
-{x: 2910.3, y: 80, z:-1, image: 'nest', name: ''},
-
 
 ],
 
 npcs: [
-            {
-                x: 2908,
-                y: 80,
-                image: "mrPeacock",
-                name: "??",
-                hostility: "friendly",
-                level: 10,
-                stats: {
-                    maxHealth: 100,
-                    defence: 1,
-                    healthRegen: 0.3,
-                },
-                roles: [
-                ],
-                chat: {
-                },
-            },
-
-						{
-								x: 1797,
-								y: -470.3,
-								image: "valAsh",
-								name: "Val'Ash",
-								hostility: "friendly",
-								level: 10,
-								stats: {
-										maxHealth: 100,
-										defence: 1,
-										healthRegen: 0.3,
-								},
-								roles: [
-								],
-								chat: {
-								},
-						},
+           
 
 					],
 
