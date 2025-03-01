@@ -12045,11 +12045,18 @@ caves: {
 			// water
 			tiles: [28, 10, 20],
 			animateTime: 300,
-		},{
+		},
+		{
 			// rope
 			tiles: [19, 29, 39],
 			animateTime: 400,
-		}],
+		},
+		{
+			// torches
+			tiles: [391, 392],
+			animateTime: 400,
+		}
+	],
 		objectTiles: [36, 37, 47], // bones	
 
 },
