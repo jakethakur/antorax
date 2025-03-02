@@ -12042,9 +12042,12 @@ caves: {
 		tsize: 60,
 		tilesPerRow: 10,
 		solidTiles: [23, 24, 33, 34],
+		objectTiles: [386],
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
-		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150}, {tile: 392, brightness: 0.8, radius: 150}],
+		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150},
+			{tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}
+		],
 		animateTiles: [{
 			// water
 			tiles: [28, 10, 20],
@@ -12059,6 +12062,11 @@ caves: {
 			// torches
 			tiles: [391, 392],
 			animateTime: 400,
+		},
+		{
+			// lamps
+			tiles: [404, 405],
+			animateTime: 1200,
 		}
 	],
 		objectTiles: [36, 37, 47], // bones	
