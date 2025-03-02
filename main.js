@@ -900,7 +900,7 @@ var map = {
 						// iterate through area's tiles to find those that need replacing
 						for (let tileIndex = 0; tileIndex < this.layers[layer].length; tileIndex++) {
 							// check day or night versions
-							if (Event.darkness >= 0.2) {
+							if (Event.darkness >= Event.nightThreshold) {
 								// night time
 								if (this.layers[layer][tileIndex] === this.dayTiles[replaceIndex]) {
 									// tile needs replacing
@@ -1589,7 +1589,11 @@ class Entity {
 		}
 
 		// clears any darkness visual effect around it (i.e. nighttime, or dark ambience i.e. caves)
-		this.lightEmit = properties.lightEmit; // lightEmit is either set to the radius of glow, or just to "true", which defaults the radius to 150
+		// this glows if lightEmit not set to undefined. can either just be set to "true", or should be an object with optional properties such as radius and onlyAtNight (only glows when lights have switched on)
+		this.lightEmit = properties.lightEmit; 
+		if (typeof this.lightEmit !== "object" && typeof this.lightEmit !== "undefined") {
+			this.lightEmit = {val: this.lightEmit}; // val is just a dummy property that's not used for anything 
+		}
 
 
 		this.fishable = properties.fishable; // an object, if fishing rod can interact with it
@@ -9556,6 +9560,8 @@ Game.loadArea = function (areaName, destination) {
 			map.objectTiles = [];
 			map.repeatTiles = []; // these are like tall grass, flowers, etc.. An array of objects where the objects include "tile", "orderOffsetY" (optionally), name, "ySpacing", "xSpacing" (how much x it moves for every time it moves up one)
 			map.transparentTiles = []; // so it is always an array
+			map.lightEmitTiles = [];
+			map.lightEmitAtNightTiles = [];
 
 			map.scrollX = undefined;
 			map.scrollY = undefined;
@@ -9980,6 +9986,32 @@ Game.loadArea = function (areaName, destination) {
 					}
 				}
 			}
+
+			// lightEmit tiles
+			// search for these tiles, and make an entity at them with lightEmit
+			// each element of lightEmitTiles is an object
+			for (let layer = 0; layer < map.layers.length; layer++) {
+				for (let c = 0; c < map.cols; c++) {
+					for (let r = 0; r < map.rows; r++) {
+						let tile = map.getTile(layer, c, r); // tile number
+						let lightEmitTileObj = map.lightEmitTiles.find(el => el.tile === tile);
+						if (typeof lightEmitTileObj !== "undefined") {
+							// tile should have lightEmit
+							let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
+							let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
+							this.entities.push(new Entity({
+								x: x,
+								y: y,
+								width: 1,
+								height: 1,
+								type: "entities",
+								lightEmit: lightEmitTileObj
+							}));
+						}
+					}
+				}
+			}
+
 
 			// players (these are added from websocket instead of areadata)
 			if (ws !== false && ws.readyState === 1) {
@@ -10769,7 +10801,7 @@ Game.setDayNightImages = function () {
 		if (thing.imageDay !== undefined) {
 			// image needs to be changed
 			// check whether day or night image is required (also based on weather)
-			if (Event.darkness >= 0.2) {
+			if (Event.darkness >= Event.nightThreshold) {
 				// night time
 				if (thing.imageName !== thing.imageNight) {
 					thing.changeImage(thing.imageNight); // should be setImage ??
@@ -14924,40 +14956,43 @@ Game.renderDayNight = function () {
 		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	}
 	else {
-		// make canvas darker if it is night time and the player is not indoors
-		if (!Areas[this.areaName].indoors) {
-			// first draw glows around any "lightEmit" entities
-			for (let i = 0; i < this.allEntities.length; i++) {
-				let entity = this.allEntities[i];
-				if (typeof entity.lightEmit !== "undefined") {
-					// lightEmit is either set to the radius of glow, or just to "true", which defaults the radius to 150
-					let radius = entity.lightEmit;
-					if (entity.lightEmit === true) {
-						radius = 150;
+		// first draw glows around any "lightEmit" entities
+		// note that lightEmitTiles and lightEmitAtNightTiles have a dummy lightEmit entity made for them in areadata
+		for (let i = 0; i < this.allEntities.length; i++) {
+			let entity = this.allEntities[i];
+			if (typeof entity.lightEmit !== "undefined") {
+				if (!entity.lightEmit.onlyAtNight || Event.darkness > Event.nightThreshold) {
+					// this glows
+					if (typeof entity.lightEmit.radius === "undefined") {
+						entity.lightEmit.radius = 150; // radius defaults to 150
 					}
-					this.drawGlow(this.ctxDayNight, entity.screenX, entity.screenY, radius); 
+					if (typeof entity.lightEmit.brightness === "undefined") {
+						entity.lightEmit.brightness = 150; // brightness defaults to 0.5
+					}
+					this.ctxDayNight.globalAlpha = entity.lightEmit.brightness;
+					this.drawGlow(this.ctxDayNight, entity.screenX, entity.screenY, entity.lightEmit.radius); 
 				}
-			}
+			} 
+		}
 
-			// now draw the darkness using source-out mode, so anything already drawn on this canvas blocks darkness from being drawn there
-			if (Event.redSky === true) {
-				// blood moon (or one developing)
-				this.ctxDayNight.fillStyle = "#2d0101"; // red tint
-			}
-			else {
-				this.ctxDayNight.fillStyle = "black";
-			}
-			this.ctxDayNight.globalAlpha = Event.darkness;
-			this.ctxDayNight.globalCompositeOperation = "source-out";
+		// now draw the darkness using source-out mode, so anything already drawn on this canvas blocks darkness from being drawn there
+		if (Event.redSky === true) {
+			// blood moon (or one developing)
+			this.ctxDayNight.fillStyle = "#2d0101"; // red tint
+		}
+		else {
+			this.ctxDayNight.fillStyle = "black";
+		}
+		this.ctxDayNight.globalAlpha = Event.darkness;
+		this.ctxDayNight.globalCompositeOperation = "source-out";
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+		this.ctxDayNight.globalCompositeOperation = "source-over"; // back to default
+
+		// fog
+		if (document.getElementById("weatherOn").checked) {
+			this.ctxDayNight.fillStyle = "#999999";
+			this.ctxDayNight.globalAlpha = Event.fog;
 			this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-			this.ctxDayNight.globalCompositeOperation = "source-over"; // back to default
-
-			// fog
-			if (document.getElementById("weatherOn").checked) {
-				this.ctxDayNight.fillStyle = "#999999";
-				this.ctxDayNight.globalAlpha = Event.fog;
-				this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
-			}
 		}
 	}
 

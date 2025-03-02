@@ -4673,8 +4673,7 @@ animation: {
 			imageDay: "eaglecrestLampDay",
 			imageNight: "eaglecrestLampNight",
 			name: "Eaglecrest Lamp",
-			lightEmit: true,
-			
+			lightEmit: {onlyAtNight: true},
 		},
 
 		{
@@ -9907,6 +9906,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
                 name: "Lantern",
 				imageDay: "lanternDayRight",
 				imageNight: "lanternNightRight",
+				lightEmit: {onlyAtNight: true},
             },
 			{
                 x: [3099, 2434.9, 2819.4, 2306.6, 2555.5, 2627.6, 2557.2, 5077.8, 2603.3, 2244, 5045.3, 2246.9, 4788.8, 482.5, 762.8, 1415.4, 1105.9],
@@ -9914,6 +9914,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
                 name: "Lantern",
 				imageDay: "lanternDayLeft",
 				imageNight: "lanternNightLeft",
+				lightEmit: {onlyAtNight: true},
             },
 			{
 				x: [371.8, 376.1, 1212.3, 1259, 1298.4, 570.1, 1350.9, 151.4, 491.6, 1172.3, 1080.4, 2685.8, 4642.7],
@@ -12023,9 +12024,11 @@ caves: {
 		displayOnEnter: true,
 	},
 
-	indoors: true,
-
 	tagGameAllowed: true,
+
+	darkness: 0.3,
+	noRain: true,
+	noLightning: true,
 
 	song_day: "assets/music/Eaglecrest.mp3",
 	song_night: "assets/music/Eaglecrest.mp3",
@@ -12041,6 +12044,7 @@ caves: {
 		solidTiles: [23, 24, 33, 34],
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
+		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150}, {tile: 392, brightness: 0.8, radius: 150}],
 		animateTiles: [{
 			// water
 			tiles: [28, 10, 20],

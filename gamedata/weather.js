@@ -88,7 +88,7 @@ Weather.chooseWeather = function (areaName) {
 		this.weatherAdditional = Areas[areaName].weatherAdditional;
 		this.lightning = Areas[areaName].lightning;
 	}
-	else if (Event.event === "Fish") {
+	else if (Event.event === "Fish" && !Areas[areaName].noLightning && !Areas[areaName].indoors) {
 		// fish rain
 		this.weatherType = "rain";
 		this.lightning = undefined;
@@ -118,23 +118,23 @@ Weather.chooseWeather = function (areaName) {
 	}
 	else if ((this.dateValue / 40) % 8 < 1 || (this.dateValue / 40) % 21 < 1) {
 	//else if ((new Date()).getSeconds() > 30) { // for testing
-		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy()) {
+		if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy() && !Areas[areaName].noRain && !Areas[areaName].indoors) {
 			// icy area - snow instead of rain
 			this.weatherType = "snow";
 			this.weatherAdditional = undefined;
 		}
-		else if (Event.time === "bloodMoon") {
+		else if (Event.time === "bloodMoon" && !Areas[areaName].noRain && !Areas[areaName].indoors) {
 			// blood rain
 			this.weatherType = "bloodRain";
 			this.weatherAdditional = undefined;
 		}
-		else {
+		else if (!Areas[areaName].noRain && !Areas[areaName].indoors) {
 			// rain
 			this.weatherType = "rain";
 			this.weatherAdditional = undefined;
 		}
 
-		if ((this.dateValue / 40) % 21 < 1) {
+		if ((this.dateValue / 40) % 21 < 1 && !Areas[areaName].noLightning) {
 			// lightning
 			this.lightning = true;
 		}
@@ -503,6 +503,8 @@ let Event = {
 		}
 
 		this.globalXpBonus = 0; // percentage
+
+		this.nightThreshold = 0.2; // tbd make it so that this can be changed per area
 	},
 
 	// update time (called on loadArea)
@@ -539,85 +541,98 @@ let Event = {
 			this.time = "night";
 		}
 
-		this.updateDarkness(d); // update how dark the canvas is
-		this.updateFog(d);
+		this.updateDarkness(d, areaName); // update how dark the canvas is
+		this.updateFog(d, areaName);
 		this.updateSeason(d);
 	},
 
 	// update how dark the canvas is (called automatically by updateTime)
-	updateDarkness: function (d) {
-		// 0.40 darkness is max
-		// lights turn on at 0.20 darkness
+	updateDarkness: function (d, areaName) {
+		// 0.40 darkness is max due to natural
+		// lights turn on at Areas[areaName].nightThreshold darkness ()
 
-		if (d === undefined) {
-			// no date parameter
-			// get date
-			let d = this.getDate();
-		}
-
-		let timeDarkness = 0; // darkness due to time
-
-		if (d.hour === 18 && d.minute > 30) {
-			timeDarkness = 0.2 - ((60 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 18:30 to 19:00 of 0.00 to 0.20
-		}
-		else if (d.hour === 19 && d.minute < 30) {
-			timeDarkness = 0.4 - ((30 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 19:00 to 19:30 of 0.20 to 0.40
-		}
-		else if (d.hour === 6 && d.minute > 30) {
-			timeDarkness = 0.4 - ((60 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 06:30 to 07:00 of 0.40 to 0.20
-		}
-		else if (d.hour === 7 && d.minute < 30) {
-			timeDarkness = 0.2 - ((30 - d.minute) * 0.2 / 30);
-			// linear darkness progression from 07:00 to 07:30 of 0.20 to 0.00
-		}
-		else if (this.time === "night" || this.time === "bloodMoon") {
-			// completely dark
-			timeDarkness = 0.4;
-		}
-		else { // time must be day
-			// completely light
-			timeDarkness = 0;
-		}
-
-		// if it is halloween and it is dark due to time, notify Game to make the sky blood dark for blood moon
-		// Game can't check Event.time because it isn't blood moon 30 mins before and after when it is getting dark
-		if (this.time === "bloodMoon" && timeDarkness > 0) {
-			this.redSky = true;
+		if (typeof Areas[areaName].darkness !== "undefined") {
+			this.darkness = Areas[areaName].darkness;
 		}
 		else {
-			this.redSky = false;
-		}
+			// darkness set due to time of day
+			if (d === undefined) {
+				// no date parameter
+				// get date
+				let d = this.getDate();
+			}
 
-		let weatherDarkness = 0; // darkness due to weather
+			let timeDarkness = 0; // darkness due to time
 
-		if (Weather.weatherType === "rain") {
-			weatherDarkness = 0.3 * (Weather.intensity / 150) / (Game.canvasArea / 36000);
-			// 0.30 darkness if the weather is at its hightest intensity
-		}
-		else {
-			// completely light
-			weatherDarkness = 0;
-		}
+			if (d.hour === 18 && d.minute > 30) {
+				timeDarkness = 0.2 - ((60 - d.minute) * 0.2 / 30);
+				// linear darkness progression from 18:30 to 19:00 of 0.00 to 0.20
+			}
+			else if (d.hour === 19 && d.minute < 30) {
+				timeDarkness = 0.4 - ((30 - d.minute) * 0.2 / 30);
+				// linear darkness progression from 19:00 to 19:30 of 0.20 to 0.40
+			}
+			else if (d.hour === 6 && d.minute > 30) {
+				timeDarkness = 0.4 - ((60 - d.minute) * 0.2 / 30);
+				// linear darkness progression from 06:30 to 07:00 of 0.40 to 0.20
+			}
+			else if (d.hour === 7 && d.minute < 30) {
+				timeDarkness = 0.2 - ((30 - d.minute) * 0.2 / 30);
+				// linear darkness progression from 07:00 to 07:30 of 0.20 to 0.00
+			}
+			else if (this.time === "night" || this.time === "bloodMoon") {
+				// completely dark
+				timeDarkness = 0.4;
+			}
+			else { // time must be day
+				// completely light
+				timeDarkness = 0;
+			}
 
-		this.darkness = Math.max(timeDarkness, weatherDarkness); // take the darkest of the two
+			// if it is halloween and it is dark due to time, notify Game to make the sky blood dark for blood moon
+			// Game can't check Event.time because it isn't blood moon 30 mins before and after when it is getting dark
+			if (this.time === "bloodMoon" && timeDarkness > 0) {
+				this.redSky = true;
+			}
+			else {
+				this.redSky = false;
+			}
+
+			let weatherDarkness = 0; // darkness due to weather
+
+			if (Weather.weatherType === "rain") {
+				weatherDarkness = 0.3 * (Weather.intensity / 150) / (Game.canvasArea / 36000);
+				// 0.30 darkness if the weather is at its hightest intensity
+			}
+			else {
+				// completely light
+				weatherDarkness = 0;
+			}
+
+			this.darkness = Math.max(timeDarkness, weatherDarkness); // take the darkest of the two
+
+			if (Areas[areaName].indoors && this.darkness > this.nightThreshold) {
+				// indoors, and lights are on
+				this.darkness = 0;
+			}
+		}
 	},
 
 	// update amount of foggg (called automatically by updateTime)
-	updateFog: function (d) {
-		// see if it's a foggy day, or near a foggy day
-		let fogSeed = GenerateSeed(79, 33, 10, 0, 0, 0);
-		if (fogSeed % 200 < 11) {
-			// foggy day !!
-			// about 1 in 20 days are foggy...
-			// max 0.5 - darkness / 2
-			let maxFog = 0.5;
-			Event.fog = (maxFog-(Event.darkness/2));
-		}
-		else {
-			Event.fog = 0;
+	updateFog: function (d, areaName) {
+		if (!Areas[areaName].indoors && !Areas[areaName].noFog) {
+			// see if it's a foggy day, or near a foggy day
+			let fogSeed = GenerateSeed(79, 33, 10, 0, 0, 0);
+			if (fogSeed % 200 < 11) {
+				// foggy day !!
+				// about 1 in 20 days are foggy...
+				// max 0.5 - darkness / 2
+				let maxFog = 0.5;
+				Event.fog = (maxFog-(Event.darkness/2));
+			}
+			else {
+				Event.fog = 0;
+			}
 		}
 	},
 
