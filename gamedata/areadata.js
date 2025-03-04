@@ -12037,7 +12037,7 @@ caves: {
 
 	mapData: {
 		origin: {x: 0, y: 900},
-		cols: 100,
+		cols: 104,
 		rows: 130,
 		tsize: 60,
 		tilesPerRow: 10,
@@ -12048,7 +12048,42 @@ caves: {
 		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150},
 			{tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}
 		],
-		animateTiles: [{
+		animateTiles: [
+			{
+				// water boundary
+				tiles: [297, 321, 314, 307],
+				animateTime: 180,
+			},
+
+			{
+			// shoreline
+			tiles: [353, 354, 355, 356],
+			animateTime: 180,
+		},
+
+
+			{
+			tiles: [326, 341],
+			animateTime: 360,
+		},
+
+		{
+		tiles: [327, 342],
+		animateTime: 360,
+	},
+
+	{
+	tiles: [336, 351],
+	animateTime: 360,
+	},
+
+	{
+	tiles: [337, 352],
+	animateTime: 360,
+	},
+			
+			
+			{
 			// water
 			tiles: [28, 10, 20],
 			animateTime: 300,
@@ -12117,31 +12152,8 @@ images: {
 
 },
 
-areaTeleports: [
-	{
-		// teleport to caveEntrance
-		x: 3155.2,
-		y: 6860.1,
-		width: 335.9,
-		height: 2,
-		teleportTo: "caveEntrance",
-		destinationX: 893,
-		destinationY: 203,
-	},
-
-	{
-		// teleport to caveShop
-		x: 4320,
-		y: -400,
-		width: 200,
-		height: 2,
-		teleportTo: "cavesShop",
-		destinationX: 720,
-		destinationY: 1232,
-	},
 
 
-],
 things: [
 
 
@@ -12156,33 +12168,7 @@ npcs: [
 					],
 
 					
-tripwires: [
-{
-x: [4325, 4150] , y: [-275, 675],
-width: 500, height: 200,
-collisionType: "feet",
-onPlayerTouch: function () {
 
-	let caveDoorArray = Game.things.filter(entity => entity.name === "caveDoor");
-	let caveDoor = Game.closest(caveDoorArray, Game.hero);
-
-	if (typeof caveDoor.animation === "undefined") {
-		caveDoor.setAnimation({
-
-			type: "spritesheet",
-			frameTime: 175,
-			imagesPerRow: 5,
-			totalImages: 5,
-
-			stopAnimationOnState: 4,
-			startState: 0,
-
-		});
-
-	}
-}
-},
-],
 
 
 },
