@@ -12037,7 +12037,7 @@ caves: {
 
 	mapData: {
 		origin: {x: 0, y: 900},
-		cols: 104,
+		cols: 125,
 		rows: 130,
 		tsize: 60,
 		tilesPerRow: 10,
