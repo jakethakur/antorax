@@ -9383,7 +9383,8 @@ Game.loadArea = function (areaName, destination) {
 							if (typeof imageSrc === "undefined") {
 								console.error("Unable to find image src in tmx image collection for object", object);
 							}
-							Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2]}; // without the split command, image source would start with "../../assets/", where we want "assets/"
+							Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2].substring(1)}; // without the split command, image source would start with "../../assets/", where we want "assets/"
+							// without the substring command, there'd be a "/" at the start, which would cause an issue with the file path on online version
 
 							// change the x and y to account for shifted origin of area
 							object.x = Number(object.x);
