@@ -245,6 +245,8 @@ var Player = {
 		mountSlotUnlocked: false,
 	},
 
+	exploredArea: {}, // for minimap
+
 	inventory: {
 		helm: {},
 		chest: {},

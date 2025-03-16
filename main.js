@@ -1102,6 +1102,60 @@ var map = {
 			}
 		}
 	},
+
+	updateExploredArea: function () {
+		if (Areas[Game.areaName].onlyShowExploredAreaOnMap && !Areas[Game.areaName].alwaysHideOnMap) {
+			// area has "fog of war"
+			// check that the player has been to this area before
+			if (typeof Player.exploredArea[Game.areaName] === "undefined") {
+				this.initialiseExploredArea();
+			}
+			else {
+				// check that the area's size hasn't been updated since the player was last here
+				this.fixExploredAreaDimensions();
+			}
+
+			// set the 10x10 box the player is in as "explored"
+			let box10Row = Math.floor(this.getRow(Game.hero.y)/10);
+			let box10Col =Math.floor(this.getCol(Game.hero.x)/10);
+			Player.exploredArea[Game.areaName][box10Row][box10Col] = true;
+		}
+	},
+
+	initialiseExploredArea: function () {
+		Player.exploredArea[Game.areaName] = [];
+		for (let i = 0; i < Math.ceil(this.rows/10); i++) {
+			let toPush = [];
+			for (let j = 0; j < Math.ceil(this.cols/10); j++) {
+				toPush.push(false);
+			}
+			Player.exploredArea[Game.areaName].push(toPush);
+		}
+	},
+
+	fixExploredAreaDimensions: function () {
+		let expectedCols = Math.ceil(this.expectedCols/10);
+		if (Player.exploredArea[Game.areaName][0].length < expectedCols) {
+			let colsToAdd = Player.exploredArea[Game.areaName][0].length - expectedCols;
+			for (let i = 0; i < Math.ceil(this.rows/10); i++) {
+				for (let j = 0; j < colsToAdd; j++) {
+					Player.exploredArea[Game.areaName][i].push(false);
+				}
+			}
+		}
+
+		let expectedRows = Math.ceil(this.rows/10);
+		if (Player.exploredArea[Game.areaName].length < expectedRows) {
+			let rowsToAdd = Player.exploredArea[Game.areaName].length - expectedRows;
+			for (let i = 0; i < rowsToAdd; i++) {
+				let toPush = [];
+				for (let j = 0; j < Math.ceil(this.cols/10); j++) {
+					toPush.push(false);
+				}
+				Player.exploredArea[Game.areaName].push(toPush);
+			}
+		}
+	},
 };
 
 //
@@ -11749,6 +11803,8 @@ Game.update = function (delta) {
 		heroMoved = true;
 	}
 
+	map.updateExploredArea(); // updates explored locations (for game map) based on player's location (not camera's location!)
+
 	this.camera.update(delta);
 
 	// tell server that user location has changed so other users can see it
@@ -13578,6 +13634,104 @@ Game.highSpeed = function () {
 }
 
 //
+// Render map
+// tbd should this be on a different canvas? at the very least, the dom 
+//
+
+Game.drawMinimap = function (layer) {
+	if (typeof this.minimap === "undefined") { // tbd move this to init
+		Game.minimap = {
+			tsize: 4,
+			width: 200,
+			height: 200,
+			x: 150,
+			y: 200,
+		}
+		Game.minimap.scale = Game.minimap.tsize/map.tsize;
+	}
+
+	let startCol, endCol, startRow, endRow;
+	let offsetX = 0;
+	let offsetY = 0;
+
+	// start and end positions of tilemap to draw (tiles on screen)
+
+	let colsToShow = this.minimap.width/this.minimap.tsize;
+	let rowsToShow = this.minimap.height/this.minimap.tsize;
+	startCol = map.getCol(this.camera.x) - colsToShow/2;
+	endCol = map.getCol(this.camera.x) + colsToShow/2;
+	startRow = map.getRow(this.camera.y) - rowsToShow/2;
+	endRow = map.getRow(this.camera.y) + rowsToShow/2;
+
+	/*startCol = Math.floor(this.camera.x / map.tsize) + map.origin.x/60;
+	if (this.viewportOffsetX > 0) {
+		// area width not big enough to fill camera
+		// set end column so canvas drawing does not loop
+		endCol = map.cols - 1;
+		// add to offset so the canvas is drawn in the centre of screen
+		offsetX += this.viewportOffsetX*this.minimap.scale;
+	}
+	else {
+	    endCol = startCol + Math.ceil(this.minimap.width / this.minimap.tsize);
+	}
+
+	startRow = Math.floor(this.camera.y / this.minimap.tsize) + map.origin.y/60;
+	if (this.viewportOffsetY > 0) {
+		// area height not big enough to fill camera
+		// set end column so canvas drawing does not loop
+		endRow = map.rows - 1;
+		// add to offset so the canvas is drawn in the centre of screen
+		offsetY += this.viewportOffsetY*this.minimap.scale;
+	}
+	else {
+	    endRow = startRow + Math.ceil(this.minimap.height / this.minimap.tsize);
+	}*/
+
+	// tile draw offset
+    offsetX += -this.camera.x*this.minimap.scale + startCol*this.minimap.tsize - map.origin.x*this.minimap.scale;
+    offsetY += -this.camera.y*this.minimap.scale + startRow*this.minimap.tsize - map.origin.y*this.minimap.scale;
+
+    for (let c = startCol; c <= endCol; c++) {
+        for (let r = startRow; r <= endRow; r++) {
+            let tile = map.getTile(layer, c, r); // tile number
+
+            if (tile > 0 && !map.objectTiles.includes(tile)) { // 0 is empty tile,, objectTiles are rendered on top of player potentially
+				let drawTile = true;
+				let showIfTiles = Areas[this.areaName].mapData.showIfTiles;
+				if (typeof showIfTiles !== "undefined") {
+					for (let i = 0; i < showIfTiles.length; i++) {
+						if (showIfTiles[i].tiles.includes(tile) && !showIfTiles[i].function()) {
+							drawTile = false;
+							break;
+						}
+					}
+				}
+
+				if (drawTile) {
+					// draw position
+					let x = (c - startCol) * this.minimap.tsize + offsetX + this.minimap.x;
+					let y = (r - startRow) * this.minimap.tsize + offsetY + this.minimap.y;
+	
+					this.ctx.drawImage(
+						this.tileAtlas, // image
+						// cropping
+						((tile - 1) % map.tilesPerRow) * map.tsize, // source x
+						Math.floor((tile - 1) / map.tilesPerRow) * map.tsize, // source y
+						map.tsize, // source width
+						map.tsize, // source height
+						// drawing
+						Math.round(x),  // target x
+						Math.round(y), // target y
+						this.minimap.tsize, // target width
+						this.minimap.tsize // target height
+					);
+				}
+            }
+        }
+    }
+}
+
+//
 // Render game (draw onto canvas)
 //
 
@@ -14568,6 +14722,15 @@ Game.render = function (delta) {
 	// render day night canvas
 	Game.renderDayNight();
 
+	
+	// draw minimap
+	if (!this.keysDown.SHIFT && !this.takePhoto) {
+		for (let layer = 0; layer < map.layers.length; layer++) {
+			this.drawMinimap(layer);
+		}
+	}
+
+
 	if (this.takePhoto) {
 		this.screenshot();
 	}
@@ -14968,7 +15131,7 @@ Game.renderDayNight = function () {
 						entity.lightEmit.radius = 150; // radius defaults to 150
 					}
 					if (typeof entity.lightEmit.brightness === "undefined") {
-						entity.lightEmit.brightness = 150; // brightness defaults to 0.5
+						entity.lightEmit.brightness = 0.5; // brightness defaults to 0.5
 					}
 					this.ctxDayNight.globalAlpha = entity.lightEmit.brightness;
 					this.drawGlow(this.ctxDayNight, entity.screenX, entity.screenY, entity.lightEmit.radius); 

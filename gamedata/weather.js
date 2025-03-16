@@ -88,7 +88,7 @@ Weather.chooseWeather = function (areaName) {
 		this.weatherAdditional = Areas[areaName].weatherAdditional;
 		this.lightning = Areas[areaName].lightning;
 	}
-	else if (Event.event === "Fish" && !Areas[areaName].noLightning && !Areas[areaName].indoors) {
+	else if (Event.event === "Fish" && !Areas[areaName].noRain && !Areas[areaName].indoors) {
 		// fish rain
 		this.weatherType = "rain";
 		this.lightning = undefined;
@@ -132,6 +132,9 @@ Weather.chooseWeather = function (areaName) {
 			// rain
 			this.weatherType = "rain";
 			this.weatherAdditional = undefined;
+		}
+		else {
+			this.weatherType = "clear";
 		}
 
 		if ((this.dateValue / 40) % 21 < 1 && !Areas[areaName].noLightning) {
