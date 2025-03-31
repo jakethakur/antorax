@@ -12046,7 +12046,7 @@ caves: {
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
 		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150},
-			{tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}
+			{tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}, {tile: 517, brightness: 0.8, radius: 120},
 		],
 		animateTiles: [
 			{
