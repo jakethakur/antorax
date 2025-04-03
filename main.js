@@ -13715,8 +13715,8 @@ Game.drawMinimap = function (layer) {
 					this.ctx.drawImage(
 						this.tileAtlas, // image
 						// cropping
-						((tile - 1) % map.tilesPerRow) * map.tsize, // source x
-						Math.floor((tile - 1) / map.tilesPerRow) * map.tsize, // source y
+						Math.round((tile - 1) % map.tilesPerRow * map.tsize), // source x
+						Math.round(Math.floor((tile - 1) / map.tilesPerRow) * map.tsize), // source y
 						map.tsize, // source width
 						map.tsize, // source height
 						// drawing
@@ -13794,8 +13794,8 @@ Game.drawLayer = function (layer) {
 					this.ctx.drawImage(
 						this.tileAtlas, // image
 						// cropping
-						((tile - 1) % map.tilesPerRow) * map.tsize, // source x
-						Math.floor((tile - 1) / map.tilesPerRow) * map.tsize, // source y
+						Math.round((tile - 1) % map.tilesPerRow * map.tsize), // source x
+						Math.round(Math.floor((tile - 1) / map.tilesPerRow) * map.tsize), // source y
 						map.tsize, // source width
 						map.tsize, // source height
 						// drawing
@@ -13924,7 +13924,7 @@ Game.drawImageRotated = function (ctx, img, cropX, cropY, cropWidth, cropHeight,
     ctx.rotate(rad);
 
     // draw the image
-    ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, width / 2 * (-1),height / 2 * (-1),width,height);
+    ctx.drawImage(img, Math.round(cropX), Math.round(cropY), Math.round(cropWidth), Math.round(cropHeight), Math.round(width / 2 * (-1)),Math.round(height / 2 * (-1)),Math.round(width,Math.round(height)));
 
     // reset the canvas
     ctx.rotate(rad * ( -1 ) );
@@ -14235,6 +14235,8 @@ Game.drawChannellingBar = function (ctx, character, x, y, width, height) {
 // default (unscaled) height of image is 27
 // alignment should be set to "centre", "left", or "right" based on how the status effects should be aligned from the x position passed in
 Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
+	height = Math.round(height); // ensure that sub-pixel rendering does not need to take place
+
 	// figure out font size of time remaining
 	let fontSize = height * 2/3;
 
@@ -14252,6 +14254,7 @@ Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
 	else {
 		console.error("Invalid alignment: " + alignment);
 	}
+	startX = Math.round(startX);
 
 	// number of status effects that are hidden, thus offsetting the others
 	let offsetNumber = 0;
@@ -14291,6 +14294,8 @@ Game.drawStatusEffects = function (ctx, character, x, y, height, alignment) {
 // alignment should be set to "centre", "left", or "right" based on how the status effects should be aligned from the x position passed in
 // currently just done for Game.hero
 Game.drawSpells = function (ctx, character, x, y, height, alignment) {
+	height = Math.round(height); // ensure that sub-pixel rendering does not need to take place
+
 	// figure out font size of time remaining
 	let fontSize = height * 2/3;
 
@@ -14308,6 +14313,7 @@ Game.drawSpells = function (ctx, character, x, y, height, alignment) {
 	else {
 		console.error("Invalid alignment: " + alignment);
 	}
+	startX = Math.round(startX);
 
 	// iterate through character's spells
 	for (let i = 0; i < character.spells.length; i++) {
@@ -14726,7 +14732,7 @@ Game.render = function (delta) {
 	// draw minimap
 	if (!this.keysDown.SHIFT && !this.takePhoto) {
 		for (let layer = 0; layer < map.layers.length; layer++) {
-			this.drawMinimap(layer);
+			//this.drawMinimap(layer);
 		}
 	}
 
@@ -14758,12 +14764,12 @@ Game.renderObject = function (objectToRender) {
 			this.drawImageRotated(
 				this.ctx,
 				objectToRender.image,
-				objectToRender.crop.x, objectToRender.crop.y,
-				objectToRender.crop.width, objectToRender.crop.height,
-				drawX,
-				drawY,
-				objectToRender.width,
-				objectToRender.height,
+				Math.round(objectToRender.crop.x), Math.round(objectToRender.crop.y),
+				Math.round(objectToRender.crop.width), Math.round(objectToRender.crop.height),
+				Math.round(drawX),
+				Math.round(drawY),
+				Math.round(objectToRender.width),
+				Math.round(objectToRender.height),
 				objectToRender.rotate
 			);
 		}
@@ -14771,12 +14777,12 @@ Game.renderObject = function (objectToRender) {
 			// draw image (unrotated)
 			this.ctx.drawImage(
 				objectToRender.image,
-				objectToRender.crop.x, objectToRender.crop.y,
-				objectToRender.crop.width, objectToRender.crop.height,
-				drawX,
-				drawY,
-				objectToRender.width,
-				objectToRender.height
+				Math.round(objectToRender.crop.x), Math.round(objectToRender.crop.y),
+				Math.round(objectToRender.crop.width), Math.round(objectToRender.crop.height),
+				Math.round(drawX),
+				Math.round(drawY),
+				Math.round(objectToRender.width),
+				Math.round(objectToRender.height)
 			);
 		}
 
@@ -14792,12 +14798,12 @@ Game.renderObject = function (objectToRender) {
 
 				this.ctx.drawImage(
 					objectToRender.additionalImages[i].image,
-					crop.x, crop.y,
-					crop.width, crop.height,
-					drawX + offsetX,
-					drawY + offsetY,
-					objectToRender.width,
-					objectToRender.height
+					Math.round(crop.x), Math.round(crop.y),
+					Math.round(crop.width), Math.round(crop.height),
+					Math.round(drawX + offsetX),
+					Math.round(drawY + offsetY),
+					Math.round(objectToRender.width),
+					Math.round(objectToRender.height)
 				);
 			}
 		}
@@ -14879,7 +14885,7 @@ Game.renderObject = function (objectToRender) {
 		let img = Loader.getImage("rootedStatusImage");
 		this.ctx.drawImage(
 			img,
-			objectToRender.footHitbox.screenX - img.width/2, objectToRender.footHitbox.screenY - img.height*0.75
+			Math.floor(objectToRender.footHitbox.screenX - img.width/2), Math.floor(objectToRender.footHitbox.screenY - img.height*0.75)
 		);
 	}
 }
@@ -14943,9 +14949,9 @@ Game.screenshot = function () {
 	let ctx = canvas.getContext("2d");
 	canvas.width = 600;
 	canvas.height = 600;
-	ctx.drawImage(this.canvas, x, y, 600, 600, 0, 0, 600, 600);
-	ctx.drawImage(this.canvasDayNight, x, y, 600, 600, 0, 0, 600, 600);
-	ctx.drawImage(this.canvasLight, x, y, 600, 600, 0, 0, 600, 600);
+	ctx.drawImage(this.canvas, Math.floor(x), Math.floor(y), 600, 600, 0, 0, 600, 600);
+	ctx.drawImage(this.canvasDayNight, Math.floor(x), Math.floor(y), 600, 600, 0, 0, 600, 600);
+	ctx.drawImage(this.canvasLight, Math.floor(x), Math.floor(y), 600, 600, 0, 0, 600, 600);
 
 	// if the inventory is open make it an inventory alert, else make it a canvas alert
 	let page = "inventoryPage";
