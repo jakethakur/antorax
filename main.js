@@ -11517,7 +11517,7 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 		questComplete: false, // if one of the npc's quests has been completed
 		questActive: false, // if one of the npc's quests is currently active
 		notUnlockedRoles: false, // if one of the npc's roles has not been unlocked
-		questFinish: false, // whether the quest will be finished upon completing the 
+		questFinish: false, // whether the quest will be finished upon completing the step
 	};
 	for (let i = 0; i < step.length; i++) { // one property for each step
 		returnObj[step[i]] = false;
@@ -11720,9 +11720,10 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 		// quest has already been completed
 		else if (Player.quests.completedQuestArray.includes(quest.quest)) {
 			returnObj.questComplete = true;
-			return returnObj;
 		}
 	}
+
+	return returnObj;
 }
 
 
@@ -11986,7 +11987,7 @@ Game.update = function (delta) {
 							let numSteps = role.step.length;
 
 							let stepCanBeCompleted = false;
-							for (let stepNum = 1; stepNum < numSteps; i++)  { // step 0 is checked separately
+							for (let stepNum = 1; stepNum < numSteps; stepNum++)  { // step 0 is checked separately
 								if (result[stepNum]) {
 									stepCanBeCompleted = stepNum; // just take the first possible step to be completed
 									break;

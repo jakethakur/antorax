@@ -3247,22 +3247,22 @@ Dom.quests.active = function (quest) {
 
 			// set to whether or not this was completed last time this function was called (to track and announce if quest log is updated)
 			if (currentQuest.wasCompleted === undefined) {
-				currentQuest.wasCompleted = objectiveProgress;
+				currentQuest.wasCompleted = [];
+				for (let obj = 0; obj < objectiveProgress.length; obj++) {
+					currentQuest.wasCompleted.push(objectiveProgress[obj]);
+				}
 			}
 			else {
 				for (let i = 0; i < currentQuest.wasCompleted.length; i++) {
 					if (currentQuest.wasCompleted[i] !== true && objectiveProgress[i] === true) {
 						Dom.chat.insert("Quest log updated");
-						currentQuest.wasCompleted = objectiveProgress;
+						currentQuest.wasCompleted = [];
+						for (let obj = 0; obj < objectiveProgress.length; obj++) {
+							currentQuest.wasCompleted.push(objectiveProgress[obj]);
+						}
 						break;
 					}
 				}
-			}
-			if (objectiveProgress[objectiveProgress.length - 1]) {
-				currentQuest.completed = true; // not sure the point of this - might be able to remove it 
-			}
-			else {
-				currentQuest.completed = false;
 			}
 		}
 		else {
@@ -3505,8 +3505,12 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.targetVariableIndex = properties.targetVariableIndex;
 		this.scoreboard.targetValue = properties.targetValue;
 		this.scoreboard.targetComparisonType = properties.targetComparisonType||"geq";
-		this.scoreboard.successFunction = properties.successFunction.bind(this.scoreboard);
-		this.scoreboard.failFunction = properties.failFunction.bind(this.scoreboard);
+		if (typeof properties.successFunction !== "undefined") {
+			this.scoreboard.successFunction = properties.successFunction.bind(this.scoreboard);
+		}
+		if (typeof properties.failFunction !== "undefined") {
+			this.scoreboard.failFunction = properties.failFunction.bind(this.scoreboard);
+		}
 		this.scoreboard.callFailFunctionOnAbandon = properties.callFailFunctionOnAbandon;
 		this.scoreboard.progressKey = properties.progressKey || "scoreboardProgress";
 
@@ -3641,7 +3645,7 @@ Dom.scoreboardUpdateVisual = function () {
 
 	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
 		let variable = this.scoreboard.variablesArray[i];
-		if (variable.percentage) { // it is a decial but should be displayed as a percentage
+		if (variable.percentage) { // it is a decimal but should be displayed as a percentage
 		    variable*=100;
 		}
 		if (typeof variable.title !== "undefined") {

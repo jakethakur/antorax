@@ -4174,7 +4174,7 @@ var Quests = {
 					},{
 						text: `Perfect timing - we're due to be sent a supply of mech parts in a few minutes.`,
 					},{
-						text: `All I'll need you to do is pull the <b>Purple Lever</b> and <b>Yellow Lever</b> to sort the barrels to the rigght colour hatch.`,
+						text: `All I'll need you to do is pull the <b>Purple Lever</b> and <b>Yellow Lever</b> to sort the barrels to the rigggght colour hatch.`,
 					},{
 						text: `A few mistakes is fine, but we'll need at least 76% of them sorted to their correct hatches!`,
 					},{
@@ -4189,7 +4189,7 @@ var Quests = {
 							variablesArray: [{
 							    keyName: "percentageCorrect",
 							    title: "Success Rate",
-							    displayAs: "percentage",
+							    percentage: true,
 							}],
 							targetVariableIndex: 0,
 							targetValue: 50,
@@ -4331,7 +4331,7 @@ var Quests = {
 					chat: [{
 						text: `Glglg-wonderful work!`,
 					},{
-						text: `Come back and help out again if you gget a chance.`,
+						text: `Come back and help out again if you gggget a chance.`,
 					},],
 					rewards: {
 						xp: 50,
@@ -4345,11 +4345,15 @@ var Quests = {
 			],
 
 			howToStart: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",
-			levelRequirement: 8,
+			/*levelRequirement: 8,
 			questRequirements: ["Underwater"],
 			requirement: function () {
+				return Player.quests.prog.eaglecrest[24].stepProgress[1]; // completed step with id 2 of the tinkerer quest, i.e. spoken to the lead tinkerer
+			},*/
+			levelRequirement: 1,
+			questRequirements: [],
+			requirement: function () {
 				return true;
-				//return Player.quests.prog.eaglecrest[24].stepProgress[1]; // completed step with id 2 of the tinkerer quest, i.e. spoken to the lead tinkerer
 			}
 		},
 		{

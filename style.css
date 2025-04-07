@@ -1233,7 +1233,7 @@ left: 55px;
 #scoreboard{
 	position: absolute;
 	width: 250px;
-	top: 150px;
+	top: 300px;
 	left: 10px;
 	background-color: var(--alert);
 	border: 5px solid var(--border);
