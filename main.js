@@ -900,7 +900,7 @@ var map = {
 						// iterate through area's tiles to find those that need replacing
 						for (let tileIndex = 0; tileIndex < this.layers[layer].length; tileIndex++) {
 							// check day or night versions
-							if (Event.darkness >= Event.nightThreshold) {
+							if (Event.time === "night") {
 								// night time
 								if (this.layers[layer][tileIndex] === this.dayTiles[replaceIndex]) {
 									// tile needs replacing
@@ -992,7 +992,6 @@ var map = {
 						index = 0;
 					}
 					// set the tile
-					// could use map.setTile? not sure if necessary
 					this.setTile(tileLocation.layer, tileLocation.col, tileLocation.row, animateObj.tiles[index]);
 				}
 				else {
@@ -1042,7 +1041,6 @@ var map = {
 								index = 0;
 							}
 							// set the tile
-							// could use map.setTile? not sure if necessary
 							this.setTile(layer, c, r, animateObj.tiles[index]);
 						}
 					}
@@ -4454,12 +4452,7 @@ class Hero extends Attacker {
 		let maxX = Game.camera.maxX + Game.camera.width;
 		let maxY = Game.camera.maxY + Game.camera.height;
 		this.x = Math.max(-map.origin.x, Math.min(this.x, maxX));
-		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY)); //temp aaaaaaaaaaaaaaaaaaaaaaaaaaaa
-
-		// round player position, otherwise screen judders
-		// tbd readd - unfortunately this currently significantly slows the hero down in two directions
-		//this.x = Round(this.x, 0);
-		//this.y = Round(this.y, 0);
+		this.y = Math.max(-map.origin.y, Math.min(this.y, maxY)); // temp - tbd?
 
 		this.updateRotation(dirx, diry); // sets this.direction and rotates imagee
 	}
@@ -7290,7 +7283,7 @@ class Enemy extends NonPlayerAttacker {
 
 
 		// blood moon modifiers
-		if (Event.time === "bloodMoon") {
+		if (Event.bloodMoon) {
 			// respawn faster
 			this.stats.lootTime /= 2;
 			this.stats.respawnTime /= 2;
@@ -7579,6 +7572,25 @@ class Camera extends Entity {
 		// currently ONLY works with screen shake (incompatible with another offset at the same time using this variable - might want to change that in the future tbd!)
 		this.offsetX = 0;
 		this.offsetY = 0;
+
+		// minimap
+		this.minimap = {
+			tsize: 4,
+			width: 200,
+			height: 200,
+			x: 20,
+			y: 140,
+			
+			// converts coordinates in main game to coordinates (starting from 0,0 irrespective of map origin) on minimap canvas (Game.ctx.minimapOffscreen)
+			// returns an object with properties x and y
+			convertToMinimapPosition (x, y) {
+				x = (x + map.origin.x) * this.scale;
+				y = (y + map.origin.y) * this.scale;
+				let output = {x: x, y: y};
+				return output;
+			},
+		}
+		this.minimap.scale = this.minimap.tsize/map.tsize;
 	}
 
 	// maximum x and y positions
@@ -7734,7 +7746,7 @@ class Camera extends Entity {
 		}
 	}
 
-	// from the coordinates that the camera should go to (e.g. centre of an entity), convert it to a positoin that is compatible with the camera
+	// from the coordinates that the camera should go to (e.g. centre of an entity), convert it to a position that is compatible with the camera
 	// position is an object that contains an x and y property
 	generateCameraPosition (position) {
 		// change values to be top left of camera instead of centre (since this is what camera x and y uses)
@@ -9664,7 +9676,6 @@ Game.loadArea = function (areaName, destination) {
 			// set tileset
 			this.tileAtlas = Loader.getImage("tiles");
 
-
 			// recalibrate camera (for areas other than first area)
 			if (this.camera !== undefined) {
 				// set maximum x and y positions of camera
@@ -9741,6 +9752,9 @@ Game.loadArea = function (areaName, destination) {
 
 				Game.hero.summonsActive = 0;
 			}
+
+			// now camera has been initialised, draw minimap for this area
+			this.prepareMinimap();
 
 			//
 			// interactable objects
@@ -9975,7 +9989,6 @@ Game.loadArea = function (areaName, destination) {
 								image: "tiles",
 								crop: crop,
 								type: "things",
-								roundPosition: true, // stops black/white borders around it when rendered, due to canvas limitations
 							}));
 
 							map.setTile(layer, c, r, -tile); // negative so it's not drawn, but still remains there if you change areas then come back
@@ -10027,7 +10040,6 @@ Game.loadArea = function (areaName, destination) {
 									crop: crop,
 									type: "things",
 									name: map.repeatTiles[i].name,
-									roundPosition: true, // stops black/white borders around it when rendered, due to canvas limitations
 								};
 
 								// assign any additional properties from areadata
@@ -10608,7 +10620,7 @@ Game.init = function () {
 	// saveTimeout ensures that there is always a save at least every 60 seconds
 	// save in 60 seconds (init saveTimeout)
 	// if there is a save before this, this is set back to 60 seconds
-	Game.saveTimeout = Game.setTimeout(function() {
+	this.saveTimeout = this.setTimeout(function() {
 		Game.saveProgress("auto");
 	}, 60000);
 };
@@ -10842,7 +10854,7 @@ Game.setMailboxImage = function (npc) {
 // Day and night
 //
 
-// called every 10s by weather when day and night is updated
+// called by weather when day changed to night or v.v.
 // also called by weather setting being changed
 // note day night canvas is rendered every tick, because of the lighting system
 Game.dayNightUpdate = function () {
@@ -10856,7 +10868,7 @@ Game.setDayNightImages = function () {
 		if (thing.imageDay !== undefined) {
 			// image needs to be changed
 			// check whether day or night image is required (also based on weather)
-			if (Event.darkness >= Event.nightThreshold) {
+			if (Event.time === "night") {
 				// night time
 				if (thing.imageName !== thing.imageNight) {
 					thing.changeImage(thing.imageNight); // should be setImage ??
@@ -11205,10 +11217,6 @@ Game.playMusic = function () {
 				// indoor areas always have daytime song
 				song = Areas[this.areaName]["song_day"];
 			}
-			else if (Event.time === "bloodMoon") {
-				// most areas have night song at blood moon
-				song = Areas[this.areaName]["song_night"];
-			}
 			else {
 				// no song exists
 				console.error("No song exists for the area", this.areaName, "at the time", Event.time);
@@ -11313,7 +11321,7 @@ Game.regenHealth = function (delta) {
 Game.restoreHealth = function (target, health, bloodMoonRestore, regen) {
 	let canBeRestored = true;
 
-	if (Event.time === "bloodMoon" && !bloodMoonRestore && !Areas[this.areaName].indoors) {
+	if (Event.bloodMoon && !bloodMoonRestore && !Areas[this.areaName].indoors) {
 		// non-lifesteal forms of healing don't work outdoors during blood moons
 		canBeRestored = false;
 	}
@@ -13634,85 +13642,82 @@ Game.highSpeed = function () {
 }
 
 //
-// Render map
-// tbd should this be on a different canvas? at the very least, the dom 
+// Render minimap
 //
 
-Game.drawMinimap = function (layer) {
-	if (typeof this.minimap === "undefined") { // tbd move this to init
-		Game.minimap = {
-			tsize: 4,
-			width: 200,
-			height: 200,
-			x: 150,
-			y: 200,
-		}
-		Game.minimap.scale = Game.minimap.tsize/map.tsize;
+// draws the full minimap onto an offscreen canvas which can be drawn from in Game.renderMinimap
+// the minimap is prepared for two versions - a day version, and night version
+// drawImage is slow when resizing images, so this is done on an offscreen canvas to avoid repetition every frame
+// this gets called to update minimap on loadArea ONLY (will cause a lagspike if called outside of a loading screen)
+Game.prepareMinimap = function () {
+	if (typeof this.ctx.minimapOffscreen === "undefined") {
+		// initialise minimap canvases
+		// further preparation is done in Game.prepareMinimapForTime
+		this.ctx.minimapOffscreen = {};
 	}
 
-	let startCol, endCol, startRow, endRow;
-	let offsetX = 0;
-	let offsetY = 0;
+	this.prepareMinimapForTime("day");
+	this.prepareMinimapForTime("night");
+}
 
-	// start and end positions of tilemap to draw (tiles on screen)
-
-	let colsToShow = this.minimap.width/this.minimap.tsize;
-	let rowsToShow = this.minimap.height/this.minimap.tsize;
-	startCol = map.getCol(this.camera.x) - colsToShow/2;
-	endCol = map.getCol(this.camera.x) + colsToShow/2;
-	startRow = map.getRow(this.camera.y) - rowsToShow/2;
-	endRow = map.getRow(this.camera.y) + rowsToShow/2;
-
-	/*startCol = Math.floor(this.camera.x / map.tsize) + map.origin.x/60;
-	if (this.viewportOffsetX > 0) {
-		// area width not big enough to fill camera
-		// set end column so canvas drawing does not loop
-		endCol = map.cols - 1;
-		// add to offset so the canvas is drawn in the centre of screen
-		offsetX += this.viewportOffsetX*this.minimap.scale;
+// prepares minimap just for one specified time (day or night). called by Game.prepareMinimap
+Game.prepareMinimapForTime = function (time) {
+	if (typeof this.ctx.minimapOffscreen[time] === "undefined") {
+		// initialise minimap canvas
+		this.ctx.minimapOffscreen[time] = document.createElement("canvas");
 	}
-	else {
-	    endCol = startCol + Math.ceil(this.minimap.width / this.minimap.tsize);
-	}
+	this.ctx.minimapOffscreen[time].getContext("2d").clearRect(0, 0, this.ctx.minimapOffscreen[time].width, this.ctx.minimapOffscreen[time].height);
+	this.ctx.minimapOffscreen[time].width = map.cols * map.tsize;
+	this.ctx.minimapOffscreen[time].height = map.rows * map.tsize;
 
-	startRow = Math.floor(this.camera.y / this.minimap.tsize) + map.origin.y/60;
-	if (this.viewportOffsetY > 0) {
-		// area height not big enough to fill camera
-		// set end column so canvas drawing does not loop
-		endRow = map.rows - 1;
-		// add to offset so the canvas is drawn in the centre of screen
-		offsetY += this.viewportOffsetY*this.minimap.scale;
-	}
-	else {
-	    endRow = startRow + Math.ceil(this.minimap.height / this.minimap.tsize);
-	}*/
+    for (let c = 0; c < map.cols; c++) {
+        for (let r = 0; r < map.rows; r++) {
+			for (let layer = 0; layer < map.layers.length; layer++) {
+				let tile = map.getTile(layer, c, r); // tile number
 
-	// tile draw offset
-    offsetX += -this.camera.x*this.minimap.scale + startCol*this.minimap.tsize - map.origin.x*this.minimap.scale;
-    offsetY += -this.camera.y*this.minimap.scale + startRow*this.minimap.tsize - map.origin.y*this.minimap.scale;
-
-    for (let c = startCol; c <= endCol; c++) {
-        for (let r = startRow; r <= endRow; r++) {
-            let tile = map.getTile(layer, c, r); // tile number
-
-            if (tile > 0 && !map.objectTiles.includes(tile)) { // 0 is empty tile,, objectTiles are rendered on top of player potentially
-				let drawTile = true;
-				let showIfTiles = Areas[this.areaName].mapData.showIfTiles;
-				if (typeof showIfTiles !== "undefined") {
-					for (let i = 0; i < showIfTiles.length; i++) {
-						if (showIfTiles[i].tiles.includes(tile) && !showIfTiles[i].function()) {
-							drawTile = false;
-							break;
-						}
+				let isShowIfTile = false; // tiles that appear in map.showIfTiles are hidden on minimap currently
+				for (let i = 0; i < map.showIfTiles.length; i++) {
+					if (map.showIfTiles[i].tiles.includes(tile)) {
+						isShowIfTile = true;
+						break;
 					}
 				}
 
-				if (drawTile) {
+				if (time === "day") {
+					// set all night tiles to day tiles
+					let indexInNightTiles = map.nightTiles.findIndex(t => t === tile);
+					if (indexInNightTiles !== -1) {
+						tile = map.dayTiles[indexInNightTiles];
+					}
+				}
+				else if (time === "night") {
+					// set all day tiles to night tiles
+					let indexInDayTiles = map.dayTiles.findIndex(t => t === tile);
+					if (indexInDayTiles !== -1) {
+						tile = map.nightTiles[indexInDayTiles];
+					}
+				}
+				else {
+					console.error("Unrecognised time: ", time)
+				}
+
+				if (tile > 0 && !map.objectTiles.includes(tile) && !isShowIfTile) { // 0 is empty tile
+					let drawTile = true;
+					let showIfTiles = Areas[this.areaName].mapData.showIfTiles;
+					if (typeof showIfTiles !== "undefined") {
+						for (let i = 0; i < showIfTiles.length; i++) {
+							if (showIfTiles[i].tiles.includes(tile) && !showIfTiles[i].function()) {
+								drawTile = false;
+								break;
+							}
+						}
+					}
+
 					// draw position
-					let x = (c - startCol) * this.minimap.tsize + offsetX + this.minimap.x;
-					let y = (r - startRow) * this.minimap.tsize + offsetY + this.minimap.y;
-	
-					this.ctx.drawImage(
+					let x = c * this.camera.minimap.tsize;
+					let y = r * this.camera.minimap.tsize;
+
+					this.ctx.minimapOffscreen[time].getContext("2d").drawImage(
 						this.tileAtlas, // image
 						// cropping
 						Math.round((tile - 1) % map.tilesPerRow * map.tsize), // source x
@@ -13722,13 +13727,37 @@ Game.drawMinimap = function (layer) {
 						// drawing
 						Math.round(x),  // target x
 						Math.round(y), // target y
-						this.minimap.tsize, // target width
-						this.minimap.tsize // target height
+						this.camera.minimap.tsize, // target width
+						this.camera.minimap.tsize // target height
 					);
 				}
-            }
+			}
         }
     }
+}
+
+// draws the specified layer of the minimap onto the main canvas
+// tbd should this be on a different canvas? at the very least, the dom 
+Game.renderMinimap = function () {
+	// find position in this.ctx.minimapOffscreen which is the centre of the area to be drawn from
+	let drawCentre = this.camera.minimap.convertToMinimapPosition(this.camera.x + Game.camera.width/2, this.camera.y + Game.camera.height/2); // passed in are the coordinates of what the camera is following
+
+	let startX = drawCentre.x - this.camera.minimap.width/2;
+	let startY = drawCentre.y - this.camera.minimap.height/2;
+
+	this.ctx.drawImage(
+		this.ctx.minimapOffscreen[Event.time], // image
+		// cropping
+		Math.round(startX), // source x
+		Math.round(startY), // source y
+		this.camera.minimap.width, // source width
+		this.camera.minimap.height, // source height
+		// drawing
+		this.camera.minimap.x,  // target x
+		this.camera.minimap.y, // target y
+		this.camera.minimap.width, // target width
+		this.camera.minimap.height // target height
+	);
 }
 
 //
@@ -13918,17 +13947,17 @@ Game.drawImageRotated = function (ctx, img, cropX, cropY, cropWidth, cropHeight,
     //var rad = deg * Math.PI / 180;
 
     // set the origin to the center of the image
-    ctx.translate(x + width / 2, y + height / 2);
+    ctx.translate(Math.round(x + width / 2), Math.round(y + height / 2));
 
     // rotate the canvas around the origin
     ctx.rotate(rad);
 
     // draw the image
-    ctx.drawImage(img, Math.round(cropX), Math.round(cropY), Math.round(cropWidth), Math.round(cropHeight), Math.round(width / 2 * (-1)),Math.round(height / 2 * (-1)),Math.round(width,Math.round(height)));
+    ctx.drawImage(img, Math.round(cropX), Math.round(cropY), Math.round(cropWidth), Math.round(cropHeight), Math.round(width / 2 * (-1)), Math.round(height / 2 * (-1)), Math.round(width),Math.round(height));
 
     // reset the canvas
     ctx.rotate(rad * ( -1 ) );
-    ctx.translate((x + width / 2) * (-1), (y + height / 2) * (-1));
+    ctx.translate(Math.round(x + width / 2) * (-1), Math.round(y + height / 2) * (-1));
 }
 
 // update entity's screen position (called every time it is rendered, and also in functions like dealDamage)
@@ -14428,6 +14457,9 @@ Game.render = function (delta) {
 
 	// this needs to be reset after each clearRect
 	this.ctx.imageSmoothingEnabled = false;
+	this.ctx.webkitImageSmoothingEnabled = false;
+	this.ctx.mozImageSmoothingEnabled = false;
+	this.ctx.imageSmoothingEnabled = false;
 
     // fill canvas 'background colour' as black (or whatever other colour it should be)
 	if (typeof Areas[this.areaName].borderColour !== "undefined") {
@@ -14731,9 +14763,7 @@ Game.render = function (delta) {
 	
 	// draw minimap
 	if (!this.keysDown.SHIFT && !this.takePhoto) {
-		for (let layer = 0; layer < map.layers.length; layer++) {
-			//this.drawMinimap(layer);
-		}
+		this.renderMinimap();
 	}
 
 
@@ -14750,10 +14780,6 @@ Game.renderObject = function (objectToRender) {
 
 	let drawX = objectToRender.screenX - objectToRender.width / 2;
 	let drawY = objectToRender.screenY - objectToRender.height / 2;
-	if (objectToRender.roundPosition) { // see entity class for explanation
-		drawX = Math.round(drawX);
-		drawY = Math.round(drawY);
-	}
 
 
 	if (objectToRender.renderType === "image") {
@@ -15131,7 +15157,7 @@ Game.renderDayNight = function () {
 		for (let i = 0; i < this.allEntities.length; i++) {
 			let entity = this.allEntities[i];
 			if (typeof entity.lightEmit !== "undefined") {
-				if (!entity.lightEmit.onlyAtNight || Event.darkness > Event.nightThreshold) {
+				if (!entity.lightEmit.onlyAtNight || Event.time === "night") {
 					// this glows
 					if (typeof entity.lightEmit.radius === "undefined") {
 						entity.lightEmit.radius = 150; // radius defaults to 150

@@ -14140,10 +14140,3 @@ chloroville: {
 
 
 };
-
-// TBD - remove since this is redundant (map.setTile should be used instead)
-// sets a tile on the Map (area and main) (specifyable area for if it is used in a setTimeout)
-function SetTile (area, layer, col, row, newTileNum) {
-	let map = Areas[area].mapData;
-	map.layers[layer][row * map.cols + col] = newTileNum;
-}

@@ -74,8 +74,11 @@ Weather.tick = function (init) {
 	Event.updateTime(Game.areaName);
 	if (!init) {
 		// not called on init
-		Game.dayNightUpdate();
+		if (Event.timeAtLastTick !== Event.time) {
+			Game.dayNightUpdate();
+		}
 	}
+	Event.timeAtLastTick = Event.time;
 }
 
 // called by Game.loadArea and by Weather.updateVariables
@@ -123,7 +126,7 @@ Weather.chooseWeather = function (areaName) {
 			this.weatherType = "snow";
 			this.weatherAdditional = undefined;
 		}
-		else if (Event.time === "bloodMoon" && !Areas[areaName].noRain && !Areas[areaName].indoors) {
+		else if (Event.bloodMoon && !Areas[areaName].noRain && !Areas[areaName].indoors) {
 			// blood rain
 			this.weatherType = "bloodRain";
 			this.weatherAdditional = undefined;
@@ -523,7 +526,8 @@ let Event = {
 
 		else if (this.event === "Samhain" && Player.quests.questProgress.bloodMoonUnlocked) {
 			// halloween night time & bloodmoon unlocked
-			this.time = "bloodMoon";
+			this.time = "night";
+			this.bloodMoon = true;
 		}
 
 		else if (d.day == 21 && d.month == 6) {
@@ -583,7 +587,7 @@ let Event = {
 				timeDarkness = 0.2 - ((30 - d.minute) * 0.2 / 30);
 				// linear darkness progression from 07:00 to 07:30 of 0.20 to 0.00
 			}
-			else if (this.time === "night" || this.time === "bloodMoon") {
+			else if (this.time === "night") {
 				// completely dark
 				timeDarkness = 0.4;
 			}
@@ -594,7 +598,7 @@ let Event = {
 
 			// if it is halloween and it is dark due to time, notify Game to make the sky blood dark for blood moon
 			// Game can't check Event.time because it isn't blood moon 30 mins before and after when it is getting dark
-			if (this.time === "bloodMoon" && timeDarkness > 0) {
+			if (this.bloodMoon && timeDarkness > 0) {
 				this.redSky = true;
 			}
 			else {
