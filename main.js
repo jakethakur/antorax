@@ -7580,6 +7580,8 @@ class Camera extends Entity {
 			height: 200,
 			x: 20,
 			y: 140,
+
+			playerIconImg: Loader.getImage("minimapPlayerIcon"),
 			
 			// converts coordinates in main game to coordinates (starting from 0,0 irrespective of map origin) on minimap canvas (Game.ctx.minimapOffscreen)
 			// returns an object with properties x and y
@@ -7587,6 +7589,27 @@ class Camera extends Entity {
 				x = (x + map.origin.x) * this.scale;
 				y = (y + map.origin.y) * this.scale;
 				let output = {x: x, y: y};
+				return output;
+			},
+
+			// converts coordinates in main game to coordinates on the rendered minimap itself (i.e. a screenX and screenY analogue for the rendered minimap)
+			// returns an object with properties x and y, as well as an "onscreen" property which returns whether this appears on the minimap 
+			convertToMinimapScreenPosition (x, y) {
+				if (typeof this.drawTopLeft === "undefined") {
+					console.error("Minimap's drawTopLeft is not yet defined")
+					return false;
+				}
+
+				let newPosn = this.convertToMinimapPosition(x, y);
+				x = newPosn.x - this.drawTopLeft.x;
+				y = newPosn.y - this.drawTopLeft.y;
+
+				let onscreen = false;
+				if (x >= 0 && y >= 0 && x <= this.width && y <= this.height) {
+					onscreen = true;
+				}
+
+				let output = {x: x, y: y, onscreen: onscreen};
 				return output;
 			},
 		}
@@ -9336,15 +9359,11 @@ Game.loadDefaultImages = function () {
         }
     }
 
+	// minimap icons
+	toLoad.push(Loader.loadImage("minimapPlayerIcon", "./assets/icons/minimapPlayer.png", false));
+
 	// maybe this should just be done if the player has a fishing rod? - tbd
 	toLoad.push(Loader.loadImage("bobber", "./assets/projectiles/bobber.png", false));
-
-	// spell images
-	// maybe can be made more efficient? not that bothered about it at the moment buttt
-	if (Player.class === "m") {
-		toLoad.push(Loader.loadImage("icebolt", "./assets/projectiles/icebolt.png", false));
-		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
-	}
 	
 	// images required by items
 	// tbd these should be unloaded when the item is discarded (same for in Dom.inventory.give)
@@ -9358,6 +9377,12 @@ Game.loadDefaultImages = function () {
         }
 	}
 
+	// spell images
+	// maybe can be made more efficient? not that bothered about it at the moment buttt
+	if (Player.class === "m") {
+		toLoad.push(Loader.loadImage("icebolt", "./assets/projectiles/icebolt.png", false));
+		toLoad.push(Loader.loadImage("fireBarrage", "./assets/projectiles/fireBarrage.png", false));
+	}
 	// knight summon images
 	if (Player.class === "k") {
 		toLoad.push(Loader.loadImage("knightMinionFront", "./assets/projectiles/knightMinionFront.png", false));
@@ -13745,6 +13770,8 @@ Game.renderMinimap = function () {
 	let startX = drawCentre.x - this.camera.minimap.width/2;
 	let startY = drawCentre.y - this.camera.minimap.height/2;
 
+	this.camera.minimap.drawTopLeft = {x: startX, y: startY}; // coordinates on minimap canvas to draw from
+
 	this.ctx.drawImage(
 		this.ctx.minimapOffscreen[Event.time], // image
 		// cropping
@@ -13758,6 +13785,15 @@ Game.renderMinimap = function () {
 		this.camera.minimap.width, // target width
 		this.camera.minimap.height // target height
 	);
+
+	let playerPos = this.camera.minimap.convertToMinimapScreenPosition(this.hero.x, this.hero.y);
+	if (playerPos.onscreen) {
+		// draw player marker
+		this.ctx.drawImage(this.camera.minimap.playerIconImg,
+			Math.round(this.camera.minimap.x+playerPos.x-this.camera.minimap.playerIconImg.width/2),
+			Math.round(this.camera.minimap.y+playerPos.y-this.camera.minimap.playerIconImg.height/2)
+		);
+	}
 }
 
 //
