@@ -1122,10 +1122,18 @@ var map = {
 		if (Areas[Game.areaName].onlyShowExploredAreaOnMap && !Areas[Game.areaName].alwaysHideOnMap) {
 			// area has "fog of war"
 
-			// set the 10x10 box the player is in as "explored"
-			let chunk = this.getExploredAreaChunk(Game.hero.x, Game.hero.y);
-			Player.exploredArea[Game.areaName][chunk.row][chunk.col] = true;
+			// set any 10x10 chunks that fall within +-6 tiles (horizontally) and +-3 tiles (vertically) from the player as "explored"
+			this.addExploredChunk(Game.hero.x+360, Game.hero.y+180);
+			this.addExploredChunk(Game.hero.x-360, Game.hero.y+180);
+			this.addExploredChunk(Game.hero.x+360, Game.hero.y-180);
+			this.addExploredChunk(Game.hero.x-360, Game.hero.y-180);
 		}
+	},
+
+	// explores the 10x10 chunk that falls at the x and y coords specified
+	addExploredChunk(x, y) {
+		let chunk = this.getExploredAreaChunk(x, y);
+		Player.exploredArea[Game.areaName][chunk.row][chunk.col] = true;
 	},
 
 	// returns the row and columno of a chunk in Player.exploredArea, given x and y coordinates
@@ -13725,8 +13733,10 @@ Game.prepareMinimap = function () {
 		this.ctx.minimapOffscreen = {};
 	}
 
-	this.prepareMinimapForTime("day");
-	this.prepareMinimapForTime("night");
+	this.prepareMinimapForTime("day"); // serves as default minimap (so used during nighttime as well if there's no day/night changing tiles)
+	if (typeof map.nightTiles !== "undefined") {
+		this.prepareMinimapForTime("night");
+	}
 }
 
 // prepares minimap just for one specified time (day or night). called by Game.prepareMinimap
@@ -13745,29 +13755,33 @@ Game.prepareMinimapForTime = function (time) {
 				let tile = map.getTile(layer, c, r); // tile number
 
 				let isShowIfTile = false; // tiles that appear in map.showIfTiles are hidden on minimap currently
-				for (let i = 0; i < map.showIfTiles.length; i++) {
-					if (map.showIfTiles[i].tiles.includes(tile)) {
-						isShowIfTile = true;
-						break;
+				if (typeof map.showIfTiles !== "undefined") {
+					for (let i = 0; i < map.showIfTiles.length; i++) {
+						if (map.showIfTiles[i].tiles.includes(tile)) {
+							isShowIfTile = true;
+							break;
+						}
 					}
 				}
 
-				if (time === "day") {
-					// set all night tiles to day tiles
-					let indexInNightTiles = map.nightTiles.findIndex(t => t === tile);
-					if (indexInNightTiles !== -1) {
-						tile = map.dayTiles[indexInNightTiles];
+				if (typeof map.nightTiles !== "undefined") {
+					if (time === "day") {
+						// set all night tiles to day tiles
+						let indexInNightTiles = map.nightTiles.findIndex(t => t === tile);
+						if (indexInNightTiles !== -1) {
+							tile = map.dayTiles[indexInNightTiles];
+						}
 					}
-				}
-				else if (time === "night") {
-					// set all day tiles to night tiles
-					let indexInDayTiles = map.dayTiles.findIndex(t => t === tile);
-					if (indexInDayTiles !== -1) {
-						tile = map.nightTiles[indexInDayTiles];
+					else if (time === "night") {
+						// set all day tiles to night tiles
+						let indexInDayTiles = map.dayTiles.findIndex(t => t === tile);
+						if (indexInDayTiles !== -1) {
+							tile = map.nightTiles[indexInDayTiles];
+						}
 					}
-				}
-				else {
-					console.error("Unrecognised time: ", time)
+					else {
+						console.error("Unrecognised time: ", time)
+					}
 				}
 
 				if (tile > 0 && !map.objectTiles.includes(tile) && !isShowIfTile) { // 0 is empty tile
@@ -13820,8 +13834,17 @@ Game.renderMinimap = function () {
 		this.camera.minimap.drawTopLeft = {x: startX, y: startY}; // coordinates on minimap canvas to draw from
 		this.camera.minimap.drawBottomRight = {x: startX+this.camera.minimap.width, y: startY+this.camera.minimap.height}; // coordinates on minimap canvas to draw from
 
+		let fromCtx;
+		if (typeof map.nightTiles !== "undefined") {
+			fromCtx = this.ctx.minimapOffscreen[Event.time];
+		}
+		else {
+			// use day canvas as default
+			fromCtx = this.ctx.minimapOffscreen.day;
+		}
+
 		this.ctxMinimap.drawImage(
-			this.ctx.minimapOffscreen[Event.time], // image
+			fromCtx, // image
 			// cropping
 			Math.round(startX), // source x
 			Math.round(startY), // source y
