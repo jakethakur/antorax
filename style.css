@@ -79,11 +79,17 @@ thead:after { /* space after bags in bank */
 	background-repeat: no-repeat;
 }
 
-#game, #secondary, #dayNight, #light, #click, #minigame{
+#game, #secondary, #dayNight, #light, #click, #minigame, #minimap{
 	float: left;
 	margin: -8px;
 	position: absolute;
 	top: 8px;
+}
+
+#minimap {
+	z-index: 3;
+	left: 20px;
+	top: 140px;
 }
 
 #minigame {

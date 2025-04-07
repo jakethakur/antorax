@@ -24,17 +24,33 @@ Game.canvas = document.getElementById("game");
 Game.secondary.canvas = document.getElementById("secondary");
 Game.canvasLight = document.getElementById("light");
 Game.canvasDayNight = document.getElementById("dayNight");
+Game.canvasMinimap = document.getElementById("minimap");
 
 // run game
 // anything that needs to be done before images are loaded
-Game.run = function (context, contextSecondary, contextDayNight, contextLight) {
+Game.run = function (context, contextSecondary, contextDayNight, contextLight, contextMinimap) {
     this.ctx = context;
 	this.ctxDayNight = contextDayNight;
 	this.ctxLight = contextLight;
     this.secondary.ctx = contextSecondary;
+    this.ctxMinimap = contextMinimap;
 
 	// ctx settings
 	this.ctx.imageSmoothingEnabled = false;
+	this.ctx.webkitImageSmoothingEnabled = false;
+	this.ctx.mozImageSmoothingEnabled = false;
+
+	this.ctxDayNight.imageSmoothingEnabled = false;
+	this.ctxDayNight.webkitImageSmoothingEnabled = false;
+	this.ctxDayNight.mozImageSmoothingEnabled = false;
+
+	this.ctxLight.imageSmoothingEnabled = false;
+	this.ctxLight.webkitImageSmoothingEnabled = false;
+	this.ctxLight.mozImageSmoothingEnabled = false;
+
+	this.ctxMinimap.imageSmoothingEnabled = false;
+	this.ctxMinimap.webkitImageSmoothingEnabled = false;
+	this.ctxMinimap.mozImageSmoothingEnabled = false;
 
     this.previousElapsed = 0;
 
@@ -696,7 +712,8 @@ window.onload = function () {
 	let contextSecondary = Game.secondary.canvas.getContext('2d');
 	let contextDayNight = Game.canvasDayNight.getContext('2d');
 	let contextLight = Game.canvasLight.getContext('2d');
-    Game.run(context, contextSecondary, contextDayNight, contextLight);
+	let contextMinimap = Game.canvasMinimap.getContext('2d');
+    Game.run(context, contextSecondary, contextDayNight, contextLight, contextMinimap);
 };
 
 //
@@ -1012,7 +1029,7 @@ var map = {
 				endCol = this.cols - 1;
 			}
 			else {
-				endCol = startCol + Math.ceil(Game.camera.width / this.tsize);
+				endCol = startCol + Math.ceil(Game.camera.width / this.tsize) +1;
 			}
 
 			startRow = Math.floor(Game.camera.y / this.tsize) + this.origin.y/60;
@@ -1104,20 +1121,27 @@ var map = {
 	updateExploredArea: function () {
 		if (Areas[Game.areaName].onlyShowExploredAreaOnMap && !Areas[Game.areaName].alwaysHideOnMap) {
 			// area has "fog of war"
-			// check that the player has been to this area before
-			if (typeof Player.exploredArea[Game.areaName] === "undefined") {
-				this.initialiseExploredArea();
-			}
-			else {
-				// check that the area's size hasn't been updated since the player was last here
-				this.fixExploredAreaDimensions();
-			}
 
 			// set the 10x10 box the player is in as "explored"
-			let box10Row = Math.floor(this.getRow(Game.hero.y)/10);
-			let box10Col =Math.floor(this.getCol(Game.hero.x)/10);
-			Player.exploredArea[Game.areaName][box10Row][box10Col] = true;
+			let chunk = this.getExploredAreaChunk(Game.hero.x, Game.hero.y);
+			Player.exploredArea[Game.areaName][chunk.row][chunk.col] = true;
 		}
+	},
+
+	// returns the row and columno of a chunk in Player.exploredArea, given x and y coordinates
+	// these chunks are 10x10 tiles
+	getExploredAreaChunk: function (x, y) {
+		let row = Math.floor(this.getRow(y)/10);
+		let col = Math.floor(this.getCol(x)/10);
+		return {row: row, col: col};
+	},
+
+	// returns the ingame x and y of the top-left point of a chunk in Player.exploredArea, given the chunk's row and column
+	// these chunks are 10x10 tiles
+	getExploredAreaCoordinates: function (col, row) {
+		let y = this.getY(row*10);
+		let x = this.getX(col*10);
+		return {y: y, x: x};
 	},
 
 	initialiseExploredArea: function () {
@@ -7578,9 +7602,8 @@ class Camera extends Entity {
 			tsize: 4,
 			width: 200,
 			height: 200,
-			x: 20,
-			y: 140,
 
+			// images to appear on minimap
 			playerIconImg: Loader.getImage("minimapPlayerIcon"),
 			
 			// converts coordinates in main game to coordinates (starting from 0,0 irrespective of map origin) on minimap canvas (Game.ctx.minimapOffscreen)
@@ -7588,6 +7611,15 @@ class Camera extends Entity {
 			convertToMinimapPosition (x, y) {
 				x = (x + map.origin.x) * this.scale;
 				y = (y + map.origin.y) * this.scale;
+				let output = {x: x, y: y};
+				return output;
+			},
+
+			// converts coordinates (starting from 0,0 irrespective of map origin) on minimap canvas (Game.ctx.minimapOffscreen) to coordinates in main game
+			// returns an object with properties x and y
+			convertFromMinimapPosition (x, y) {
+				x = x/this.scale - map.origin.x;
+				y = y/this.scale - map.origin.y;
 				let output = {x: x, y: y};
 				return output;
 			},
@@ -9710,6 +9742,18 @@ Game.loadArea = function (areaName, destination) {
 				// update viewportOffset and canvasArea variables
 				// (otherwise called on init)
 				this.updateCanvasViewport();
+			}
+
+			// initialise exploredArea variable for fog of war
+			if (Areas[this.areaName].onlyShowExploredAreaOnMap && !Areas[this.areaName].alwaysHideOnMap) {
+				// check that the player has been to this area before
+				if (typeof Player.exploredArea[this.areaName] === "undefined") {
+					map.initialiseExploredArea();
+				}
+				else {
+					// check that the area's size hasn't been updated since the player was last here
+					map.fixExploredAreaDimensions();
+				}
 			}
 
 			//
@@ -13764,35 +13808,65 @@ Game.prepareMinimapForTime = function (time) {
 // draws the specified layer of the minimap onto the main canvas
 // tbd should this be on a different canvas? at the very least, the dom 
 Game.renderMinimap = function () {
-	// find position in this.ctx.minimapOffscreen which is the centre of the area to be drawn from
-	let drawCentre = this.camera.minimap.convertToMinimapPosition(this.camera.x + Game.camera.width/2, this.camera.y + Game.camera.height/2); // passed in are the coordinates of what the camera is following
+	if (!Areas[this.areaName].alwaysHideOnMap) {
+		this.ctxMinimap.clearRect(0, 0, this.camera.minimap.width, this.camera.minimap.height);
 
-	let startX = drawCentre.x - this.camera.minimap.width/2;
-	let startY = drawCentre.y - this.camera.minimap.height/2;
+		// find position in this.ctx.minimapOffscreen which is the centre of the area to be drawn from
+		let drawCentre = this.camera.minimap.convertToMinimapPosition(this.camera.x + this.camera.width/2, this.camera.y + this.camera.height/2); // passed in are the coordinates of what the camera is following
 
-	this.camera.minimap.drawTopLeft = {x: startX, y: startY}; // coordinates on minimap canvas to draw from
+		let startX = drawCentre.x - this.camera.minimap.width/2;
+		let startY = drawCentre.y - this.camera.minimap.height/2;
 
-	this.ctx.drawImage(
-		this.ctx.minimapOffscreen[Event.time], // image
-		// cropping
-		Math.round(startX), // source x
-		Math.round(startY), // source y
-		this.camera.minimap.width, // source width
-		this.camera.minimap.height, // source height
-		// drawing
-		this.camera.minimap.x,  // target x
-		this.camera.minimap.y, // target y
-		this.camera.minimap.width, // target width
-		this.camera.minimap.height // target height
-	);
+		this.camera.minimap.drawTopLeft = {x: startX, y: startY}; // coordinates on minimap canvas to draw from
+		this.camera.minimap.drawBottomRight = {x: startX+this.camera.minimap.width, y: startY+this.camera.minimap.height}; // coordinates on minimap canvas to draw from
 
-	let playerPos = this.camera.minimap.convertToMinimapScreenPosition(this.hero.x, this.hero.y);
-	if (playerPos.onscreen) {
-		// draw player marker
-		this.ctx.drawImage(this.camera.minimap.playerIconImg,
-			Math.round(this.camera.minimap.x+playerPos.x-this.camera.minimap.playerIconImg.width/2),
-			Math.round(this.camera.minimap.y+playerPos.y-this.camera.minimap.playerIconImg.height/2)
+		this.ctxMinimap.drawImage(
+			this.ctx.minimapOffscreen[Event.time], // image
+			// cropping
+			Math.round(startX), // source x
+			Math.round(startY), // source y
+			this.camera.minimap.width, // source width
+			this.camera.minimap.height, // source height
+			// drawing
+			0, // target x
+			0, // target y
+			this.camera.minimap.width, // target width
+			this.camera.minimap.height // target height
 		);
+
+		if (Areas[this.areaName].onlyShowExploredAreaOnMap) {
+			// hide all 10x10 (600x600px) chunks that the player hasn't explored yet
+			
+			// first convert the boundary positions to game coordinates
+			let topLeftGamePosition = this.camera.minimap.convertFromMinimapPosition(this.camera.minimap.drawTopLeft.x, this.camera.minimap.drawTopLeft.y);
+			let bottomRightGamePosition = this.camera.minimap.convertFromMinimapPosition(this.camera.minimap.drawBottomRight.x, this.camera.minimap.drawBottomRight.y);
+
+			let startChunk = map.getExploredAreaChunk(topLeftGamePosition.x, topLeftGamePosition.y); // top left chunk that's displayed on the minimap currently
+			let endChunk = map.getExploredAreaChunk(bottomRightGamePosition.x, bottomRightGamePosition.y); // bottom right chunk that's displayed on the minimap currently
+
+			for (let col = startChunk.col; col <= endChunk.col; col++) {
+				for (let row = startChunk.row; row <= endChunk.row; row++) {
+					if (!Player.exploredArea[this.areaName][row][col]) {
+						// this chunk has not been explored yet - draw over it
+						// first get the top-left position of this chunk on the minimap
+						let gameCoords = map.getExploredAreaCoordinates(col, row);
+						let minimapCoords = this.camera.minimap.convertToMinimapScreenPosition(gameCoords.x, gameCoords.y);
+
+						this.ctxMinimap.fillStyle = "#a36e36";
+						this.ctxMinimap.fillRect(Math.round(minimapCoords.x), Math.round(minimapCoords.y), 10*this.camera.minimap.tsize, 10*this.camera.minimap.tsize);
+					}
+				}
+			}
+		}
+
+		let playerPos = this.camera.minimap.convertToMinimapScreenPosition(this.hero.x, this.hero.y);
+		if (playerPos.onscreen) {
+			// draw player marker
+			this.ctxMinimap.drawImage(this.camera.minimap.playerIconImg,
+				Math.round(playerPos.x-this.camera.minimap.playerIconImg.width/2),
+				Math.round(playerPos.y-this.camera.minimap.playerIconImg.height/2)
+			);
+		}
 	}
 }
 

@@ -22,6 +22,7 @@
 	<div id="infoBar"></div>
 	<div id="click" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)"></div>
 	<canvas id="secondary"></canvas>
+	<canvas id="minimap" width="200px" height="200px"></canvas>
 	<canvas id="minigame" width="600px" height="800px"></canvas>
     <canvas id="light"></canvas>
     <canvas id="dayNight"></canvas>
@@ -225,7 +226,7 @@
 		</div>
 	</div>
 
-<div id="settingsWrapperRight">
+	<div id="settingsWrapperRight">
 		<div id="settingDark" class="settings">
 			Dark theme:
 			<span class="radio1"><input type="radio" id="darkOn" name="darkOnOff" onclick="Dom.settings.dark()">On</input></span>
@@ -321,6 +322,9 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 
 		</div>
 		<center><div id="closeCredits" onclick="Dom.settings.page('settingsPage')">Close</div></center>
+	</div>
+
+	<div id="mapPage" hidden class="DOM">
 	</div>
 
 	<div id="questStart" hidden class="DOM shortDOM">

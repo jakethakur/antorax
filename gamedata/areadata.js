@@ -8231,10 +8231,12 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 		lootArea: "eaglecrest",
 		lootTier: 1,
 
+		onlyShowExploredAreaOnMap: true, // fog of war
+
 		isIcy: function() {
 			return Event.event === "Christmas";
 		},
-mapData: {
+		mapData: {
 			origin: {x: 240, y: 2220},
 			cols: 200,
 			rows: 140,
@@ -8770,8 +8772,8 @@ mapData: {
 			trainCarriage: {normal: "assets/objects/trainCarriage.png"},
 			barrel: {normal: "assets/objects/barrel.png"},
 			crate: {normal: "assets/objects/crate.png", christmas: "assets/objects/crateChristmas.png"},
-			coyoteUnbotheredLeft: {normal: "assets/enemies/coyoteUnbothered.png", flip: "vertical"},
-			coyoteUnbotheredRight: {normal: "assets/enemies/coyoteUnbothered.png"},
+			coyoteUnbotheredLeft: {normal: "assets/enemies/coyoteUnbothered.png"},
+			coyoteUnbotheredRight: {normal: "assets/enemies/coyoteUnbothered.png", flip: "vertical"},
 			coyoteBotheredLeft: {normal: "assets/enemies/coyoteBothered.png", flip: "vertical"},
 			coyoteBotheredRight: {normal: "assets/enemies/coyoteBothered.png"},
 			coyoteShootingLeft: {normal: "assets/enemies/coyoteShooting.png", flip: "vertical"},
