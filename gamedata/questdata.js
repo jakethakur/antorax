@@ -1771,7 +1771,7 @@ var Quests = {
 			I don't think this quest ever worked lol! I could never be bothered to properly add leads
 			Originally this was going to be the introduction to the cat questline (and then amelio would go missing again...)
 			But it always felt a bit janky, and the first part felt like too much of a barrier to a (hopefully) fun and unique rest of the quest
-			
+
 			id: 0,
 			quest: "Help! Lost Cat",
 			questArea: "eaglecrest",
@@ -2448,7 +2448,7 @@ var Quests = {
 			},
 		},
 
-		
+
 		{
 			id: 7,
 			quest: "Troubled Waters",
@@ -2504,7 +2504,7 @@ var Quests = {
 			levelRequirement: 5,
 			questRequirements: ["Overdraft"],
 		},
-				
+
 		{
 			id: 8,
 			quest: "A Fool's Errand",
@@ -2925,7 +2925,7 @@ var Quests = {
 					revealStep: 5,
 				},
 			],
-			
+
 			howToStart: "Speak to <strong>Fisherman Guimtal</strong>.",
 			levelRequirement: 5,
 			questRequirements: ["Troubled Waters", "Learning to Fish III"],
@@ -3002,7 +3002,7 @@ var Quests = {
 				{id: 4, text: "Fish up a fish near the <b>tall grass</b> in the <b>south east</b> of the <b>plains</b>.",
 					associatedVariable: "southEastFish"
 				},
-				{id: 5, text: "Return to <b>Fisher Sharptooth</b>.", 
+				{id: 5, text: "Return to <b>Fisher Sharptooth</b>.",
 					completeStep: 1
 				},
 				{id: 6, text: "Head down the <b>Eaglecrest Well</b> and fish up a fish.",
@@ -3111,7 +3111,7 @@ var Quests = {
 
 			steps: [
 				{
-					stepNum: 0, 
+					stepNum: 0,
 					name: "Farmer Eloise",
 					chat: [{
 						text: `The bees won't stop swarming that flower forest~!`,
@@ -3155,7 +3155,7 @@ var Quests = {
 								objCompleted = (Game.distance(nearest, farmerEloise) < 300);
 								if (objCompleted) {
 									Player.quests.questProgress.beeCarefulFinished = true;
-		
+
 									nearest.attackTargets[Game.hero.id].baseAggro = 0;
 									nearest.attackTargets[Game.hero.id].aggro = 0;
 									nearest.hostility = "neutral";
@@ -3165,7 +3165,7 @@ var Quests = {
 						else {
 							objCompleted = true;
 						}
-		
+
 						return objCompleted;
 					},
 				},
@@ -3187,7 +3187,7 @@ var Quests = {
 
 			steps: [
 				{
-					stepNum: 0, 
+					stepNum: 0,
 					name: "Fisher Sharptooth",
 					chat: [{
 						text: `The fish numbers seems to bes dwindling agains.`,
@@ -3252,7 +3252,7 @@ var Quests = {
 			id: 17,
 			quest: "Help! Lost Cat",
 			questArea: "eaglecrest",
-			
+
 			steps: [
 				{
 					stepNum: 0,
@@ -4141,7 +4141,7 @@ var Quests = {
 
 			objectivesList: [
 				{id: 0, text: "Report to <b>tinkerer's name</b> in the Tinkerers' Workshop inside .",},
-				{id: 1, text: "Complete the conveyor belt game", 
+				{id: 1, text: "Complete the conveyor belt game",
 					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
 				},
 				{id: 2, text: "Complete the conveyor belt game",
@@ -4180,22 +4180,34 @@ var Quests = {
 					},{
 						text: `Glog-here they come now!`,
 					}],
+					reattemptChat: [{
+						text: `Glog. Hello again.`,
+					},{
+						text: `Give the sorting another go - we're due another batch of parts any minute now!`,
+					},{
+						text: `All you're needed to do is pull the <b>Purple</b> and <b>Yellow Levers</b> to sort the barrels to the riggght colour hatches.`,
+					},{
+						text: `Remember we'll need at least 76% of them sorted to the correct hatches.`,
+					}],
 					onFinish: function () {
 						Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
 						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0;
 						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 1;
 						Dom.scoreboardInit({
-							timeLimit: 110,
+							timeLimit: 121,
+							stopEventsAfter: 112,
 							variablesArray: [{
 							    keyName: "percentageCorrect",
 							    title: "Success Rate",
 							    percentage: true,
 							}],
 							targetVariableIndex: 0,
-							targetValue: 50,
+							targetValue: 0.76,
 							title: "Quality Assurance",
 							questArea: "eaglecrest",
 							questId: 25,
+							questStep: 0,
+							enableQuestReattempt: true,
 							successFunction: function () {
                                 if (Player.quests.prog.eaglecrest[25].vars.percentageCorrect === 1) {
                                     User.progress.qualityAssuranceAchievement = true;
@@ -4241,7 +4253,6 @@ var Quests = {
 								},
 								/*{ // explosives (destroy them with your weapon, otherwise they lose you points! but note barrels can be destroyed also...)
 									func: function () {
-						
 									},
 									cooldown: 1000,
 									requiredTimeElapsed: 14000,
@@ -4333,6 +4344,7 @@ var Quests = {
 					},{
 						text: `Come back and help out again if you gggget a chance.`,
 					},],
+					objectiveRequirement: [1], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
 					rewards: {
 						xp: 50,
 					},
@@ -4340,8 +4352,9 @@ var Quests = {
 			],
 
 			objectivesList: [
-				{id: 0, text: "Achieve a success rate of 76% or greater at the conveyor belt station, to the left of the <b>Tinkerers' Workshop</b>.", associatedVariable:"scoreboardProgress"},
-				{id: 1, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",},
+				{id: 0, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b> to attempt the challenge again.", reattempt: 0}, // this is only shown if step 0 is ready to be reattempted (is completed otherwise)
+				{id: 1, text: "Achieve a success rate of 76% or greater at the conveyor belt station, to the left of the <b>Tinkerers' Workshop</b>.", associatedVariable:"scoreboardProgress"},
+				{id: 2, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",},
 			],
 
 			howToStart: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",
@@ -4523,7 +4536,7 @@ var Quests = {
 
 			objectivesList: [
 				{id: 0, text: "Fish up three pieces of junk from the Eaglecrest City canal.",
-					associatedVariable: "canalJunkFishedUp", // tbd 
+					associatedVariable: "canalJunkFishedUp", // tbd
 				},
 				{id: 1, text: "Speak to <strong>Solario Sunshadow</strong>.",
 				},

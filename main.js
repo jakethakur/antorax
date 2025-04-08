@@ -1127,6 +1127,8 @@ var map = {
 			this.addExploredChunk(Game.hero.x-360, Game.hero.y+180);
 			this.addExploredChunk(Game.hero.x+360, Game.hero.y-180);
 			this.addExploredChunk(Game.hero.x-360, Game.hero.y-180);
+			this.addExploredChunk(Game.hero.x, Game.hero.y-180);
+			this.addExploredChunk(Game.hero.x, Game.hero.y+180);
 		}
 	},
 
@@ -11608,6 +11610,10 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 			returnObj[0] = true;
 			return returnObj; // quest step 0 can be started (thus no other steps can)
 		}
+		else if (Player.quests.prog[quest.questArea][quest.id].stepProgress[0] === "reattempt") {
+			// quest has already been started, but first step (step 0) is available for reattempting (i.e. rerunning its questFinish)
+			returnObj[0] = "reattempt";
+		}
 	}
 
 	if (!questCanBeStarted) {
@@ -11636,7 +11642,7 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 			}
 		}
 
-		if (canBeFinished) {
+		if (canBeFinished) { // currently just checking that the quest is actually active
 			// quest is currently active
 			// loop through each possible step of the quest and see if it's been done or not
 			for (let stepIndex = 0; stepIndex < step.length; stepIndex++) {
@@ -11650,11 +11656,17 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 
 				let stepId = step[stepIndex]; // the actual step id number (step is the array of steps that are offered by the NPC, i.e. not all of the possible steps of the quest)
 
-				let stepDone = true;
+				let stepDone = true; // whether or not step is ready to be completed
+				let reattempt = false; // set to true if the step has been completed but is available to be reattempted
 
 				if (Player.quests.prog[quest.questArea][quest.id].stepProgress[stepId]) {
 					// step already been completed
 					stepDone = false;
+
+					if (Player.quests.prog[quest.questArea][quest.id].stepProgress[stepId] === "reattempt") {
+						// step has already been completed, but is available for reattempting (i.e. rerunning its questFinish)
+						returnObj[stepId] = "reattempt";
+					}
 				}
 				else if (typeof quest.steps[stepId].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[stepId].availableUntilStepDone]) {
 					// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
@@ -11974,7 +11986,9 @@ Game.update = function (delta) {
 						// quest starts and step finishes
 						// the exact step(s) are specified in the role.step integer/array
 						if (role.role === "questProgress") {
-							let result = this.questCanBeProgressed(role.quest, role.step, role.newQuestFrequency, role.questVariable)
+							// result contains "true"/"false"/"reattempt" for each step, representing if it is ready to be progressed
+							// "reattempt" means the step has been started, but can be reattempted (meaning the onFinish function is called again, and chat is shown again)
+							let result = this.questCanBeProgressed(role.quest, role.step, role.newQuestFrequency, role.questVariable);
 						
 							questActive = result.questActive;
 							questComplete = result.questComplete;
@@ -11986,15 +12000,17 @@ Game.update = function (delta) {
 							}
 							let numSteps = role.step.length;
 
-							let stepCanBeCompleted = false;
-							for (let stepNum = 1; stepNum < numSteps; stepNum++)  { // step 0 is checked separately
+							let stepToBeCompleted = false;
+							let stepStatus = false;
+							for (let stepNum = 0; stepNum < numSteps; stepNum++) {
 								if (result[stepNum]) {
-									stepCanBeCompleted = stepNum; // just take the first possible step to be completed
+									stepToBeCompleted = stepNum; // just take the first possible step to be completed
+									stepStatus = result[stepNum]; // will be either true or "reattempt"
 									break;
 								}
 							}
 
-							if (result[0]) {
+							if (result[0] === true) {
 								// quest can be started
 								// choose dom checks inventory space
 								textArray.push("Quest start: " + role.quest.quest);
@@ -12002,26 +12018,35 @@ Game.update = function (delta) {
 								parameterArray.push([role.quest, npc, 0]);
 								additionalOnClickArray.push(role.additionalOnClick);
 							}
-							else if (stepCanBeCompleted !== false) {
-								if (typeof quest.steps[stepCanBeCompleted].chooseText !== "undefined") {
-									// custon choose text
-									textArray.push(quest.steps[stepCanBeCompleted].chooseText);
+							else if (stepStatus === true) {
+								// a step other than the first step can be completed
+								if (typeof role.quest.steps[stepToBeCompleted].chooseText !== "undefined") {
+									// custom choose text
+									textArray.push(role.quest.steps[stepToBeCompleted].chooseText);
 								}
 								else if (questFinish) {
 									// quest is to be finished
-									textArray.push(role.chooseText || "Quest finish: " + quest.quest);
+									textArray.push(role.chooseText || "Quest finish: " + role.quest.quest);
 								}
 								else {
-									textArray.push(role.chooseText || "Quest progress: " + quest.quest);
+									textArray.push(role.chooseText || "Quest progress: " + role.quest.quest);
 								}
-								parameterArray.push([quest, npc, stepCanBeCompleted, questFinish]);
+								parameterArray.push([role.quest, npc, stepToBeCompleted, questFinish]);
 								functionArray.push(Dom.quest.progressFromNpc);
 								additionalOnClickArray.push(role.additionalOnClick);
 								// (inventory space is checked by choose DOM)
 	
-								if (quest.steps[stepCanBeCompleted].forceChoose) {
+								if (role.quest.steps[stepToBeCompleted].forceChoose) {
 									forceChoose = true;
 								}
+							}
+							else if (stepStatus === "reattempt") {
+								// a step can be reattempted
+								textArray.push("Try again: " + role.quest.quest);
+								functionArray.push(Dom.quest.reattempt);
+								parameterArray.push([role.quest, npc, stepToBeCompleted]);
+								additionalOnClickArray.push(role.additionalOnClick); // tbd maybe we don't want this here... assess
+								forceChoose = true; // since the player does not get a choice once the dialogue has started
 							}
 						}
 

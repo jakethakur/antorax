@@ -13176,6 +13176,7 @@ chloroville: {
 			{
 				x: [693.2],
 				y: [1619.6],
+				orderOffsetY: 40,
 				image: "leverPurple",
 				name: "Purple Lever",
 				crop: {
@@ -13202,6 +13203,7 @@ chloroville: {
 			{
 				x: [869.2],
 				y: [1619.6],
+				orderOffsetY: 40,
 				image: "leverYellow",
 				name: "Yellow Lever",
 				crop: {

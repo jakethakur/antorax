@@ -228,7 +228,7 @@ var Player = {
 		prog: {}, // prog[questArea][questId] is an object with the following properties:
 		// vars, which is an object of progress variables for the quest
 		// objectiveProgress, an array, set by Dom.quests.active to true/false for each objective of the quest
-		// stepProgress, an array where index i is to true if step i has been completed
+		// stepProgress, an array where index i is to true if step i has been completed. can be set to "reattempt" if the step needs to be reattempted
 		// stepRewardsProgress, an array where index i is set to true if step i has *ever* been completed (i.e. if it got abandoned after completion it is still set to true here!)
 		// questLastFinished, which stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 		// timesCompleted, number of times a player has completed a repeatable quest (used for e.g. hide and seek quest in logging camp)

@@ -940,7 +940,7 @@ Dom.chat.translateTo.giblish = function (chat) {
 	chat = chat.replace(/b/g, "a");
 	// deal with leftover symbols from html tags (in the future, make it so the above doesn't match any letters in html tags instead)
 	chat = chat.replace(/[<>\/]/g, "n");
-	
+
 	return chat;
 }
 
@@ -948,7 +948,7 @@ Dom.chat.translateTo.cat = function (chat) {
 	chat = chat.replace(/(\w+)/g, "meow"); // replaces every whole word with meow
 	// deal with leftover symbols from html tags (in the future, make it so the above doesn't match any letters in html tags instead)
 	chat = chat.replace(/[<>\/]/g, "meow"); // replaces every whole word with meow
-	
+
 	return chat;
 }
 
@@ -1019,7 +1019,7 @@ Dom.chat.playerMessage = function (message) {
 			<br>/ping - see your connection speed with server.
 			<br><br>If you require help with the game, click your yellow bookmark with a compass on.`));
 		}
-		
+
 		if (message === "/creative") {
 			Game.toggleCreativeMode();
 		}
@@ -1273,7 +1273,7 @@ Dom.chat.timeoutTime = 20; // ms between each character being shown
 Dom.chat.npcBanner = function (npc, text, skippable) {
 	// prepare the text that is about to be shown
 	if (!Array.isArray(text) && typeof text.showCondition !== "undefined") {
-		// text is an array of objects where  
+		// text is an array of objects where
 	}
 
 	if (Array.isArray(text)) {
@@ -1293,20 +1293,20 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 		}
 	}
 
-	// maybe Dom.changeBook should be used for the following?: 
+	// maybe Dom.changeBook should be used for the following?:
 	if (Dom.currentlyDisplayed === "" || (Dom.currentlyDisplayed === "npcBanner" && Dom.currentNPC.name === npc.name && Dom.chat.npcBannerText !== text[0].text)) {
 		Dom.currentlyDisplayed = "npcBanner";
 		Dom.currentNPC = npc;
 
 		//skippable = true;
-	
+
 		Dom.chat.npcBannerReadyToProgress = false;
-	
+
 		// reinit
 		//Dom.elements.npcChatBanner1.style.height = "116px";
 		Dom.chat.npcBannerText = "";
 		Dom.chat.npcBannerArray = undefined;
-	
+
 		let toShow;
 		if (text.length > 1) {
 			// still some text left to be shown after this
@@ -1326,11 +1326,11 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 
 			toShow = text[0];
 		}
-	
+
 		Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
-	
+
 		Dom.chat.npcBannerParams.skippable = skippable;
-	
+
 		if (typeof toShow === "object") {
 			if (toShow.long) {
 				// show three lines
@@ -1342,25 +1342,25 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 				Dom.elements.npcChatBanner1.style.height = "116px";
 				Dom.elements.npcChatBanner1.style.backgroundImage = "url('./assets/interface/npcDialogue1.png')";
 			}
-	
+
 			Dom.chat.npcBannerText = toShow.text;
 
 			Dom.chat.npcBannerText = Dom.chat.translate(Dom.chat.npcBannerText, npc.language); // translate to npc's language
-	
+
 			Dom.chat.npcBannerParams.onFinish = toShow.onFinish; // function or undefined
 			Dom.chat.npcBannerParams.onFinishParams = toShow.onFinishParams; // array or undefined
-	
+
 			// these are just to be set by DOM functions
 			Dom.chat.npcBannerParams.onFinishDom = toShow.onFinishDom; // function or undefined
 			Dom.chat.npcBannerParams.onFinishDomParams = toShow.onFinishDomParams; // array or undefined
-	
+
 			Dom.chat.npcBannerParams.autoProgress = toShow.autoProgress;
-	
+
 			if (typeof toShow.progressIn !== "undefined") {
 				// in ms
 				setTimeout(this.npcChatProgress, toShow.progressIn, true);
 			}
-	
+
 			if (typeof toShow.options !== "undefined") {
 				// in ms
 				Dom.chat.npcBannerParams.options = toShow.options;
@@ -1370,7 +1370,7 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 			console.error("Unexpected type of text parameter for NPC chat banner", toShow);
 			return;
 		}
-	
+
 		// finish reinit
 		if (toShow.saidBy === "none" || npc === false) {
 			// i.e. an action rather than a person saying it
@@ -1383,11 +1383,11 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 			Dom.elements.npcChatBannerHeader1.innerHTML = npc.name;
 			Dom.elements.npcChatImage.style.backgroundImage = "url('"+npc.imageSrc+"')";
 		}
-	
+
 		// show
 		Dom.elements.npcChatNext.src = "assets/icons/dialogueWait.png";
 		Dom.elements.npcChatBanner1.hidden = false;
-	
+
 		setTimeout(Dom.chat.npcBannerIterate, this.timeoutTime, 1);
 	}
 }
@@ -2004,7 +2004,7 @@ Dom.inventory.stats = function (stat, value, array) {
 	else if (stat === "Defence Multiplier" || stat === "Damage Multiplier" || stat === "Movement Multiplier") {
 		return stat+": "+value+"%<br>";
 	}
-	else { 
+	else {
 		return "";
 	}
 };
@@ -2481,7 +2481,7 @@ Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 // quest is the object as appears in questdata
 // npc is the npc that the quest is being started from (optional - retrieved from Player.quests.startedFromNpc otherwise)
 Dom.quest.prepareQuestObject = function (quest, npc) {
-	let ourQuest = {}; 
+	let ourQuest = {};
 	// shallow clone
 	Object.assign(ourQuest, quest);
 
@@ -2505,7 +2505,7 @@ Dom.quest.prepareQuestObject = function (quest, npc) {
 		Object.assign(ourQuest, ourQuest.differsOnTimesCompleted[timesCompleted]);
 	}
 
-	// note that none of the above preparation stuff should affect any conditions of the quest starting, as Dom.quests.possible doesn't work with this 
+	// note that none of the above preparation stuff should affect any conditions of the quest starting, as Dom.quests.possible doesn't work with this
 	// tbd make a way to verify that quests aren't doing this?
 
 	return ourQuest;
@@ -2515,7 +2515,7 @@ Dom.quest.prepareQuestObject = function (quest, npc) {
 // without dialogue (assumes dialogue it has already been shown by progressFromNpc)
 // note this isn't for the quest actually being accepted - they still have the option to decline. accepting the quest is done in Dom.quest.accept
 Dom.quest.start = function (quest, npc) {
-	// check AGAIN (in case they updated their inventory during dialogue) if player has enough inventory space for any start rewards
+	// check again (in case they updated their inventory during dialogue) if player has enough inventory space for any start rewards
 	if (typeof quest.steps[0].rewards === "undefined" || typeof quest.steps[0].rewards.items === "undefined" || Dom.inventory.requiredSpace(quest.steps[0].rewards.items)) {
 		if (Dom.changeBook("questStart")) {
 			if (quest.multipleAreas) {
@@ -2555,17 +2555,17 @@ Dom.quest.start = function (quest, npc) {
 			// display objectives on quest start page
 			Dom.elements.questStartObjectives.innerHTML = "";
 			for (let i = 0; i < objectives.length; i++) {
-				if (typeof objectives[i].revealStep === "undefined" && (typeof objectives[i].isHidden === "undefined" || !objectives[i].isHidden())) {
+				if (typeof objectives[i].revealStep === "undefined" && (typeof objectives[i].isHidden === "undefined" || !objectives[i].isHidden()) && typeof objectives[i].reattempt === "undefined") {
 					Dom.elements.questStartObjectives.innerHTML += "<br>" + objectives[i].text;
 				}
 			}
 
 			// calculate the total rewards from the whole quest
-			// note this does NOT include start rewards
+			// note this does NOT include start rewards (rewards from first step)
 			let totalXp = 0;
 			let itemsArray = [];
 			let servicesArray = [];
-			for (let i = 1; i < quest.steps.length; i++) { // skips first step 
+			for (let i = 1; i < quest.steps.length; i++) { // skips first step
 				let step = quest.steps[i];
 
 				if (typeof step.rewards !== "undefined") {
@@ -2653,7 +2653,7 @@ Dom.quest.start = function (quest, npc) {
 				Dom.elements.questStartRewardsTitle.innerHTML = "";
 			}
 
-			// start rewards
+			// start rewards (rewards for step 0)
 			Dom.elements.questStartStartItems.innerHTML = "";
 			let startRewards = quest.steps[0].rewards;
 			if (startRewards !== undefined) {
@@ -2829,7 +2829,7 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 		// note that this doesn't display any objectives that were previously hidden via a isHidden function - maybe do this in the future.
 		let newObjectives = [];
 		for (let i = 0; i < quest.objectivesList.length; i++) {
-			if (quest.objectivesList[i].revealStep === step && (typeof quest.objectivesList[i].isHidden === "undefined" || !quest.objectivesList[i].isHidden())) {
+			if (quest.objectivesList[i].revealStep === step && (typeof quest.objectivesList[i].isHidden === "undefined" || !quest.objectivesList[i].isHidden()) && typeof quest.objectivesList[i].reattempt === "undefined") {
 				newObjectives.push(i);
 			}
 		}
@@ -2949,7 +2949,6 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 // they've just completed step number "step".
 // called by Dom.quest.progress (i.e. when npc dialogue has finished)
 // handles everything that's not to do with showing the page
-// note that this is NOT called on quest start (Maybe should be changed in the future). Dom.quest.accept is the analogue for quest start
 Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	// increment variables
 	Player.quests.prog[quest.questArea][quest.id].stepProgress[step] = true;
@@ -2963,9 +2962,11 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	}
 
 	// reputation
-	if (quest.steps[step].rewards.reputation !== undefined) {
-		for (let i = 0; i < Object.keys(quest.steps[step].rewards.reputation).length; i++) {
-			Dom.reputation.give(Object.keys(quest.steps[step].rewards.reputation)[i], quest.steps[step].rewards.reputation[Object.keys(quest.steps[step].rewards.reputation)[i]])
+	if (typeof quest.steps[step].rewards !== "undefined") {
+		if (quest.steps[step].rewards.reputation !== undefined) {
+			for (let i = 0; i < Object.keys(quest.steps[step].rewards.reputation).length; i++) {
+				Dom.reputation.give(Object.keys(quest.steps[step].rewards.reputation)[i], quest.steps[step].rewards.reputation[Object.keys(quest.steps[step].rewards.reputation)[i]])
+			}
 		}
 	}
 
@@ -2984,25 +2985,25 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		}
 
 		Dom.quests.completed(quest);
-	}
 
-	// user.progress variables (i.e. for achivements)
-	if (quest.repeatTime === "repeatable") {
-		User.progress.repeatableQuests = Increment(User.progress.repeatableQuests);
-		if (quest.randomGroup !== undefined) {
-			Player.quests.randomDailyQuests[quest.randomGroup] = undefined;
+		// user.progress variables (i.e. for achivements)
+		if (quest.repeatTime === "repeatable") {
+			User.progress.repeatableQuests = Increment(User.progress.repeatableQuests);
+			if (quest.randomGroup !== undefined) {
+				Player.quests.randomDailyQuests[quest.randomGroup] = undefined;
+			}
 		}
-	}
-	else if (Dom.currentlyDisplayed.repeatTime === "daily") {
-		User.progress.dailyQuests = Increment(User.progress.dailyQuests);
-	}
-	else {
-		User.progress.quests = Increment(User.progress.quests);
+		else if (Dom.currentlyDisplayed.repeatTime === "daily") {
+			User.progress.dailyQuests = Increment(User.progress.dailyQuests);
+		}
+		else {
+			User.progress.quests = Increment(User.progress.quests);
+		}
+
+		Player.quests.prog[quest.questArea][quest.id].questLastFinished = GetFullDate();
 	}
 
-	quest.wasCompleted = undefined; // for Dom.quests.active
-
-	Player.quests.prog[quest.questArea][quest.id].questLastFinished = GetFullDate();
+	quest.wasCompleted = undefined; // for Dom.quests.active triggering "quest log updated" message
 
 	Dom.adventure.update();
 
@@ -3011,11 +3012,14 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		quest.steps[step].onFinish(npc);
 	}
 
-	Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
+	if (typeof quest.steps[step].rewards !== "undefined") {
+		Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
+	}
 	Dom.checkProgress();
 
+	// give item rewards
 	// last because it saves
-	if (quest.steps[step].rewards !== undefined && quest.steps[step].rewards.items !== undefined) {
+	if (typeof quest.steps[step].rewards !== "undefined" && typeof quest.steps[step].rewards.items !== "undefined") {
 		for (let i = 0; i < quest.steps[step].rewards.items.length; i++) {
 			if (quest.steps[step].rewards.items[i].item.type !== "item" || quest.steps[step].rewards.items[i].item.id !== 1) {
 				if ((quest.steps[step].rewards.items[i].condition === undefined || quest.steps[step].rewards.items[i].condition()) && (quest.steps[step].rewards.items[i].chance === undefined || quest.steps[step].rewards.items[i].chance > Random(0, 99))) {
@@ -3050,21 +3054,21 @@ Dom.quest.accept = function () {
 
 	// reset objectiveProgress and stepProgress
 	Player.quests.prog[quest.questArea][quest.id].objectiveProgress = [];
-	Player.quests.prog[quest.questArea][quest.id].stepProgress = [true]; // true because first step has been completed
+	Player.quests.prog[quest.questArea][quest.id].stepProgress = []; // stepProgress[0] is set to true by acceptRewards, called below
 
 
 	// set the npc that the player started the quest from, in case the quest differsOnNpc
 	Player.quests.prog[quest.questArea][quest.id].startedFromNpc = Dom.currentNPC;
 
-	// quest start function
-	if (quest.steps[0].onFinish !== undefined) {
-		if (Dom.currentNPC.type !== undefined) { // pass in the currentNPC if poss :)
-			quest.steps[0].onFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
-		}
-		else {
-			quest.steps[0].onFinish();
-		}
+	// find npc that started the quest if possible, for the onFinish function for the first step
+	// note that this may not always be possible, meaning this function won't reliably have an NPC passed in
+	let npc;
+	if (typeof Dom.currentNPC.type !== "undefined") {
+		npc = Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id);
 	}
+	
+	// give rewards, call onFinish, etc.
+	this.acceptRewards(quest, npc, 0, false);
 
 	// after onQuestStart because (e.g.) tavern clean-up sets variables in onQuestStart needed for this
 	Dom.quests.active(quest);
@@ -3075,23 +3079,37 @@ Dom.quest.accept = function () {
 	if (Dom.currentlyDisplayed === quest) {
 		Dom.closePage('questStart');
 	}
+}
 
-	// last because it saves
-	if (quest.steps[0].rewards !== undefined && quest.steps[0].rewards.items !== undefined) {
-		for (let i = 0; i < quest.steps[0].rewards.items.length; i++) {
-			if (quest.steps[0].rewards.items[i].condition === undefined || quest.steps[0].rewards.items[i].condition() && (quest.steps[0].rewards.items[i].chance === undefined || quest.steps[0].rewards.items[i].chance > Random(0, 99))) {
-				Dom.inventory.give(quest.steps[0].rewards.items[i].item, quest.steps[0].rewards.items[i].quantity);
-				if (quest.steps[0].rewards.items[i].chance !== undefined) {
-					if (quest.steps[0].rewards.items[i].quantity > 1) {
-						Dom.chat.insert("You earned "+quest.steps[0].rewards.items[i].quantity+" rare <strong>"+quest.steps[0].rewards.items[i].item.name+"</strong> from completing this quest.");
-					}
-					else {
-						Dom.chat.insert("You earned a rare <strong>"+quest.steps[0].rewards.items[i].item.name+"</strong> from completing this quest.");
-					}
-				}
-			}
-		}
+// just spoken to an npc to reattempt a step of the quest - display chat then call the step's onFinish if one exists
+// the step's reattemptChat is used if it exists, otherwise defaults to chat
+// this is always called through choose dom, which deals with currentlyDisplayed etc
+Dom.quest.reattempt = function (quest, npc, step) {
+	// prepare quest object
+	let ourQuest = Dom.quest.prepareQuestObject(quest, npc); // tbd maybe unnecessary here?
+
+	// check player has enough inventory space for any rewards after completing this step (or starting the quest, in case step=0)
+	let chat = ourQuest.steps[step].reattemptChat;
+	if (typeof chat === "undefined") {
+		chat = ourQuest.steps[step].chat;
 	}
+
+	// format chat so the onFinishDom property can be given to it
+	chat = Dom.quest.formatBannerChat(chat);
+	chat[chat.length-1].onFinishDom = Dom.quest.acceptReattempt; // onFinish gets called once the npc dialogue is finished, and Player stepProgress[step] is changed so it can't be reattempted again
+	chat[chat.length-1].onFinishDomParams = [ourQuest, npc, step];
+
+	Dom.chat.npcBanner(npc, chat);
+}
+
+// called at the end of dialogue from Dom.quest.reattempt
+// note this is triggered automatically after the chat finishes
+Dom.quest.acceptReattempt = function (quest, npc, step) {
+	if (typeof quest.steps[step].onFinish !== "undefined") {
+		quest.steps[step].onFinish(npc);
+	}
+
+	Player.quests.prog[quest.questArea][quest.id].stepProgress[step] = true; // this was previously "reattempt". make it so this can't be reattempted again
 }
 
 //
@@ -3100,13 +3118,13 @@ Dom.quest.accept = function () {
 
 // update progress of currently active quests. called by Dom.checkProgress mostly
 // a parameter being passed in means this has been called from Dom.quest.accept, and this quest should be added to Player.quests.activeQuestArray
-// the parameter should be the quest object, as appears in questdata.js 
+// the parameter should be the quest object, as appears in questdata.js
 Dom.quests.active = function (quest) {
 	if (quest !== undefined) {
 		Player.quests.activeQuestArray.push(quest.quest);
 	}
 
-	// update scoreboard (if one is active) 
+	// update scoreboard (if one is active)
 	Dom.scoreboardUpdate();
 
 	Dom.elements.activeQuestBox.style.textAlign = "left";
@@ -3171,6 +3189,10 @@ Dom.quests.active = function (quest) {
 				if (hidden && typeof objectives[i].isHidden !== "undefined") {
 					hidden = objectives[i].isHidden(); // doesn't override revealStep
 				}
+				if (typeof objectives[i].reattempt !== "undefined" && Player.quests.prog[currentQuest.questArea][currentQuest.id].stepProgress[objectives[i].reattempt] !== "reattempt") {
+					// tied to a step that can be reattempted, but step is currently not open for reattempting
+					hidden = true;
+				}
 
 				// display the objective if it's not hidden
 				if (!hidden) {
@@ -3233,7 +3255,7 @@ Dom.quests.active = function (quest) {
 			}
 			if (currentQuest.autofinish && completedObjectives >= objectives.length) {
 				// quest should finish once all objectives are done (wothout needing to speak directly to npc), and all objectives are done
-				// note that there shouls always be an alternate way to finish such quests, in case the player has a DOM page already open when this is triggered
+				// note that there should always be an alternate way to finish such quests, in case the player has a DOM page already open when this is triggered
 				let npcName = currentQuest.steps[currentQuest.steps.length-1].name;
 				Dom.choose.page([{
 					npc:npcName,
@@ -3454,12 +3476,12 @@ Dom.scoreboardInit = function (properties) {
     // this is the only way that Dom.scoreboard can be initialised! usually related to a quest (through the properties.questArea and questId values), but doesn't have to be
     // this function will fail and send a console.error if Dom.scoreboard is currently being used
     // the Dom.scoreboard is removed on area leave or on quest abandon (if a quest is specified in properties)
-   
+
     // the scoreboard is updated by Dom.scoreboard.update, which is called when Dom.quests.active is called
     // it should only be updated via Dom.quests.active to avoid scoreboard being updated without quest log update (as it is likely they will both share variables)
-   
+
     // properties parameter is an object which includes properties:
-   
+
     // timeLimit: IN SECONDS, the time after which the challenge ends. optional.
     // endOnceTargetReached: if set to true, the scoreboard is terminated once a target function returns true. otherwise, it keeps going until timeLimit is reached (or area is left in the case of no time limit)
     // targetFunction can access any values in Dom.scoreboard.variablesArray, and should return true if the scoreboard has been "succeeded"
@@ -3478,8 +3500,9 @@ Dom.scoreboardInit = function (properties) {
     // title is an optional. if one is specified, the value is displayed on the scoreboard as "Title: value" rather than just as value. Usually a good idea unless your value is a string!
     // doNotClear is set to true if the variable stored at keyName should not be cleared (set to undefined) upon the scoreboard being finished (irrespective of success/fail) [by default these variables are cleared!]
 
-	// if success, then if a quest is set, Player.quests.prog[questArea][questId].vars[progressKey] is set to questStep (or true if questStep not defined) (progressKey defaults to "scoreboardSuccess" if not defined)
-
+	// if success, then if a quest is set, Player.quests.prog[questArea][questId].vars[progressKey] is set to progressValue [or true if progressValue not defined] (progressKey defaults to "scoreboardSuccess" if not defined)
+	// if failure, then if a quest and step are set, and properties.enableQuestReattempt is set to true, then Player.quests.prog[questArea][questId].stepProgress[questStep] is set to "reattempt", allowing the step's onFinish and dialogue to be replayed once
+	
     // onscreen scoreboard's dom properties (all of these are optional)
     // this scoreboard optionally appears below the mana bar to show minigame progress
     //
@@ -3498,6 +3521,8 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.questId = properties.questId;
 		this.scoreboard.questStep = properties.questStep;
 
+		this.scoreboard.enableQuestReattempt = properties.enableQuestReattempt;
+
 		// ending behaviour
 		this.scoreboard.timeLimit = properties.timeLimit;
 		this.scoreboard.endOnceTargetReached = properties.endOnceTargetReached;
@@ -3513,6 +3538,12 @@ Dom.scoreboardInit = function (properties) {
 		}
 		this.scoreboard.callFailFunctionOnAbandon = properties.callFailFunctionOnAbandon;
 		this.scoreboard.progressKey = properties.progressKey || "scoreboardProgress";
+		if (typeof properties.progressValue !== "undefined") {
+			this.scoreboard.progressValue = properties.progressValue;
+		}
+		else {
+			this.scoreboard.progressValue = true;
+		}
 
 		// runtime behaviour
 		this.scoreboard.variablesArray = properties.variablesArray;
@@ -3527,7 +3558,12 @@ Dom.scoreboardInit = function (properties) {
 		if (typeof this.scoreboard.displayTimer === "undefined") {
 			this.scoreboard.displayTimer = true;
 		}
-		
+		// chat message to be outputted, regardless of success or failure
+		this.scoreboard.chatMessageOnFinish = properties.chatMessageOnFinish; // set to false if there shouldn't be a chat message
+		if (typeof this.scoreboard.chatMessageOnFinish === "undefined") {
+			this.scoreboard.chatMessageOnFinish = true; // uses default message
+		}
+
 		this.scoreboard.clearTimeoutsOnFinish = [];
 		// randomEvents: an array of objects. these will be chosen and run at random.
 		// ^^^^^^^^^^^^^ each object should have a func property which would be called, and a cooldown (delay until the next random event is chosen)
@@ -3550,7 +3586,7 @@ Dom.scoreboardInit = function (properties) {
 			for (let i = 0; i < properties.eventSequence.length; i++) {
 				let timeout = Game.setTimeout(properties.eventSequence[i].func, properties.eventSequence[i].time);
 				Game.clearedTimeoutsOnAreaChange.push(timeout);
-				this.scoreboard.clearTimeoutsOnFinish.push(timeout)
+				this.scoreboard.clearTimeoutsOnFinish.push(timeout);
 			}
 		}
 		// chatSequence: same as above, but for chat banners that are displayed. properties of each object are the usual chatBanner parameters (see questdata chat), and time property which is same as above
@@ -3559,8 +3595,15 @@ Dom.scoreboardInit = function (properties) {
 			for (let i = 0; i < properties.chatSequence.length; i++) {
 				let timeout = Game.setTimeout(Dom.chat.npcBanner, properties.chatSequence[i].time, [properties.chatSequence[i].npc, properties.chatSequence[i].chat]);
 				Game.clearedTimeoutsOnAreaChange.push(timeout);
-				this.scoreboard.clearTimeoutsOnFinish.push(timeout)
+				this.scoreboard.clearTimeoutsOnFinish.push(timeout);
 			}
+		}
+
+		// clear all scoreboard related timeouts after a certain time (in seconds)
+		if (properties.stopEventsAfter !== "undefined") {
+			let timeout = Game.setTimeout(Dom.clearScoreboardTimeouts, properties.stopEventsAfter*1000);
+			Game.clearedTimeoutsOnAreaChange.push(timeout);
+			this.scoreboard.clearTimeoutsOnFinish.push(timeout);
 		}
 
 		// initialise the DOM to display information
@@ -3613,7 +3656,7 @@ Dom.scoreboardUpdate = function () {
 			result = this.scoreboard.targetFunction();
 		}
 		else if (typeof this.scoreboard.targetVariableIndex !== "undefined") {
-			let value = this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex];
+			let value = this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex].value;
 			if (this.scoreboard.targetComparisonType === "geq" && value<this.scoreboard.targetValue) {
 				result = false;
 			}
@@ -3624,11 +3667,11 @@ Dom.scoreboardUpdate = function () {
 
 		if (typeof this.scoreboard.timeLimit !== "undefined" && this.scoreboard.timer >= this.scoreboard.timeLimit) { // note both are measured in seconds
 			// time is up - run functions then clear variables and scoreboard
-			this.scoreboardFinish(result);
+			this.scoreboardFinish(result, "time");
 		}
 		else if (result && this.endOnceTargetReached) {
-			// time has not yet finished yet (if there is time), but the player has succeeded at the minigame 
-			this.scoreboardFinish(result);
+			// time has not yet finished yet (if there is time), but the player has succeeded at the minigame
+			this.scoreboardFinish(result, "targetReached");
 		}
 		else if (this.scoreboard.displayScoreboard) {
 			this.scoreboardUpdateVisual();
@@ -3645,17 +3688,17 @@ Dom.scoreboardUpdateVisual = function () {
 
 	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
 		let variable = this.scoreboard.variablesArray[i];
-		if (variable.percentage) { // it is a decimal but should be displayed as a percentage
-		    variable*=100;
-		}
+		document.getElementById("scoreboardVariable"+i).textContent = "";
+
 		if (typeof variable.title !== "undefined") {
-			document.getElementById("scoreboardVariable"+i).textContent = variable.title+": "+variable.value;
+			document.getElementById("scoreboardVariable"+i).textContent = variable.title+": ";
+		}
+
+		if (variable.percentage) {
+			document.getElementById("scoreboardVariable"+i).textContent += Round(variable.value*100,1) + "%";
 		}
 		else {
-			document.getElementById("scoreboardVariable"+i).textContent = variable.value;
-		}
-		if (variable.percentage) {
-			document.getElementById("scoreboardVariable"+i).textContent += "%";
+			document.getElementById("scoreboardVariable"+i).textContent += variable.value;
 		}
 	}
 }
@@ -3701,15 +3744,57 @@ Dom.scoreboardRandomEvents = function () {
 	Dom.scoreboard.clearTimeoutsOnFinish.push(randomEventsTimeout)
 }
 
+// clears all timeouts or intervals in Dom.scoreboard.clearTimeoutsOnFinish
+// called on scoreboard finish
+// areaLeave is handled separately (by Game.clearedTimeoutsOnAreaChange)
+Dom.clearScoreboardTimeouts = function () {
+	while (Dom.scoreboard.clearTimeoutsOnFinish.length > 0) {
+		if (!Game.clearTimeout(Dom.scoreboard.clearTimeoutsOnFinish[0])) {
+			Game.clearInterval(Dom.scoreboard.clearTimeoutsOnFinish[0]);
+		}
+		Dom.scoreboard.clearTimeoutsOnFinish.splice(0, 1);
+	}
+}
+
 // called when scoreboard has finished, from Dom.scoreboardUpdate
 // resets (sets to undefined) scoreboard, as well as relevant variables. also runs success/fail function
 // result is true/false depending on whether the player has succeeded or failed
-Dom.scoreboardFinish = function (result) {
+// reason is either "time" or "targetReached". used only for chat message
+Dom.scoreboardFinish = function (result, reason) {
 	// remove all scoreboard timeouts
-	for (let i = 0; i < Dom.scoreboard.clearTimeoutsOnFinish.length; i++) {
-		if (!Game.clearTimeout(Dom.scoreboard.clearTimeoutsOnFinish[i])) {
-			Game.clearInterval(Dom.scoreboard.clearTimeoutsOnFinish[i]);
+	Dom.clearScoreboardTimeouts();
+
+	// unless told otherwise, output results into chat
+	if (Dom.scoreboard.chatMessageOnFinish === true) { // default message
+		let msg = Dom.scoreboard.title + ": ";
+
+		if (reason === "time") {
+			msg += "Time's up! ";
 		}
+
+		if (result) {
+			msg += "Success";
+		}
+		else {
+			msg += "You were unsuccessful";
+		}
+
+		if (typeof this.scoreboard.targetVariableIndex !== "undefined" && this.scoreboard.targetComparisonType === "geq") {
+			let value = this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex].value;
+			if (this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex].percentage) {
+				value = Round(value*100,1) + "%";
+			}
+			// show results variable value
+			msg += " - your final score was " + value;
+		}
+		else {
+			msg += ".";
+		}
+
+		Dom.chat.insert(msg);
+	}
+	else if (Dom.scoreboard.chatMessageOnFinish !== false) { // custon message
+		Dom.chat.insert(Dom.scoreboard.chatMessageOnFinish);
 	}
 
 	if (result === true) {
@@ -3720,18 +3805,17 @@ Dom.scoreboardFinish = function (result) {
 
 		// if a quest has been defined, update a quest variable
 		if (typeof this.scoreboard.questArea !== "undefined" && typeof this.scoreboard.questId !== "undefined") {
-			if (typeof this.scoreboard.questStep !== "undefined") {
-				Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[this.scoreboard.progressKey] = this.scoreboard.questStep;
-			}
-			else {
-				Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[this.scoreboard.progressKey] = true;
-			}
+			Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[this.scoreboard.progressKey] = this.scoreboard.progressValue;
 		}
 	}
 	else if (result === false || (result === "abandon" && this.scoreboard.callFailFunctionOnAbandon)) {
 		// failure
 		if (typeof this.scoreboard.failFunction !== "undefined") {
 			this.scoreboard.failFunction();
+		}
+
+		if (this.scoreboard.enableQuestReattempt) {
+			Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].stepProgress[this.scoreboard.questStep] = "reattempt";
 		}
 	}
 
@@ -5558,8 +5642,8 @@ else {
 }
 
 
-// 
-// SPELLBOOK : spell arsenal 
+//
+// SPELLBOOK : spell arsenal
 //
 
 Dom.spellbook.init = function () {
@@ -6624,7 +6708,7 @@ Dom.spellChoice.page = function (npc, spells) {
 			}
 		}
 
-		Dom.elements.driverPageBuy.onclick = function () { 
+		Dom.elements.driverPageBuy.onclick = function () {
 			/*let id = Spells[spells[Dom.driver.previous].spellId].id;
 			let tier = spells[Dom.driver.previous].spellTier;
 
@@ -7760,9 +7844,9 @@ Dom.quest.abandon = function (quest, step) {
 			}
 		}
 
-		if (typeof quest.callQuestFinishOnAbandon !== "undefined") { 
+		if (typeof quest.callQuestFinishOnAbandon !== "undefined") {
 			// this specifies the steps whose finish function should be called
-			// this includes the step that the player is currently working on 
+			// this includes the step that the player is currently working on
 
 			if (Dom.currentNPC.type !== undefined) { // pass in the currentNPC if poss :)
 				quest.steps[quest.callQuestFinishOnAbandon].onFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
