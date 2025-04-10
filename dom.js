@@ -3462,10 +3462,11 @@ Dom.quests.other = function () {
 // initialise a scoreboard which keeps track of variables, typically for a minigame being completed in a single area
 // not always visible, but optionally, a visual scoreboard appears below the mana bar
 // provided a quest is specified, this also initialises a scenario (in which saving, area mobility, etc. are limited)
+// this effectively means that the player will not be able to save the game during a scoreboard, unless specifically triggered by the game
 Dom.scoreboardInit = function (properties) {
     // this is the only way that Dom.scoreboard can be initialised! usually related to a quest (through the properties.questArea and questId values), but doesn't have to be
     // this function will fail and send a console.error if Dom.scoreboard is currently being used
-    // the Dom.scoreboard is removed on area leave or on game leave
+    // the Dom.scoreboard is removed on quest abandon or game leave
 
     // the scoreboard is updated by Dom.scoreboard.update, which is called when Dom.quests.active is called
     // it should only be updated via Dom.quests.active to avoid scoreboard being updated without quest log update (as it is likely they will both share variables)
@@ -3503,6 +3504,8 @@ Dom.scoreboardInit = function (properties) {
 
 	// randomEvents, eventSequence and chatSequence - see below
 
+	// scenarioAllowedAreas (an optional array of area names) specifies the allowed areas the player can go to without abandoning the relevant quest and ending its scenario
+
 	if (typeof this.scoreboard === "undefined") {
 		this.scoreboard = {};
 		// read the comments above for what the properties do
@@ -3512,7 +3515,8 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.questStep = properties.questStep;
 		if (typeof this.scoreboard.questArea !== "undefined") {
 			// initialise scenario
-			Game.startScenario({area: this.scoreboard.questArea, id: this.scoreboard.questId}, );
+			Game.startScenario({area: this.scoreboard.questArea, id: this.scoreboard.questId}, properties.scenarioAllowedAreas);
+			this.scoreboard.scenarioAllowedAreas = properties.scenarioAllowedAreas;
 		}
 		else {
 			console.warn("Scoreboard " + properties.title + " has no specified quest, so does not start a scenario.");
@@ -3830,6 +3834,9 @@ Dom.scoreboardFinish = function (result, reason) {
 			Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[foo.keyName] = undefined;
 		}
 	}
+
+	// leave scenario now that scorebaord is finished
+	Game.finishScenario({area: this.scoreboard.questArea, id: this.scoreboard.questId}, "scoreboard");
 
 	this.scoreboard = undefined;
 	Dom.elements.scoreboard.hidden = true;

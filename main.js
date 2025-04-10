@@ -9448,12 +9448,22 @@ Game.loadDefaultImages = function () {
 }
 
 // pull data from areadata.js
-Game.loadArea = function (areaName, destination, alertTrue) {
+// abandonAgreed is set to true if the player was required to accept an alert before moving area (e.g. due to a scenario) and has clicked yes
+Game.loadArea = function (areaName, destination, abandonAgreed) {
 	let areaTpAllowed = true;
 
 	// first deal with any potential limitations on area mobility, i.e. player being in a scenario
-	if (typeof Player.scenario !== "undefined" && typeof Player.scenario.allowedAreas !== "undefined" && !Player.scenario.allowedAreas.includes(areaName)) {
+	if (!abandonAgreed && typeof Player.scenario !== "undefined" && typeof Player.scenario.allowedAreas !== "undefined" && !Player.scenario.allowedAreas.includes(areaName)) {
+		// player trying to go to an area which is not allowed in the current scenario
+		areaTpAllowed = false;
+		// give the player an alert which lets them decide if they want to go ahead with area teleport
+		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest " + Quests[Player.scenario.quest.area][Player.scenario.quest.id].quest + ".";
+		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea, ev: [areaName, destination, true]},); // clicking yes calls this function but with abandonAgreed = true
+	}
 
+	if (abandonAgreed) {
+		// abandon quest as the player agreed...
+		Dom.quest.abandon(Quests[Player.scenario.quest.area][Player.scenario.quest.id]); // this in turn abandons the scenario and saves progress
 	}
 
 	if (areaTpAllowed) {
@@ -15392,12 +15402,14 @@ Game.drawGlow = function (ctx, x, y, radius) {
 }
 
 //
-// Save player progress
+// Scenarios
 //
 
 // returns true if successful and false if not
 Game.startScenario = function (quest, allowedAreas) {
 	if (typeof Player.scenario === "undefined") {
+		Game.saveProgress("scenarioPre");
+
 		Player.scenario = {
 			// currently all scenarios must be attached to a quest. can be changed in the future if there is a need for a non-quest scenario
 			associatedQuest: {
@@ -15419,11 +15431,11 @@ Game.startScenario = function (quest, allowedAreas) {
 }
 
 // parameter contains quest object which is relevant for the scenario, for verification
-// reason could be "abandon" (quest was abandoned)
+// reason could be "abandon" (quest was abandoned), or "scoreboard" (relevant scoreboard was finished)
 Game.finishScenario = function (quest, reason) {
-	if (Player.scenario.associatedQuest.id === quest.id && Player.scenario.associatedQuest.area === quest.questArea) {
+	if (typeof Player.scenario !== "undefined" && Player.scenario.associatedQuest.id === quest.id && Player.scenario.associatedQuest.area === quest.questArea) {
 		Player.scenario = undefined;
-		Game.saveProgress("scenario");
+		Game.saveProgress("scenarioPost");
 
 		return true;
 	}
@@ -15432,6 +15444,10 @@ Game.finishScenario = function (quest, reason) {
 		return false;
 	}
 }
+
+//
+// Save player progress
+//
 
 Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
 	// check if they consent to local storage, and that the player is not in a scenario (thus disabling all saves that aren't of type "scenario")
