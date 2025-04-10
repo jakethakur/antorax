@@ -3227,8 +3227,8 @@ Dom.quests.active = function (quest) {
 						}
 					}
 
-					Dom.quests.activeHTML[currentQuest.important] += "<br>" + objectives[i].text;
-					// now display the progress of this objective
+					// now display the progress of this objective in the quest log
+					Dom.quests.activeHTML[currentQuest.important] += "<p class='activeQuestObjective'>" + objectives[i].text;
 					if (completed === true && i !== objectives.length-1) {
 						// objective completed (and it's not the last objective, as this is the turn-in objective)
 						Dom.quests.activeHTML[currentQuest.important] += "&#10004;"; // tick
@@ -3237,6 +3237,7 @@ Dom.quests.active = function (quest) {
 						// objective has progress to be displayed
 						Dom.quests.activeHTML[currentQuest.important] += " " + completed;
 					}
+					Dom.quests.activeHTML[currentQuest.important] += "</p class='activeQuestObjective'>"
 
 					// save progress information in Player.quests.prog...objectiveProgress, so it can be eaisly accessed by Game when checking quest finish
 					if (completed === true) {
@@ -3288,9 +3289,11 @@ Dom.quests.active = function (quest) {
 			}
 		}
 		else {
-			// event required for the quest has expired - remove it from the activeQuestArray (effectively abandoning it), and move on
+			// event required for the quest has expired - remove it from the activeQuestArray, and move on
 			Dom.chat.insert("Your quest '" + currentQuest.quest + "' has expired.");
 			Player.quests.activeQuestArray.splice(x, 1);
+			Dom.quests.active();
+			Dom.quests.possible();
 		}
 	}
 	Dom.quests.activeHTML.true += Dom.quests.activeHTML.undefined + Dom.quests.activeHTML.daily;
@@ -3299,20 +3302,6 @@ Dom.quests.active = function (quest) {
 		Dom.elements.activeQuestBox.style.textAlign = "center";
 		Dom.elements.activeQuestBox.innerText = "You have no active quests";
 	}
-}
-
-// removes a quest from your active quest array
-// quest parameter should be the name of the quest
-Dom.quests.abandon = function (quest) {
-	for (let i = 0; i < Player.quests.activeQuestArray.length; i++) {
-		if (Player.quests.activeQuestArray[i] === quest) {
-			Player.quests.activeQuestArray.splice(i, 1);
-			Dom.chat.insert("You abandoned your quest '" + quest + "'.");
-			break;
-		}
-	}
-	Dom.quests.possible();
-	Dom.quests.active();
 }
 
 // updates Player.quests.possibleQuestArray, an array of quests that are possible to be started
@@ -3472,10 +3461,11 @@ Dom.quests.other = function () {
 
 // initialise a scoreboard which keeps track of variables, typically for a minigame being completed in a single area
 // not always visible, but optionally, a visual scoreboard appears below the mana bar
+// provided a quest is specified, this also initialises a scenario (in which saving, area mobility, etc. are limited)
 Dom.scoreboardInit = function (properties) {
     // this is the only way that Dom.scoreboard can be initialised! usually related to a quest (through the properties.questArea and questId values), but doesn't have to be
     // this function will fail and send a console.error if Dom.scoreboard is currently being used
-    // the Dom.scoreboard is removed on area leave or on quest abandon (if a quest is specified in properties)
+    // the Dom.scoreboard is removed on area leave or on game leave
 
     // the scoreboard is updated by Dom.scoreboard.update, which is called when Dom.quests.active is called
     // it should only be updated via Dom.quests.active to avoid scoreboard being updated without quest log update (as it is likely they will both share variables)
@@ -3489,7 +3479,7 @@ Dom.scoreboardInit = function (properties) {
 	// successFunction is called once on success before the scoreboard is removed
     // failFunction is called once on failure before the scoreboard is removed. note this and the above are optional, and can both access values in Dom.scoreboard.variablesArray
 	// there does not need to be a success or failure!! can ignore all of this if desired
-	// callFailFunctionOnAbandon is set to true if failFunction should be called even after leaving the area or abandoning the quest
+	// callFailFunctionOnAbandon is set to true if failFunction should be called on quest being abandoned (note scoreboard is cancelled automatically on quest abandon)
 
     // variablesArray: an array of objects, which make up the values used for the scoreboard display, and potentially also validation of whether the task has been completed at the end (i.e. for if you want to save any function values)
     // this is saved in Dom.scoreboard.variablesArray, and updated by Dom.scoreboard.update
@@ -3520,6 +3510,13 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.questArea = properties.questArea;
 		this.scoreboard.questId = properties.questId;
 		this.scoreboard.questStep = properties.questStep;
+		if (typeof this.scoreboard.questArea !== "undefined") {
+			// initialise scenario
+			Game.startScenario({area: this.scoreboard.questArea, id: this.scoreboard.questId}, );
+		}
+		else {
+			console.warn("Scoreboard " + properties.title + " has no specified quest, so does not start a scenario.");
+		}
 
 		this.scoreboard.enableQuestReattempt = properties.enableQuestReattempt;
 
@@ -3758,43 +3755,45 @@ Dom.clearScoreboardTimeouts = function () {
 
 // called when scoreboard has finished, from Dom.scoreboardUpdate
 // resets (sets to undefined) scoreboard, as well as relevant variables. also runs success/fail function
-// result is true/false depending on whether the player has succeeded or failed
-// reason is either "time" or "targetReached". used only for chat message
+// result is true/false depending on whether the player has succeeded or failed. or "abandon" if the quest was abandoned (thus scoreboard cancelled)
+// reason is either "time" or "targetReached" or "abandon", used only for chat message
 Dom.scoreboardFinish = function (result, reason) {
 	// remove all scoreboard timeouts
 	Dom.clearScoreboardTimeouts();
 
-	// unless told otherwise, output results into chat
-	if (Dom.scoreboard.chatMessageOnFinish === true) { // default message
-		let msg = Dom.scoreboard.title + ": ";
-
-		if (reason === "time") {
-			msg += "Time's up! ";
-		}
-
-		if (result) {
-			msg += "Success";
-		}
-		else {
-			msg += "You were unsuccessful";
-		}
-
-		if (typeof this.scoreboard.targetVariableIndex !== "undefined" && this.scoreboard.targetComparisonType === "geq") {
-			let value = this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex].value;
-			if (this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex].percentage) {
-				value = Round(value*100,1) + "%";
+	if (result !== "abandon") {
+		// unless told otherwise, output results into chat
+		if (Dom.scoreboard.chatMessageOnFinish === true) { // default message
+			let msg = Dom.scoreboard.title + ": ";
+	
+			if (reason === "time") {
+				msg += "Time's up! ";
 			}
-			// show results variable value
-			msg += " - your final score was " + value;
+	
+			if (result) {
+				msg += "Success";
+			}
+			else {
+				msg += "You were unsuccessful";
+			}
+	
+			if (typeof this.scoreboard.targetVariableIndex !== "undefined" && this.scoreboard.targetComparisonType === "geq") {
+				let value = this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex].value;
+				if (this.scoreboard.variablesArray[this.scoreboard.targetVariableIndex].percentage) {
+					value = Round(value*100,1) + "%";
+				}
+				// show results variable value
+				msg += " - your final score was " + value;
+			}
+			else {
+				msg += ".";
+			}
+	
+			Dom.chat.insert(msg);
 		}
-		else {
-			msg += ".";
+		else if (Dom.scoreboard.chatMessageOnFinish !== false) { // custom message
+			Dom.chat.insert(Dom.scoreboard.chatMessageOnFinish);
 		}
-
-		Dom.chat.insert(msg);
-	}
-	else if (Dom.scoreboard.chatMessageOnFinish !== false) { // custon message
-		Dom.chat.insert(Dom.scoreboard.chatMessageOnFinish);
 	}
 
 	if (result === true) {
@@ -3808,7 +3807,7 @@ Dom.scoreboardFinish = function (result, reason) {
 			Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[this.scoreboard.progressKey] = this.scoreboard.progressValue;
 		}
 	}
-	else if (result === false || (result === "abandon" && this.scoreboard.callFailFunctionOnAbandon)) {
+	else if (result === false) {
 		// failure
 		if (typeof this.scoreboard.failFunction !== "undefined") {
 			this.scoreboard.failFunction();
@@ -3818,8 +3817,13 @@ Dom.scoreboardFinish = function (result, reason) {
 			Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].stepProgress[this.scoreboard.questStep] = "reattempt";
 		}
 	}
+	else if (result === "abandon" && this.scoreboard.callFailFunctionOnAbandon) {
+		if (typeof this.scoreboard.failFunction !== "undefined") {
+			this.scoreboard.failFunction();
+		}
+	}
 
-	// clear variables (note this is done after successFunction and failFunction
+	// clear variables (note this is done after successFunction and failFunction)
 	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
 		let foo = this.scoreboard.variablesArray[i];
 		if (typeof foo.keyName !== "undefined" && !foo.doNotClear) {
@@ -7817,11 +7821,10 @@ Dom.settings.minigames = function () {
 
 // completely abandons a quest and all of its steps
 // the quest object (as found in questdata) should be passed in as the first parameter
-// if a step is specified, that step number and any step after it that has been completed will be "uncompleted"
-Dom.quest.abandon = function (quest, step) {
+// note that this does not remove rewards at all! So this should only be done in a way the player cannot exploit, i.e. at the end of an event
+Dom.quest.abandon = function (quest) {
 	//if the quest is active then abandon it
 	if (Player.quests.activeQuestArray.includes(quest.quest)) {
-
 		// remove all items with the property removeOnAbandon set to the quest name
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].removeOnAbandon === quest.quest) {
@@ -7844,22 +7847,22 @@ Dom.quest.abandon = function (quest, step) {
 			}
 		}
 
-		if (typeof quest.callQuestFinishOnAbandon !== "undefined") {
-			// this specifies the steps whose finish function should be called
-			// this includes the step that the player is currently working on
-
-			if (Dom.currentNPC.type !== undefined) { // pass in the currentNPC if poss :)
-				quest.steps[quest.callQuestFinishOnAbandon].onFinish(Game[Dom.currentNPC.type].find(npc => npc.id === Dom.currentNPC.id));
-			}
-			else {
-				quest.steps[quest.callQuestFinishOnAbandon].onFinish();
-			}
-		}
-
-		// stop scoreboard
+		// stop scoreboard if one is currently running related to the quest being abandoned
 		if (typeof Dom.scoreboard !== "undefined" && Dom.scoreboard.questId === quest.id && Dom.scoreboard.questArea === quest.questArea) {
 			Dom.scoreboardFinish("abandon");
-		}eeeeeeeeeeeeeeeeeeeeeeeeeee
+		}
+
+		// end scenario if one is currently active related to this quest
+		if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
+			Game.finishScenario(quest, "abandon");
+		}
+		
+		// delete all quest progress for this quest
+		Player.quests.prog[quest.questArea][quest.id].vars = {};
+		Player.quests.prog[quest.questArea][quest.id].objectiveProgress = [];
+		Player.quests.prog[quest.questArea][quest.id].stepProgress = [];
+		Player.quests.prog[quest.questArea][quest.id].stepRewardsProgress = [];
+		Player.quests.prog[quest.questArea][quest.id].startedFromNpc = undefined;
 
 		// update boxes
 		Dom.checkProgress();
