@@ -12048,7 +12048,7 @@ caves: {
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
 		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150},
-			{tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}, {tile: 517, brightness: 0.8, radius: 120},
+			{tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}, {tile: 517, brightness: 0.8, radius: 120}, {tile: 115, brightness: 0.8, radius: 120}, {tile: 116, brightness: 0.8, radius: 120}, {tile: 117, brightness: 0.8, radius: 120}, {tile: 118, brightness: 0.8, radius: 120}, {tile: 125, brightness: 0.8, radius: 120}, {tile: 126, brightness: 0.8, radius: 120}, {tile: 127, brightness: 0.8, radius: 120}, {tile: 128, brightness: 0.8, radius: 120}, {tile: 135, brightness: 0.8, radius: 120}, {tile: 136, brightness: 0.8, radius: 120}, {tile: 137, brightness: 0.8, radius: 120}, {tile: 138, brightness: 0.8, radius: 120},
 		],
 		animateTiles: [
 			{
