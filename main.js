@@ -10157,7 +10157,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 					for (let c = 0; c < map.cols; c++) {
 						for (let r = 0; r < map.rows; r++) {
 							let tile = map.getTile(layer, c, r); // tile number
-							let lightEmitTileObj = map.lightEmitTiles.find(el => el.tile === tile);
+							let lightEmitTileObj = map.lightEmitTiles.find(el => (Array.isArray(el.tile) && el.tile.includes(tile)) || el.tile === tile);
 							if (typeof lightEmitTileObj !== "undefined") {
 								// tile should have lightEmit
 								let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
@@ -13867,7 +13867,6 @@ Game.prepareMinimapForTime = function (time) {
 // tbd should this be on a different canvas? at the very least, the dom 
 Game.renderMinimap = function () {
 	if (!Areas[this.areaName].alwaysHideOnMap) {
-		this.ctxMinimap.clearRect(0, 0, this.camera.minimap.width, this.camera.minimap.height);
 
 		// find position in this.ctx.minimapOffscreen which is the centre of the area to be drawn from
 		let drawCentre = this.camera.minimap.convertToMinimapPosition(this.camera.x + this.camera.width/2, this.camera.y + this.camera.height/2); // passed in are the coordinates of what the camera is following
@@ -14939,6 +14938,7 @@ Game.render = function (delta) {
 
 	
 	// draw minimap
+	this.ctxMinimap.clearRect(0, 0, this.camera.minimap.width, this.camera.minimap.height);
 	if (!this.keysDown.SHIFT && !this.takePhoto) {
 		this.renderMinimap();
 	}
@@ -15449,7 +15449,9 @@ Game.finishScenario = function (quest, reason) {
 // Save player progress
 //
 
-Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
+// if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
+// if saveType is "manual" then it was done directly from settings
+Game.saveProgress = function (saveType) {
 	// check if they consent to local storage, and that the player is not in a scenario (thus disabling all saves that aren't of type "scenario")
 	if (localStorage.getItem("accept") === "true" && (typeof Player.scenario === "undefined" || saveType === "scenario")) {
 		// save player position to savedata.js
@@ -15493,6 +15495,16 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// message to console
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
+	}
+	else if (saveType === "manual") {
+		// save not allowed - if it was a manual save, notify the player why it didn't work
+		if (localStorage.getItem("accept") !== "true") {
+			Dom.alert.page("Please accept local storage in the settings page to save your progress!", 0, undefined, "settingsPage");
+		}
+		else if (Player.scenario !== "undefined" && saveType !== "scenario") {
+			let quest = Player.scenario.associatedQuest;
+			Dom.alert.page("You cannot save your progress right now due to your active quest '"+Quests[quest.area][quest.id].quest+"'.", 0, undefined, "settingsPage");
+		}
 	}
 
 	if (saveType === "logout") {

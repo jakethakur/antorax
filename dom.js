@@ -182,6 +182,7 @@ let Dom = {
 		settingAcceptHolder: document.getElementById("settingAcceptHolder"),
 		settingDelete: document.getElementById("settingDelete"),
 		settingLogout: document.getElementById("settingLogout"),
+		settingLoggedInInfo: document.getElementById("settingLoggedInInfo"),
 		settingsPage: document.getElementById("settingsPage"),
 		settingNotifsHolder: document.getElementById("settingNotifsHolder"),
 		settingsTwoPage: document.getElementById("settingsTwoPage"),
@@ -432,7 +433,7 @@ Dom.alert.closeAll = function () {
 
 
 // Make the save, logout, delete buttons at the top of the settings page
-Dom.elements.settingLogout.innerHTML = "You are logged in as "+Player.name+"<div id='settingSave' onclick='Game.saveProgress()'>Save</div><div id='settingLogoutInner' onclick='Game.saveProgress(\"logout\")'>Logout</div><div id='settingDelete' onclick='Dom.settings.delete()'>Delete</div><br><br><br><div id='settingControls' onclick='Dom.settings.page(\"settingsTwoPage\")'>Controls</div>";
+Dom.elements.settingLoggedInInfo.innerHTML = "You are logged in as "+Player.name";
 
 Dom.settings.delete = function () {
 
