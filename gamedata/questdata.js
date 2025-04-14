@@ -4193,147 +4193,147 @@ var Quests = {
 						Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
 						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0;
 						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 1;
-						Dom.scoreboardInit({
-							timeLimit: 121,
-							stopEventsAfter: 112,
-							variablesArray: [{
-							    keyName: "percentageCorrect",
-							    title: "Success Rate",
-							    percentage: true,
-							}],
-							targetVariableIndex: 0,
-							targetValue: 0.76,
-							title: "Quality Assurance",
-							questArea: "eaglecrest",
-							questId: 25,
-							questStep: 0,
-							enableQuestReattempt: true,
-							successFunction: function () {
-                                if (Player.quests.prog.eaglecrest[25].vars.percentageCorrect === 1) {
-                                    User.progress.qualityAssuranceAchievement = true;
-                                }
+					},
+					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
+						timeLimit: 121,
+						stopEventsAfter: 112,
+						variablesArray: [{
+							keyName: "percentageCorrect",
+							title: "Success Rate",
+							percentage: true,
+						}],
+						targetVariableIndex: 0,
+						targetValue: 0.76,
+						title: "Quality Assurance",
+						questArea: "eaglecrest",
+						questId: 25,
+						questStep: 0,
+						enableQuestReattempt: true,
+						successFunction: function () {
+							if (Player.quests.prog.eaglecrest[25].vars.percentageCorrect === 1) {
+								User.progress.qualityAssuranceAchievement = true;
+							}
+						},
+						randomEvents: [
+							{ // blue barrel
+								func: function () {
+									Game.things.push(new Thing(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteBlue",
+										name: "Blue Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "things")));
+								},
+								cooldown: 3000,
 							},
-							randomEvents: [
-								{ // blue barrel
-									func: function () {
-										Game.things.push(new Thing(Game.prepareNPC({
-											x: 89.9, y: 909.3,
-											image: "toxicWasteBlue",
-											name: "Blue Barrel",
-											template: QuestTemplates.eaglecrest.conveyorGameBarrel,
-											speed: Game.areaVariables.conveyorSpeed
-										}, "things")));
-									},
-									cooldown: 3000,
+							{ // red barrel
+								func: function () {
+									Game.things.push(new Thing(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteRed",
+										name: "Red Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "things")));
 								},
-								{ // red barrel
-									func: function () {
-										Game.things.push(new Thing(Game.prepareNPC({
-											x: 89.9, y: 909.3,
-											image: "toxicWasteRed",
-											name: "Red Barrel",
-											template: QuestTemplates.eaglecrest.conveyorGameBarrel,
-											speed: Game.areaVariables.conveyorSpeed
-										}, "things")));
-									},
-									cooldown: 3000,
+								cooldown: 3000,
+							},
+							{ // green barrel
+								func: function () {
+									Game.things.push(new Thing(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteGreen",
+										name: "Green Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "things")));
 								},
-								{ // green barrel
-									func: function () {
-										Game.things.push(new Thing(Game.prepareNPC({
-											x: 89.9, y: 909.3,
-											image: "toxicWasteGreen",
-											name: "Green Barrel",
-											template: QuestTemplates.eaglecrest.conveyorGameBarrel,
-											speed: Game.areaVariables.conveyorSpeed
-										}, "things")));
-									},
-									cooldown: 3000,
-									requiredTimeElapsed: 11000
+								cooldown: 3000,
+								requiredTimeElapsed: 11000
+							},
+							/*{ // explosives (destroy them with your weapon, otherwise they lose you points! but note barrels can be destroyed also...)
+								func: function () {
 								},
-								/*{ // explosives (destroy them with your weapon, otherwise they lose you points! but note barrels can be destroyed also...)
-									func: function () {
-									},
-									cooldown: 1000,
-									requiredTimeElapsed: 14000,
-									weighting: 0.2,
-								},*/
-							],
-							eventSequence: [
-								{ // speed increase
-									func: function () {
-										for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
-											Dom.scoreboard.randomEvents[i].cooldown = 2300; // 3000 -> 2300
+								cooldown: 1000,
+								requiredTimeElapsed: 14000,
+								weighting: 0.2,
+							},*/
+						],
+						eventSequence: [
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 2300; // 3000 -> 2300
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 130; // 100 -> 130
+									// update movement speed of old objects
+									for (let i = 0; i < Game.things.length; i++) {
+										if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
+											Game.things[i].speed = Game.areaVariables.conveyorSpeed;
 										}
-										// update movement speed of new objects
-										Game.areaVariables.conveyorSpeed = 130; // 100 -> 130
-										// update movement speed of old objects
-										for (let i = 0; i < Game.things.length; i++) {
-											if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
-												Game.things[i].speed = Game.areaVariables.conveyorSpeed;
-											}
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 138); // 180 -> 138
 										}
-										// update tile animation speeds
-										for (let i = 0; i < map.animateTiles.length; i++) {
-											if (map.animateTiles[i].conveyor) {
-												let intervalNum = map.animateTiles[i].intervalNumber;
-												Game.changeInterval(intervalNum, 138); // 180 -> 138
-											}
+									}
+								}, time: 34300
+							},
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 1500; // 2300 -> 1500
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 200; // 130 -> 200
+									// update movement speed of old objects
+									for (let i = 0; i < Game.things.length; i++) {
+										if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
+											Game.things[i].speed = Game.areaVariables.conveyorSpeed;
 										}
-									}, time: 34300
-								},
-								{ // speed increase
-									func: function () {
-										for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
-											Dom.scoreboard.randomEvents[i].cooldown = 1500; // 2300 -> 1500
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 90); // 138 -> 90
 										}
-										// update movement speed of new objects
-										Game.areaVariables.conveyorSpeed = 200; // 130 -> 200
-										// update movement speed of old objects
-										for (let i = 0; i < Game.things.length; i++) {
-											if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
-												Game.things[i].speed = Game.areaVariables.conveyorSpeed;
-											}
+									}
+								}, time: 66200
+							},
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 1000; // 1500 -> 1000
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 300; // 200 -> 300
+									// update movement speed of old objects
+									for (let i = 0; i < Game.things.length; i++) {
+										if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
+											Game.things[i].speed = Game.areaVariables.conveyorSpeed;
 										}
-										// update tile animation speeds
-										for (let i = 0; i < map.animateTiles.length; i++) {
-											if (map.animateTiles[i].conveyor) {
-												let intervalNum = map.animateTiles[i].intervalNumber;
-												Game.changeInterval(intervalNum, 90); // 138 -> 90
-											}
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 60); // 180 -> 60
 										}
-									}, time: 66200
-								},
-								{ // speed increase
-									func: function () {
-										for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
-											Dom.scoreboard.randomEvents[i].cooldown = 1000; // 1500 -> 1000
-										}
-										// update movement speed of new objects
-										Game.areaVariables.conveyorSpeed = 300; // 200 -> 300
-										// update movement speed of old objects
-										for (let i = 0; i < Game.things.length; i++) {
-											if (Game.things[i].name === "Red Barrel" || Game.things[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
-												Game.things[i].speed = Game.areaVariables.conveyorSpeed;
-											}
-										}
-										// update tile animation speeds
-										for (let i = 0; i < map.animateTiles.length; i++) {
-											if (map.animateTiles[i].conveyor) {
-												let intervalNum = map.animateTiles[i].intervalNumber;
-												Game.changeInterval(intervalNum, 60); // 180 -> 60
-											}
-										}
-									}, time: 98200
-								},
-							],
-							chatSequence: [
-								{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
-								//{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `That explosive should not be there! Destroy it with your weapon, otherwise you will lose points.`,},],time: 56700},
-								{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 66200},
-								{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 98200}
-							],
-						})
+									}
+								}, time: 98200
+							},
+						],
+						chatSequence: [
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
+							//{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `That explosive should not be there! Destroy it with your weapon, otherwise you will lose points.`,},],time: 56700},
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 66200},
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 98200}
+						],
 					}
 				},
 				{

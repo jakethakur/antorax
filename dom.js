@@ -3020,6 +3020,9 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		// pass in the npc
 		quest.steps[step].onFinish(npc);
 	}
+	if (quest.steps[step].startScoreboard !== undefined) {
+		Dom.scoreboardInit(quest.steps[step].startScoreboard);
+	}
 
 	if (typeof quest.steps[step].rewards !== "undefined") {
 		Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
@@ -3116,6 +3119,9 @@ Dom.quest.reattempt = function (quest, npc, step) {
 Dom.quest.acceptReattempt = function (quest, npc, step) {
 	if (typeof quest.steps[step].onFinish !== "undefined") {
 		quest.steps[step].onFinish(npc);
+	}
+	if (quest.steps[step].startScoreboard !== undefined) {
+		Dom.scoreboardInit(quest.steps[step].startScoreboard);
 	}
 
 	Player.quests.prog[quest.questArea][quest.id].stepProgress[step] = true; // this was previously "reattempt". make it so this can't be reattempted again
@@ -7520,7 +7526,7 @@ Dom.trade.page = function () {
 
 Dom.trade.request = function (userID, name) {
 	if (typeof Player.scenario !== "undefined" && !Player.scenario.tradingAllowed) {
-		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest"+Player.scenario.quest.title+"'.");
+		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest '"+Player.scenario.quest.title+"'.");
 		let message = {
 			type: "trade",
 			action: "busy",
@@ -7548,7 +7554,7 @@ Dom.trade.request = function (userID, name) {
 
 Dom.trade.requestReceived = function (userID, name, npc) {
 	if (typeof Player.scenario !== "undefined" && !Player.scenario.tradingAllowed) {
-		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest"+Player.scenario.quest.title+"'.");
+		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest '"+Player.scenario.quest.title+"'.");
 		let message = {
 			type: "trade",
 			action: "busy",

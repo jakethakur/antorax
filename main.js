@@ -9465,7 +9465,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 		// player trying to go to an area which is not allowed in the current scenario
 		areaTpAllowed = false;
 		// give the player an alert which lets them decide if they want to go ahead with area teleport
-		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest " + Player.scenario.quest.title + ".";
+		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest '" + Player.scenario.quest.title + "'.";
 		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea, ev: [areaName, destination, true]},); // clicking yes calls this function but with abandonAgreed = true
 	}
 
@@ -11546,6 +11546,7 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 		questActive: false, // if one of the npc's quests is currently active
 		notUnlockedRoles: false, // if one of the npc's roles has not been unlocked
 		questFinish: false, // whether the quest will be finished upon completing the step
+		scenarioActive: false, // whether there is another scenario which is active, which is prohibiting the quest (which also starts a scenario) from being progressed
 	};
 	for (let i = 0; i < step.length; i++) { // one property for each step
 		returnObj[step[i]] = false;
@@ -11633,6 +11634,14 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 		}
 
 		if (questCanBeStarted) {
+			// check that, if this quest step would start a quest scenario, then there isn't another scenario active
+			if (typeof quest.steps[0].startScoreboard !== "undefined" || typeof quest.steps[0].startScenario !== "undefined") {
+				if (typeof Player.scenario !== "undefined") {
+					returnObj.scenarioActive = true;
+					return returnObj;
+				}
+			}
+
 			returnObj[0] = true;
 			return returnObj; // quest step 0 can be started (thus no other steps can)
 		}
@@ -11694,11 +11703,13 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 						returnObj[stepId] = "reattempt";
 					}
 				}
-				else if (typeof quest.steps[stepId].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[stepId].availableUntilStepDone]) {
+
+				if (typeof quest.steps[stepId].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[stepId].availableUntilStepDone]) {
 					// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
 					stepDone = false;
 				}
-				else if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
+
+				if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
 					// as the quest is chronological, quest's steps must all be completed in order (other than optional steps)
 					// find the highest non-optional step below the current step we are checking
 					let checkStep = stepId-1;
@@ -11735,22 +11746,30 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 
 				// check if ready for this step to be completed
 				if (stepDone) {
-					returnObj[stepId] = true; // this step can be completed!
-					// (inventory space has not been checked yet and is checked by choose DOM)
-
-					// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
-					returnObj.questFinish = true;
-					for (let i = 0; i < quest.steps.length; i++) {
-						if (!Player.quests.prog[quest.questArea][quest.id].stepProgress[i] && !quest.steps[i].optional && i!==stepId) {
-							// the step is not finished, isn't optional, and isn't the step that's just about to be done
-							// therefore there is at least one step that hasn't been finished
-							returnObj.questFinish = false;
-							break;
-						}
+					// check that, if this quest step would start a quest scenario, then there isn't another scenario active
+					// we do this last, so that returnObj.scenarioActive is set to true only if the player would have been able to finish the step without the scenario being active (for chat message)
+					if (typeof Player.scenario !== "undefined" && (typeof quest.steps[stepId].startScoreboard !== "undefined" || typeof quest.steps[stepId].startScenario !== "undefined")) {
+						returnObj.scenarioActive = true;
+						// this step can't be started (but would have been able to be without the scenario being active)
 					}
-
-					// we could very well stop here, as player has to complete the first available step...
-					// ...but might as well see if the other steps can be completed in case it's required
+					else {
+						returnObj[stepId] = true; // this step can be completed!
+						// (inventory space has not been checked yet and is checked by choose DOM)
+	
+						// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
+						returnObj.questFinish = true;
+						for (let i = 0; i < quest.steps.length; i++) {
+							if (!Player.quests.prog[quest.questArea][quest.id].stepProgress[i] && !quest.steps[i].optional && i!==stepId) {
+								// the step is not finished, isn't optional, and isn't the step that's just about to be done
+								// therefore there is at least one step that hasn't been finished
+								returnObj.questFinish = false;
+								break;
+							}
+						}
+	
+						// we could very well stop here, as player has to complete the first available step...
+						// ...but might as well see if the other steps can be completed in case it's required
+					}
 				}
 			}
 
@@ -11999,6 +12018,7 @@ Game.update = function (delta) {
 			let questActive = false; // if one of the npc's quests is currently active
 			let questComplete = false; // if one of the npc's quests has been completed
 			let notUnlockedRoles = false; // if one of the npc's roles has not been unlocked
+			let scenarioActive = false; // if one of the npc's roles would hvae been able to be used had Player.scenario not been active
 			let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
 			// see below for loop for logic regarding these variables
 
@@ -12019,6 +12039,7 @@ Game.update = function (delta) {
 							questActive = result.questActive;
 							questComplete = result.questComplete;
 							notUnlockedRoles = result.notUnlockedRoles;
+							scenarioActive = result.scenarioActive;
 							let questFinish = result.questFinish;
 
 							if (!Array.isArray(role.step)) {
@@ -12288,6 +12309,11 @@ Game.update = function (delta) {
 					else if (notUnlockedRoles) {
 						// the player has not unlocked a possible role with the npc and pressed spacebar
 						npc.say(npc.chat.notUnlockedRoles, 0, true);
+					}
+
+					if (scenarioActive) {
+						// tbd this message should definitely be more descriptive
+						Dom.chat.insert("Finish your quest '" + Player.scenario.quest.title + "' before you can progress this quest further!", 0, undefined, true);
 					}
 				}
 			}
