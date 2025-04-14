@@ -383,10 +383,18 @@ Game.initWebSocket = function () {
 
 						case "walkAway":
 							// other player walked away
-							// if this player was off the tab, they would not have closed their page/alert/pending request
+							// if this player was off the tab, they would not have had their page/alert/pending request close due to the walking away distance
 							// so close it ...
 							if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
-								Dom.closeNPCPages();
+								Dom.closeNPCPages(); // this also inserts a chat message
+							}
+							break;
+
+						case "scenarioStarted":
+							// other player started a quest scenario mid-trade somehow
+							// so close it ...
+							if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
+								Dom.trade.interrupt();
 							}
 							break;
 					}
@@ -9457,7 +9465,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 		// player trying to go to an area which is not allowed in the current scenario
 		areaTpAllowed = false;
 		// give the player an alert which lets them decide if they want to go ahead with area teleport
-		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest " + Quests[Player.scenario.quest.area][Player.scenario.quest.id].quest + ".";
+		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest " + Player.scenario.quest.title + ".";
 		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea, ev: [areaName, destination, true]},); // clicking yes calls this function but with abandonAgreed = true
 	}
 
@@ -12496,7 +12504,8 @@ Game.update = function (delta) {
 					ws.send(JSON.stringify({
 						type: "trade",
 						action: "walkAway",
-						target: player.userID
+						target: player.userID,
+						name: Player.name,
 					}));
 				}
 
@@ -15406,21 +15415,38 @@ Game.drawGlow = function (ctx, x, y, radius) {
 //
 
 // returns true if successful and false if not
-Game.startScenario = function (quest, allowedAreas) {
+// tradingAllowed defaults to false 
+Game.startScenario = function (quest, allowedAreas, tradingAllowed) {
 	if (typeof Player.scenario === "undefined") {
 		Game.saveProgress("scenarioPre");
 
 		Player.scenario = {
 			// currently all scenarios must be attached to a quest. can be changed in the future if there is a need for a non-quest scenario
-			associatedQuest: {
+			quest: {
 				id: quest.id,
 				area: quest.questArea,
+
+				tradingAllowed: tradingAllowed,
 			},
 			
 			// array of areas that the player is allowed to visit whilst in this scenario
 			// if they visit any different areas, an alert is shown asking them if they want to go ahead and abandon the relevant quest and end the scenario
 			allowedAreas: allowedAreas,
 		};
+		Player.scenario.quest.title = Quests[Player.scenario.quest.area][Player.scenario.quest.id].quest;
+
+		if (!tradingAllowed) {
+			// if trade/alert/pending request is active, send a message to the other player telling them to close it
+			if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
+				ws.send(JSON.stringify({
+					type: "trade",
+					action: "scenarioStarted",
+					target: player.userID,
+					name: Player.name,
+				}));
+				Dom.trade.interrupt(); // this also inserts a message to explain
+			}
+		}
 
 		return true;
 	}
@@ -15433,7 +15459,7 @@ Game.startScenario = function (quest, allowedAreas) {
 // parameter contains quest object which is relevant for the scenario, for verification
 // reason could be "abandon" (quest was abandoned), or "scoreboard" (relevant scoreboard was finished)
 Game.finishScenario = function (quest, reason) {
-	if (typeof Player.scenario !== "undefined" && Player.scenario.associatedQuest.id === quest.id && Player.scenario.associatedQuest.area === quest.questArea) {
+	if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
 		Player.scenario = undefined;
 		Game.saveProgress("scenarioPost");
 
@@ -15502,8 +15528,8 @@ Game.saveProgress = function (saveType) {
 			Dom.alert.page("Please accept local storage in the settings page to save your progress!", 0, undefined, "settingsPage");
 		}
 		else if (Player.scenario !== "undefined" && saveType !== "scenario") {
-			let quest = Player.scenario.associatedQuest;
-			Dom.alert.page("You cannot save your progress right now due to your active quest '"+Quests[quest.area][quest.id].quest+"'.", 0, undefined, "settingsPage");
+			let quest = Player.scenario.quest;
+			Dom.alert.page("You cannot save your progress right now due to your active quest '"+Player.scenario.quest.title+"'.", 0, undefined, "settingsPage");
 		}
 	}
 

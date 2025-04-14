@@ -517,6 +517,32 @@ Dom.closeNPCPages = function () {
 		//Dom.bank.active = false;
 	}
 
+	Dom.trade.interrupt();
+
+	this.elements.questStart.hidden = true;
+	this.elements.questFinish.hidden = true;
+	this.elements.merchantPage.hidden = true;
+	this.elements.identifierPage.hidden = true;
+	this.elements.identifiedPage.hidden = true;
+	this.elements.lootPage.hidden = true;
+	this.elements.buyerPage.hidden = true;
+	this.elements.mailPage.hidden = true;
+	this.elements.driverPage.hidden = true;
+	//this.elements.bankPage.hidden = true;
+	//this.elements.tradePage.hidden = true;
+	this.elements.leaderboardPage.hidden = true;
+	this.elements.choosePage.hidden = true;
+	this.elements.textPage.hidden = true;
+
+	this.elements.npcChatBanner1.hidden = true;
+	Dom.elements.npcChatOptions.hidden = true;
+
+	Dom.currentlyDisplayed = "";
+	Dom.currentNPC = {};
+}
+
+// called when trading is closed due to a player walking away, or starting a scenario
+Dom.trade.interrupt = function () {
 	if (Dom.trade.requested) {
 		Dom.chat.insert("Your trade request with " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
         Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
@@ -538,24 +564,6 @@ Dom.closeNPCPages = function () {
 		//Dom.closePage("inventoryPage");
 		//Dom.trade.active = false;
 	}
-
-	this.elements.questStart.hidden = true;
-	this.elements.questFinish.hidden = true;
-	this.elements.merchantPage.hidden = true;
-	this.elements.identifierPage.hidden = true;
-	this.elements.identifiedPage.hidden = true;
-	this.elements.lootPage.hidden = true;
-	this.elements.buyerPage.hidden = true;
-	this.elements.mailPage.hidden = true;
-	this.elements.driverPage.hidden = true;
-	//this.elements.bankPage.hidden = true;
-	//this.elements.tradePage.hidden = true;
-	this.elements.leaderboardPage.hidden = true;
-	this.elements.choosePage.hidden = true;
-	this.elements.textPage.hidden = true;
-
-	this.elements.npcChatBanner1.hidden = true;
-	Dom.elements.npcChatOptions.hidden = true;
 
 	Dom.currentlyDisplayed = "";
 	Dom.currentNPC = {};
@@ -7511,22 +7519,57 @@ Dom.trade.page = function () {
 }
 
 Dom.trade.request = function (userID, name) {
-	Dom.trade.target = userID;
-	Dom.trade.requested = true;
-	let message = {
-		type: "trade",
-		action: "request",
-		target: userID,
-		userID: ws.userID,
-		name: Player.name,
+	if (typeof Player.scenario !== "undefined" && !Player.scenario.tradingAllowed) {
+		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest"+Player.scenario.quest.title+"'.");
+		let message = {
+			type: "trade",
+			action: "busy",
+			target: userID,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
 	}
-	let jsonMessage = JSON.stringify(message);
-	ws.send(jsonMessage);
-	Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.");
+	else {
+		Dom.trade.target = userID;
+		Dom.trade.requested = true;
+		let message = {
+			type: "trade",
+			action: "request",
+			target: userID,
+			userID: ws.userID,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
+		Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.");
+	}
 }
 
 Dom.trade.requestReceived = function (userID, name, npc) {
-	if (Dom.currentlyDisplayed === "") {
+	if (typeof Player.scenario !== "undefined" && !Player.scenario.tradingAllowed) {
+		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest"+Player.scenario.quest.title+"'.");
+		let message = {
+			type: "trade",
+			action: "busy",
+			target: userID,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
+	}
+	else if (Dom.currentlyDisplayed !== "") {
+		Dom.chat.insert(name + " tried to trade with you but could not because you have another page open.");
+		let message = {
+			type: "trade",
+			action: "busy",
+			target: userID,
+			name: Player.name,
+		}
+		let jsonMessage = JSON.stringify(message);
+		ws.send(jsonMessage);
+	}
+	else {
 		Dom.trade.received = true;
 		Dom.currentlyDisplayed = name;
 		Dom.currentNPC = npc;
@@ -7558,17 +7601,6 @@ Dom.trade.requestReceived = function (userID, name, npc) {
 				Dom.currentlyDisplayed = "";
 			},
 		});
-	}
-	else {
-		Dom.chat.insert(name + " tried to trade with you but could not because you had another page open.");
-		let message = {
-			type: "trade",
-			action: "busy",
-			target: userID,
-			name: Player.name,
-		}
-		let jsonMessage = JSON.stringify(message);
-		ws.send(jsonMessage);
 	}
 }
 
