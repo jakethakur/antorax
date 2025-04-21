@@ -9455,7 +9455,7 @@ Game.loadDefaultImages = function () {
 }
 
 // pull data from areadata.js
-// abandonAgreed is set to true if the player was required to accept an alert before moving area (e.g. due to a scenario) and has clicked yes
+// abandonAgreed is set to true if the player was required to accept an alert before moving area (e.g. due to a scenario) and has clicked yes (or, alternatively, if scenario loadarea prevention should be overridden)
 Game.loadArea = function (areaName, destination, abandonAgreed) {
 	let areaTpAllowed = true;
 
@@ -10196,6 +10196,12 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				// music
 				// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 				this.playMusic();
+
+				
+				// close all dom alerts
+				// this is to prevent any issues with scenario area teleport dom alert
+				// tbd make this just close dom alerts on canvas?
+				Dom.alert.closeAll();
 
 
 				// display area name
@@ -15441,9 +15447,14 @@ Game.drawGlow = function (ctx, x, y, radius) {
 
 // returns true if successful and false if not
 // tradingAllowed defaults to false 
-Game.startScenario = function (quest, allowedAreas, tradingAllowed) {
+Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasOnEnd) {
 	if (typeof Player.scenario === "undefined") {
 		Game.saveProgress("scenarioPre");
+
+		// prepare parameters
+		if (!Array.isArray(vacateAreasOnEnd)) {
+			vacateAreasOnEnd = [vacateAreasOnEnd];
+		}
 
 		Player.scenario = {
 			// currently all scenarios must be attached to a quest. can be changed in the future if there is a need for a non-quest scenario
@@ -15457,6 +15468,10 @@ Game.startScenario = function (quest, allowedAreas, tradingAllowed) {
 			// array of areas that the player is allowed to visit whilst in this scenario
 			// if they visit any different areas, an alert is shown asking them if they want to go ahead and abandon the relevant quest and end the scenario
 			allowedAreas: allowedAreas,
+
+			// an array of objects containing information on where the player should be teleported to if the scenario finishes and the player is in particular areas
+			// objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
+			vacateAreasOnEnd: vacateAreasOnEnd,
 		};
 		Player.scenario.quest.title = Quests[Player.scenario.quest.area][Player.scenario.quest.id].quest;
 
@@ -15485,6 +15500,13 @@ Game.startScenario = function (quest, allowedAreas, tradingAllowed) {
 // reason could be "abandon" (quest was abandoned), or "scoreboard" (relevant scoreboard was finished)
 Game.finishScenario = function (quest, reason) {
 	if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
+		if (typeof Player.scenario.vacateAreasOnEnd !== "undefined") {
+			let obj = Player.scenario.vacateAreasOnEnd.find(foo => foo.areaName === Game.areaName);
+			if (typeof obj !== "undefined") {
+				Game.loadArea(Player.scenario.vacateAreasOnEnd.vacateTo.areaName, Player.scenario.vacateAreasOnEnd.vacateTo, true);
+			}
+		}
+
 		Player.scenario = undefined;
 		Game.saveProgress("scenarioPost");
 

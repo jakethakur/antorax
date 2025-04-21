@@ -3531,7 +3531,9 @@ Dom.scoreboardInit = function (properties) {
 
 	// randomEvents, eventSequence and chatSequence - see below
 
-	// allowedAreas (an optional array of area names) specifies the allowed areas the player can go to without abandoning the relevant quest and ending its scenario (thus the scoreboard)
+	// allowedAreas: (an optional array of area names) specifies the allowed areas the player can go to without abandoning the relevant quest and ending its scenario (thus the scoreboard)
+	// vacateAreasOnEnd: (an array of objects) contains information on where the player should be teleported to if the scenario finishes and the player is in particular areas
+	//      ''           these objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
 
 	if (typeof this.scoreboard === "undefined") {
 		this.scoreboard = {};
@@ -3542,7 +3544,7 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.questStep = properties.questStep;
 		if (typeof this.scoreboard.questArea !== "undefined") {
 			// initialise scenario
-			Game.startScenario({questArea: this.scoreboard.questArea, id: this.scoreboard.questId}, properties.allowedAreas);
+			Game.startScenario({questArea: this.scoreboard.questArea, id: this.scoreboard.questId}, properties.allowedAreas, properties.tradingAllowed, properties.vacateAreasOnEnd);
 			this.scoreboard.allowedAreas = properties.allowedAreas;
 		}
 		else {
