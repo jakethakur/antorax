@@ -95,7 +95,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.face = parsedMessage.face;
 				ws.clothing = parsedMessage.clothing;
 				ws.hair = parsedMessage.hair;
-				ws.ears = parsedMessage.ears;
+				ws.beard = parsedMessage.beard;
 				ws.hat = parsedMessage.hat;
 
 				// message the user to tell them what their userID is
@@ -139,7 +139,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					face: parsedMessage.face,
 					clothing: parsedMessage.clothing,
 					hair: parsedMessage.hair,
-					ears: parsedMessage.ears,
+					beard: parsedMessage.beard,
 					hat: parsedMessage.hat,
 				}));
 
@@ -169,7 +169,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							face: client.face,
 							clothing: client.clothing,
 							hair: client.hair,
-							ears: client.ears,
+							beard: client.beard,
 							hat: client.hat,
 						}));
 					}

@@ -201,7 +201,6 @@ Game.initWebSocket = function () {
 				clothing: Player.clothing,
 				hair: Player.hair,
 				beard: Player.beard,
-				//ears: Player.skinTone,
 				hat: Player.hat,
 			}));
 
@@ -9466,7 +9465,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 		areaTpAllowed = false;
 		// give the player an alert which lets them decide if they want to go ahead with area teleport
 		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest '" + Player.scenario.quest.title + "'.";
-		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea, ev: [areaName, destination, true]},); // clicking yes calls this function but with abandonAgreed = true
+		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea.bind(Game), ev: [areaName, destination, true]}, true); // clicking yes calls this function but with abandonAgreed = true
 	}
 
 	if (abandonAgreed) {
@@ -11990,7 +11989,7 @@ Game.update = function (delta) {
 			// hero not touching npc
 			canSpeak = false;
 		}
-		else if (Dom.currentlyDisplayed === npc.name) { // tbd this isn't always the case even if we are speaking to the npc... change to currentNPC check ?
+		else if (Dom.currentNPC.name === npc.name) { // tbd this isn't always the case even if we are speaking to the npc, as current NPC isn't always set
 			// it is already currently displayed
 			canSpeak = false;
 		}

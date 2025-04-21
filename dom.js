@@ -271,146 +271,158 @@ Dom.alert.array = []; // number of alerts that have appeared (used to give ids)
 	// targetNo is the function that is called by clicking no
 	// ev is an array of parameters that is passed in to target
 	// evNo is an array of parameters that is passed in to targetNo
+// noDuplicates can be set to true to not let any alerts with identical text be opened at the same time
 
 // if type = 3 then the last parameter after all of ev is set to true on clicking second button
-Dom.alert.page = function (text, type, values, page, target) { // can't pass in target and ev because chooseStats are called by an innerHTML
+
+// note that alerts stack, i.e. there is not a limit to how many can be open at once (however only one can be open per page, with the exception of the main canvas)
+// an array of all currently active alerts is kept in Dom.alert.array
+Dom.alert.page = function (text, type, values, page, target, noDuplicates) { // can't pass in target and ev because chooseStats are called by an innerHTML
 
 	// if there are no alerts already open on the same page
 	if (Dom.alert.array.find(alert => alert.page === page) === undefined || page === undefined) {
 
-		if (target === undefined) {
-			target = {};
-		}
-
-		let id = Dom.alert.array.length;
-		if (target !== undefined) {
-			Dom.alert.array.push(Object.assign(target, {id: id, page: page, text: text}));
-		}
-
-		let alert = document.createElement("div");
-		alert.classList.add("alert");
-		alert.id = "alert"+id;
-
-		if (page !== undefined) {
-			alert.style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
-		}
-		else {
-			alert.style.left = Dom.canvas.width/2-175+"px";
-		}
-
-		// text only (e.g. chooseStats)
-		if (type === "text") {
-			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
-			<div class="alertOptions" id="alertOptions${id}" onclick="Game.inventoryUpdate()">${values}</div>`;
-		}
-		// text input (e.g. name tag)
-		else if (type === "input") {
-			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
-			<input type="text" class="alertInput" id="alertInput${id}"></input>
-			<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">OK</div>
-			<div class="alertNo" id="alertNo${id}" style="left: 15px; bottom: 20px;">Cancel</div>`;
-		}
-		// 3 buttons
-		else if (type === 3) {
-			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
-			<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">${values !== undefined ? values[0] : "One"}</div>
-			<div class="alertDispose" id="alertDispose${id}" onclick="Game.inventoryUpdate()">${values !== undefined ? values[1] : "All"}</div>
-			<div class="alertNo" id="alertNo${id}" style="left: 0px; bottom: 5px;">Cancel</div>`;
-		}
-		// 2 buttons
-		else if (type === 2) {
-			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
-			<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">Yes</div>
-			<div class="alertNo" id="alertNo${id}" style="left: 15px; bottom: 20px;">No</div>`;
-		}
-		// 1 button
-		else {
-			alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
-			<div class="alertNo" id="alertNo${id}" style="left: 0px; bottom: 20px;">OK</div>`;
-		}
-
-		document.body.appendChild(alert);
-
-		// set the functions
-		if (type === 3 || type === 2) {
-			document.getElementById("alertYes"+id).onclick = function () {
-				// close alert and call function with parameter
-				if (target.ev !== undefined) {
-					target.target(...target.ev);
-				}
-				else {
-					target.target();
-				}
-				document.body.removeChild(alert);
-				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+		// if noDuplicates is set to true and there is an identical alert currently open
+		if (!noDuplicates || typeof Dom.alert.array.find(alert => alert.text === text) === "undefined") {
+			if (target === undefined) {
+				target = {};
 			}
-		}
-
-		if (type === "input") {
-			document.getElementById("alertYes"+id).onclick = function () {
-				// close alert and call function with parameter
-				let value = alert.getElementsByTagName("INPUT")[0].value;
-				if (target.ev === undefined) {
-					target.ev = [];
-				}
-				let newValue = target.ev.unshift(value); // add player input to the beginning of the parameter array
-				target.target(...newValue);
-				document.body.removeChild(alert);
-				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+	
+			let id = Dom.alert.array.length;
+			if (target !== undefined) {
+				Dom.alert.array.push(Object.assign(target, {id: id, page: page, text: text}));
 			}
-
-			Dom.alert.array[id].value = "";
-			if (values === "name") {
-				document.getElementById("alertInput"+id).onkeydown = function () {
-					setTimeout(function () {
-						if (ValidateName(document.getElementById("alertInput"+id).value)) {
-							Dom.alert.array[id].value = document.getElementById("alertInput"+id).value;
-						}
-						else {
-							document.getElementById("alertInput"+id).value = Dom.alert.array[id].value;
-						}
-					}, 1);
-				}
+	
+			let alert = document.createElement("div");
+			alert.classList.add("alert");
+			alert.id = "alert"+id;
+	
+			if (page !== undefined) {
+				alert.style.left = document.getElementById(page).offsetLeft+document.getElementById(page).offsetWidth/2-175+"px";
 			}
-		}
-
-		if (type !== "text") {
-			document.getElementById("alertNo"+id).onclick = function () {
-				// close alert only - and potentially call a function
-				if (target.targetNo !== undefined) {
-					if (target.evNo !== undefined) {
-						target.targetNo(...target.evNo);
+			else {
+				alert.style.left = Dom.canvas.width/2-175+"px";
+			}
+	
+			// text only (e.g. chooseStats)
+			if (type === "text") {
+				alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+				<div class="alertOptions" id="alertOptions${id}" onclick="Game.inventoryUpdate()">${values}</div>`;
+			}
+			// text input (e.g. name tag)
+			else if (type === "input") {
+				alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+				<input type="text" class="alertInput" id="alertInput${id}"></input>
+				<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">OK</div>
+				<div class="alertNo" id="alertNo${id}" style="left: 15px; bottom: 20px;">Cancel</div>`;
+			}
+			// 3 buttons
+			else if (type === 3) {
+				alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+				<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">${values !== undefined ? values[0] : "One"}</div>
+				<div class="alertDispose" id="alertDispose${id}" onclick="Game.inventoryUpdate()">${values !== undefined ? values[1] : "All"}</div>
+				<div class="alertNo" id="alertNo${id}" style="left: 0px; bottom: 5px;">Cancel</div>`;
+			}
+			// 2 buttons
+			else if (type === 2) {
+				alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+				<div class="alertYes" id="alertYes${id}" onclick="Game.inventoryUpdate()">Yes</div>
+				<div class="alertNo" id="alertNo${id}" style="left: 15px; bottom: 20px;">No</div>`;
+			}
+			// 1 button
+			else {
+				alert.innerHTML = `<p class="alertText" id="alertText${id}">${text}</p>
+				<div class="alertNo" id="alertNo${id}" style="left: 0px; bottom: 20px;">OK</div>`;
+			}
+	
+			document.body.appendChild(alert);
+	
+			// set the functions
+			if (type === 3 || type === 2) {
+				document.getElementById("alertYes"+id).onclick = function () {
+					// close alert and call function with parameter (target.ev)
+					if (target.ev !== undefined) {
+						target.target(...target.ev);
 					}
 					else {
-						target.targetNo();
+						target.target();
+					}
+					document.body.removeChild(alert);
+					Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+				}
+			}
+	
+			if (type === "input") {
+				document.getElementById("alertYes"+id).onclick = function () {
+					// close alert and call function with parameter
+					let value = alert.getElementsByTagName("INPUT")[0].value;
+					if (target.ev === undefined) {
+						target.ev = [];
+					}
+					let newValue = target.ev.unshift(value); // add player input to the beginning of the parameter array
+					target.target(...newValue);
+					document.body.removeChild(alert);
+					Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+				}
+	
+				Dom.alert.array[id].value = "";
+				if (values === "name") {
+					document.getElementById("alertInput"+id).onkeydown = function () {
+						setTimeout(function () {
+							if (ValidateName(document.getElementById("alertInput"+id).value)) {
+								Dom.alert.array[id].value = document.getElementById("alertInput"+id).value;
+							}
+							else {
+								document.getElementById("alertInput"+id).value = Dom.alert.array[id].value;
+							}
+						}, 1);
 					}
 				}
-				document.body.removeChild(alert);
-				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 			}
-		}
-
-		if (type === 3) {
-			document.getElementById("alertDispose"+id).onclick = function () {
-				// close alert and call function with parameter and (true)
-				if (target.ev !== undefined) {
-					target.target(...target.ev, true);
+	
+			// "no" button onclick
+			if (type !== "text") {
+				document.getElementById("alertNo"+id).onclick = function () {
+					// close alert only - and potentially call a function
+					if (target.targetNo !== undefined) {
+						if (target.evNo !== undefined) {
+							target.targetNo(...target.evNo);
+						}
+						else {
+							target.targetNo();
+						}
+					}
+					document.body.removeChild(alert);
+					Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 				}
-				else {
-					target.target(true);
+			}
+	
+			if (type === 3) {
+				document.getElementById("alertDispose"+id).onclick = function () {
+					// close alert and call function with parameter and (true)
+					if (target.ev !== undefined) {
+						target.target(...target.ev, true);
+					}
+					else {
+						target.target(true);
+					}
+					document.body.removeChild(alert);
+					Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 				}
-				document.body.removeChild(alert);
-				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
 			}
-		}
-
-		if (type === "text") {
-			alert.onclick = function () {
-				document.body.removeChild(alert);
-				Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+	
+			if (type === "text") {
+				alert.onclick = function () {
+					document.body.removeChild(alert);
+					Dom.alert.array.splice(Dom.alert.array.findIndex(index => index.id === target.id, 1));
+				}
 			}
+	
+			return true;
 		}
 	}
+
+	return false;
 }
 
 // close the alert from Dom.alert.array with a particular id
@@ -433,7 +445,7 @@ Dom.alert.closeAll = function () {
 
 
 // Make the save, logout, delete buttons at the top of the settings page
-Dom.elements.settingLoggedInInfo.innerHTML = "You are logged in as "+Player.name";
+Dom.elements.settingLoggedInInfo.innerHTML = "You are logged in as "+Player.name;
 
 Dom.settings.delete = function () {
 
@@ -559,7 +571,7 @@ Dom.trade.interrupt = function () {
 		Dom.trade.received = false;
 	}
 
-	if (this.elements.tradePage.hidden === false) {
+	if (Dom.elements.tradePage.hidden === false) {
 		Dom.trade.close(true);
 		//Dom.closePage("inventoryPage");
 		//Dom.trade.active = false;
@@ -571,7 +583,7 @@ Dom.trade.interrupt = function () {
 
 // these pages can be displayed even if an NPC page is also being shown (i.e. currentlyDisplayed isn't "")
 // therefore these pages won't set currentlyDisplayed or currentNPC
-const displayExceptionPages = ["leaderboardPage"];
+const displayExceptionPages = ["leaderboardPage", "tradePage"];
 
 //  notClose is set to true if currentlyDisplayed and currentNPC should not be changed when the page is closed
 // i.e. if the NPC is still being spoken to (i.e. another page is opened/still open) after this one is closed
@@ -3519,7 +3531,7 @@ Dom.scoreboardInit = function (properties) {
 
 	// randomEvents, eventSequence and chatSequence - see below
 
-	// scenarioAllowedAreas (an optional array of area names) specifies the allowed areas the player can go to without abandoning the relevant quest and ending its scenario
+	// allowedAreas (an optional array of area names) specifies the allowed areas the player can go to without abandoning the relevant quest and ending its scenario (thus the scoreboard)
 
 	if (typeof this.scoreboard === "undefined") {
 		this.scoreboard = {};
@@ -3530,8 +3542,8 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.questStep = properties.questStep;
 		if (typeof this.scoreboard.questArea !== "undefined") {
 			// initialise scenario
-			Game.startScenario({area: this.scoreboard.questArea, id: this.scoreboard.questId}, properties.scenarioAllowedAreas);
-			this.scoreboard.scenarioAllowedAreas = properties.scenarioAllowedAreas;
+			Game.startScenario({questArea: this.scoreboard.questArea, id: this.scoreboard.questId}, properties.allowedAreas);
+			this.scoreboard.allowedAreas = properties.allowedAreas;
 		}
 		else {
 			console.warn("Scoreboard " + properties.title + " has no specified quest, so does not start a scenario.");
@@ -3850,8 +3862,8 @@ Dom.scoreboardFinish = function (result, reason) {
 		}
 	}
 
-	// leave scenario now that scorebaord is finished
-	Game.finishScenario({area: this.scoreboard.questArea, id: this.scoreboard.questId}, "scoreboard");
+	// leave scenario now that scoreboard is finished
+	Game.finishScenario({questArea: this.scoreboard.questArea, id: this.scoreboard.questId}, "scoreboard");
 
 	this.scoreboard = undefined;
 	Dom.elements.scoreboard.hidden = true;
@@ -7526,15 +7538,7 @@ Dom.trade.page = function () {
 
 Dom.trade.request = function (userID, name) {
 	if (typeof Player.scenario !== "undefined" && !Player.scenario.tradingAllowed) {
-		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest '"+Player.scenario.quest.title+"'.");
-		let message = {
-			type: "trade",
-			action: "busy",
-			target: userID,
-			name: Player.name,
-		}
-		let jsonMessage = JSON.stringify(message);
-		ws.send(jsonMessage);
+		Dom.chat.insert(name + " You cannot trade due to your active quest '"+Player.scenario.quest.title+"'.");
 	}
 	else {
 		Dom.trade.target = userID;
@@ -7548,6 +7552,7 @@ Dom.trade.request = function (userID, name) {
 		}
 		let jsonMessage = JSON.stringify(message);
 		ws.send(jsonMessage);
+		Dom.currentlyDisplayed = name;
 		Dom.chat.insert("Trade request sent to "+ name +". Walk away to cancel.");
 	}
 }

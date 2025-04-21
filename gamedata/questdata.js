@@ -4209,6 +4209,7 @@ var Quests = {
 						questId: 25,
 						questStep: 0,
 						enableQuestReattempt: true,
+						allowedAreas: ["tinkerersWorkshop"],
 						successFunction: function () {
 							if (Player.quests.prog.eaglecrest[25].vars.percentageCorrect === 1) {
 								User.progress.qualityAssuranceAchievement = true;
