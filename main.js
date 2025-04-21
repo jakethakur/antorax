@@ -10322,6 +10322,8 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				// update camera position
 				this.camera.update(0, true);
 
+				// dayNight canvas
+				this.screenTints = []; // removes all existing screen tints (other than ones associated with player armour or global game systems)
 				this.dayNightUpdate();
 
 				// Antorax Day fireworks
@@ -10992,6 +10994,13 @@ Game.setDayNightImages = function () {
 			}
 		}
 	});
+}
+
+// Screen tint
+// removeIn is optional and in ms
+// note these screen tints all get removed on area leave
+Game.addScreenTint = function (colour, intensity, removeIn) {
+	this.screenTints.push({colour: colour, intensity: intensity, removeIn: removeIn});
 }
 
 //
@@ -12892,7 +12901,7 @@ Game.update = function (delta) {
 	}
 
 	//
-	// choose page based on all dom menus being touched when spcae bar is pressed (just in case there are two npcs on top of each other)
+	// choose page based on all dom menus being touched when space bar is pressed (just in case there are two npcs on top of each other)
 	// this was generated above
 	if (choosePageInformation.length > 0) {
 		Dom.choose.page(choosePageInformation);
@@ -12904,6 +12913,19 @@ Game.update = function (delta) {
 	let changeMade = Dom.inventory.conditionalStats(); // update any player conditional stats (must be done every tick to account for e.g. player movement, enemy movement, despawning etc.)
 	if (changeMade && !Game.hero.transformed) {
 		Game.hero.stats = Player.stats; // bring over the conditional stat changes to the hero
+	}
+
+
+	// screen tint removeIn
+	for (let i = 0; i < this.screenTints.length; i++) {
+		if (typeof this.screenTints[i].removeIn !== "undefined") {
+			this.screenTints[i].removeIn -= delta*1000;
+			if (this.screenTints[i].removeIn <= 0) {
+				// remove it
+				this.screenTints.splice(i, 1);
+				i--;
+			}
+		}
 	}
 
 	//
@@ -15418,9 +15440,16 @@ Game.renderDayNight = function () {
 
 	// screen tint due to helm
 	// (currently just works for helm)
+	// tbd combine this with the Game.screenTints system?
 	if (typeof Player.inventory.helm.screenTint !== "undefined") {
 		this.ctxDayNight.fillStyle = Player.inventory.helm.screenTint.colour;
 		this.ctxDayNight.globalAlpha = Player.inventory.helm.screenTint.amount || 0.3;
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+	}
+
+	for (let i = 0; i < this.screenTints.length; i++) {
+		this.ctxDayNight.fillStyle = this.screenTints[i].colour;
+		this.ctxDayNight.globalAlpha = this.screenTints[i].amount || 0.3;
 		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	}
 

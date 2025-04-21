@@ -2800,6 +2800,7 @@ const QuestTemplates = {
 								Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
 								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 								Dom.quests.active();
+								Game.addScreenTint("#EE0000", 0.3, 300);
 							}
 						}
 						return [{x: 570.3, y: 1335.7,}, "remove"]
@@ -2821,6 +2822,7 @@ const QuestTemplates = {
 										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
 										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 										Dom.quests.active();
+										Game.addScreenTint("#EE0000", 0.3, 300);
 									}
 								}
 								return [{x: 990.8, y: 1323.7,}, "remove"]
@@ -2840,6 +2842,7 @@ const QuestTemplates = {
 										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
 										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
 										Dom.quests.active();
+										Game.addScreenTint("#EE0000", 0.3, 300);
 									}
 								}
 								return [{x: 993.8, y: 1906.2,}, {x: 1891.7, y: 1906.2,}, {x: 1891.7, y: 1332.7,}, "remove"]
