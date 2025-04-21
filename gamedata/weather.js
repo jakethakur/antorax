@@ -438,6 +438,11 @@ Weather.respawnParticle = function (particle, index) {
 Weather.commenceLightningStrike = function (secondStrike) {
 	Weather.lightningOnScreen = true;
 
+	// remove lightning from screen in 100ms
+	Weather.lightningTimeout = setTimeout(function () {
+		Weather.lightningOnScreen = false;
+	}, 100, true);
+
 	if (!secondStrike) {
 		// first strike, trigger second strike
 		Weather.lightningTimeout = setTimeout(Weather.commenceLightningStrike, 200, true);
