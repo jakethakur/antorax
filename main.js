@@ -201,7 +201,6 @@ Game.initWebSocket = function () {
 				clothing: Player.clothing,
 				hair: Player.hair,
 				beard: Player.beard,
-				//ears: Player.skinTone,
 				hat: Player.hat,
 			}));
 
@@ -383,10 +382,18 @@ Game.initWebSocket = function () {
 
 						case "walkAway":
 							// other player walked away
-							// if this player was off the tab, they would not have closed their page/alert/pending request
+							// if this player was off the tab, they would not have had their page/alert/pending request close due to the walking away distance
 							// so close it ...
 							if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
-								Dom.closeNPCPages();
+								Dom.closeNPCPages(); // this also inserts a chat message
+							}
+							break;
+
+						case "scenarioStarted":
+							// other player started a quest scenario mid-trade somehow
+							// so close it ...
+							if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
+								Dom.trade.interrupt();
 							}
 							break;
 					}
@@ -9448,921 +9455,947 @@ Game.loadDefaultImages = function () {
 }
 
 // pull data from areadata.js
-Game.loadArea = function (areaName, destination) {
+// abandonAgreed is set to true if the player was required to accept an alert before moving area (e.g. due to a scenario) and has clicked yes (or, alternatively, if scenario loadarea prevention should be overridden)
+Game.loadArea = function (areaName, destination, abandonAgreed) {
+	let areaTpAllowed = true;
 
-	this.loadingArea = true; // set to false at the end of this function, once the promise is dealt with (because of asynchronocity with animationframe)
+	// first deal with any potential limitations on area mobility, i.e. player being in a scenario
+	if (!abandonAgreed && typeof Player.scenario !== "undefined" && typeof Player.scenario.allowedAreas !== "undefined" && !Player.scenario.allowedAreas.includes(areaName)) {
+		// player trying to go to an area which is not allowed in the current scenario
+		areaTpAllowed = false;
+		// give the player an alert which lets them decide if they want to go ahead with area teleport
+		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest '" + Player.scenario.quest.title + "'.";
+		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea.bind(Game), ev: [areaName, destination, true]}, true); // clicking yes calls this function but with abandonAgreed = true
+	}
 
-	// stop player from teleporting again during promise
-	if (typeof this.areaTeleports !== "undefined") {
-		for (let i = 0; i < this.areaTeleports.length; i++) {
-			this.removeObject(this.areaTeleports[i].id, this.areaTeleports[i].type, i);
-			i--;
+	if (abandonAgreed) {
+		// abandon quest as the player agreed...
+		Dom.quest.abandon(Quests[Player.scenario.quest.area][Player.scenario.quest.id]); // this in turn abandons the scenario and saves progress
+	}
+
+	if (areaTpAllowed) {
+		this.loadingArea = true; // set to false at the end of this function, once the promise is dealt with (because of asynchronocity with animationframe)
+
+		// stop player from teleporting again during promise
+		if (typeof this.areaTeleports !== "undefined") {
+			for (let i = 0; i < this.areaTeleports.length; i++) {
+				this.removeObject(this.areaTeleports[i].id, this.areaTeleports[i].type, i);
+				i--;
+			}
 		}
-	}
-	this.areaTeleports = [];
+		this.areaTeleports = [];
 
-	// clear all timeouts and intervals that should be cleared upon changing area
-	while (this.clearedTimeoutsOnAreaChange.length > 0) {
-		this.clearTimeout(this.clearedTimeoutsOnAreaChange[0]);
-		this.clearedTimeoutsOnAreaChange.splice(0, 1);
-	}
-	while (this.clearedIntervalsOnAreaChange.length > 0) {
-		this.clearInterval(this.clearedIntervalsOnAreaChange[0]);
-		this.clearedIntervalsOnAreaChange.splice(0, 1);
-	}
+		// clear all timeouts and intervals that should be cleared upon changing area
+		while (this.clearedTimeoutsOnAreaChange.length > 0) {
+			this.clearTimeout(this.clearedTimeoutsOnAreaChange[0]);
+			this.clearedTimeoutsOnAreaChange.splice(0, 1);
+		}
+		while (this.clearedIntervalsOnAreaChange.length > 0) {
+			this.clearInterval(this.clearedIntervalsOnAreaChange[0]);
+			this.clearedIntervalsOnAreaChange.splice(0, 1);
+		}
 
-	let init = false; // set to true if this is the first areaTeleport of the game
-	let promiseArray = []; // only relevant if init is true
-	if (this.hero === undefined) {
-		init = true;
+		let init = false; // set to true if this is the first areaTeleport of the game
+		let promiseArray = []; // only relevant if init is true
+		if (this.hero === undefined) {
+			init = true;
 
-		// now make local XML HTTP request to get the tilemap data for each area
-		Object.keys(Areas).forEach((areaName) => {
-			if (typeof Areas[areaName].mapData.layers === "undefined") {
-				// tilemap is not specified in areadata, so find the tilemap XML
-				promiseArray.push(makeXMLHttpRequest("GET", "gamedata/tilemap/"+areaName+".tmx")
-				.then(function (data) {
-					Areas[areaName].mapData.requestedXML = data;
-					Areas[areaName].mapData.layers = [];
+			// now make local XML HTTP request to get the tilemap data for each area
+			Object.keys(Areas).forEach((areaName) => {
+				if (typeof Areas[areaName].mapData.layers === "undefined") {
+					// tilemap is not specified in areadata, so find the tilemap XML
+					promiseArray.push(makeXMLHttpRequest("GET", "gamedata/tilemap/"+areaName+".tmx")
+					.then(function (data) {
+						Areas[areaName].mapData.requestedXML = data;
+						Areas[areaName].mapData.layers = [];
 
-					let xmlObject = parseXml(data);
+						let xmlObject = parseXml(data);
 
-					// object layer on map
-					// these get added to the "things" array in Areas[areaName]
-					if (typeof Areas[areaName].things === "undefined") {
-						Areas[areaName].things = [];
-					}
-					if (typeof xmlObject.map.objectgroup !== "undefined" && typeof xmlObject.map.objectgroup.object !== "undefined") {
-						// currently only supports entities of type "thing"
-						let objectArray = xmlObject.map.objectgroup.object;
-						if (!Array.isArray(objectArray)) {
-							objectArray = [objectArray];
+						// object layer on map
+						// these get added to the "things" array in Areas[areaName]
+						if (typeof Areas[areaName].things === "undefined") {
+							Areas[areaName].things = [];
 						}
-						for (let i = 0; i < objectArray.length; i++) {
-							let object = objectArray[i];
+						if (typeof xmlObject.map.objectgroup !== "undefined" && typeof xmlObject.map.objectgroup.object !== "undefined") {
+							// currently only supports entities of type "thing"
+							let objectArray = xmlObject.map.objectgroup.object;
+							if (!Array.isArray(objectArray)) {
+								objectArray = [objectArray];
+							}
+							for (let i = 0; i < objectArray.length; i++) {
+								let object = objectArray[i];
 
-							// find the image in the tileset
-							let imageSrc;
-							let imageKey = "tmxImage"+object.gid;
-							for (let j = 0; j < xmlObject.map.tileset.length; j++) {
-								let finalGid = Number(xmlObject.map.tileset[j].firstgid)+Number(xmlObject.map.tileset[j].tilecount)-1;
-								if (finalGid >= Number(object.gid) && Number(xmlObject.map.tileset[j].firstgid <= Number(object.gid))) {
-									// image lies in tileset j
-									let index = Number(object.gid)-Number(xmlObject.map.tileset[j].firstgid);
-									imageSrc = xmlObject.map.tileset[j].tile[index].image.source;
-									break;
+								// find the image in the tileset
+								let imageSrc;
+								let imageKey = "tmxImage"+object.gid;
+								for (let j = 0; j < xmlObject.map.tileset.length; j++) {
+									let finalGid = Number(xmlObject.map.tileset[j].firstgid)+Number(xmlObject.map.tileset[j].tilecount)-1;
+									if (finalGid >= Number(object.gid) && Number(xmlObject.map.tileset[j].firstgid <= Number(object.gid))) {
+										// image lies in tileset j
+										let index = Number(object.gid)-Number(xmlObject.map.tileset[j].firstgid);
+										imageSrc = xmlObject.map.tileset[j].tile[index].image.source;
+										break;
+									}
+								}
+								if (typeof imageSrc === "undefined") {
+									console.error("Unable to find image src in tmx image collection for object", object);
+								}
+								Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2].substring(1)}; // without the split command, image source would start with "../../assets/", where we want "assets/"
+								// without the substring command, there'd be a "/" at the start, which would cause an issue with the file path on online version
+
+								// change the x and y to account for shifted origin of area
+								object.x = Number(object.x);
+								object.y = Number(object.y);
+								object.width = Number(object.width);
+								object.height = Number(object.height);
+								if (typeof Areas[areaName].mapData.origin !== "undefined") {
+									object.x -= Areas[areaName].mapData.origin.x;
+									object.y -= Areas[areaName].mapData.origin.y;
+								}
+
+								// add the object to areadata!
+								Areas[areaName].things.push({
+									x: object.x+object.width/2,
+									y: object.y-object.height/2,
+									image: imageKey,
+								});
+							}
+						}
+
+
+						// format data
+						let a = data.split('<data encoding="csv">');
+						for (let i = 1; i < a.length; i++) {  // iterates through layers
+							let b = a[i].split(' ');
+							let c = b[0].split('<');
+							let d = c[0];
+		
+							let layerArray = d.split(',');
+							for (let i = 0; i < layerArray.length; i++) {
+								layerArray[i] = parseInt(layerArray[i]);
+							}
+
+							Areas[areaName].mapData.layers.push(layerArray);
+						}
+
+					})
+					.catch(function (err) {
+						console.error("There was an error requesting XML tilemap data for area "+areaName, err.statusText);
+					}));
+				}
+			});
+		}
+
+		Promise.all(promiseArray).then(function () {
+			// now all the XML requests have been returned (or none were required) - continue with loading area
+
+			// wipe previously loaded images (except exceptions - based on deleteif)
+			Loader.wipeImages();
+
+			// set event
+			Event.updateEvent();
+			// set time of day
+			Event.updateTime(areaName);
+
+			this.fullDate = GetFullDate(); // updated on area change
+
+			// load images
+			// p = array of promises of images being loaded
+			let p = Loader.loadMultipleImages(Areas[areaName].images);
+
+			// also add npc layered images (like the hero) - these don't need to be loaded in in areadata as their addresses are obvious
+			// tbd iterate through additional entity types that might have layered images like this
+			let load = {};
+			if (typeof Areas[areaName].npcs !== "undefined") {
+				for (let i = 0; i < Areas[areaName].npcs.length; i++) {
+					let npc = Areas[areaName].npcs[i];
+					let loadForThisNpc = this.formatNpcImages(npc); // prepares the NPC images for adding, as well as returning the images that need to be loaded in
+					load = Object.assign(load, loadForThisNpc);
+				}
+			}
+			if (typeof Areas[areaName].enemies !== "undefined") {
+				for (let i = 0; i < Areas[areaName].enemies.length; i++) {
+					let npc = Areas[areaName].enemies[i];
+					let loadForThisNpc = this.formatNpcImages(npc);
+					load = Object.assign(load, loadForThisNpc);
+				}
+			}
+			if (typeof Areas[areaName].villagers !== "undefined") {
+				for (let i = 0; i < Areas[areaName].villagers.length; i++) {
+					let npc = Areas[areaName].villagers[i];
+					let loadForThisNpc = this.formatNpcImages(npc);
+					load = Object.assign(load, loadForThisNpc);
+				}
+			}
+			p = p.concat(Loader.loadMultipleImages(load));
+
+			// load in randomly generated villagers if the area has data for them
+
+			let possibleVillagers, villagersToAdd;
+			if (Areas[areaName].villagerData !== undefined) {
+				// first make array of all valid villager locations (used until area is changed)
+				Game.villagerLocationArray = [];
+				for (let i = 0; i < Areas[areaName].villagerData.locations.length; i++) {
+					if (typeof Areas[areaName].villagerData.locations[i].condition === "undefined" || Areas[areaName].villagerData.locations[i].condition()) {
+						Game.villagerLocationArray.push(Areas[areaName].villagerData.locations[i]);
+					}
+				}
+
+				// now make the villagers!
+				let returnValues = this.generateVillagers(Areas[areaName].villagerData, areaName);
+
+				p = p.concat(returnValues.p); // more images to be loaded
+
+				// variables used to create villager objects
+				this.villagerSeed = returnValues.seed; // changed each area; saved in game because villager constructor needs it for non generated villagers
+				possibleVillagers = returnValues.possibleVillagers;
+				villagersToAdd = returnValues.villagersToAdd;
+			}
+
+			// character on lead
+			if (!init && this.hero.hasOnLead !== undefined) {
+				// load the character's images
+				if (this.hero.hasOnLead.rotationImageSources) {
+					// rotation images to be loaded as well
+					p = p.concat(Loader.loadMultipleImages(this.hero.hasOnLead.rotationImageSources));
+				}
+				p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc));
+			}
+
+			// on init - check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
+			if (init) {
+				p.push(...this.loadDefaultImages());
+			}
+
+			// wait until images have been loaded
+			Promise.all(p).then(function (loaded) {
+
+				// call onAreaLeave function for previous area if there is one
+				if (this.areaName !== undefined) { // if they came from a different area
+					if (Areas[this.areaName].onAreaLeave !== undefined) {
+						Areas[this.areaName].onAreaLeave();
+					}
+				}
+
+				this.areaName = areaName;
+
+				this.areaVariables = Areas[areaName].areaVariables;
+				if (typeof this.areaVariables === "undefined") {
+					this.areaVariables = {};
+				}
+
+				// save data information
+				Player.areaName = areaName;
+				Player.displayAreaName = Areas[areaName].data.name;
+				Player.lootArea = Areas[areaName].lootArea; // general name of area and areas around it
+				Player.lootTier = Areas[areaName].lootTier;
+
+				if (Player.lootArea === undefined) {
+					console.error("No loot area set for area " + areaName);
+				}
+
+				// call onAreaLoad if there is one
+				// (this is the same as onAreaJoin but is called before anything is loaded, and is also called even on init)
+				// note that Game.run has already been called, so save data has been loaded etc (but nothing from Areas etc has been loaded yet)
+				if (typeof Areas[this.areaName].onAreaLoad !== "undefined") {
+					Areas[this.areaName].onAreaLoad();
+				}
+
+				//
+				// map
+				//
+
+				// there are some properties that some areaData areas don't have, so should be undefined rather than the old value
+				map.solidTiles = undefined;
+				map.waterTiles = undefined;
+				map.iceTiles = undefined;
+				map.mudTiles = undefined;
+				map.pathTiles = undefined;
+				map.tallGrassBottoms = undefined;
+				map.dayTiles = undefined;
+				map.nightTiles = undefined;
+				map.animateTiles = undefined;
+				map.objectTiles = [];
+				map.repeatTiles = []; // these are like tall grass, flowers, etc.. An array of objects where the objects include "tile", "orderOffsetY" (optionally), name, "ySpacing", "xSpacing" (how much x it moves for every time it moves up one)
+				map.transparentTiles = []; // so it is always an array
+				map.lightEmitTiles = [];
+				map.lightEmitAtNightTiles = [];
+
+				map.scrollX = undefined;
+				map.scrollY = undefined;
+
+				map.origin = {x:0, y:0}; // this can be set in mapData; it is the coordinate that should be taken as the origin
+				// from there, map.origin.x becomes the new x=0 (and negative x is beyond there). same for y.
+				// designed for when the map is extended to the top/left!
+
+				// now add all properties from areaData to the map variable
+				Object.assign(map, Areas[areaName].mapData);
+
+				// validate that map layers are right length
+				let layerLength = map.cols * map.rows;
+				let removedLayers = 0;
+				for (let i = 0; i < map.layers.length; i++) {
+					if (map.layers[i].length !== layerLength) {
+						console.error("Map layer " + (i+removedLayers) + " of area " + Game.areaName + " is not the correct length so has been removed.");
+						map.layers.splice(i, 1);
+						i--;
+						removedLayers++;
+					}
+				}
+
+				// ice tiles only exist if the area isIcy
+				if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy() && typeof map.waterTiles !== "undefined") {
+					// area is icy
+					// any water tiles that are also ice tiles are now no longer water tiles
+					map.waterTiles = map.waterTiles.filter(tile => {
+						if (map.iceTiles.includes(tile)) {
+							return false;
+						}
+						else {
+							return true;
+						}
+					});
+				}
+				else {
+					// purge the ice!
+					map.iceTiles = undefined;
+				}
+
+				// animate tiles
+				map.initTileAnimation();
+
+				// set tileset
+				this.tileAtlas = Loader.getImage("tiles");
+
+				// recalibrate camera (for areas other than first area)
+				if (this.camera !== undefined) {
+					// set maximum x and y positions of camera
+					this.camera.setMaxClampValues();
+
+
+					// update viewportOffset and canvasArea variables
+					// (otherwise called on init)
+					this.updateCanvasViewport();
+				}
+
+				// initialise exploredArea variable for fog of war
+				if (Areas[this.areaName].onlyShowExploredAreaOnMap && !Areas[this.areaName].alwaysHideOnMap) {
+					// check that the player has been to this area before
+					if (typeof Player.exploredArea[this.areaName] === "undefined") {
+						map.initialiseExploredArea();
+					}
+					else {
+						// check that the area's size hasn't been updated since the player was last here
+						map.fixExploredAreaDimensions();
+					}
+				}
+
+				//
+				// init
+				//
+
+				// remove all existing entities from previous area
+				// note areateleports have already been done above
+				if (typeof this.allEntities !== "undefined") {
+					for (let i = 0; i < this.allEntities.length; i++) {
+						if (this.allEntities[i].constructor.name !== "Hero") {
+							this.removeObject(this.allEntities[i].id, this.allEntities[i].type); // this automatically removes any channelling functions etc.
+						}
+					}
+				}
+
+				// class arrays
+				this.allEntities = [];
+				this.allVisibles = [];
+				this.allThings = [];
+				this.allCharacters = [];
+				this.allAttackers = [];
+				this.allNPCs = []; // includes villagers
+				this.damageableByPlayer = []; // everything that has this.damageableByPlayer set to true (ofc must be character or higher in hierarchy)
+				this.walkableObjects = []; // moving platforms etc (things with .walkable as true)
+				this.allShapes = [];
+
+				// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
+				this.animationList = [];
+
+				// array made now (instead of later with typeClasses) for hero foothitbox
+				this.entities = [];
+
+				// init game (if it hasn't been done so already)
+				if (init) {
+					this.init();
+				}
+				else {
+					// code to be called when area is accessed due to area teleport (not game load)
+
+					// readd the hero's animation to animationList
+					this.animationList.push(this.hero);
+
+					// reset weather
+					if (document.getElementById("weatherOn").checked) {
+						Weather.reset();
+					}
+					Weather.updateVariables();
+
+					// close NPC pages
+					Dom.closeNPCPages();
+
+					// re-add player to allEntities etc.
+					// aaaaaaaaaaa tbd with pets, mount..
+					this.allEntities.push(Game.hero);
+					this.allVisibles.push(Game.hero);
+					this.allThings.push(Game.hero);
+					this.allCharacters.push(Game.hero);
+					this.allAttackers.push(Game.hero);
+
+					this.allEntities.push(Game.hero.footHitbox);
+
+					// they also need to be added to their class arrays (i.e. "Game.characters")
+					this.readdToClassArray = [Game.hero.footHitbox];
+
+					Game.hero.summonsActive = 0;
+				}
+
+				// now camera has been initialised, draw minimap for this area
+				this.prepareMinimap();
+
+				//
+				// interactable objects
+				//
+
+				// particles and projectiles don't persist between areas - cancel their remove timeouts
+				if (this.objectRemoveTimeouts !== undefined) {
+					for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
+						Game.clearTimeout(this.objectRemoveTimeouts[i]);
+					}
+				}
+				this.objectRemoveTimeouts = [];
+
+				// reset any channelling projectile (if the player has existed before)
+				if (!init) {
+					this.hero.channellingProjectileId = null;
+					this.hero.removeChannelling("loadArea")
+					this.hero.canAttack = true;
+				}
+
+				// object containing the class associated to each type (must be hard-coded)
+				this.typeClasses = {
+					collisions: Collision,
+					areaTeleports: AreaTeleport,
+					tripwires: Tripwire,
+					particles: Particle,
+					things: Thing,
+					characters: Character,
+					infoPoints: InfoPoint,
+					cannons: Cannon,
+					mailboxes: Mailbox,
+					chests: LootChest,
+					dummies: Dummy,
+					villagers: Villager,
+					npcs: NPC,
+					enemies: Enemy,
+					players: UserControllable,
+					projectiles: Projectile,
+					combatAreas: CombatArea,
+					mounts: Mount,
+					shapes: Shape,
+					nonPlayerAttackers: NonPlayerAttacker,
+					entities: Entity,
+					leyAggregates: Ley,
+				};
+
+				let typeArray = Object.keys(this.typeClasses);
+				let classArray = Object.values(this.typeClasses);
+				// initiate object arrays from areadata
+				for (let i = 0; i < typeArray.length; i++) {
+					let type = typeArray[i]; // name of array the object is in
+
+					// init array in Game
+					this[type] = [];
+				}
+				// re-add objects from old area to their arrays
+				if (typeof this.readdToClassArray !== "undefined") {
+					for (let i = 0; i < this.readdToClassArray.length; i++) {
+						this[this.readdToClassArray[i].type].push(this.readdToClassArray[i]);
+					}
+				}
+				// populate object arrays from game
+				for (let i = 0; i < typeArray.length; i++) {
+					let type = typeArray[i]; // name of array the object is in
+					let className = classArray[i];
+
+					if (Areas[areaName][type] !== undefined) {
+						// exists in areadata
+						// iterate through objects of that type in areadata
+						for (let i = 0; i < Areas[areaName][type].length; i++) {
+							// see if there are multiple entities of the type that should be added (i.e. the x and y coordinates are an array, or there is a .repeat property)
+							// if there are, then split this into multiple npcs in areadata without arrays for coords
+							if (Areas[areaName][type][i].repeatNumber > 1) {
+								let numberOfEntities = Areas[areaName][type][i].repeatNumber;
+								Areas[areaName][type][i].repeatNumber = undefined;
+								for (let j = 0; j < numberOfEntities-1; j++) {
+									let clonedObject = Object.assign({}, Areas[areaName][type][i]);
+									Areas[areaName][type].push(clonedObject);
 								}
 							}
-							if (typeof imageSrc === "undefined") {
-								console.error("Unable to find image src in tmx image collection for object", object);
+
+							if (Array.isArray(Areas[areaName][type][i].x)) {
+								let xArray = Areas[areaName][type][i].x;
+								let yArray = Areas[areaName][type][i].y;
+								// iterate through each npc to be added
+								for (let j = 0; j < xArray.length; j++) {
+									let clonedObject = Object.assign({}, Areas[areaName][type][i]);
+									Areas[areaName][type].push(clonedObject);
+									let newEntityId = Areas[areaName][type].length-1;
+									// set new x and y coords from this array
+									Areas[areaName][type][newEntityId].x = xArray[j];
+									Areas[areaName][type][newEntityId].y = yArray[j];
+								}
+								// remove the original npc
+								Areas[areaName][type].splice(i,1);
+								i--;
 							}
-							Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2].substring(1)}; // without the split command, image source would start with "../../assets/", where we want "assets/"
-							// without the substring command, there'd be a "/" at the start, which would cause an issue with the file path on online version
 
-							// change the x and y to account for shifted origin of area
-							object.x = Number(object.x);
-							object.y = Number(object.y);
-							object.width = Number(object.width);
-							object.height = Number(object.height);
-							if (typeof Areas[areaName].mapData.origin !== "undefined") {
-								object.x -= Areas[areaName].mapData.origin.x;
-								object.y -= Areas[areaName].mapData.origin.y;
-							}
-
-							// add the object to areadata!
-							Areas[areaName].things.push({
-								x: object.x+object.width/2,
-								y: object.y-object.height/2,
-								image: imageKey,
-							});
-						}
-					}
-
-
-					// format data
-					let a = data.split('<data encoding="csv">');
-					for (let i = 1; i < a.length; i++) {  // iterates through layers
-						let b = a[i].split(' ');
-						let c = b[0].split('<');
-						let d = c[0];
-	
-						let layerArray = d.split(',');
-						for (let i = 0; i < layerArray.length; i++) {
-							layerArray[i] = parseInt(layerArray[i]);
-						}
-
-						Areas[areaName].mapData.layers.push(layerArray);
-					}
-
-				})
-				.catch(function (err) {
-					console.error("There was an error requesting XML tilemap data for area "+areaName, err.statusText);
-				}));
-			}
-		});
-	}
-
-	Promise.all(promiseArray).then(function () {
-		// now all the XML requests have been returned (or none were required) - continue with loading area
-
-		// wipe previously loaded images (except exceptions - based on deleteif)
-		Loader.wipeImages();
-
-		// set event
-		Event.updateEvent();
-		// set time of day
-		Event.updateTime(areaName);
-
-		this.fullDate = GetFullDate(); // updated on area change
-
-		// load images
-		// p = array of promises of images being loaded
-		let p = Loader.loadMultipleImages(Areas[areaName].images);
-
-		// also add npc layered images (like the hero) - these don't need to be loaded in in areadata as their addresses are obvious
-		// tbd iterate through additional entity types that might have layered images like this
-		let load = {};
-		if (typeof Areas[areaName].npcs !== "undefined") {
-			for (let i = 0; i < Areas[areaName].npcs.length; i++) {
-				let npc = Areas[areaName].npcs[i];
-				let loadForThisNpc = this.formatNpcImages(npc); // prepares the NPC images for adding, as well as returning the images that need to be loaded in
-				load = Object.assign(load, loadForThisNpc);
-			}
-		}
-		if (typeof Areas[areaName].enemies !== "undefined") {
-			for (let i = 0; i < Areas[areaName].enemies.length; i++) {
-				let npc = Areas[areaName].enemies[i];
-				let loadForThisNpc = this.formatNpcImages(npc);
-				load = Object.assign(load, loadForThisNpc);
-			}
-		}
-		if (typeof Areas[areaName].villagers !== "undefined") {
-			for (let i = 0; i < Areas[areaName].villagers.length; i++) {
-				let npc = Areas[areaName].villagers[i];
-				let loadForThisNpc = this.formatNpcImages(npc);
-				load = Object.assign(load, loadForThisNpc);
-			}
-		}
-		p = p.concat(Loader.loadMultipleImages(load));
-
-		// load in randomly generated villagers if the area has data for them
-
-		let possibleVillagers, villagersToAdd;
-		if (Areas[areaName].villagerData !== undefined) {
-			// first make array of all valid villager locations (used until area is changed)
-			Game.villagerLocationArray = [];
-			for (let i = 0; i < Areas[areaName].villagerData.locations.length; i++) {
-				if (typeof Areas[areaName].villagerData.locations[i].condition === "undefined" || Areas[areaName].villagerData.locations[i].condition()) {
-					Game.villagerLocationArray.push(Areas[areaName].villagerData.locations[i]);
-				}
-			}
-
-			// now make the villagers!
-			let returnValues = this.generateVillagers(Areas[areaName].villagerData, areaName);
-
-			p = p.concat(returnValues.p); // more images to be loaded
-
-			// variables used to create villager objects
-			this.villagerSeed = returnValues.seed; // changed each area; saved in game because villager constructor needs it for non generated villagers
-			possibleVillagers = returnValues.possibleVillagers;
-			villagersToAdd = returnValues.villagersToAdd;
-		}
-
-		// character on lead
-		if (!init && this.hero.hasOnLead !== undefined) {
-			// load the character's images
-			if (this.hero.hasOnLead.rotationImageSources) {
-				// rotation images to be loaded as well
-				p = p.concat(Loader.loadMultipleImages(this.hero.hasOnLead.rotationImageSources));
-			}
-			p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc));
-		}
-
-		// on init - check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
-		if (init) {
-			p.push(...this.loadDefaultImages());
-		}
-
-		// wait until images have been loaded
-		Promise.all(p).then(function (loaded) {
-
-			// call onAreaLeave function for previous area if there is one
-			if (this.areaName !== undefined) { // if they came from a different area
-				if (Areas[this.areaName].onAreaLeave !== undefined) {
-					Areas[this.areaName].onAreaLeave();
-				}
-			}
-
-			this.areaName = areaName;
-
-			this.areaVariables = Areas[areaName].areaVariables;
-			if (typeof this.areaVariables === "undefined") {
-				this.areaVariables = {};
-			}
-
-			// save data information
-			Player.areaName = areaName;
-			Player.displayAreaName = Areas[areaName].data.name;
-			Player.lootArea = Areas[areaName].lootArea; // general name of area and areas around it
-			Player.lootTier = Areas[areaName].lootTier;
-
-			if (Player.lootArea === undefined) {
-				console.error("No loot area set for area " + areaName);
-			}
-
-			// call onAreaLoad if there is one
-			// (this is the same as onAreaJoin but is called before anything is loaded, and is also called even on init)
-			// note that Game.run has already been called, so save data has been loaded etc (but nothing from Areas etc has been loaded yet)
-			if (typeof Areas[this.areaName].onAreaLoad !== "undefined") {
-				Areas[this.areaName].onAreaLoad();
-			}
-
-			//
-			// map
-			//
-
-			// there are some properties that some areaData areas don't have, so should be undefined rather than the old value
-			map.solidTiles = undefined;
-			map.waterTiles = undefined;
-			map.iceTiles = undefined;
-			map.mudTiles = undefined;
-			map.pathTiles = undefined;
-			map.tallGrassBottoms = undefined;
-			map.dayTiles = undefined;
-			map.nightTiles = undefined;
-			map.animateTiles = undefined;
-			map.objectTiles = [];
-			map.repeatTiles = []; // these are like tall grass, flowers, etc.. An array of objects where the objects include "tile", "orderOffsetY" (optionally), name, "ySpacing", "xSpacing" (how much x it moves for every time it moves up one)
-			map.transparentTiles = []; // so it is always an array
-			map.lightEmitTiles = [];
-			map.lightEmitAtNightTiles = [];
-
-			map.scrollX = undefined;
-			map.scrollY = undefined;
-
-			map.origin = {x:0, y:0}; // this can be set in mapData; it is the coordinate that should be taken as the origin
-			// from there, map.origin.x becomes the new x=0 (and negative x is beyond there). same for y.
-			// designed for when the map is extended to the top/left!
-
-			// now add all properties from areaData to the map variable
-			Object.assign(map, Areas[areaName].mapData);
-
-			// validate that map layers are right length
-			let layerLength = map.cols * map.rows;
-			let removedLayers = 0;
-			for (let i = 0; i < map.layers.length; i++) {
-				if (map.layers[i].length !== layerLength) {
-					console.error("Map layer " + (i+removedLayers) + " of area " + Game.areaName + " is not the correct length so has been removed.");
-					map.layers.splice(i, 1);
-					i--;
-					removedLayers++;
-				}
-			}
-
-			// ice tiles only exist if the area isIcy
-			if (Areas[areaName].isIcy !== undefined && Areas[areaName].isIcy() && typeof map.waterTiles !== "undefined") {
-				// area is icy
-				// any water tiles that are also ice tiles are now no longer water tiles
-				map.waterTiles = map.waterTiles.filter(tile => {
-					if (map.iceTiles.includes(tile)) {
-						return false;
-					}
-					else {
-						return true;
-					}
-				});
-			}
-			else {
-				// purge the ice!
-				map.iceTiles = undefined;
-			}
-
-			// animate tiles
-			map.initTileAnimation();
-
-			// set tileset
-			this.tileAtlas = Loader.getImage("tiles");
-
-			// recalibrate camera (for areas other than first area)
-			if (this.camera !== undefined) {
-				// set maximum x and y positions of camera
-				this.camera.setMaxClampValues();
-
-
-				// update viewportOffset and canvasArea variables
-				// (otherwise called on init)
-				this.updateCanvasViewport();
-			}
-
-			// initialise exploredArea variable for fog of war
-			if (Areas[this.areaName].onlyShowExploredAreaOnMap && !Areas[this.areaName].alwaysHideOnMap) {
-				// check that the player has been to this area before
-				if (typeof Player.exploredArea[this.areaName] === "undefined") {
-					map.initialiseExploredArea();
-				}
-				else {
-					// check that the area's size hasn't been updated since the player was last here
-					map.fixExploredAreaDimensions();
-				}
-			}
-
-			//
-			// init
-			//
-
-			// remove all existing entities from previous area
-			// note areateleports have already been done above
-			if (typeof this.allEntities !== "undefined") {
-				for (let i = 0; i < this.allEntities.length; i++) {
-					if (this.allEntities[i].constructor.name !== "Hero") {
-						this.removeObject(this.allEntities[i].id, this.allEntities[i].type); // this automatically removes any channelling functions etc.
-					}
-				}
-			}
-
-			// class arrays
-			this.allEntities = [];
-			this.allVisibles = [];
-			this.allThings = [];
-			this.allCharacters = [];
-			this.allAttackers = [];
-			this.allNPCs = []; // includes villagers
-			this.damageableByPlayer = []; // everything that has this.damageableByPlayer set to true (ofc must be character or higher in hierarchy)
-			this.walkableObjects = []; // moving platforms etc (things with .walkable as true)
-			this.allShapes = [];
-
-			// list of objects to be animated (with a .animation object - see Thing constructor for a breakdown of this object's properties)
-			this.animationList = [];
-
-			// array made now (instead of later with typeClasses) for hero foothitbox
-			this.entities = [];
-
-			// init game (if it hasn't been done so already)
-			if (init) {
-				this.init();
-			}
-			else {
-				// code to be called when area is accessed due to area teleport (not game load)
-
-				// readd the hero's animation to animationList
-				this.animationList.push(this.hero);
-
-				// reset weather
-				if (document.getElementById("weatherOn").checked) {
-					Weather.reset();
-				}
-				Weather.updateVariables();
-
-				// close NPC pages
-				Dom.closeNPCPages();
-
-				// re-add player to allEntities etc.
-				// aaaaaaaaaaa tbd with pets, mount..
-				this.allEntities.push(Game.hero);
-				this.allVisibles.push(Game.hero);
-				this.allThings.push(Game.hero);
-				this.allCharacters.push(Game.hero);
-				this.allAttackers.push(Game.hero);
-
-				this.allEntities.push(Game.hero.footHitbox);
-
-				// they also need to be added to their class arrays (i.e. "Game.characters")
-				this.readdToClassArray = [Game.hero.footHitbox];
-
-				Game.hero.summonsActive = 0;
-			}
-
-			// now camera has been initialised, draw minimap for this area
-			this.prepareMinimap();
-
-			//
-			// interactable objects
-			//
-
-			// particles and projectiles don't persist between areas - cancel their remove timeouts
-			if (this.objectRemoveTimeouts !== undefined) {
-				for (let i = 0; i < this.objectRemoveTimeouts.length; i++) {
-					Game.clearTimeout(this.objectRemoveTimeouts[i]);
-				}
-			}
-			this.objectRemoveTimeouts = [];
-
-			// reset any channelling projectile (if the player has existed before)
-			if (!init) {
-				this.hero.channellingProjectileId = null;
-				this.hero.removeChannelling("loadArea")
-				this.hero.canAttack = true;
-			}
-
-			// object containing the class associated to each type (must be hard-coded)
-			this.typeClasses = {
-				collisions: Collision,
-				areaTeleports: AreaTeleport,
-				tripwires: Tripwire,
-				particles: Particle,
-				things: Thing,
-				characters: Character,
-				infoPoints: InfoPoint,
-				cannons: Cannon,
-				mailboxes: Mailbox,
-				chests: LootChest,
-				dummies: Dummy,
-				villagers: Villager,
-				npcs: NPC,
-				enemies: Enemy,
-				players: UserControllable,
-				projectiles: Projectile,
-				combatAreas: CombatArea,
-				mounts: Mount,
-				shapes: Shape,
-				nonPlayerAttackers: NonPlayerAttacker,
-				entities: Entity,
-				leyAggregates: Ley,
-			};
-
-			let typeArray = Object.keys(this.typeClasses);
-			let classArray = Object.values(this.typeClasses);
-			// initiate object arrays from areadata
-			for (let i = 0; i < typeArray.length; i++) {
-				let type = typeArray[i]; // name of array the object is in
-
-				// init array in Game
-				this[type] = [];
-			}
-			// re-add objects from old area to their arrays
-			if (typeof this.readdToClassArray !== "undefined") {
-				for (let i = 0; i < this.readdToClassArray.length; i++) {
-					this[this.readdToClassArray[i].type].push(this.readdToClassArray[i]);
-				}
-			}
-			// populate object arrays from game
-			for (let i = 0; i < typeArray.length; i++) {
-				let type = typeArray[i]; // name of array the object is in
-				let className = classArray[i];
-
-				if (Areas[areaName][type] !== undefined) {
-					// exists in areadata
-					// iterate through objects of that type in areadata
-					for (let i = 0; i < Areas[areaName][type].length; i++) {
-						// see if there are multiple entities of the type that should be added (i.e. the x and y coordinates are an array, or there is a .repeat property)
-						// if there are, then split this into multiple npcs in areadata without arrays for coords
-						if (Areas[areaName][type][i].repeatNumber > 1) {
-							let numberOfEntities = Areas[areaName][type][i].repeatNumber;
-							Areas[areaName][type][i].repeatNumber = undefined;
-							for (let j = 0; j < numberOfEntities-1; j++) {
-								let clonedObject = Object.assign({}, Areas[areaName][type][i]);
-								Areas[areaName][type].push(clonedObject);
+							// if the npc wasn't an array of npcs to be added (since this array has since been removed) then prepare + add it
+							else {
+								// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
+								// also calls specific functions needed for certain npcs
+								let preparedNPC = this.prepareNPC(Areas[areaName][type][i], type);
+								if (preparedNPC !== false) {
+									preparedNPC.source = "area";
+									this[type].push(new className(preparedNPC));
+								}
 							}
 						}
+					}
+				}
 
-						if (Array.isArray(Areas[areaName][type][i].x)) {
-							let xArray = Areas[areaName][type][i].x;
-							let yArray = Areas[areaName][type][i].y;
-							// iterate through each npc to be added
-							for (let j = 0; j < xArray.length; j++) {
-								let clonedObject = Object.assign({}, Areas[areaName][type][i]);
-								Areas[areaName][type].push(clonedObject);
-								let newEntityId = Areas[areaName][type].length-1;
-								// set new x and y coords from this array
-								Areas[areaName][type][newEntityId].x = xArray[j];
-								Areas[areaName][type][newEntityId].y = yArray[j];
-							}
-							// remove the original npc
-							Areas[areaName][type].splice(i,1);
-							i--;
+				// re-add removed
+				this.entities.push(Game.hero.footHitbox);
+
+				// villagers (added from generateVillagers before promise)
+				if (villagersToAdd !== undefined) {
+					for (let i = 0; i < villagersToAdd.length; i++) {
+						let villager = possibleVillagers[villagersToAdd[i]];
+
+						// pick random location for villager based on random seed and length of its name
+						// changes approximately every 25 minutes
+						// this is now done in villager class instead
+
+						let preparedNPC;
+						// check villager can be shown
+						if ((villager.outdoorOnly && Areas[areaName].indoors) || (villager.indoorOnly && !Areas[areaName].indoors)) {
+							preparedNPC = false; // can't be shown
 						}
-
-						// if the npc wasn't an array of npcs to be added (since this array has since been removed) then prepare + add it
 						else {
-							// check npc should be added, and prepare it to be added (e.g. by setting its map and type)
-							// also calls specific functions needed for certain npcs
-							let preparedNPC = this.prepareNPC(Areas[areaName][type][i], type);
-							if (preparedNPC !== false) {
-								preparedNPC.source = "area";
-								this[type].push(new className(preparedNPC));
-							}
+							preparedNPC = this.prepareNPC(villager, "villagers");
+						}
+
+						if (preparedNPC !== false) {
+							preparedNPC.source = "villager"; // image came from villager variable (used for finding images if they have to persist over areas)
+							preparedNPC.sourceId = preparedNPC.id; // id in villager variable
+							this.villagers.push(new Villager(preparedNPC));
 						}
 					}
 				}
-			}
 
-			// re-add removed
-			this.entities.push(Game.hero.footHitbox);
+				// player pet
+				if (this.hero !== undefined && this.hero.hasOnLead !== undefined) {
+					let preparedNPC = this.prepareNPC(this.hero.hasOnLead, this.hero.hasOnLead.type);
+					if (preparedNPC !== false) {
+						// prepare npc to be added
+						// edit animal on lead's information to fit with constructor (constructor takes different parameters to constructed object's properties)
+						preparedNPC.image = preparedNPC.imageName;
+						// generate npc
+						let typeName = preparedNPC.type; // name of array in Game
+						let className = this.typeClasses[typeName]; // name of Class
+						let source = preparedNPC.source; // used for finding images on future area changes (since the source is the same it can just be taken from previous villager)
+						// make consistent with parameters...
+						preparedNPC.source = "prevArea";
+						// construct npc
+						let newNPC = new className(preparedNPC);
 
-			// villagers (added from generateVillagers before promise)
-			if (villagersToAdd !== undefined) {
-				for (let i = 0; i < villagersToAdd.length; i++) {
-					let villager = possibleVillagers[villagersToAdd[i]];
+						// remove character that is the same as one to be added in the area (if one exists)
+						// i.e. if you put amelio on a lead then head back into tavern there shouldn't be two of him !
+						// only remove the first one found
+						// same == same name, same imageSrc, same hostility (maybe add more requirements?)
+						let foundIndex = this[typeName].findIndex(villager => villager.name === newNPC.name && villager.imageSrc === newNPC.imageSrc && villager.hostility === newNPC.hostility);
+						if (foundIndex !== -1) {
+							this.removeObject(this[typeName][foundIndex].id, typeName, foundIndex);
+						}
 
-					// pick random location for villager based on random seed and length of its name
-					// changes approximately every 25 minutes
-					// this is now done in villager class instead
+						// add the npc
+						this[typeName].push(newNPC);
+						// update npc on lead
+						this.hero.hasOnLead = newNPC;
+						newNPC.onLead = true;
 
-					let preparedNPC;
-					// check villager can be shown
-					if ((villager.outdoorOnly && Areas[areaName].indoors) || (villager.indoorOnly && !Areas[areaName].indoors)) {
-						preparedNPC = false; // can't be shown
+						// note the position of the npc on lead is changed when the hero's position is changed
 					}
 					else {
-						preparedNPC = this.prepareNPC(villager, "villagers");
-					}
-
-					if (preparedNPC !== false) {
-						preparedNPC.source = "villager"; // image came from villager variable (used for finding images if they have to persist over areas)
-						preparedNPC.sourceId = preparedNPC.id; // id in villager variable
-						this.villagers.push(new Villager(preparedNPC));
+						console.error("Animal on lead could not be shown. Please tell Jake.", animal)
 					}
 				}
-			}
 
-			// player pet
-			if (this.hero !== undefined && this.hero.hasOnLead !== undefined) {
-				let preparedNPC = this.prepareNPC(this.hero.hasOnLead, this.hero.hasOnLead.type);
-				if (preparedNPC !== false) {
-					// prepare npc to be added
-					// edit animal on lead's information to fit with constructor (constructor takes different parameters to constructed object's properties)
-					preparedNPC.image = preparedNPC.imageName;
-					// generate npc
-					let typeName = preparedNPC.type; // name of array in Game
-					let className = this.typeClasses[typeName]; // name of Class
-					let source = preparedNPC.source; // used for finding images on future area changes (since the source is the same it can just be taken from previous villager)
-					// make consistent with parameters...
-					preparedNPC.source = "prevArea";
-					// construct npc
-					let newNPC = new className(preparedNPC);
+				// prepare repeatTiles
+				let repeatTileNos = map.repeatTiles.map(obj => obj.tile);
 
-					// remove character that is the same as one to be added in the area (if one exists)
-					// i.e. if you put amelio on a lead then head back into tavern there shouldn't be two of him !
-					// only remove the first one found
-					// same == same name, same imageSrc, same hostility (maybe add more requirements?)
-					let foundIndex = this[typeName].findIndex(villager => villager.name === newNPC.name && villager.imageSrc === newNPC.imageSrc && villager.hostility === newNPC.hostility);
-					if (foundIndex !== -1) {
-						this.removeObject(this[typeName][foundIndex].id, typeName, foundIndex);
+				// prepare objectTiles (sightly different, as these array elements could either just be a number, or be an object with additional info provided)
+				let objectTilesArray = [];
+				for (let i = 0; i < map.objectTiles.length; i++) {
+					if (typeof map.objectTiles[i].tile !== "undefined") {
+						objectTilesArray.push(map.objectTiles[i].tile);
 					}
-
-					// add the npc
-					this[typeName].push(newNPC);
-					// update npc on lead
-					this.hero.hasOnLead = newNPC;
-					newNPC.onLead = true;
-
-					// note the position of the npc on lead is changed when the hero's position is changed
+					else {
+						objectTilesArray.push(map.objectTiles[i]);
+					}
 				}
-				else {
-					console.error("Animal on lead could not be shown. Please tell Jake.", animal)
-				}
-			}
 
-			// prepare repeatTiles
-			let repeatTileNos = map.repeatTiles.map(obj => obj.tile);
+				// add any object tiles as objects themselves
+				for (let layer = 0; layer < map.layers.length; layer++) {
+					for (let c = 0; c < map.cols; c++) {
+						for (let r = 0; r < map.rows; r++) {
+							let tile = map.getTile(layer, c, r); // tile number
 
-			// prepare objectTiles (sightly different, as these array elements could either just be a number, or be an object with additional info provided)
-			let objectTilesArray = [];
-			for (let i = 0; i < map.objectTiles.length; i++) {
-				if (typeof map.objectTiles[i].tile !== "undefined") {
-					objectTilesArray.push(map.objectTiles[i].tile);
-				}
-				else {
-					objectTilesArray.push(map.objectTiles[i]);
-				}
-			}
+							// check if it's an object tile
+							let index = objectTilesArray.findIndex(foo => foo===tile || foo===-tile);
 
-			// add any object tiles as objects themselves
-			for (let layer = 0; layer < map.layers.length; layer++) {
-				for (let c = 0; c < map.cols; c++) {
-					for (let r = 0; r < map.rows; r++) {
-						let tile = map.getTile(layer, c, r); // tile number
+							if (tile !== 0 && index !== -1) { // note 0 is empty tile
+								// this is an objectTile
+								if (tile < 0) {
+									tile = -tile; // ensure that this tile isn't rendered normally in addition
+								}
 
-						// check if it's an object tile
-						let index = objectTilesArray.findIndex(foo => foo===tile || foo===-tile);
+								// draw position
+								let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
+								let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
 
-						if (tile !== 0 && index !== -1) { // note 0 is empty tile
-							// this is an objectTile
-							if (tile < 0) {
-								tile = -tile; // ensure that this tile isn't rendered normally in addition
-							}
+								let crop = {
+									x: ((tile - 1) % map.tilesPerRow) * map.tsize,
+									y: Math.floor((tile - 1) / map.tilesPerRow) * map.tsize,
+									width: map.tsize,
+									height: map.tsize
+								}
 
-							// draw position
-							let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
-							let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
+								// additional properties
+								let z = 0; 
+								if (typeof map.objectTiles[index].z !== "undefined") {
+									z = map.objectTiles[index].z; 
+								}
 
-							let crop = {
-								x: ((tile - 1) % map.tilesPerRow) * map.tsize,
-								y: Math.floor((tile - 1) / map.tilesPerRow) * map.tsize,
-								width: map.tsize,
-								height: map.tsize
-							}
-
-							// additional properties
-							let z = 0; 
-							if (typeof map.objectTiles[index].z !== "undefined") {
-								z = map.objectTiles[index].z; 
-							}
-
-							this.things.push(new Thing({
-								x: x,
-								y: y,
-								z: z,
-								width: map.tsize,
-								height: map.tsize,
-								image: "tiles",
-								crop: crop,
-								type: "things",
-							}));
-
-							map.setTile(layer, c, r, -tile); // negative so it's not drawn, but still remains there if you change areas then come back
-						}
-
-						else if (tile !== 0 && (repeatTileNos.includes(tile) || repeatTileNos.includes(-tile))) {
-							if (tile < 0) {
-								tile = -tile;
-							}
-
-							let i = map.repeatTiles.findIndex(obj => obj.tile === tile);
-
-							// kinda hard-coded for now - make multiple copies of this object to give a tall-grass effect (as in eaglecrest plains)
-							// draw position
-							let baseX = Math.round((c) * map.tsize) + 30 - map.origin.x;
-							let baseY = Math.round((r) * map.tsize) + 30 - map.origin.y;
-
-							let crop = {
-								x: ((tile - 1) % map.tilesPerRow) * map.tsize,
-								y: Math.floor((tile - 1) / map.tilesPerRow) * map.tsize,
-								width: map.tsize,
-								height: map.tsize
-							}
-
-							let orderOffsetY = map.repeatTiles[i].orderOffsetY || 0;
-
-							// some repeatTiles (i.e. tall grass) are adjusted in the x direction based on how high up they are
-							// this adjust amount is given by kMultiplier
-							if (typeof map.repeatTiles[i].orderOffsetY === "undefined") {
-								map.repeatTiles[i].orderOffsetY = 0;
-							}
-							if (typeof map.repeatTiles[i].kMultiplier === "undefined") {
-								map.repeatTiles[i].kMultiplier = 0;
-							}
-							let k = Math.floor((baseY+map.repeatTiles[i].orderOffsetY)/120)%3;
-
-							let xSpacingMultiplier = [0, -1, 0, 1];
-							for (let tileNo = 0; tileNo < 60/map.repeatTiles[i].ySpacing; tileNo++) {
-								let x = baseX + (map.repeatTiles[i].xSpacing*xSpacingMultiplier[tileNo%xSpacingMultiplier.length]) + k*map.repeatTiles[i].kMultiplier;
-								let y = baseY - map.repeatTiles[i].ySpacing*tileNo;
-
-								let objectProperties = {
+								this.things.push(new Thing({
 									x: x,
 									y: y,
-									orderOffsetY: orderOffsetY,
+									z: z,
 									width: map.tsize,
 									height: map.tsize,
 									image: "tiles",
 									crop: crop,
 									type: "things",
-									name: map.repeatTiles[i].name,
-								};
+								}));
 
-								// assign any additional properties from areadata
-								Object.assign(objectProperties, map.repeatTiles[i].objectProperties);
-
-								this.things.push(new Thing(objectProperties));
+								map.setTile(layer, c, r, -tile); // negative so it's not drawn, but still remains there if you change areas then come back
 							}
 
-							map.setTile(layer, c, r, -map.repeatTiles[i].tile);
+							else if (tile !== 0 && (repeatTileNos.includes(tile) || repeatTileNos.includes(-tile))) {
+								if (tile < 0) {
+									tile = -tile;
+								}
+
+								let i = map.repeatTiles.findIndex(obj => obj.tile === tile);
+
+								// kinda hard-coded for now - make multiple copies of this object to give a tall-grass effect (as in eaglecrest plains)
+								// draw position
+								let baseX = Math.round((c) * map.tsize) + 30 - map.origin.x;
+								let baseY = Math.round((r) * map.tsize) + 30 - map.origin.y;
+
+								let crop = {
+									x: ((tile - 1) % map.tilesPerRow) * map.tsize,
+									y: Math.floor((tile - 1) / map.tilesPerRow) * map.tsize,
+									width: map.tsize,
+									height: map.tsize
+								}
+
+								let orderOffsetY = map.repeatTiles[i].orderOffsetY || 0;
+
+								// some repeatTiles (i.e. tall grass) are adjusted in the x direction based on how high up they are
+								// this adjust amount is given by kMultiplier
+								if (typeof map.repeatTiles[i].orderOffsetY === "undefined") {
+									map.repeatTiles[i].orderOffsetY = 0;
+								}
+								if (typeof map.repeatTiles[i].kMultiplier === "undefined") {
+									map.repeatTiles[i].kMultiplier = 0;
+								}
+								let k = Math.floor((baseY+map.repeatTiles[i].orderOffsetY)/120)%3;
+
+								let xSpacingMultiplier = [0, -1, 0, 1];
+								for (let tileNo = 0; tileNo < 60/map.repeatTiles[i].ySpacing; tileNo++) {
+									let x = baseX + (map.repeatTiles[i].xSpacing*xSpacingMultiplier[tileNo%xSpacingMultiplier.length]) + k*map.repeatTiles[i].kMultiplier;
+									let y = baseY - map.repeatTiles[i].ySpacing*tileNo;
+
+									let objectProperties = {
+										x: x,
+										y: y,
+										orderOffsetY: orderOffsetY,
+										width: map.tsize,
+										height: map.tsize,
+										image: "tiles",
+										crop: crop,
+										type: "things",
+										name: map.repeatTiles[i].name,
+									};
+
+									// assign any additional properties from areadata
+									Object.assign(objectProperties, map.repeatTiles[i].objectProperties);
+
+									this.things.push(new Thing(objectProperties));
+								}
+
+								map.setTile(layer, c, r, -map.repeatTiles[i].tile);
+							}
 						}
 					}
 				}
-			}
 
-			// lightEmit tiles
-			// search for these tiles, and make an entity at them with lightEmit
-			// each element of lightEmitTiles is an object
-			for (let layer = 0; layer < map.layers.length; layer++) {
-				for (let c = 0; c < map.cols; c++) {
-					for (let r = 0; r < map.rows; r++) {
-						let tile = map.getTile(layer, c, r); // tile number
-						let lightEmitTileObj = map.lightEmitTiles.find(el => el.tile === tile);
-						if (typeof lightEmitTileObj !== "undefined") {
-							// tile should have lightEmit
-							let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
-							let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
-							this.entities.push(new Entity({
-								x: x,
-								y: y,
-								width: 1,
-								height: 1,
-								type: "entities",
-								lightEmit: lightEmitTileObj
-							}));
+				// lightEmit tiles
+				// search for these tiles, and make an entity at them with lightEmit
+				// each element of lightEmitTiles is an object
+				for (let layer = 0; layer < map.layers.length; layer++) {
+					for (let c = 0; c < map.cols; c++) {
+						for (let r = 0; r < map.rows; r++) {
+							let tile = map.getTile(layer, c, r); // tile number
+							let lightEmitTileObj = map.lightEmitTiles.find(el => (Array.isArray(el.tile) && el.tile.includes(tile)) || el.tile === tile);
+							if (typeof lightEmitTileObj !== "undefined") {
+								// tile should have lightEmit
+								let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
+								let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
+								this.entities.push(new Entity({
+									x: x,
+									y: y,
+									width: 1,
+									height: 1,
+									type: "entities",
+									lightEmit: lightEmitTileObj
+								}));
+							}
 						}
 					}
 				}
-			}
 
 
-			// players (these are added from websocket instead of areadata)
-			if (ws !== false && ws.readyState === 1) {
-				// websocket is active
-				for (let i = 0; i < Dom.players.length; i++) {
-					// addPlayer checks necessary conditions for player additioin
-					this.addPlayer(Dom.players[i]);
+				// players (these are added from websocket instead of areadata)
+				if (ws !== false && ws.readyState === 1) {
+					// websocket is active
+					for (let i = 0; i < Dom.players.length; i++) {
+						// addPlayer checks necessary conditions for player additioin
+						this.addPlayer(Dom.players[i]);
+					}
 				}
-			}
 
 
-			// music
-			// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
-			this.playMusic();
+				// music
+				// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
+				this.playMusic();
+
+				
+				// close all dom alerts
+				// this is to prevent any issues with scenario area teleport dom alert
+				// tbd make this just close dom alerts on canvas?
+				Dom.alert.closeAll();
 
 
-			// display area name
-			// it is always displayed on init (thus only checked if it should be displayed if init is not called)
-			if (Areas[areaName].data.displayOnEnter !== false || init) {
-				// tbd wait until font is loaded
-				let title = Areas[areaName].data.name;
-				let subtitles = [];
-				if (Areas[areaName].data.subtitle !== undefined) {
-					subtitles.push(Areas[areaName].data.subtitle);
+				// display area name
+				// it is always displayed on init (thus only checked if it should be displayed if init is not called)
+				if (Areas[areaName].data.displayOnEnter !== false || init) {
+					// tbd wait until font is loaded
+					let title = Areas[areaName].data.name;
+					let subtitles = [];
+					if (Areas[areaName].data.subtitle !== undefined) {
+						subtitles.push(Areas[areaName].data.subtitle);
+					}
+					if (Areas[areaName].data.level !== undefined) {
+						subtitles.push(Areas[areaName].data.level);
+					}
+					if (Areas[areaName].data.territory !== undefined && Areas[areaName].data.territory !== "") {
+						// only show territory if it is defined for the area
+						subtitles.push(Areas[areaName].data.territory + " territory");
+					}
+					// function to set the variable
+					this.displayOnCanvas(title, subtitles, 2);
 				}
-				if (Areas[areaName].data.level !== undefined) {
-					subtitles.push(Areas[areaName].data.level);
+
+				// update y position of inforbar (in case there is a viewport offset y)
+				Dom.infoBar.updateYPosition();
+
+				// reposition player and camera
+				if (destination !== undefined) {
+					this.hero.x = destination.x;
+					this.hero.y = destination.y;
+
+					// remove status effects of slow/fast tiles
+					this.hero.setSpeed();
+
+					// update foot hitbox position
+					this.hero.updateFootHitbox();
+
+					// now hero position has been updated, update position of animal on lead (if there is one)
+					if (this.hero.hasOnLead !== undefined) {
+						// same position as hero
+						this.hero.hasOnLead.x = this.hero.x;
+						this.hero.hasOnLead.y = this.hero.y;
+					}
+
+					// update camera position
+					// any values to do with camera's position update will be updated in camera.update, which is called later in loadArea
+					// this is necessary because sometimes camera might be set to not follow hero on area change (e.g. camera pan)
+					this.camera.x = this.hero.x - this.camera.width/2;
+					this.camera.y = this.hero.y - this.camera.height/2;
+
+					// remove pan from previous area (note this might be overwritten again by onAreaJoin, but is necessary in case it's not)
+					this.camera.follow(this.hero);
 				}
-				if (Areas[areaName].data.territory !== undefined && Areas[areaName].data.territory !== "") {
-					// only show territory if it is defined for the area
-					subtitles.push(Areas[areaName].data.territory + " territory");
+				// remove player moveTowards
+				this.hero.moveTowards = undefined;
+
+				if (!init) {
+					// tell server that area has been changed so that DOM chat players online can display this for all players
+					// ...and for position update (because they have updated position but not moved)
+					// check if user is connected to the websocket
+					if (ws !== false && ws.readyState === 1) {
+						ws.send(JSON.stringify({
+							type: "changeArea",
+							area: this.areaName,
+							displayArea: Player.displayAreaName,
+							x: this.hero.x,
+							y: this.hero.y,
+							direction: this.hero.direction
+						}));
+					}
 				}
-				// function to set the variable
-				this.displayOnCanvas(title, subtitles, 2);
-			}
 
-			// update y position of inforbar (in case there is a viewport offset y)
-			Dom.infoBar.updateYPosition();
+				// allow hero to move again if they died
+				if (this.hero.respawning) {
+					this.hero.respawning = false;
+					this.hero.isCorpse = false;
+					Dom.chat.insert("You died.");
 
-			// reposition player and camera
-			if (destination !== undefined) {
-				this.hero.x = destination.x;
-				this.hero.y = destination.y;
+					this.hero.moveTowards = undefined;
+					this.hero.isBeingDisplaced = undefined;
+					this.hero.setExpandZ(1);
+				}
 
-				// remove status effects of slow/fast tiles
-				this.hero.setSpeed();
+				// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
+				// also makes sure that player has not been temporarily changed
+				if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName && this.hero.oldPosition === undefined) {
+					this.hero.checkpoint = areaName;
+					Dom.chat.insert("Checkpoint reached! Your spawn location has been set to this location.");
+				}
 
-				// update foot hitbox position
-				this.hero.updateFootHitbox();
+				// load in randomly generated loot chests if the area has data for them
+				if (Areas[areaName].chestData !== undefined) {
+					this.generateChests(Areas[areaName].chestData);
+				}
 
-				// now hero position has been updated, update position of animal on lead (if there is one)
-				if (this.hero.hasOnLead !== undefined) {
-					// same position as hero
-					this.hero.hasOnLead.x = this.hero.x;
-					this.hero.hasOnLead.y = this.hero.y;
+				// call onAreaJoin function if there is one
+				// only call if the area was teleported to (not game refresh), or it is told in areaData to be called on refresh
+				if (!init || Areas[areaName].callAreaJoinOnInit) {
+					if (Areas[areaName].onAreaJoin !== undefined) {
+						Areas[areaName].onAreaJoin();
+					}
+
+					Dom.checkProgress();
+				}
+
+				// call player onAreaChange functions
+				if (!init) {
+					for (let i = 0; i < this.equipmentKeys.length; i++) {
+						let inventoryItem = Player.inventory[this.equipmentKeys[i]];
+						if (typeof inventoryItem.type !== "undefined") {
+							let item = Items[inventoryItem.type][inventoryItem.id];
+							if (typeof item.onAreaChange !== "undefined") {
+								item.onAreaChange();
+							}
+						}
+					}
 				}
 
 				// update camera position
-				// any values to do with camera's position update will be updated in camera.update, which is called later in loadArea
-				// this is necessary because sometimes camera might be set to not follow hero on area change (e.g. camera pan)
-				this.camera.x = this.hero.x - this.camera.width/2;
-				this.camera.y = this.hero.y - this.camera.height/2;
+				this.camera.update(0, true);
 
-				// remove pan from previous area (note this might be overwritten again by onAreaJoin, but is necessary in case it's not)
-				this.camera.follow(this.hero);
-			}
-			// remove player moveTowards
-			this.hero.moveTowards = undefined;
+				// dayNight canvas
+				this.screenTints = []; // removes all existing screen tints (other than ones associated with player armour or global game systems)
+				this.dayNightUpdate();
 
-			if (!init) {
-				// tell server that area has been changed so that DOM chat players online can display this for all players
-				// ...and for position update (because they have updated position but not moved)
-				// check if user is connected to the websocket
-				if (ws !== false && ws.readyState === 1) {
-					ws.send(JSON.stringify({
-						type: "changeArea",
-						area: this.areaName,
-						displayArea: Player.displayAreaName,
-						x: this.hero.x,
-						y: this.hero.y,
-						direction: this.hero.direction
-					}));
-				}
-			}
-
-			// allow hero to move again if they died
-			if (this.hero.respawning) {
-				this.hero.respawning = false;
-				this.hero.isCorpse = false;
-				Dom.chat.insert("You died.");
-
-				this.hero.moveTowards = undefined;
-				this.hero.isBeingDisplaced = undefined;
-				this.hero.setExpandZ(1);
-			}
-
-			// if the area is a checkpoint and it is not the player's current checkpoint, update the player's checkpoint
-			// also makes sure that player has not been temporarily changed
-			if (Areas[areaName].checkpoint && this.hero.checkpoint !== areaName && this.hero.oldPosition === undefined) {
-				this.hero.checkpoint = areaName;
-				Dom.chat.insert("Checkpoint reached! Your spawn location has been set to this location.");
-			}
-
-			// load in randomly generated loot chests if the area has data for them
-			if (Areas[areaName].chestData !== undefined) {
-				this.generateChests(Areas[areaName].chestData);
-			}
-
-			// call onAreaJoin function if there is one
-			// only call if the area was teleported to (not game refresh), or it is told in areaData to be called on refresh
-			if (!init || Areas[areaName].callAreaJoinOnInit) {
-				if (Areas[areaName].onAreaJoin !== undefined) {
-					Areas[areaName].onAreaJoin();
-				}
-
-				Dom.checkProgress();
-			}
-
-			// call player onAreaChange functions
-			if (!init) {
-				for (let i = 0; i < this.equipmentKeys.length; i++) {
-					let inventoryItem = Player.inventory[this.equipmentKeys[i]];
-					if (typeof inventoryItem.type !== "undefined") {
-						let item = Items[inventoryItem.type][inventoryItem.id];
-						if (typeof item.onAreaChange !== "undefined") {
-							item.onAreaChange();
+				// Antorax Day fireworks
+				if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && this.fireworkInterval === undefined) {
+					// Antorax Day; area is allied and indoors and a firework interval has not yet been set
+					// launch fireworks periodically at random positions on the player's screen
+					this.fireworkInterval = Game.setInterval(function () {
+						// same as Antorax Day Firework items
+						if (Random(0, 3) === 0) {
+							// large firework
+							this.launchFirework({
+								x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
+								y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
+								radius: 250,
+								particles: 1500,
+								explodeTime: 750,
+								lingerTime: 2500,
+								colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+							});
 						}
-					}
+						else {
+							// normal firework
+							this.launchFirework({
+								x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
+								y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
+								radius: 150,
+								particles: 600,
+								explodeTime: 500,
+								lingerTime: 1500,
+								colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
+							});
+						}
+					}.bind(this), 1500, this.areaName);
 				}
-			}
+				else if (this.fireworkInterval !== undefined) {
+					// remove interval from a previous area
+					Game.clearInterval(this.fireworkInterval);
+					this.fireworkInterval = undefined;
+				}
 
-			// update camera position
-			this.camera.update(0, true);
+				this.totalAnimationTime = 0; // used to find if animate should be called for an object
 
-			this.dayNightUpdate();
+				// time travel fog
+				/*
+				if (Areas[areaName].timeTravel === true) {
+					this.createParticle({
+						x: 0,
+						y: 0,
+						width: 2,
+						height: 2,
+						colour: "#b7b7b7",
+						transparency: Random(3, 7) / 10,
+					});
+				}
+				*/
 
-			// Antorax Day fireworks
-			if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && this.fireworkInterval === undefined) {
-				// Antorax Day; area is allied and indoors and a firework interval has not yet been set
-				// launch fireworks periodically at random positions on the player's screen
-				this.fireworkInterval = Game.setInterval(function () {
-					// same as Antorax Day Firework items
-					if (Random(0, 3) === 0) {
-						// large firework
-						this.launchFirework({
-							x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
-							y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
-							radius: 250,
-							particles: 1500,
-							explodeTime: 750,
-							lingerTime: 2500,
-							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
-						});
-					}
-					else {
-						// normal firework
-						this.launchFirework({
-							x: Random(this.hero.x - Dom.canvas.width / 2, this.hero.x + Dom.canvas.width / 2),
-							y: Random(this.hero.y - Dom.canvas.height / 2, this.hero.y + Dom.canvas.height / 2),
-							radius: 150,
-							particles: 600,
-							explodeTime: 500,
-							lingerTime: 1500,
-							colours: ["#8cff91", "#ff82f8"], // lighter colours so they are more visible
-						});
-					}
-				}.bind(this), 1500, this.areaName);
-			}
-			else if (this.fireworkInterval !== undefined) {
-				// remove interval from a previous area
-				Game.clearInterval(this.fireworkInterval);
-				this.fireworkInterval = undefined;
-			}
+				// they logged out at this area - call areaLeave if there are quests that need to be abandoned, variables that need to be reset etc.
+				// note quests may also be abandoned on logout through Game.hero.abandonQuestsOnLogout, which is dealt with in Game.init
+				if (init && Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
+					Areas[Game.areaName].onAreaLeave(true);
+				}
 
-			this.totalAnimationTime = 0; // used to find if animate should be called for an object
+				// done loading!
+				this.loadingArea = false;
 
-			// time travel fog
-			/*
-			if (Areas[areaName].timeTravel === true) {
-				this.createParticle({
-					x: 0,
-					y: 0,
-					width: 2,
-					height: 2,
-					colour: "#b7b7b7",
-					transparency: Random(3, 7) / 10,
-				});
-			}
-			*/
-
-			// they logged out at this area - call areaLeave if there are quests that need to be abandoned, variables that need to be reset etc.
-			// note quests may also be abandoned on logout through Game.hero.abandonQuestsOnLogout, which is dealt with in Game.init
-			if (init && Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
-				Areas[Game.areaName].onAreaLeave(true);
-			}
-
-			// done loading!
-			this.loadingArea = false;
-
-		}.bind(this))
-		.catch(function (err) {
-			// error for if the images didn't load
-			console.error("Your images did not load correctly, or there was an error in the Game.loadArea function...", err);
-		});
-	}.bind(this));
+			}.bind(this))
+			.catch(function (err) {
+				// error for if the images didn't load
+				console.error("Your images did not load correctly, or there was an error in the Game.loadArea function...", err);
+			});
+		}.bind(this));
+	}
 }
 
 // used in loadArea for when NPC image is in a deconstructed format like the player's
@@ -10963,6 +10996,13 @@ Game.setDayNightImages = function () {
 	});
 }
 
+// Screen tint
+// removeIn is optional and in ms
+// note these screen tints all get removed on area leave
+Game.addScreenTint = function (colour, intensity, removeIn) {
+	this.screenTints.push({colour: colour, intensity: intensity, removeIn: removeIn});
+}
+
 //
 // Game tick
 //
@@ -11520,6 +11560,7 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 		questActive: false, // if one of the npc's quests is currently active
 		notUnlockedRoles: false, // if one of the npc's roles has not been unlocked
 		questFinish: false, // whether the quest will be finished upon completing the step
+		scenarioActive: false, // whether there is another scenario which is active, which is prohibiting the quest (which also starts a scenario) from being progressed
 	};
 	for (let i = 0; i < step.length; i++) { // one property for each step
 		returnObj[step[i]] = false;
@@ -11607,6 +11648,14 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 		}
 
 		if (questCanBeStarted) {
+			// check that, if this quest step would start a quest scenario, then there isn't another scenario active
+			if (typeof quest.steps[0].startScoreboard !== "undefined" || typeof quest.steps[0].startScenario !== "undefined") {
+				if (typeof Player.scenario !== "undefined") {
+					returnObj.scenarioActive = true;
+					return returnObj;
+				}
+			}
+
 			returnObj[0] = true;
 			return returnObj; // quest step 0 can be started (thus no other steps can)
 		}
@@ -11668,11 +11717,13 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 						returnObj[stepId] = "reattempt";
 					}
 				}
-				else if (typeof quest.steps[stepId].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[stepId].availableUntilStepDone]) {
+
+				if (typeof quest.steps[stepId].availableUntilStepDone !== "undefined" && Player.quests.prog[quest.questArea][quest.id].stepProgress[quest.steps[stepId].availableUntilStepDone]) {
 					// this step is only available to be completed until a certain step has been done. almost exclusively used for optional steps, where they shouldn't be possible after a step after them has been done
 					stepDone = false;
 				}
-				else if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
+
+				if (!quest.nonChronological) { // nonChronological means all steps other than the first can be done in any order
 					// as the quest is chronological, quest's steps must all be completed in order (other than optional steps)
 					// find the highest non-optional step below the current step we are checking
 					let checkStep = stepId-1;
@@ -11709,22 +11760,30 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 
 				// check if ready for this step to be completed
 				if (stepDone) {
-					returnObj[stepId] = true; // this step can be completed!
-					// (inventory space has not been checked yet and is checked by choose DOM)
-
-					// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
-					returnObj.questFinish = true;
-					for (let i = 0; i < quest.steps.length; i++) {
-						if (!Player.quests.prog[quest.questArea][quest.id].stepProgress[i] && !quest.steps[i].optional && i!==stepId) {
-							// the step is not finished, isn't optional, and isn't the step that's just about to be done
-							// therefore there is at least one step that hasn't been finished
-							returnObj.questFinish = false;
-							break;
-						}
+					// check that, if this quest step would start a quest scenario, then there isn't another scenario active
+					// we do this last, so that returnObj.scenarioActive is set to true only if the player would have been able to finish the step without the scenario being active (for chat message)
+					if (typeof Player.scenario !== "undefined" && (typeof quest.steps[stepId].startScoreboard !== "undefined" || typeof quest.steps[stepId].startScenario !== "undefined")) {
+						returnObj.scenarioActive = true;
+						// this step can't be started (but would have been able to be without the scenario being active)
 					}
-
-					// we could very well stop here, as player has to complete the first available step...
-					// ...but might as well see if the other steps can be completed in case it's required
+					else {
+						returnObj[stepId] = true; // this step can be completed!
+						// (inventory space has not been checked yet and is checked by choose DOM)
+	
+						// check if the whole quest is ready to be completed, i.e. all non-optional steps are done
+						returnObj.questFinish = true;
+						for (let i = 0; i < quest.steps.length; i++) {
+							if (!Player.quests.prog[quest.questArea][quest.id].stepProgress[i] && !quest.steps[i].optional && i!==stepId) {
+								// the step is not finished, isn't optional, and isn't the step that's just about to be done
+								// therefore there is at least one step that hasn't been finished
+								returnObj.questFinish = false;
+								break;
+							}
+						}
+	
+						// we could very well stop here, as player has to complete the first available step...
+						// ...but might as well see if the other steps can be completed in case it's required
+					}
 				}
 			}
 
@@ -11945,7 +12004,7 @@ Game.update = function (delta) {
 			// hero not touching npc
 			canSpeak = false;
 		}
-		else if (Dom.currentlyDisplayed === npc.name) { // tbd this isn't always the case even if we are speaking to the npc... change to currentNPC check ?
+		else if (Dom.currentNPC.name === npc.name) { // tbd this isn't always the case even if we are speaking to the npc, as current NPC isn't always set
 			// it is already currently displayed
 			canSpeak = false;
 		}
@@ -11973,6 +12032,7 @@ Game.update = function (delta) {
 			let questActive = false; // if one of the npc's quests is currently active
 			let questComplete = false; // if one of the npc's quests has been completed
 			let notUnlockedRoles = false; // if one of the npc's roles has not been unlocked
+			let scenarioActive = false; // if one of the npc's roles would hvae been able to be used had Player.scenario not been active
 			let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
 			// see below for loop for logic regarding these variables
 
@@ -11993,6 +12053,7 @@ Game.update = function (delta) {
 							questActive = result.questActive;
 							questComplete = result.questComplete;
 							notUnlockedRoles = result.notUnlockedRoles;
+							scenarioActive = result.scenarioActive;
 							let questFinish = result.questFinish;
 
 							if (!Array.isArray(role.step)) {
@@ -12263,6 +12324,11 @@ Game.update = function (delta) {
 						// the player has not unlocked a possible role with the npc and pressed spacebar
 						npc.say(npc.chat.notUnlockedRoles, 0, true);
 					}
+
+					if (scenarioActive) {
+						// tbd this message should definitely be more descriptive
+						Dom.chat.insert("Finish your quest '" + Player.scenario.quest.title + "' before you can progress this quest further!", 0, undefined, true);
+					}
 				}
 			}
 		}
@@ -12478,7 +12544,8 @@ Game.update = function (delta) {
 					ws.send(JSON.stringify({
 						type: "trade",
 						action: "walkAway",
-						target: player.userID
+						target: player.userID,
+						name: Player.name,
 					}));
 				}
 
@@ -12834,7 +12901,7 @@ Game.update = function (delta) {
 	}
 
 	//
-	// choose page based on all dom menus being touched when spcae bar is pressed (just in case there are two npcs on top of each other)
+	// choose page based on all dom menus being touched when space bar is pressed (just in case there are two npcs on top of each other)
 	// this was generated above
 	if (choosePageInformation.length > 0) {
 		Dom.choose.page(choosePageInformation);
@@ -12846,6 +12913,19 @@ Game.update = function (delta) {
 	let changeMade = Dom.inventory.conditionalStats(); // update any player conditional stats (must be done every tick to account for e.g. player movement, enemy movement, despawning etc.)
 	if (changeMade && !Game.hero.transformed) {
 		Game.hero.stats = Player.stats; // bring over the conditional stat changes to the hero
+	}
+
+
+	// screen tint removeIn
+	for (let i = 0; i < this.screenTints.length; i++) {
+		if (typeof this.screenTints[i].removeIn !== "undefined") {
+			this.screenTints[i].removeIn -= delta*1000;
+			if (this.screenTints[i].removeIn <= 0) {
+				// remove it
+				this.screenTints.splice(i, 1);
+				i--;
+			}
+		}
 	}
 
 	//
@@ -13849,7 +13929,6 @@ Game.prepareMinimapForTime = function (time) {
 // tbd should this be on a different canvas? at the very least, the dom 
 Game.renderMinimap = function () {
 	if (!Areas[this.areaName].alwaysHideOnMap) {
-		this.ctxMinimap.clearRect(0, 0, this.camera.minimap.width, this.camera.minimap.height);
 
 		// find position in this.ctx.minimapOffscreen which is the centre of the area to be drawn from
 		let drawCentre = this.camera.minimap.convertToMinimapPosition(this.camera.x + this.camera.width/2, this.camera.y + this.camera.height/2); // passed in are the coordinates of what the camera is following
@@ -14921,6 +15000,7 @@ Game.render = function (delta) {
 
 	
 	// draw minimap
+	this.ctxMinimap.clearRect(0, 0, this.camera.minimap.width, this.camera.minimap.height);
 	if (!this.keysDown.SHIFT && !this.takePhoto) {
 		this.renderMinimap();
 	}
@@ -15360,9 +15440,16 @@ Game.renderDayNight = function () {
 
 	// screen tint due to helm
 	// (currently just works for helm)
+	// tbd combine this with the Game.screenTints system?
 	if (typeof Player.inventory.helm.screenTint !== "undefined") {
 		this.ctxDayNight.fillStyle = Player.inventory.helm.screenTint.colour;
 		this.ctxDayNight.globalAlpha = Player.inventory.helm.screenTint.amount || 0.3;
+		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
+	}
+
+	for (let i = 0; i < this.screenTints.length; i++) {
+		this.ctxDayNight.fillStyle = this.screenTints[i].colour;
+		this.ctxDayNight.globalAlpha = this.screenTints[i].amount || 0.3;
 		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 	}
 
@@ -15384,11 +15471,91 @@ Game.drawGlow = function (ctx, x, y, radius) {
 }
 
 //
+// Scenarios
+//
+
+// returns true if successful and false if not
+// tradingAllowed defaults to false 
+Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasOnEnd) {
+	if (typeof Player.scenario === "undefined") {
+		Game.saveProgress("scenarioPre");
+
+		// prepare parameters
+		if (typeof vacateAreasOnEnd !== "undefined" && !Array.isArray(vacateAreasOnEnd)) {
+			vacateAreasOnEnd = [vacateAreasOnEnd];
+		}
+
+		Player.scenario = {
+			// currently all scenarios must be attached to a quest. can be changed in the future if there is a need for a non-quest scenario
+			quest: {
+				id: quest.id,
+				area: quest.questArea,
+
+				tradingAllowed: tradingAllowed,
+			},
+			
+			// array of areas that the player is allowed to visit whilst in this scenario
+			// if they visit any different areas, an alert is shown asking them if they want to go ahead and abandon the relevant quest and end the scenario
+			allowedAreas: allowedAreas,
+
+			// an array of objects containing information on where the player should be teleported to if the scenario finishes and the player is in particular areas
+			// objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
+			vacateAreasOnEnd: vacateAreasOnEnd,
+		};
+		Player.scenario.quest.title = Quests[Player.scenario.quest.area][Player.scenario.quest.id].quest;
+
+		if (!tradingAllowed) {
+			// if trade/alert/pending request is active, send a message to the other player telling them to close it
+			if (Dom.trade.requested || Dom.trade.received || Dom.trade.active) {
+				ws.send(JSON.stringify({
+					type: "trade",
+					action: "scenarioStarted",
+					target: player.userID,
+					name: Player.name,
+				}));
+				Dom.trade.interrupt(); // this also inserts a message to explain
+			}
+		}
+
+		return true;
+	}
+	else {
+		console.error("A scenario was started when one was already active.", Player.scenario, quest);
+		return false;
+	}
+}
+
+// parameter contains quest object which is relevant for the scenario, for verification
+// reason could be "abandon" (quest was abandoned), or "scoreboard" (relevant scoreboard was finished)
+Game.finishScenario = function (quest, reason) {
+	if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
+		if (typeof Player.scenario.vacateAreasOnEnd !== "undefined" && Player.scenario.vacateAreasOnEnd.length > 0) {
+			let obj = Player.scenario.vacateAreasOnEnd.find(foo => foo.areaName === Game.areaName);
+			if (typeof obj !== "undefined") {
+				Game.loadArea(obj.vacateTo.areaName, obj.vacateTo, true);
+			}
+		}
+
+		Player.scenario = undefined;
+		Game.saveProgress("scenarioPost");
+
+		return true;
+	}
+	else {
+		console.error("The scenario that is active does not line up with the scenario that is trying to finish.", Player.scenario, quest);
+		return false;
+	}
+}
+
+//
 // Save player progress
 //
 
-Game.saveProgress = function (saveType) { // if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
-	if (localStorage.getItem("accept") === "true") { // check if they consent to local storage
+// if saveType is "auto" then the save is an autosave (hence has a slightly different console.info)
+// if saveType is "manual" then it was done directly from settings
+Game.saveProgress = function (saveType) {
+	// check if they consent to local storage, and that the player is not in a scenario (thus disabling all saves that aren't of type "scenario")
+	if (localStorage.getItem("accept") === "true" && (typeof Player.scenario === "undefined" || saveType === "scenario")) {
 		// save player position to savedata.js
 		Player.x = Game.hero.x;
 		Player.y = Game.hero.y;
@@ -15430,6 +15597,16 @@ Game.saveProgress = function (saveType) { // if saveType is "auto" then the save
 		// message to console
 		let time = new Date();
 		console.info((saveType === "auto" ? "AUTO" : "") + "SAVE AT " + (time.getHours() < 10 ? "0" : "") + time.getHours() + ":" + (time.getMinutes() < 10 ? "0" : "") + time.getMinutes() + ":" + (time.getSeconds() < 10 ? "0" : "") + time.getSeconds());
+	}
+	else if (saveType === "manual") {
+		// save not allowed - if it was a manual save, notify the player why it didn't work
+		if (localStorage.getItem("accept") !== "true") {
+			Dom.alert.page("Please accept local storage in the settings page to save your progress!", 0, undefined, "settingsPage");
+		}
+		else if (Player.scenario !== "undefined" && saveType !== "scenario") {
+			let quest = Player.scenario.quest;
+			Dom.alert.page("You cannot save your progress right now due to your active quest '"+Player.scenario.quest.title+"'.", 0, undefined, "settingsPage");
+		}
 	}
 
 	if (saveType === "logout") {
