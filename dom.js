@@ -2477,6 +2477,11 @@ Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 	if (typeof ourQuest.steps[step].rewards === "undefined" || typeof ourQuest.steps[step].rewards.items === "undefined" || Dom.inventory.requiredSpace(ourQuest.steps[step].rewards.items)) {
 		let chat = ourQuest.steps[step].chat;
 
+		if (Player.quests.prog[ourQuest.questArea][ourQuest.id].abandonedSteps[step] && typeof ourQuest.steps[step].reattemptChat !== "undefined") {
+			// step has been done before, but then quest was abandoned
+			chat = ourQuest.steps[step].reattemptChat;
+		}
+
 		// format chat so the onFinishDom property can be given to it
 		chat = Dom.quest.formatBannerChat(chat);
 
@@ -7876,7 +7881,7 @@ Dom.settings.minigames = function () {
 // the quest object (as found in questdata) should be passed in as the first parameter
 // note that this does not remove rewards at all! So this should only be done in a way the player cannot exploit, i.e. at the end of an event
 Dom.quest.abandon = function (quest) {
-	//if the quest is active then abandon it
+	// if the quest is active then abandon it
 	if (Player.quests.activeQuestArray.includes(quest.quest)) {
 		// remove all items with the property removeOnAbandon set to the quest name
 		for (let i = 0; i < Player.inventory.items.length; i++) {
@@ -7908,6 +7913,13 @@ Dom.quest.abandon = function (quest) {
 		// end scenario if one is currently active related to this quest
 		if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
 			Game.finishScenario(quest, "abandon");
+		}
+
+		// set abandonedSteps
+		for (let i = 0; i < Player.quests.prog[quest.questArea][quest.id].stepProgress.length; i++) {
+			if (Player.quests.prog[quest.questArea][quest.id].stepProgress[i]) {
+				Player.quests.prog[quest.questArea][quest.id].abandonedSteps[i] = true;
+			}
 		}
 		
 		// delete all quest progress for this quest
@@ -8237,18 +8249,23 @@ Dom.init = function () {
 	// set up Player.quests.prog data structure
 	// make sure these variables are up to date (i.e. incorporate new quests and new areas since last time playing)
 	for (let i = 0; i < Object.keys(Quests).length; i++) { // iterating through the quest areas
-		if (!Object.keys(Player.quests.prog).includes(Object.keys(Quests)[i])) { // iterating through the quest areas
+		if (!Object.keys(Player.quests.prog).includes(Object.keys(Quests)[i])) {
 			Player.quests.prog[Object.keys(Quests)[i]] = [];
-			let areaName = Object.keys(Quests)[i];
-			for (let j = 0; j < Quests[areaName].length; j++) {  // iterating through the quests in this area
-				if (typeof Player.quests.prog[areaName][j] === "undefined") {
-					Player.quests.prog[areaName][j] = {
-						vars: {},
-						objectiveProgress: [],
-						stepProgress: [],
-						stepRewardsProgress: [],
-					}; // see savedata for a full list of properties which could be found in here
-				}
+		}
+		let areaName = Object.keys(Quests)[i];
+		for (let j = 0; j < Quests[areaName].length; j++) {  // iterating through the quests in this area
+			if (typeof Player.quests.prog[areaName][j] === "undefined") {
+				Player.quests.prog[areaName][j] = {
+					vars: {},
+					objectiveProgress: [],
+					stepProgress: [],
+					stepRewardsProgress: [],
+					abandonedSteps: [],
+				}; // see savedata for a full list of properties which could be found in here
+			}
+			// fix outdated objects - tbd can remove these closer to release
+			else if (typeof Player.quests.prog[areaName][j].abandonedSteps === "undefined") {
+				Player.quests.prog[areaName][j].abandonedSteps = [];
 			}
 		}
 	}

@@ -4180,7 +4180,7 @@ var Quests = {
 					},{
 						text: `Glog-here they come now!`,
 					}],
-					reattemptChat: [{
+					reattemptChat: [{ // used on reattempt or post-abandon
 						text: `Glog. Hello again.`,
 					},{
 						text: `Give the sorting another go - we're due another batch of parts any minute now!`,
@@ -4193,6 +4193,7 @@ var Quests = {
 						Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
 						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0;
 						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 1;
+						Game.areaVariables.conveyorSpeed = 100;
 					},
 					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
 						timeLimit: 121,

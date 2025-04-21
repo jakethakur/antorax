@@ -15452,7 +15452,7 @@ Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasO
 		Game.saveProgress("scenarioPre");
 
 		// prepare parameters
-		if (!Array.isArray(vacateAreasOnEnd)) {
+		if (typeof vacateAreasOnEnd !== "undefined" && !Array.isArray(vacateAreasOnEnd)) {
 			vacateAreasOnEnd = [vacateAreasOnEnd];
 		}
 
@@ -15500,10 +15500,10 @@ Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasO
 // reason could be "abandon" (quest was abandoned), or "scoreboard" (relevant scoreboard was finished)
 Game.finishScenario = function (quest, reason) {
 	if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
-		if (typeof Player.scenario.vacateAreasOnEnd !== "undefined") {
+		if (typeof Player.scenario.vacateAreasOnEnd !== "undefined" && Player.scenario.vacateAreasOnEnd.length > 0) {
 			let obj = Player.scenario.vacateAreasOnEnd.find(foo => foo.areaName === Game.areaName);
 			if (typeof obj !== "undefined") {
-				Game.loadArea(Player.scenario.vacateAreasOnEnd.vacateTo.areaName, Player.scenario.vacateAreasOnEnd.vacateTo, true);
+				Game.loadArea(obj.vacateTo.areaName, obj.vacateTo, true);
 			}
 		}
 

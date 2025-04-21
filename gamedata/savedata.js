@@ -229,10 +229,11 @@ var Player = {
 		// vars, which is an object of progress variables for the quest
 		// objectiveProgress, an array, set by Dom.quests.active to true/false for each objective of the quest
 		// stepProgress, an array where index i is to true if step i has been completed. can be set to "reattempt" if the step needs to be reattempted
-		// stepRewardsProgress, an array where index i is set to true if step i has *ever* been completed (i.e. if it got abandoned after completion it is still set to true here!)
+		// stepRewardsProgress, [NOTE THIS HASN'T YET BEEN ADDED] an array where index i is set to true if step i has *ever* been completed (i.e. if it got abandoned after completion it is still set to true here!)
 		// questLastFinished, which stores the last date (format ddmmyyyy) that the quest was finished (for seeing if daily quests can be started again)
 		// timesCompleted, number of times a player has completed a repeatable quest (used for e.g. hide and seek quest in logging camp)
 		// startedFromNpc, for each quest started with differsOnNpc property, this contains the npc that it was most recently started from
+		// abandonedSteps, an array where index i is set to true if step i was once completed and was then abandoned. used for chat messages only currently
 
 		questProgress: {}, // stores properties for quest objectives (and achievements) that cannot otherwise be tracked between saves
 		// this is used either for OLD QUESTS or objectives that aren't just relevant to one quest (since this object does not have proper structure)
