@@ -9693,6 +9693,11 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				if (Player.lootArea === undefined) {
 					console.error("No loot area set for area " + areaName);
 				}
+				
+				// close all dom alerts
+				// this is to prevent any issues with scenario area teleport dom alert
+				// tbd make this just close dom alerts on canvas?
+				Dom.alert.closeAll();
 
 				// call onAreaLoad if there is one
 				// (this is the same as onAreaJoin but is called before anything is loaded, and is also called even on init)
@@ -10196,12 +10201,6 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				// music
 				// it is checked if the user has selected for music to be played in the settings within the Game.playMusic function
 				this.playMusic();
-
-				
-				// close all dom alerts
-				// this is to prevent any issues with scenario area teleport dom alert
-				// tbd make this just close dom alerts on canvas?
-				Dom.alert.closeAll();
 
 
 				// display area name
