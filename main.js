@@ -1230,6 +1230,15 @@ Game.searchFor = function (id, array, mightNotBeInArray) {
 	return index;
 }
 
+// adds an object to the game
+// properties must contain type
+// tbd make this used throughout the game, wherever preparenpc appears
+// tbd remove preparenpc and put it in object contructors if possible
+Game.summonObject = function (obj) {
+	this[obj.type].push(new this.typeClasses[obj.type](this.prepareNPC(obj, obj.type)));
+	return true;
+}
+
 // remove object from all arrays it is in using its id
 // id = object.id
 // type = name of the array the object is in
@@ -8918,136 +8927,74 @@ Game.drawTrail = function (entity, trail) {
 
 Game.questPresets = {};
 
+// commences a protect stage of a quest, where the player must protect an object for a given time period
+// this works through a (usually hidden) DOM scoreboard scenario. this means that the game will not save whilst this is active, unless the player choses to leave the area and abandon the quest
+// note the object is resummoned / healed by this function if one is not passed in / it starts damaged
+
+// in addition to any desired properties from Dom.scoreboardInit, properties should include:
+// protectObject: the object to be protected. a progress bar will be displayed above this object
+// protectObjectToCreate: the x, y and other properties of the object to be protected, in the case that protectObject is undefined so one needs to be created
+// progressBarColour: the colour the progress bar will be displayed as. as a hex code (inc. hash) standard channelling pink by default
+// progressBarDescription: the text shown over the progress bar
+// despawnEnemiesOnCompletion: TBA ?? maybe make it a general scoreboard thing ?? defaults to true
+
+// as with scoreboard, if success then if a quest is set, Player.quests.prog[questArea][questId].vars[progressKey] is set to progressValue [or true if progressValue not defined] (progressKey defaults to "scoreboardSuccess" if not defined)
+// unless properties.enableQuestReattempt is set to false, if failure, then if a quest and step are set, then Player.quests.prog[questArea][questId].stepProgress[questStep] is set to "reattempt", allowing the step's onFinish and dialogue to be replayed
 Game.questPresets.protect = function (properties) {
-	let channelSuccessFunction = function () {
-		if (typeof properties.questArea !== "undefined" && typeof properties.questId !== "undefined") {
-			if (typeof properties.questStep !== "undefined") {
-				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = properties.questStep;
-			}
-			else {
-				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = true;
-			}
-		}
-
-		if (typeof properties.onFinish !== "undefined") {
-			properties.onFinish();
-		}
-
-		Dom.checkProgress();
-	};
-	properties.protectObject.channel(channelSuccessFunction, [], properties.timePeriod, properties.progressBarDescription, {colour: properties.progressBarColour});
-
-	Dom.scoreboardInit({
-		timeLimit: 110,
-		variablesArray: [{keyName: "gameScore", title: "Score"}],
-		targetVariableIndex: 0,
-		targetValue: 20,
-		//title: ,
-		//questArea: ,
-		//questId: ,
-		//randomEvents: ,
-		//eventSequence: ,
-		//chatSequence: ,
-	})
-}
-
-Game.questPresets.protect = function (properties) {
-	// commences a protect stage of a quest, where the player must protect a pre-summoned object for a given time period
-	// if the player leaves the area, or dies causing them to leave the area, or the object gets destroyed, then the stage is failed. if a quest is specified, a step can be un-completed or a quest can be abandoned (see below).
-	// note the object will need to be resummoned outside of this fn if it gets destroyed
-
-	// properties must include:
-	// protectObject: the object to be protected. a progress bar will be displayed above this object
-	// timePeriod: the length of time in milliseconds that the player must protect the object for
-
-	// properties may also include:
-
-	// randomEvents: an array of objects. these will be chosen and run at random.
-	// ^^^^^^^^^^^^^ each object should have a function property which would be called, and a cooldown (delay until the next random event is chosen)
-	// ^^^^^^^^^^^^^ optionally they can have a requiredTimeElapsed, which is a time that would have to have elapsed in ms before that fn can be called. they can also have a requirementFunction.
-
-	// eventSequence: an array of objects. these will be run as timeouts, independently to randomEvents if this exists. note these timeouts are all cleared if the protect is failed
-	// ^^^^^^^^^^^^^^ these objects contain a function property, and a time property (in ms) which specifies the time at which it will be called
-
-	// chatSequence: same as above, but for chat banners that are displayed. properties of each object are the usual chatBanner parameters (see questdata chat), and time property which is same as above
-	// note that these won't display if the player is currently talking to another NPC
-
-	// questArea and questId: the area and id of the related quest in questdata (note if this is specified, then upon completion, Player.quests.prog[questArea][questId].vars.protectStageCompleted is set to questStep (or true if questStep not specified))
-	// questStep: the step of the quest that will be un-completed if the player fails (note that alternate dialogue can be specified for further attempts of this quest step, in questdata using the chatFailed dialouge)
-	// if questStep is the first step (0), then the quest is abandoned on fail
-
-	// onFinish is a function that is called upon the protection being successful for the timePeriod
-	// onFail is a function that is called upon the protection being unsuccessful for the timePeriod
-	// failMessage is the message that is sent to chat if the player is unsuccessful. note that if they log out mid quest, this will instead be sent in chat when they next log on
-
-	// progressBarColour: the colour the progress bar will be displayed as. as a hex code (inc. hash) standard channelling pink by default
-	// progressBarDescription: the text shown over the progress bar
-
-	// despawnEnemiesOnCompletion: TBA ??
+	if (typeof protectObject === "undefined") {
+		// spawn the object in
+		let obj = properties.protectObjectToCreate;
+		Game.summonObject(obj);
+	}
+	else if (protectObject.health < protectObject.maxHealth && !properties.protectObjectStartsDamaged) {
+		// object to protect might be damaged from a previous attempt - heal it up to max
+		protectObject.health = protectObject.maxHealth;
+	}
 	
-	let channelSuccessFunction = function () {
-		if (typeof properties.questArea !== "undefined" && typeof properties.questId !== "undefined") {
-			if (typeof properties.questStep !== "undefined") {
-				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = properties.questStep;
-			}
-			else {
-				Player.quests.prog[properties.questArea][properties.questId].vars.protectStageCompleted = true;
-			}
-		}
-
-		if (typeof properties.onFinish !== "undefined") {
-			properties.onFinish();
-		}
-
-		Dom.checkProgress();
+	let channelSuccessFunction = function () { // function called upon object to protect finishing channelling (success)
+		console.log(this);
+		console.log("That should be the object that is channelling..................................")
+		this.onDeathAdditional = undefined;
+		Dom.scoreboardFinish(true, "direct");
 	};
-	properties.protectObject.channel(channelSuccessFunction, [], properties.timePeriod, properties.progressBarDescription, {colour: properties.progressBarColour});
-
-	// eventSequence
-	for (let i = 0; i < properties.eventSequence.length; i++) {
-		Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(properties.eventSequence[i].function, properties.eventSequence[i].time));
-	}
-	// chatSequence
-	for (let i = 0; i < properties.chatSequence.length; i++) {
-		Game.clearedTimeoutsOnAreaChange.push(Game.setTimeout(properties.chatSequence[i].function, properties.chatSequence[i].time));tbf
-	}
-
-	let onDeathFunction = function () {
-
+	
+	properties.protectObject.channel(channelSuccessFunction, [], properties.timeLimit*1000, properties.progressBarDescription, {colour: properties.progressBarColour});
+	// tbd at some point allow multiple channels, in case this object also wants to channel (say) some spells
+	
+	let onDeathFunction = function () { // function called upon object to protect dying (failure)
+		console.log(this);
+		console.log("That should be the object that is channelling..................................")
+		this.onDeathAdditional = undefined;
+		Dom.scoreboardFinish(false, "direct");
 	};
 	if (typeof properties.protectObject.onDeathAdditional !== "undefined") {
 		console.error("protectObject's onDeathAdditional was previously defined and had to be overwritten.", properties.protectObject)
 	}
 	properties.protectObject.onDeathAdditional = onDeathFunction;
-
 	
-	if (typeof properties.protectObject.onDeathAdditional !== "undefined") {
-		console.error("protectObject's onDeathAdditional was previously defined and had to be overwritten.", properties.protectObject)
+	// tbd onDeath should optionally be arrays. and then the issue of overwriting existing fns will no longer exist :)
+	// you could also make functions which add onDeaths (dealing with cases where it is not yet an array, or hasn't yet been defined)
+	
+	// default values of properties
+	if (typeof properties.displayScoreboard === "undefined") {
+		properties.displayScoreboard = false;
 	}
-	Areas[Game.areaName].callAreaLeaveOnLogout = true;
-	Areas[Game.areaName].onAreaLeave = function (logout) {
-		if ("tbd") { // check this hasn't been completed yet
-			let chat = "<b>The Blood Moon is Coming...</b> has been failed. Restart the quest by speaking to <b>The Soothsssayer</b>.";
-			if (logout) {
-				Player.chatOnJoin.push(chat);
-			}
-			else {
-				Dom.chat.insert(chat);
-			}
-			Dom.quest.abandon(Quests.eaglecrest[6]);
-		}
-
-
+	if (typeof properties.allowedAreas === "undefined") {
+		properties.allowedAreas = [Game.areaName];
 	}
-
-	// tbd onAreaLeave and onDeath should optionally be arrays. and then the issue of overwriting existing fns will no longer exist :)
-	// you could also make functions which add onAreaLeave and onDeaths (dealing with cases where it is not yet an array, or hasn't yet been defined)
+	if (typeof properties.enableQuestReattempt === "undefined") {
+		properties.enableQuestReattempt = true; // means the player can restart the step straight from the relevant npc if they fail
+	}
+	if (typeof properties.despawnEnemiesOnCompletion === "undefined") {
+		properties.despawnEnemiesOnCompletion = true;
+	}
+	properties.finishOnTimeLimit = false; // the scoreboard will be automatically finished on whichever is first of the object dying or its channelling finishing, so no need for it to finish on time up
+	
+	Dom.scoreboardInit(properties);
+	
+	// tbd add a way that an array of enemy objects with properties of location array and time array can be passed in , and this will be turned into an eventSequence (summoned at the location at the given time)
+	// maybe this should just be a general property of Dom scoreboard
 }
-
-
-
-
-
 
 //
 // Tag minigame

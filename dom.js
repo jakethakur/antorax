@@ -3506,9 +3506,10 @@ Dom.scoreboardInit = function (properties) {
     // properties parameter is an object which includes properties:
 
     // timeLimit: IN SECONDS, the time after which the challenge ends. optional.
+	// finishOnTimeLimit: set to true by default; set this to false to disable automatic ending of the scoreboard after the time limit elapses
     // endOnceTargetReached: if set to true, the scoreboard is terminated once a target function returns true. otherwise, it keeps going until timeLimit is reached (or area is left in the case of no time limit)
     // targetFunction can access any values in Dom.scoreboard.variablesArray, and should return true if the scoreboard has been "succeeded"
-	// alternatively, targetVariableIndex, targetValue and targetComparisonType can be used instead. targetVariableIndex is the variable index in the variablesArray. targetComparisonType can be "equality" or "geq" (greater than or equal to). default is geq.
+	// alternatively, targetVariableIndex, targetValue and targetComparisonType can be used. targetVariableIndex is the variable index in the variablesArray. targetComparisonType can be "equality" or "geq" (greater than or equal to). default is geq.
 	// successFunction is called once on success before the scoreboard is removed
     // failFunction is called once on failure before the scoreboard is removed. note this and the above are optional, and can both access values in Dom.scoreboard.variablesArray
 	// there does not need to be a success or failure!! can ignore all of this if desired
@@ -3560,6 +3561,12 @@ Dom.scoreboardInit = function (properties) {
 
 		// ending behaviour
 		this.scoreboard.timeLimit = properties.timeLimit;
+		if (typeof properties.finishOnTimeLimit !== "undefined") {
+			this.scoreboard.finishOnTimeLimit = properties.finishOnTimeLimit;
+		}
+		else {
+			this.scoreboard.finishOnTimeLimit = true;
+		}
 		this.scoreboard.endOnceTargetReached = properties.endOnceTargetReached;
 		this.scoreboard.targetFunction = properties.targetFunction;
 		this.scoreboard.targetVariableIndex = properties.targetVariableIndex;
@@ -3670,7 +3677,7 @@ Dom.scoreboardInit = function (properties) {
 	}
 }
 
-// scoreboard is updated by Game.scoreboardUpdate, which is pretty much only called when Dom.quests.active is called
+// scoreboard is updated by Dom.scoreboardUpdate, which is pretty much only called when Dom.quests.active is called
 // this should only be called via Dom.quests.active to avoid scoreboard being updated without quest log update (as it is likely they will both share variables)
 // note scoreboard.timer is updated in Game.update. if it exceeds timelimit, this function is called directly
 Dom.scoreboardUpdate = function () {
@@ -3700,7 +3707,7 @@ Dom.scoreboardUpdate = function () {
 			}
 		}
 
-		if (typeof this.scoreboard.timeLimit !== "undefined" && this.scoreboard.timer >= this.scoreboard.timeLimit) { // note both are measured in seconds
+		if (typeof this.scoreboard.timeLimit !== "undefined" && this.scoreboard.timer >= this.scoreboard.timeLimit && this.scoreboard.finishOnTimeLimit) { // note both are measured in seconds
 			// time is up - run functions then clear variables and scoreboard
 			this.scoreboardFinish(result, "time");
 		}
@@ -3791,10 +3798,10 @@ Dom.clearScoreboardTimeouts = function () {
 	}
 }
 
-// called when scoreboard has finished, from Dom.scoreboardUpdate
+// called when scoreboard has finished, from Dom.scoreboardUpdate, or manually (reason "direct")
 // resets (sets to undefined) scoreboard, as well as relevant variables. also runs success/fail function
 // result is true/false depending on whether the player has succeeded or failed. or "abandon" if the quest was abandoned (thus scoreboard cancelled)
-// reason is either "time" or "targetReached" or "abandon", used only for chat message
+// reason is either "time" or "targetReached" or "abandon" or "direct", used only for chat message
 Dom.scoreboardFinish = function (result, reason) {
 	// remove all scoreboard timeouts
 	Dom.clearScoreboardTimeouts();
