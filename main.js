@@ -2583,7 +2583,7 @@ class Character extends Thing {
 			this.projectileClassResistance = [this.projectileClassResistance]; // ensures it is an array
 		}
 
-		this.speed = properties.stats.walkSpeed || 0;
+		this.speed = properties.stats.walkSpeed || properties.speed || 0;
 
 		this.level = properties.level;
 
@@ -2761,7 +2761,7 @@ class Character extends Thing {
 			this.showNameTag = true; // same as property in Thing, but now defaults to true
 		}
 
-		this.showHealthBar = properties.showHealthBar; // only hides health bar if set to true
+		this.showHealthBar = properties.showHealthBar; // only hides health bar if set to false
 
 
 		if (properties.addToObjectArrays !== false) {
@@ -12760,6 +12760,13 @@ Game.update = function (delta) {
 			// speed scalar due to moveTowards (decimal value)
 			if (typeof entity.moveTowards.speedScalar !== "undefined") {
 				speed *= entity.moveTowards.speedScalar;
+			}
+
+			if (speed === 0) {
+				console.warn("Entity has a moveTowards but zero speed!", entity);
+			}
+			if (typeof speed === "undefined") {
+				console.warn("Entity has a moveTowards but undefined speed!", entity);
 			}
 
 			entity.x += dirx * speed * delta;

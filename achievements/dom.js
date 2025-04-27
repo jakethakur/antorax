@@ -247,11 +247,28 @@ function arrange(){
 
 			if(array[i].expand.type === "progressBar" || array[i].expand.type === "redirect") {
 				// progress bar
+				let progressBarText = "";
+				let value;
 				if (typeof array[i].expand.value !== "function") {
-					document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value !== undefined ? array[i].expand.value : 0)+"/"+array[i].expand.total+"</div></div>";
-				}else{
-					document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(array[i].expand.value()/array[i].expand.total*433)+"px;'></div><div class='progressBarText'>"+(array[i].expand.value() !== undefined ? array[i].expand.value() : 0)+"/"+array[i].expand.total+"</div></div>";
+					value = array[i].expand.value;
 				}
+				else {
+					value = array[i].expand.value();
+				}
+				if (typeof value === "undefined") {
+					value = 0;
+				}
+				let total = array[i].expand.total;
+				if (array[i].expand.percentage) {
+					// display as percentage
+					progressBarText = Math.round(value*100/total) + "%";
+				}
+				else {
+					progressBarText = value+"/"+total;
+				}
+
+				document.getElementById("box"+i).innerHTML += "<div class='progressBar' id='progressBar"+i+"' hidden><div class='innerProgressBar' style='width: "+(value/total*433)+"px;'></div><div class='progressBarText'>"+progressBarText+"</div></div>";
+
 				if(array[i].expand.type === "redirect"){ //style='columns: 1; text-align: center; font-size: 20px;'
 					document.getElementById("box"+i).innerHTML += "<a hidden class='link' id='link"+i+"' href='"+array[i].expand.location+"' target='_blank'>"+array[i].expand.text+"</a>";
 					document.getElementById("progressBar"+i).style.bottom = "35px";

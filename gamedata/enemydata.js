@@ -2780,25 +2780,44 @@ const QuestTemplates = {
 	eaglecrest: {
 		// barrel for tinkerers conveyor belt quest
 		conveyorGameBarrel: {
+			stats: {
+				maxHealth: 7,
+			},
+			damageableByPlayer: true,
+			showHealthBar: false,
+			corpseOnDeath: false,
+			respawnOnDeath: false,
+			onDeath: function () {
+				let questId = Game.areaVariables.qualityAssuranceQuestId;
+				let vars = Player.quests.prog.eaglecrest[questId].vars;
+				if (this.name !== "Explosive") {
+					vars.failedBarrels++;
+					vars.percentageCorrect = Round((vars.gameScore/(vars.gameScore+vars.failedBarrels)),3);
+					Dom.quests.active();
+					Dom.chat.insert(Dom.chat.say("Tinkerer Ustinov", "Please don't damagge the barrels... we need them all in tact!"), 0, undefined, true);
+				}
+			},
 			moveTowardsSequence: [
 				{x: 89.9, y: 1616,},
 				{x: 89.9, y: 1616,},
 				{x: 570.3, y: 1616,},
 				function () {
+					let questId = Game.areaVariables.qualityAssuranceQuestId;
+					let vars = Player.quests.prog.eaglecrest[questId].vars;
 					if (Game.areaVariables.conveyorDirection1 === "up") {
 						if (this.name === "Blue Barrel") {
 							// correct barrel; increase score upon route being finished
 							this.moveTowardsSequenceFinishFunc = function () {
-								Player.quests.prog.eaglecrest[25].vars.gameScore++;
-								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
+								vars.gameScore++;
+								vars.percentageCorrect = Round((vars.gameScore/(vars.gameScore+vars.failedBarrels)),3);
 								Dom.quests.active();
 							}
 						}
 						else {
 							// incorrect barrel
 							this.moveTowardsSequenceFinishFunc = function () {
-								Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
-								Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
+								vars.failedBarrels++;
+								vars.percentageCorrect = Round((vars.gameScore/(vars.gameScore+vars.failedBarrels)),3);
 								Dom.quests.active();
 								Game.addScreenTint("#EE0000", 0.3, 300);
 							}
@@ -2811,16 +2830,16 @@ const QuestTemplates = {
 								if (this.name === "Red Barrel") {
 									// correct barrel; increase score upon route being finished
 									this.moveTowardsSequenceFinishFunc = function () {
-										Player.quests.prog.eaglecrest[25].vars.gameScore++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
+										vars.gameScore++;
+										vars.percentageCorrect = Round((vars.gameScore/(vars.gameScore+vars.failedBarrels)),3);
 										Dom.quests.active();
 									}
 								}
 								else {
 									// incorrect barrel
 									this.moveTowardsSequenceFinishFunc = function () {
-										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
+										vars.failedBarrels++;
+										vars.percentageCorrect = Round((vars.gameScore/(vars.gameScore+vars.failedBarrels)),3);
 										Dom.quests.active();
 										Game.addScreenTint("#EE0000", 0.3, 300);
 									}
@@ -2831,16 +2850,16 @@ const QuestTemplates = {
 								if (this.name === "Green Barrel") {
 									// correct barrel; increase score upon route being finished
 									this.moveTowardsSequenceFinishFunc = function () {
-										Player.quests.prog.eaglecrest[25].vars.gameScore++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
+										vars.gameScore++;
+										vars.percentageCorrect = Round((vars.gameScore/(vars.gameScore+vars.failedBarrels)),3);
 										Dom.quests.active();
 									}
 								}
 								else {
 									// incorrect barrel
 									this.moveTowardsSequenceFinishFunc = function () {
-										Player.quests.prog.eaglecrest[25].vars.failedBarrels++;
-										Player.quests.prog.eaglecrest[25].vars.percentageCorrect = Round((Player.quests.prog.eaglecrest[25].vars.gameScore/(Player.quests.prog.eaglecrest[25].vars.gameScore+Player.quests.prog.eaglecrest[25].vars.failedBarrels)),3);
+										vars.failedBarrels++;
+										vars.percentageCorrect = Round((vars.gameScore/(vars.gameScore+vars.failedBarrels)),3);
 										Dom.quests.active();
 										Game.addScreenTint("#EE0000", 0.3, 300);
 									}

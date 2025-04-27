@@ -4193,7 +4193,15 @@ var Quests = {
 						Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
 						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0;
 						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 1;
+						Game.areaVariables.qualityAssuranceQuestId = 25; // so the barrels know which quest variables to update
 						Game.areaVariables.conveyorSpeed = 100;
+						// update tile animation speeds
+						for (let i = 0; i < map.animateTiles.length; i++) {
+							if (map.animateTiles[i].conveyor) {
+								let intervalNum = map.animateTiles[i].intervalNumber;
+								Game.changeInterval(intervalNum, 180);
+							}
+						}
 					},
 					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
 						timeLimit: 121,
@@ -4211,11 +4219,6 @@ var Quests = {
 						questStep: 0,
 						enableQuestReattempt: true,
 						allowedAreas: ["tinkerersWorkshop"],
-						successFunction: function () {
-							if (Player.quests.prog.eaglecrest[25].vars.percentageCorrect === 1) {
-								User.progress.qualityAssuranceAchievement = true;
-							}
-						},
 						randomEvents: [
 							{ // blue barrel
 								func: function () {
@@ -4254,13 +4257,6 @@ var Quests = {
 								cooldown: 3000,
 								requiredTimeElapsed: 11000
 							},
-							/*{ // explosives (destroy them with your weapon, otherwise they lose you points! but note barrels can be destroyed also...)
-								func: function () {
-								},
-								cooldown: 1000,
-								requiredTimeElapsed: 14000,
-								weighting: 0.2,
-							},*/
 						],
 						eventSequence: [
 							{ // speed increase
@@ -4332,7 +4328,6 @@ var Quests = {
 						],
 						chatSequence: [
 							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
-							//{npc: {name: "Tinkerer", image: "toxicWasteGreen"}, chat: [{text: `That explosive should not be there! Destroy it with your weapon, otherwise you will lose points.`,},],time: 56700},
 							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 66200},
 							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 98200}
 						],
@@ -4349,6 +4344,9 @@ var Quests = {
 					objectiveRequirement: [1], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
 					rewards: {
 						xp: 50,
+						reputation: {
+							tinkerersGuild: 15,
+						},
 					},
 				},
 			],
@@ -4546,6 +4544,425 @@ var Quests = {
 
 			howToStart: "Speak to <strong>Solario Sunshadow</strong>.",
 			levelRequirement: 6,
+		},
+		{
+			id: 30,
+			quest: "Quality Assurance - Daily a07381",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Technician Ustinov",
+					chat: [{
+						text: `Glug glog glug-hello.`,
+					},{
+						text: `Perfect timing again - a supply of mech parts is due imminently.`,
+					},{
+						text: `As a reminder, all you'll need to do is pull the <b>Purple Lever</b> and <b>Yellow Lever</b> to sort the barrels to the riggggght colour hatch.`,
+					},{
+						text: `Since you're now experienced, we'll need at least 82% of them sorted to their correct hatches!`,
+					},{
+						text: `Glog glug-here come the parts.`,
+					}],
+					reattemptChat: [{ // used on reattempt or post-abandon
+						text: `Glog. Hello again.`,
+					},{
+						text: `Give the sorting another go - we're due another batch of parts any minute now!`,
+					},{
+						text: `All you're needed to do is pull the <b>Purple</b> and <b>Yellow Levers</b> to sort the barrels to the rigggght colour hatches.`,
+					},{
+						text: `Remember we'll need at least 82% of them sorted to the correct hatches.`,
+					}],
+					onFinish: function () {
+						Player.quests.prog.eaglecrest[30].vars.gameScore = 0; // initialise score variables
+						Player.quests.prog.eaglecrest[30].vars.failedBarrels = 0;
+						Player.quests.prog.eaglecrest[30].vars.percentageCorrect = 1;
+						Game.areaVariables.qualityAssuranceQuestId = 30; // so the barrels know which quest variables to update
+						Game.areaVariables.conveyorSpeed = 130;
+						// update tile animation speeds
+						for (let i = 0; i < map.animateTiles.length; i++) {
+							if (map.animateTiles[i].conveyor) {
+								let intervalNum = map.animateTiles[i].intervalNumber;
+								Game.changeInterval(intervalNum, 138);
+							}
+						}
+					},
+					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
+						timeLimit: 117,
+						stopEventsAfter: 108,
+						variablesArray: [{
+							keyName: "percentageCorrect",
+							title: "Success Rate",
+							percentage: true,
+						}],
+						targetVariableIndex: 0,
+						targetValue: 0.82,
+						title: "Quality Assurance",
+						questArea: "eaglecrest",
+						questId: 30,
+						questStep: 0,
+						enableQuestReattempt: true,
+						allowedAreas: ["tinkerersWorkshop"],
+						successFunction: function () {
+							if (Player.quests.prog.eaglecrest[30].vars.percentageCorrect > User.progress.qualityAssuranceAchievement1) {
+								User.progress.qualityAssuranceAchievement1 = Player.quests.prog.eaglecrest[30].vars.percentageCorrect;
+							}
+						},
+						randomEvents: [
+							{ // blue barrel
+								func: function () {
+									Game.characters.push(new Character(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteBlue",
+										name: "Blue Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "characters")));
+								},
+								cooldown: 2300,
+							},
+							{ // red barrel
+								func: function () {
+									Game.characters.push(new Character(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteRed",
+										name: "Red Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "characters")));
+								},
+								cooldown: 2300,
+							},
+							{ // green barrel
+								func: function () {
+									Game.characters.push(new Character(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteGreen",
+										name: "Green Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "characters")));
+								},
+								cooldown: 2300,
+							},
+						],
+						eventSequence: [
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 1500; // 2300 -> 1500
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 200; // 130 -> 200
+									// update movement speed of old objects
+									for (let i = 0; i < Game.characters.length; i++) {
+										if (Game.characters[i].name === "Red Barrel" || Game.characters[i].name === "Blue Barrel" || Game.characters[i].name === "Green Barrel" || Game.characters[i].name === "Explosive") {
+											Game.characters[i].speed = Game.areaVariables.conveyorSpeed;
+										}
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 90); // 138 -> 90
+										}
+									}
+								}, time: 38300
+							},
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 1000; // 1500 -> 1000
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 300; // 200 -> 300
+									// update movement speed of old objects
+									for (let i = 0; i < Game.characters.length; i++) {
+										if (Game.characters[i].name === "Red Barrel" || Game.characters[i].name === "Blue Barrel" || Game.characters[i].name === "Green Barrel" || Game.characters[i].name === "Explosive") {
+											Game.characters[i].speed = Game.areaVariables.conveyorSpeed;
+										}
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 60); // 180 -> 60
+										}
+									}
+								}, time: 91200
+							},
+						],
+						chatSequence: [
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glog-- Conveyor belts to speed 3.`,},],time: 38300},
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 91200}
+						],
+					}
+				},
+				{
+					stepNum: 1,
+					name: "Technician Ustinov",
+					chat: [{
+						text: `Glglgreat work as usual!`,
+					},],
+					objectiveRequirement: [1], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					rewards: {
+						xp: 50,
+						reputation: {
+							tinkerersGuild: 15,
+						},
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b> to attempt the challenge again.", reattempt: 0}, // this is only shown if step 0 is ready to be reattempted (is completed otherwise)
+				{id: 1, text: "Achieve a success rate of 82% or greater at the conveyor belt station, to the left of the <b>Tinkerers' Workshop</b>.", associatedVariable:"scoreboardProgress"},
+				{id: 2, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",},
+			],
+
+			howToStart: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",
+			levelRequirement: 1,
+			questRequirements: ["Quality Assurance"],
+
+			repeatTime: "daily",
+			randomGroup: "qualityAssuranceDaily",
+			shareCooldownWith: [{questArea: "eaglecrest", id: 25}],
+
+			resetVariables: [
+				"scoreboardProgress",
+			],
+		},
+		{
+			id: 31,
+			quest: "Quality Assurance - Daily b00624",
+			questArea: "eaglecrest",
+
+			steps: [
+				{
+					stepNum: 0,
+					name: "Technician Ustinov",
+					chat: [{
+						text: `Glug glug glog glug-hello.`,
+					},{
+						text: `Glug glug -oh, hello.`,
+					},{
+						text: `Looks like you're here at the perfect time - the next supply of mech parts is due.`,
+					},{
+						text: `As a reminder, you'll need to pull the <b>Purple Lever</b> and <b>Yellow Lever</b> to sort the barrels to the rigggggght colour hatch.`,
+					},{
+						text: `I've been alerted this this supply includes several <b>Explosives</b> which will need to be <b>destroyed</b> with your weapon.`,
+					},{
+						text: `But-glog-try not to damage any of the other barrels...`,
+					},{
+						text: `We'll need a success rate of 68%, but be aware that letting any explosives through - or damaging any barrels - will reduce this.`,
+					},{
+						text: `Gluug-here come the parts.`,
+					}],
+					reattemptChat: [{ // used on reattempt or post-abandon
+						text: `Glog. Hello again.`,
+					},{
+						text: `Apologggies if the explosives are causing you trouble...`,
+					},{
+						text: `Give the sorting another go - remember the <b>explosives</b> will need to be <b>destroyed</b> with your weapon.`,
+					},{
+						text: `But don't destroy the barrels!`,
+					},{
+						text: `We'll need at least 68% of the parts sorted to the correct hatches.`,
+					}],
+					onFinish: function () {
+						Player.quests.prog.eaglecrest[31].vars.gameScore = 0; // initialise score variables
+						Player.quests.prog.eaglecrest[31].vars.failedBarrels = 0;
+						Player.quests.prog.eaglecrest[31].vars.percentageCorrect = 1;
+						Game.areaVariables.qualityAssuranceQuestId = 31; // so the barrels know which quest variables to update
+						Game.areaVariables.conveyorSpeed = 100;
+						// update tile animation speeds
+						for (let i = 0; i < map.animateTiles.length; i++) {
+							if (map.animateTiles[i].conveyor) {
+								let intervalNum = map.animateTiles[i].intervalNumber;
+								Game.changeInterval(intervalNum, 180);
+							}
+						}
+					},
+					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
+						timeLimit: 121,
+						stopEventsAfter: 112,
+						variablesArray: [{
+							keyName: "percentageCorrect",
+							title: "Success Rate",
+							percentage: true,
+						}],
+						targetVariableIndex: 0,
+						targetValue: 0.68,
+						title: "Quality Assurance",
+						questArea: "eaglecrest",
+						questId: 31,
+						questStep: 0,
+						enableQuestReattempt: true,
+						allowedAreas: ["tinkerersWorkshop"],
+						randomEvents: [
+							{ // blue barrel
+								func: function () {
+									Game.characters.push(new Character(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteBlue",
+										name: "Blue Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "characters")));
+								},
+								cooldown: 3000,
+								requiredTimeElapsed: 7000,
+							},
+							{ // red barrel
+								func: function () {
+									Game.characters.push(new Character(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteRed",
+										name: "Red Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "characters")));
+								},
+								cooldown: 3000,
+							},
+							{ // green barrel
+								func: function () {
+									Game.characters.push(new Character(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "toxicWasteGreen",
+										name: "Green Barrel",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "characters")));
+								},
+								cooldown: 3000,
+								requiredTimeElapsed: 12000,
+							},
+							{ // explosive
+								func: function () {
+									Game.characters.push(new Character(Game.prepareNPC({
+										x: 89.9, y: 909.3,
+										image: "explosive",
+										name: "Explosive",
+										template: QuestTemplates.eaglecrest.conveyorGameBarrel,
+										speed: Game.areaVariables.conveyorSpeed
+									}, "characters")));
+								},
+								cooldown: 3000,
+							},
+						],
+						eventSequence: [
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 2300; // 3000 -> 2300
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 130; // 100 -> 130
+									// update movement speed of old objects
+									for (let i = 0; i < Game.characters.length; i++) {
+										if (Game.characters[i].name === "Red Barrel" || Game.characters[i].name === "Blue Barrel" || Game.characters[i].name === "Green Barrel" || Game.characters[i].name === "Explosive") {
+											Game.characters[i].speed = Game.areaVariables.conveyorSpeed;
+										}
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 138); // 180 -> 138
+										}
+									}
+								}, time: 24300
+							},
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 1500; // 2300 -> 1500
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 200; // 130 -> 200
+									// update movement speed of old objects
+									for (let i = 0; i < Game.characters.length; i++) {
+										if (Game.characters[i].name === "Red Barrel" || Game.characters[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
+											Game.characters[i].speed = Game.areaVariables.conveyorSpeed;
+										}
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 90); // 138 -> 90
+										}
+									}
+								}, time: 46200
+							},
+							{ // speed increase
+								func: function () {
+									for (let i = 0; i < Dom.scoreboard.randomEvents.length; i++) {
+										Dom.scoreboard.randomEvents[i].cooldown = 1000; // 1500 -> 1000
+									}
+									// update movement speed of new objects
+									Game.areaVariables.conveyorSpeed = 300; // 200 -> 300
+									// update movement speed of old objects
+									for (let i = 0; i < Game.characters.length; i++) {
+										if (Game.characters[i].name === "Red Barrel" || Game.characters[i].name === "Blue Barrel" || Game.characters[i].name === "Green Barrel" || Game.characters[i].name === "Explosive") {
+											Game.characters[i].speed = Game.areaVariables.conveyorSpeed;
+										}
+									}
+									// update tile animation speeds
+									for (let i = 0; i < map.animateTiles.length; i++) {
+										if (map.animateTiles[i].conveyor) {
+											let intervalNum = map.animateTiles[i].intervalNumber;
+											Game.changeInterval(intervalNum, 60); // 180 -> 60
+										}
+									}
+								}, time: 88200
+							},
+						],
+						chatSequence: [
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 24300},
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 46200},
+							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting!`,},],time: 88200}
+						],
+					}
+				},
+				{
+					stepNum: 1,
+					name: "Technician Ustinov",
+					chat: [{
+						text: `Glglggreat work!`,
+					},{
+						text: `I'll contact the parts team to ensure there are minimal explosives included in the next batch..`,
+					},],
+					objectiveRequirement: [1], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					rewards: {
+						xp: 50,
+						reputation: {
+							tinkerersGuild: 25,
+						},
+					},
+				},
+			],
+
+			objectivesList: [
+				{id: 0, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b> to attempt the challenge again.", reattempt: 0}, // this is only shown if step 0 is ready to be reattempted (is completed otherwise)
+				{id: 1, text: "Achieve a success rate of 68% or greater at the conveyor belt station, to the left of the <b>Tinkerers' Workshop</b>.", associatedVariable:"scoreboardProgress"},
+				{id: 2, text: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",},
+			],
+
+			howToStart: "Speak to <b>Technician Ustinov</b> in the <b>Tinkerers' Workshop</b>.",
+			levelRequirement: 1,
+			questRequirements: ["Quality Assurance"],
+			requirement: function () {
+				return Player.quests.prog.eaglecrest[30].timesCompleted >= 2;
+			},
+
+			randomGroup: "qualityAssuranceDaily",
+
+			resetVariables: [
+				"scoreboardProgress",
+			],
 		},
 		/*{
 			id: 17,

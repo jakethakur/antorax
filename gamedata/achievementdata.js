@@ -1337,15 +1337,39 @@ var Achievements = [
 		// MISC II (quest challenges etc)
 		//
 	{
-		name: "Quality Assured!",
-		description: "Complete the 'Quality Assurance' minigame with a score of 100%.",
+		name: "Quality Assured! I",
+		description: "Complete the 'Quality Assurance - Daily a07381' minigame with a score of 100%.",
 		points: 5,
 		category: ["quests"],
 		area: ["eaglecrest"],
 		image: "../assets/achievements/qualityAssurance.png",
 		class: "single",
 		isCompleted: function () {
-			return User.progress.qualityAssuranceAchievement === true;
+			return User.progress.qualityAssuranceAchievement1 === 1;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.qualityAssuranceAchievement1,
+			total: 1,
+			percentage: true,
+		},
+	},
+	{
+		name: "Quality Assured! II",
+		description: "Complete the 'Quality Assurance - Daily b00624' minigame with a score of 100%.",
+		points: 5,
+		category: ["quests"],
+		area: ["eaglecrest"],
+		image: "../assets/achievements/qualityAssurance.png",
+		class: "single",
+		isCompleted: function () {
+			return User.progress.qualityAssuranceAchievement2 === 1;
+		},
+		expand: {
+			type: "progressBar",
+			value: User.progress.qualityAssuranceAchievement2,
+			total: 1,
+			percentage: true,
 		},
 	},
 	{
@@ -1361,7 +1385,7 @@ var Achievements = [
 		},
 	},
 	{
-		name: "Enlightened Kitty",
+		name: "Enlightenment",
 		description: "Meet the divine (???) and live to tell the tale!",
 		hidden: true,
 		points: 5,

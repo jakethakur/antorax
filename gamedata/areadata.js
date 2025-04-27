@@ -12972,6 +12972,7 @@ chloroville: {
 			dolph: {normal: "assets/npcs/dolph.png"},
 			penelope: {normal: "assets/npcs/penelope.png"},
 			harroway: {normal: "assets/npcs/harroway.png"},
+			explosive: {normal: "assets/items/consumable/33.png"},
 		},
 		npcs: [
 			{
@@ -12992,12 +12993,23 @@ chloroville: {
 						quest: Quests.eaglecrest[25],
 						step: [0, 1],
 					},
+					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[30],
+						step: [0, 1],
+					},
+					{
+						role: "questProgress",
+						quest: Quests.eaglecrest[31],
+						step: [0, 1],
+					},
 				],
 				chat: {
 					notUnlockedRoles: "What are you doingg here?",
 					questProgress: "Glug-get yourself back to those levers, there's more items to sort througgh!",
 					questComplete: "Don't you love all the rust here? Makes it feel so homely!",
 					inventoryFull: "Your baggs are full!",
+					chooseChat: "Glog glog glog."
 				},
 			},
 			{

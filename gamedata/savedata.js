@@ -202,6 +202,10 @@ var Player = {
 			score: 0,
 			level: 3,
 		},
+		tinkerersGuild: {
+			score: 0,
+			level: 3,
+		},
 		// people
 		theSoothsayer: {
 			score: 0,
