@@ -1509,8 +1509,10 @@ unidentifiedArea: ["caves"],
 			intervalEffect: {
 				function: function () {
 					let position = Dom.inventory.give(Items.consumable[32]);
-					Player.inventory.items[position].healAmount = Player.inventory.greaves.functionStats.heal;
-					Player.inventory.items[position].functionText = "Restores " + Player.inventory.greaves.functionStats.heal + " health";
+					if (position !== false) {
+						Player.inventory.items[position].healAmount = Player.inventory.greaves.functionStats.heal;
+						Player.inventory.items[position].functionText = "Restores " + Player.inventory.greaves.functionStats.heal + " health";
+					}
 				},
 				time: 60, // seconds
 			},
@@ -6373,7 +6375,7 @@ unidentifiedArea: ["caves"],
 			name: "Beaker of Milk",
 			type: "item",
 			category: "item",
-			image: "assets/items/item/41.png",
+			image: "assets/items/consumable/41.png",
 			stack: 1,
 			functionText: "Cleanses you of all timed status effects and transformations.",
             cooldown: 10,

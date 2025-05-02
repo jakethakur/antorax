@@ -4248,6 +4248,7 @@ Dom.identifier.identify = function (npc) {
 
 // returns true if there is inventory space available for quantity "num" of item "item" to be added to inventory
 // optionally, this can be forced to be at a certain inventory posn "position" (i.e. checks if there is space at this inventory position in particular)
+// tbd this is a better version of the requiredSpace function - replace it
 Dom.inventory.spaceAvailable = function (item, num, position) {
 	if (num === undefined) {
 		num = 1;

@@ -3822,7 +3822,7 @@ var Quests = {
 						text: `But if you're willing to fetch one final ingredient, I could do with some milk! That farm might be worth another try...`
 					}],
 					removeItems: [
-						{item: Items.item[40], quantity: 2},
+						{item: Items.item[40], quantity: 3},
 					],
 				},
 				{
@@ -4044,8 +4044,8 @@ var Quests = {
 				{id: 2, text: "Give <b>Peto the Pyromancer</b> the flour.",
 					completeStep: 2,
 				},
-				{id: 3, text: "Gather two eggs from chickens in the Plains.",
-					isCompleted: function() {return checkProgress(Dom.inventory.check(40, "item"), 2)}, completeStep: 3,
+				{id: 3, text: "Gather three eggs from chickens in the Plains.",
+					isCompleted: function() {return checkProgress(Dom.inventory.check(40, "item"), 3)}, completeStep: 3,
 					revealStep: 2,
 				},
 				{id: 4, text: "Give <b>Peto the Pyromancer</b> the eggs.",

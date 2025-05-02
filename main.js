@@ -2089,19 +2089,21 @@ class Thing extends Visible {
 		this.setExpand(properties.expand || 1); // width multiplier (based on base width and base height)
 
 
-
+		this.name = properties.name;
 		if (typeof properties.nameHidden !== "undefined" && properties.nameHidden()) {
 			this.name = "???";
 		}
-		else {
-			this.name = properties.name;
+		else if (typeof properties.nameFunction !== "undefined") {
+			let val = properties.nameFunction();
+			if (typeof val !== "undefined") {
+				this.name = val;
+			}
 		}
+
 
 		this.bright = properties.bright; // currently does nothing
 
 		this.totalDistanceWalked = 0; // in px
-
-
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allThings.push(this); // array for current area only
@@ -6791,6 +6793,9 @@ class Villager extends NPC {
 		this.state.waitTime = Random(2, 30); // in seconds (mesured with delta)
 		this.state.waitElapsed = 0;
 		this.state.type = "wait";
+
+		// make them face forwards
+		this.updateRotation(0, -1);
 	}
 
 	move (delta) {

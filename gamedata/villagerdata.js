@@ -739,6 +739,11 @@ var Villagers = [
         id: 18,
         images: {pieRomancer: {normal: "assets/npcs/pieRomancer.png"}},
 		name: "Peto the Pyromancer",
+		nameFunction: function () {
+			if (Player.quests.completedQuestArray.includes("The Pyromancer's Shopping List")) {
+				return "Peto the Pie Romancer";
+			}
+		},
 		hostility: "friendly",
 		level: 10,
 		stats: {
@@ -761,10 +766,23 @@ var Villagers = [
         ],
 		roles: [
 			{
-				quest: Quests.eaglecrest[21],
-				role: "questProgress",
-				step: [0,2,3,7]
-			}
+				role: "chatBanner",
+				chooseText: "Baked goods",
+				chat: [{
+					text: `James tbd`
+				},{
+					text: `James tbd`,
+					onFinish: function () {
+						// give player the pie hat
+						Dom.inventory.give(Items.helm[43]); // tbd change this to use a chatBanner "rewards" property where it checks inventory space [at start and end!] and displays it nicely (similarly to othmar)
+						// set progress variable
+						Player.quests.prog.eaglecrest[21].pieHat = true;
+					}
+				},],
+				roleRequirement: function () {
+					return !Player.quests.prog.eaglecrest[21].pieHat && Player.quests.prog.eaglecrest[21].questLastFinished < GetFullDate(); // pieromancer quest wasn't finished today
+				},
+			},
 		],
 		chat: {
             notUnlockedRoles: "Nothing to see here! Just an honest man going about his daily business <i>ahahaha</i>.",
@@ -774,7 +792,7 @@ var Villagers = [
 			questFinish: "I would source my pies from the Billy Goat but... <i>heh</i>.. He reckons I'm bad for business.",
 		},
 		canBeShown: function () {
-			return !Player.quests.possibleQuestArray.includes("The Pyromancer's Shopping List") && !Player.quests.activeQuestArray.includes("The Pyromancer's Shopping List")
+			return !Player.quests.possibleQuestArray.includes("The Pyromancer's Shopping List") && !Player.quests.activeQuestArray.includes("The Pyromancer's Shopping List");
 		}
 	},
 	{
