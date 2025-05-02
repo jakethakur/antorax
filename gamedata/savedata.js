@@ -76,7 +76,7 @@ const AttackConstants = {
 		projectileSpeed: 850,
 		projectileRange: 1000,
 		focusSpeedMultiplier: 100, // affects how quickly attacks focus
-		variance: 40, // base variance IN DEGREES
+		variance: 30, // base variance IN DEGREES
 		minimumVariance: 3, // also in degrees
 		reloadTime: 500,
 

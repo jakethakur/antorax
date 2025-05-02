@@ -253,7 +253,7 @@ const NPCTemplates = { // tbd combine with villagers
 		respawnOnDeath: false,
 		stats: {
 			walkSpeed: 0,
-			maxHealth: 500,
+			maxHealth: 600,
 			healthRegen: 0,
 		},
 		behaviourFunctions: {

@@ -3877,7 +3877,7 @@ var Quests = {
 						obj.behaviourFunctions.summonSpoon();
 					},
 					startProtect: { // starts a scoreboard with these parameters, after onFinish
-						timeLimit: 90,
+						timeLimit: 85,
 						progressBarDescription: "Brewing",
 						protectObject: function () {
 							let obj = Game.characters.find(entity => entity.name === "Tamtam's Favourite Cauldron");
@@ -3914,7 +3914,7 @@ var Quests = {
 										type: "enemies",
 										attackTargets: [{target: function () { 
 											return Game.characters.find(character => character.name === "Tamtam's Favourite Cauldron");
-										}, baseAggro: 5}],
+										}, baseAggro: 4}],
 									});
 									enemy.displace(0, Random(70, 100), 2, ToRadians(Random(0, 360)));
 								},

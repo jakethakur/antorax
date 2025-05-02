@@ -4589,7 +4589,7 @@ class Hero extends Attacker {
 								colour: ["FB6304", "#FFBF00", "#FFFF00", "#FFAC1C", "#FF4433"], //particle chooses random colour from array
 								removeIn: 750,
 								variance: 15, // variance in position (in x/y axis in one direction from player)
-								intensity: 30,
+								intensity: 2,
 							};
 						}
 						else if (weaponType === "bow") {
@@ -4599,7 +4599,7 @@ class Hero extends Attacker {
 								colour: ["#CECDCC", "#D7D8D2"], // particle chooses random colour from array
 								removeIn: 1500,
 								variance: 5, // variance in position (in x/y axis in one direction from player)
-								intensity: 5,
+								intensity: 1,
 							};
 							hitboxSize = 10;
 							projectileName = "Arrow Attack";
