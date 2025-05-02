@@ -3796,7 +3796,7 @@ var Quests = {
 					chat: [{
 						text: `That pyromancer's an odd fella. He loves his pies, but the rumours I've 'eard are bloomin' unsavoury.`
 					},{
-						text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the entrance, then get off with ye!`
+						text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the waterwheel, then get off with ye!`
 					},],
 				},
 				{

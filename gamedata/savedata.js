@@ -75,8 +75,8 @@ const AttackConstants = {
 	bow: {
 		projectileSpeed: 850,
 		projectileRange: 1000,
-		focusSpeedMultiplier: 80, // affects how quickly attacks focus
-		variance: 45, // base variance IN DEGREES
+		focusSpeedMultiplier: 100, // affects how quickly attacks focus
+		variance: 40, // base variance IN DEGREES
 		minimumVariance: 3, // also in degrees
 		reloadTime: 500,
 
