@@ -5319,13 +5319,12 @@ unidentifiedArea: ["caves"],
 		},
 		{
 			id: 77,
-			name: "Beaker of Freshly Brewed Milk",
+			name: "Beaker of Freshly Brewed Milk", // for pyromancer quest
 			type: "item",
 			category: "item",
 			image: "assets/items/item/77.png",
 			stack: 1,
 			quest: true,
-			functionText: "Cleanses you of all timed status effects and transformations."
 		},
 		{
 			id: 78,

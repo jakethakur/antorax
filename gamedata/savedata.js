@@ -94,10 +94,10 @@ const AttackConstants = {
 		baseChannellingMoveSpeed: 30,
 	},
 	sword: {
-		maxSummons: 3,
+		/*maxSummons: 3,
 		summonMeleeRange: 100,
 		summonReloadTime: 1000,
-		summonDistance: 100, // distance from mouse that it is summoned
+		summonDistance: 100, // distance from mouse that it is summoned*/
 
 		projectileSpeed: 0, // for charge attack
 		projectileRange: 0, // not a thing for swords
@@ -105,7 +105,7 @@ const AttackConstants = {
 		//iterationSpacing: 130, // (old snake projectile system)
 		//maxIterations: 10,
 
-		meleeRange: 200, // range at which melee damage is dealt
+		meleeRange: 300, // range at which melee damage is dealt
 		reloadTime: 500,
 
 		damageMultiplier: 1,

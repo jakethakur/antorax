@@ -174,7 +174,8 @@ const NPCTemplates = { // tbd combine with villagers
 		hostility: "friendly",
 		roles: [
 			{
-				quest: Quests.eaglecrestLoggingCamp[25],
+				questArea: "eaglecrestLoggingCamp",
+				questIndex: 25,
 				role: "questFinish",
 			},
 		],
@@ -183,7 +184,7 @@ const NPCTemplates = { // tbd combine with villagers
 			questComplete: "I'm still sad you found me, y'know. Thought I had a great spot!",
 			inventoryFull: "Don't expect a reward for finding me unless you have inventory space for it.",
 		},
-		hideNameTag: true,
+		showNameTag: false,
 	},
 	nessyTintop: {
 		image: "nessyTintop",
@@ -197,7 +198,8 @@ const NPCTemplates = { // tbd combine with villagers
 		hostility: "friendly",
 		roles: [
 			{
-				quest: Quests.eaglecrestLoggingCamp[25],
+				questArea: "eaglecrestLoggingCamp",
+				questIndex: 25,
 				role: "questFinish",
 			},
 		],
@@ -206,13 +208,13 @@ const NPCTemplates = { // tbd combine with villagers
 			questComplete: "Next time I hide you'll never be able to find me.",
 			inventoryFull: "Doesn't count that you've found me unless you have inventory space!",
 		},
-		hideNameTag: true,
+		showNameTag: false,
 	},
 	soothsssayerCauldron: {
 		x: 300,
 		y: 526,
 		name: "The Soothsssayer's Cauldron",
-		hideNameTag: true,
+		showNameTag: false,
 		image: "cauldron",
 		hostility: "neutral",
 		level: 1,
@@ -237,6 +239,46 @@ const NPCTemplates = { // tbd combine with villagers
 			Areas.samhainLair.indoors = true;
 			Weather.updateVariables();
 		},
+	},
+	tamtamCauldron: { // for tamtam's shop (eaglecrest elixirs)
+		x: 380,
+		y: 550,
+		image: "cauldronQuestEmpty",
+		collision: {relativeX: 0, relativeY: 55, width: 120, height: 20},
+		name: "Tamtam's Favourite Cauldron",
+		showNameTag: false,
+		level: 1,
+		xpGiven: 0,
+		corpseOnDeath: false,
+		respawnOnDeath: false,
+		stats: {
+			walkSpeed: 0,
+			maxHealth: 500,
+			healthRegen: 0,
+		},
+		behaviourFunctions: {
+			summonSpoon: function () { // spoon that stirs whatever's in this :)
+				let spoon = Game.summonObject({template: NPCTemplates.cauldronSpoon, x: this.x, y: this.y - 87});
+				this.cauldronSpoon = spoon;
+			},
+			removeSpoon: function () {
+				let id = this.cauldronSpoon.id;
+				Game.removeObject(id, "things");
+				this.cauldronSpoon = undefined;
+			}
+		},
+		type: "characters",
+	},
+	cauldronSpoon: {
+		image: "cauldronSpoon",
+		name: "Cauldron Spoon",
+		type: "things",
+		orderOffsetY: 200,
+		oscillate: {
+			amplitudeX: 32,
+			amplitudeY: 4,
+			period: 4000,
+		}
 	}
 }
 
@@ -901,7 +943,7 @@ const EnemyTemplates = {
 	            right: "yellowSnakeRight"
 	        },
 			name: "Snake",
-			hideNameTag: true,
+			showNameTag: false,
 			hostility: "neutral",
 			level: 5,
 			xpGiven: 0,
@@ -1897,7 +1939,6 @@ const EnemyTemplates = {
 			lootTableTemplate: [BossLootTables.demolitionistDarrow],
 			inventorySpace: 18,
 		},
-
 		imp: { // for spell brewing
 			image: "imp",
 			corpseOnDeath: false,
@@ -1910,7 +1951,7 @@ const EnemyTemplates = {
 				walkSpeed: 40,
 				swimSpeed: 40,
 				iceSpeed: 40,
-				maxHealth: 36,
+				maxHealth: 28,
 				defence: 0,
 				range: 666,
 				reloadTime: 666,
@@ -1928,7 +1969,11 @@ const EnemyTemplates = {
 			},
 		},
 		katydid: { // for spell brewing
-			image: "katydid",
+			image: "katydidLeft",
+			rotationImages: {
+				left: "katydidLeft",
+				right: "katydidRight"
+			},
 			corpseOnDeath: false,
 			respawnOnDeath: false,
 			name: "Katydid",
@@ -1941,7 +1986,7 @@ const EnemyTemplates = {
 				swimSpeed: 0,
 				iceSpeed: 0,
 				maxHealth: 2,
-				range: 20,
+				range: 40,
 				healthRegen: 0,
 				reloadTime: 1000,
 			},

@@ -3821,14 +3821,13 @@ var Quests = {
 					},{
 						text: `But if you're willing to fetch one final ingredient, I could do with some milk! That farm might be worth another try...`
 					}],
-					objectiveRequirement: [2], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
 					removeItems: [
 						{item: Items.item[40], quantity: 2},
 					],
 				},
 				{
 					stepNum: 4,
-					name: "Peto the Pyromancer",
+					name: "Farmer Scop",
 					chat: [{
 						text: `I thought I told ya to get lost! We've got no cows here and besides... I'm not makin' any more pies for that Peto fella! Not after..... last time.`,
 					},{
@@ -3840,29 +3839,179 @@ var Quests = {
 				{
 					stepNum: 5,
 					name: "Alchemist Tamtam",
-					chat: [{
-						id: 0,
-						text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
-					},{
-						id: 1,
-						text: `It's been a long time since someone's asked me for that...`,
-					},{
-						id: 2,
-						text: `I guess... we can brew some!!!`
-					},{
-						id: 3,
-						text: `Hmmm, so that'll be a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
-					},{
-						id: 4,
-						text: `Oooonly thing is... it's a dangerous recipe to brew...`
-					},
+					chat: [
+						{
+							text: `Milk??<br><em>Tamtam's ears drop down.</em>`,
+						},{
+							text: `It's been a long time since someone's asked me for that...`,
+						},{
+							text: `I guess... we can brew some!!`
+						},{
+							text: `Hmmm, so that'll be a <b>Katydid</b>, a piece of <b>Iron Ore</b>, a <b>Milkfish</b> and some <b>Lavender</b>.`
+						},{
+							text: `Oooonly thing is... it's a dangerous recipe to brew.`
+						},{
+							text: `Can you keep an eye on the cauldron for me!! You'll see why...`
+						},
 					],
-					onStepComplete: function () {
-						Game.questPresets.protect();
+					reattemptChat: [
+						{
+							text: `<em>Tamtam looks into your eyes mournfully.</em>`,
+						},{
+							text: `I told you it's a dangerous recipe!!`,
+						},{
+							text: `<em>Tamtam's ears perk up.</em>`,
+						},{
+							text: `Let's try again! <sup>Again!</sup>`
+						},{
+							text: `Just try to protect the cauldron whilst the milk is brewing!!!`
+						},
+					],
+					onFinish: function () {
+						// set the image of the cauldron
+						let obj = Game.characters.find(entity => entity.name === "Tamtam's Favourite Cauldron");
+						if (typeof obj !== "undefined") {
+							obj.setImage("cauldronQuest");
+						}
+						// add a spoon to the cauldron
+						obj.behaviourFunctions.summonSpoon();
 					},
+					startProtect: { // starts a scoreboard with these parameters, after onFinish
+						timeLimit: 90,
+						progressBarDescription: "Brewing",
+						protectObject: function () {
+							let obj = Game.characters.find(entity => entity.name === "Tamtam's Favourite Cauldron");
+							return obj;
+						},
+						protectObjectToCreate: {
+							image: "cauldronQuest",
+							template: NPCTemplates.tamtamCauldron,
+						},
+						title: "Potion Making",
+						questArea: "eaglecrest",
+						questId: 21,
+						questStep: 5,
+						enableQuestReattempt: true,
+						allowedAreas: ["eaglecrestElixirs"],
+						successFunction: function () {
+							// set the image of the cauldron
+							let obj = Game.characters.find(entity => entity.name === "Tamtam's Favourite Cauldron");
+							obj.setImage("cauldronMilk");
+						},
+						finishFunction: function () {
+							// remove spoon from the cauldron
+							let obj = Game.characters.find(entity => entity.name === "Tamtam's Favourite Cauldron");
+							obj.behaviourFunctions.removeSpoon();
+						},
+						randomEvents: [
+							{ // imp
+								func: function () {
+									let enemy = Game.summonObject({
+										x: 380,
+										y: 550,
+										template: EnemyTemplates.eaglecrest.imp,
+										associatedScoreboard: Dom.scoreboard.id,
+										type: "enemies",
+										attackTargets: [{target: function () { 
+											return Game.characters.find(character => character.name === "Tamtam's Favourite Cauldron");
+										}, baseAggro: 5}],
+									});
+									enemy.displace(0, Random(70, 100), 2, ToRadians(Random(0, 360)));
+								},
+								cooldown: 7500,
+								requiredTimeElapsed: 5000,
+								maxTimeElapsed: 50000
+							},
+							{ // katydids
+								func: function () {
+									let num = Random (15, 40);
+									for (let i = 0; i < num; i++) {
+										let enemy = Game.summonObject({
+											x: 380,
+											y: 550,
+											orderOffsetY: 300,
+											template: EnemyTemplates.eaglecrest.katydid,
+											associatedScoreboard: Dom.scoreboard.id,
+											type: "enemies",
+											attackTargets: [{target: function () { 
+												return Game.characters.find(character => character.name === "Tamtam's Favourite Cauldron");
+											}, baseAggro: 5}],
+										});
+										enemy.displace(0, Random(140, 180), Random(0.8, 1.2), ToRadians(Random(0, 360)));
+									}
+								},
+								cooldown: 7500,
+								requiredTimeElapsed: 5000
+							},
+							{ // icebolt
+								func: function () {
+									for (let bearing = 0; bearing < 2*Math.PI; bearing+=Math.PI/4) {
+										Game.projectiles.push(new Projectile({
+											map: map,
+											x: 380,
+											y: 550,
+											stats: {
+												damage: 5,
+												stun: 0.5,
+												slowAmount: 50,
+												slowTime: 3
+											},
+											targets: [[Game.hero]],
+											image: "icebolt",
+											moveDirection: bearing,
+											stopMovingOnDamage: true,
+											moveSpeed: 150,
+											type: "projectiles",
+										}));
+									}
+								},
+								cooldown: 1000,
+								requiredTimeElapsed: 7000
+							},
+							{ // two imps
+								func: function () {
+									for (let i = 0; i < 2; i++) {
+										let enemy = Game.summonObject({
+											x: 380,
+											y: 550,
+											template: EnemyTemplates.eaglecrest.imp,
+											associatedScoreboard: Dom.scoreboard.id,
+											type: "enemies",
+											attackTargets: [{target: function () { 
+												return Game.characters.find(character => character.name === "Tamtam's Favourite Cauldron");
+											}, baseAggro: 5}],
+										});
+										enemy.displace(0, Random(70, 100), 2, ToRadians(Random(0, 360)));
+									}
+								},
+								cooldown: 8000,
+								requiredTimeElapsed: 50000
+							},
+						],
+						chatSequence: [
+							{npc: {name: "Alchemist Tamtam", image: "tamtam"}, chat: [{text: `Oohhhh no, I was worried this would happen... Protect the cauldron, pleaseeeee!`,},],time: 6000},
+							{npc: {name: "Alchemist Tamtam", image: "tamtam"}, chat: [{text: `That's my favourite cauldron!! Keep an eye on ittt!!`,},],time: 61200},
+						],
+					}
 				},
 				{
 					stepNum: 6,
+					name: "Alchemist Tamtam",
+					chat: [{
+						text: `<em>Tamtam's tail wags intensely</em>.<br>Eeeeexcellent!!!`,
+					},{
+						text: `Hereeeee's your milk... and we made a huge batch so come back and buy some more if you ever need it! Yippeeee!`,
+					},],
+					objectiveRequirement: [9], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
+					rewards: {
+						items: [
+							{item: Items.item[77],},
+						],
+					},
+					autofinish: true,
+				},
+				{
+					stepNum: 7,
 					name: "Peto the Pyromancer",
 					chat: [{
 						text: `My ingredients!`,
@@ -3871,14 +4020,12 @@ var Quests = {
 					},{
 						text: `A pie romancer's work is never done!... Wait... did I say pie romancer? <i>heh</i>.. Well now I've said too much....`
 					},],
-					objectiveRequirement: [5], // the ids of all objectives that are required for this step (in addition to having finished the previous step)
 					removeItems: [
 						{item: Items.item[77], quantity: 1},
 					],
 					rewards: {
 						xp: 100,
 						items: [
-							{item: Items.item[1]}, // mystery (get the helm the next day)
 							{item: Items.currency[2], quantity: 5,},
 						],
 					},
@@ -3886,40 +4033,53 @@ var Quests = {
 			],
 
 			objectivesList: [
-				{id: 0, text: "Ask <b>Farmer Scop</b> where you can find some flour.",
+				{id: 0, text: "Ask <b>Farmer Scop</b> at <b>Eaglecrest Farm</b> where you can find some flour.",
 					completeStep: 1, // if this step is completed, then this objective is always completed
 				},
-				{id: 1, text: "Give <b>Peto the Pyromancer</b> some flour.",
-					isCompleted: function() {return checkProgress(Dom.inventory.check(76, "item"), 1)}, completeStep: 2,
+				{id: 1, text: "Gather a sack of flour from near the <b>Eaglecrest Farm</b> mill.",
+					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+					isCompleted: function() {return checkProgress(Dom.inventory.check(76, "item"), 1)},
+					completeStep: 2, // if this step is completed, then this objective is always completed
 				},
-				{id: 2, text: "Gather two eggs from chickens in the Plains.",
+				{id: 2, text: "Give <b>Peto the Pyromancer</b> the flour.",
+					completeStep: 2,
+				},
+				{id: 3, text: "Gather two eggs from chickens in the Plains.",
 					isCompleted: function() {return checkProgress(Dom.inventory.check(40, "item"), 2)}, completeStep: 3,
-					revealStep: 2, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+					revealStep: 2,
 				},
-				{id: 3, text: "Give <b>Peto the Pyromancer</b> the eggs.",
+				{id: 4, text: "Give <b>Peto the Pyromancer</b> the eggs.",
 					completeStep: 3,
-					revealStep: 2, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
+					revealStep: 2,
 				},
-				{id: 3, text: "Ask <b>Farmer Scop</b> where you can find some milk.",
-					completeStep: 3,
+				{id: 5, text: "Ask <b>Farmer Scop</b> where you can find some milk.",
+					completeStep: 4,
 					revealStep: 3,
 				},
-				{id: 4, text: "Ask <b>Alchemist Tamtam</b> for some milk.",
-					completeStep: 4,
+				{id: 6, text: "Ask <b>Alchemist Tamtam</b> at <b>Eaglecrest Elixirs</b> for some milk.",
+					completeStep: 5,
 					revealStep: 4,
 				},
-				{id: 5, text: "Add the four ingredients in the right order to brew some milk.",
-					isCompleted: function() {return checkProgress(Dom.inventory.check(77, "item"), 1)},
+				{id: 7, text: "Talk to <b>Alchemist Tamtam</b> to try to protect his cauldron again.", reattempt: 5,
+				},
+				{id: 8, text: "Protect Tamtam's cauldron!",
+					associatedVariable:"scoreboardProgress",
 					revealStep: 5,
 				},
-				{id: 6, text: "Give <b>Peto the Pyromancer</b> the milk.",
+				{id: 9, text: "Collect the milk from <b>Alchemist Tamtam</b>.",
+					associatedVariable:"scoreboardProgress",
+					revealStep: 5,
+					completeStep: 6,
+				},
+				{id: 10, text: "Give <b>Peto the Pyromancer</b> the milk.",
 					revealStep: 3,
 				},
 			],
 
 			howToStart: "Speak to <b>Peto the Pyromancer</b> in Eaglecrest City.",
-			levelRequirement: 7,
-			questRequirements: ["to be added"],
+			//levelRequirement: 7,
+			levelRequirement: 1,
+			//questRequirements: ["to be added"],
 		},
 		{
 			id: 22,
@@ -4925,6 +5085,11 @@ var Quests = {
 							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 46200},
 							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting!`,},],time: 88200}
 						],
+						successFunction: function () {
+							if (Player.quests.prog.eaglecrest[31].vars.percentageCorrect > User.progress.qualityAssuranceAchievement2) {
+								User.progress.qualityAssuranceAchievement2 = Player.quests.prog.eaglecrest[31].vars.percentageCorrect;
+							}
+						},
 					}
 				},
 				{

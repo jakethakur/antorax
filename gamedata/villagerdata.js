@@ -759,6 +759,13 @@ var Villagers = [
             "eaglecrestMonastery",
             "eaglecrestPlains",
         ],
+		roles: [
+			{
+				quest: Quests.eaglecrest[21],
+				role: "questProgress",
+				step: [0,2,3,7]
+			}
+		],
 		chat: {
             notUnlockedRoles: "Nothing to see here! Just an honest man going about his daily business <i>ahahaha</i>.",
 			chooseChat: "What brings you here today? Nothing the matter, I hope <i>hehe</i>.",
@@ -766,6 +773,9 @@ var Villagers = [
 			questProgress: "<i>heheh</i> Do you have my reagents yet?",
 			questFinish: "I would source my pies from the Billy Goat but... <i>heh</i>.. He reckons I'm bad for business.",
 		},
+		canBeShown: function () {
+			return !Player.quests.possibleQuestArray.includes("The Pyromancer's Shopping List") && !Player.quests.activeQuestArray.includes("The Pyromancer's Shopping List")
+		}
 	},
 	{
         id: 19,
@@ -886,6 +896,7 @@ var Villagers = [
 					],
 				},{
 					text: `That's a great name, ${Player.name}! Well, I'm Othmar, and nothing makes me content like helping out new recruits like yourself. So say, how does <b>3 Gold</b> sound?`,
+					long: true,
 					options: [
 						{
 							text: "Thanks!",

@@ -2976,11 +2976,30 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 // called by Dom.quest.progress (i.e. when npc dialogue has finished)
 // handles everything that's not to do with showing the page
 Dom.quest.acceptRewards = function (quest, npc, step, finish) {
+	// any possible starting of scenario should be done *first*, as this forces a save (and we don't want this save to include the started quest)
+	if (quest.steps[step].startScenario !== undefined) {
+		Game.startScenario(quest.steps[step].startScenario);
+	}
+	if (quest.steps[step].startScoreboard !== undefined) {
+		Dom.scoreboardInit(quest.steps[step].startScoreboard);
+	}
+	if (quest.steps[step].startProtect !== undefined) {
+		Game.questPresets.protect(quest.steps[step].startProtect);
+	}
+
+	// all of the following will *not* be saved if the player refreshes mid-scenario
+
+	// onFinish is called after any potential scenario starting
+	if (quest.steps[step].onFinish !== undefined) {
+		// pass in the npc
+		quest.steps[step].onFinish(npc);
+	}
+
 	// increment variables
 	Player.quests.prog[quest.questArea][quest.id].stepProgress[step] = true;
 
 	// removeItems
-	// note that the quest step can still be completed even if this item is not in the player's inventory - this should instead be checked in an objective
+	// note that the quest step cannot still be completed if this item is not in the player's inventory, unless the removeItems[i] has property "notRequired"
 	if (typeof quest.steps[step].removeItems !== "undefined") {
 		for (let i = 0; i < quest.steps[step].removeItems.length; i++) {
 			Dom.inventory.removeById(quest.steps[step].removeItems[i].item.id, quest.steps[step].removeItems[i].item.type, quest.steps[step].removeItems[i].quantity);
@@ -3033,15 +3052,7 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 
 	Dom.adventure.update();
 
-	if (quest.steps[step].onFinish !== undefined) {
-		// pass in the npc
-		quest.steps[step].onFinish(npc);
-	}
-	if (quest.steps[step].startScoreboard !== undefined) {
-		Dom.scoreboardInit(quest.steps[step].startScoreboard);
-	}
-
-	if (typeof quest.steps[step].rewards !== "undefined") {
+	if (typeof quest.steps[step].rewards !== "undefined" && typeof quest.steps[step].rewards.xp !== "undefined") {
 		Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
 	}
 	Dom.checkProgress();
@@ -3085,10 +3096,6 @@ Dom.quest.accept = function () {
 	Player.quests.prog[quest.questArea][quest.id].objectiveProgress = [];
 	Player.quests.prog[quest.questArea][quest.id].stepProgress = []; // stepProgress[0] is set to true by acceptRewards, called below
 
-
-	// set the npc that the player started the quest from, in case the quest differsOnNpc
-	Player.quests.prog[quest.questArea][quest.id].startedFromNpc = Dom.currentNPC;
-
 	// find npc that started the quest if possible, for the onFinish function for the first step
 	// note that this may not always be possible, meaning this function won't reliably have an NPC passed in
 	let npc;
@@ -3097,10 +3104,14 @@ Dom.quest.accept = function () {
 	}
 	
 	// give rewards, call onFinish, etc.
+	// any scenario starting due to quest will happen at the start of this function - so anything that should not be saved if the player quits during scenario should go below this.
 	this.acceptRewards(quest, npc, 0, false);
 
+	// set the npc that the player started the quest from, in case the quest differsOnNpc
+	Player.quests.prog[quest.questArea][quest.id].startedFromNpc = Dom.currentNPC;
+
 	// after onQuestStart because (e.g.) tavern clean-up sets variables in onQuestStart needed for this
-	Dom.quests.active(quest);
+	Dom.quests.active(quest); // this adds the quest to the activequestarray
 	Dom.quests.possible();
 
 	// close the quest start page
@@ -3134,11 +3145,14 @@ Dom.quest.reattempt = function (quest, npc, step) {
 // called at the end of dialogue from Dom.quest.reattempt
 // note this is triggered automatically after the chat finishes
 Dom.quest.acceptReattempt = function (quest, npc, step) {
-	if (typeof quest.steps[step].onFinish !== "undefined") {
-		quest.steps[step].onFinish(npc);
-	}
 	if (quest.steps[step].startScoreboard !== undefined) {
 		Dom.scoreboardInit(quest.steps[step].startScoreboard);
+	}
+	if (quest.steps[step].startProtect !== undefined) {
+		Game.questPresets.protect(quest.steps[step].startProtect);
+	}
+	if (typeof quest.steps[step].onFinish !== "undefined") {
+		quest.steps[step].onFinish(npc);
 	}
 
 	Player.quests.prog[quest.questArea][quest.id].stepProgress[step] = true; // this was previously "reattempt". make it so this can't be reattempted again
@@ -3232,7 +3246,7 @@ Dom.quests.active = function (quest) {
 					let completed = false;
 					if (typeof objectives[i].completeStep !== "undefined") {
 						// objective is always completed if this step is completed
-						if (!Player.quests.prog[currentQuest.questArea][currentQuest.id].stepProgress[objectives[i].completeStep]) {
+						if (Player.quests.prog[currentQuest.questArea][currentQuest.id].stepProgress[objectives[i].completeStep]) {
 							// the required step has not been completed
 							completed = true;
 						}
@@ -3263,7 +3277,7 @@ Dom.quests.active = function (quest) {
 					Dom.quests.activeHTML[currentQuest.important] += "<p class='activeQuestObjective'>" + objectives[i].text;
 					if (completed === true && i !== objectives.length-1) {
 						// objective completed (and it's not the last objective, as this is the turn-in objective)
-						Dom.quests.activeHTML[currentQuest.important] += "&#10004;"; // tick
+						Dom.quests.activeHTML[currentQuest.important] += " &#10004;"; // tick
 					}
 					else if (completed !== false && typeof completed !== "undefined" && i !== objectives.length-1) {
 						// objective has progress to be displayed
@@ -3358,7 +3372,7 @@ Dom.quests.possible = function () {
 			else if (quest.levelRequirement > Player.level) { // player is not a high enough level
 				questCanBeStarted = false;
 			}
-			else if (!IsContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
+			else if (typeof quest.questRequirements !== "undefined" && !IsContainedInArray(quest.questRequirements, Player.quests.completedQuestArray)) { // quest requirements have not been completed
 				questCanBeStarted = false;
 			}
 			else if (quest.fishingRequirement !== undefined && (Player.stats.fishingSkill > quest.fishingRequirement.max || Player.stats.fishingSkill < quest.fishingRequirement.min)) { // fishing skill not in range
@@ -3491,6 +3505,8 @@ Dom.quests.other = function () {
 // Scoreboard
 //
 
+Dom.scoreboardNextId = 0;
+
 // initialise a scoreboard which keeps track of variables, typically for a minigame being completed in a single area
 // not always visible, but optionally, a visual scoreboard appears below the mana bar
 // provided a quest is specified, this also initialises a scenario (in which saving, area mobility, etc. are limited)
@@ -3514,6 +3530,7 @@ Dom.scoreboardInit = function (properties) {
     // failFunction is called once on failure before the scoreboard is removed. note this and the above are optional, and can both access values in Dom.scoreboard.variablesArray
 	// there does not need to be a success or failure!! can ignore all of this if desired
 	// callFailFunctionOnAbandon is set to true if failFunction should be called on quest being abandoned (note scoreboard is cancelled automatically on quest abandon)
+	// finishFunction is always called on scoreboard finish, after successFunction/failFunction. this also refers to callFailFunctionOnAbandon to see behaviour on abandoning
 
     // variablesArray: an array of objects, which make up the values used for the scoreboard display, and potentially also validation of whether the task has been completed at the end (i.e. for if you want to save any function values)
     // this is saved in Dom.scoreboard.variablesArray, and updated by Dom.scoreboard.update
@@ -3541,8 +3558,13 @@ Dom.scoreboardInit = function (properties) {
 	// vacateAreasOnEnd: (an array of objects) contains information on where the player should be teleported to if the scenario finishes and the player is in particular areas
 	//      ''           these objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
 
+	// removeAssociatedEntitiesOnFinish: defaults to true. means any entity with associatedScoreboard set to Dom.scoreboard.id gets removed upon this scoreboard finishing
+
 	if (typeof this.scoreboard === "undefined") {
 		this.scoreboard = {};
+		this.scoreboard.id = this.scoreboardNextId;
+		this.scoreboardNextId++;
+
 		// read the comments above for what the properties do
 
 		this.scoreboard.questArea = properties.questArea;
@@ -3578,6 +3600,9 @@ Dom.scoreboardInit = function (properties) {
 		if (typeof properties.failFunction !== "undefined") {
 			this.scoreboard.failFunction = properties.failFunction.bind(this.scoreboard);
 		}
+		if (typeof properties.finishFunction !== "undefined") {
+			this.scoreboard.finishFunction = properties.finishFunction.bind(this.scoreboard);
+		}
 		this.scoreboard.callFailFunctionOnAbandon = properties.callFailFunctionOnAbandon;
 		this.scoreboard.progressKey = properties.progressKey || "scoreboardProgress";
 		if (typeof properties.progressValue !== "undefined") {
@@ -3585,6 +3610,12 @@ Dom.scoreboardInit = function (properties) {
 		}
 		else {
 			this.scoreboard.progressValue = true;
+		}
+		if (typeof properties.removeAssociatedEntitiesOnFinish !== "undefined") {
+			this.scoreboard.removeAssociatedEntitiesOnFinish = properties.removeAssociatedEntitiesOnFinish;
+		}
+		else {
+			this.scoreboard.removeAssociatedEntitiesOnFinish = true;
 		}
 
 		// runtime behaviour
@@ -3609,7 +3640,8 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.clearTimeoutsOnFinish = [];
 		// randomEvents: an array of objects. these will be chosen and run at random.
 		// ^^^^^^^^^^^^^ each object should have a func property which would be called, and a cooldown (delay until the next random event is chosen)
-		// ^^^^^^^^^^^^^ optionally they can have a requiredTimeElapsed, which is a time that would have to have elapsed in ms before that fn can be called. they can also have a requirementFunction.
+		// ^^^^^^^^^^^^^ optionally they can have a requiredTimeElapsed and/or maxTimeElapsed, which is a time that would have to have elapsed in ms before/up to which that fn can be called
+		// ^^^^^^^^^^^^^ they can also have a requirementFunction.
 		// randomEventsInitialTimeout property can also be set, to allow a grace period before the events begin
 		// each time the timeout finishes, Dom.scoreboardRandomEvent is called, and a new timeout is set
 		if (typeof properties.randomEvents !== "undefined") {
@@ -3656,9 +3688,11 @@ Dom.scoreboardInit = function (properties) {
 				this.elements.scoreboard.innerHTML += "<b id='scoreboardTitle'><b id='scoreboardTitle'><br><br>";
 			}
 
-			for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
-				let variable = this.scoreboard.variablesArray[i];
-				this.elements.scoreboard.innerHTML += "<p class='scoreboardVariable' id='scoreboardVariable"+i+"'></p><br>";
+			if (typeof this.scoreboard.variablesArray !== "undefined") {
+				for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
+					let variable = this.scoreboard.variablesArray[i];
+					this.elements.scoreboard.innerHTML += "<p class='scoreboardVariable' id='scoreboardVariable"+i+"'></p><br>";
+				}
 			}
 
 			this.scoreboardUpdate(); // set textContent values for the above (this function calls scoreboardUpdateVisual)
@@ -3682,13 +3716,15 @@ Dom.scoreboardInit = function (properties) {
 // note scoreboard.timer is updated in Game.update. if it exceeds timelimit, this function is called directly
 Dom.scoreboardUpdate = function () {
 	if (typeof this.scoreboard !== "undefined") {
-		for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
-			let foo = this.scoreboard.variablesArray[i];
-			if (typeof foo.func !== "undefined") {
-				foo.value = foo.func();
-			}
-			else if (typeof foo.keyName !== "undefined") {
-				foo.value = Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[foo.keyName];
+		if (typeof this.scoreboard.variablesArray !== "undefined") {
+			for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
+				let foo = this.scoreboard.variablesArray[i];
+				if (typeof foo.func !== "undefined") {
+					foo.value = foo.func();
+				}
+				else if (typeof foo.keyName !== "undefined") {
+					foo.value = Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[foo.keyName];
+				}
 			}
 		}
 
@@ -3759,7 +3795,7 @@ Dom.scoreboardTimerUpdate = function (delta) {
 		}
 
 		// visual update of timer
-		if (typeof this.scoreboard !== "undefined" && this.scoreboard.displayTimer) { // includes a check that scoreboard didn't finish (in above scoreboardUpdate function)
+		if (typeof this.scoreboard !== "undefined" && this.scoreboard.displayScoreboard && this.scoreboard.displayTimer) { // includes a check that scoreboard didn't finish (in above scoreboardUpdate function)
 			if (typeof this.scoreboard.timeLimit !== "undefined") {
 				let timeRemaining = this.scoreboard.timeLimit - this.scoreboard.timer;
 				document.getElementById("scoreboardTimer").textContent = "Time remaining: "+Round(timeRemaining,1)+"s";
@@ -3774,16 +3810,26 @@ Dom.scoreboardTimerUpdate = function (delta) {
 // random events for scoreboard, called on a timeout (see above)
 Dom.scoreboardRandomEvents = function () {
 	let filteredEvents = Dom.scoreboard.randomEvents.filter(event => (typeof event.requirementFunction === "undefined" || event.requirementFunction())
-		&& (typeof event.requiredTimeElapsed === "undefined" || Dom.scoreboard.timer >= event.requiredTimeElapsed/1000));
+		&& (typeof event.requiredTimeElapsed === "undefined" || Dom.scoreboard.timer >= event.requiredTimeElapsed/1000)
+		&& (typeof event.maxTimeElapsed === "undefined" || Dom.scoreboard.timer <= event.maxTimeElapsed/1000));
 
-	let chosenEventIndex = Random(0, filteredEvents.length-1);
-	let event = filteredEvents[chosenEventIndex];
+	let event;
 
-	event.func();
+	if (filteredEvents.length > 0) {
+		// a valid event exists
+		let chosenEventIndex = Random(0, filteredEvents.length-1);
+		event = filteredEvents[chosenEventIndex];
 
+		event.func();
+	}
+	else {
+		event = {cooldown: 1000}; // check back in a second to see if any events are available now
+	}
+
+	// start new timeout for this function
 	let randomEventsTimeout = Game.setTimeout(Dom.scoreboardRandomEvents, event.cooldown);
 	Game.clearedTimeoutsOnAreaChange.push(randomEventsTimeout);
-	Dom.scoreboard.clearTimeoutsOnFinish.push(randomEventsTimeout)
+	Dom.scoreboard.clearTimeoutsOnFinish.push(randomEventsTimeout);
 }
 
 // clears all timeouts or intervals in Dom.scoreboard.clearTimeoutsOnFinish
@@ -3868,11 +3914,24 @@ Dom.scoreboardFinish = function (result, reason) {
 		}
 	}
 
+	this.scoreboard.finishFunction();
+
+	if (this.scoreboard.removeAssociatedEntitiesOnFinish) {
+		// despawn all enemies that are linked to the scoreboard
+		for (let i = 0; i < Game.allEntities.length; i++) {
+			if (Game.allEntities[i].associatedScoreboard === this.scoreboard.id) {
+				Game.removeObject(Game.allEntities[i].id, Game.allEntities[i].type);
+			}
+		}
+	}
+
 	// clear variables (note this is done after successFunction and failFunction)
-	for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
-		let foo = this.scoreboard.variablesArray[i];
-		if (typeof foo.keyName !== "undefined" && !foo.doNotClear) {
-			Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[foo.keyName] = undefined;
+	if (typeof this.scoreboard.variablesArray !== "undefined") {
+		for (let i = 0; i < this.scoreboard.variablesArray.length; i++) {
+			let foo = this.scoreboard.variablesArray[i];
+			if (typeof foo.keyName !== "undefined" && !foo.doNotClear) {
+				Player.quests.prog[this.scoreboard.questArea][this.scoreboard.questId].vars[foo.keyName] = undefined;
+			}
 		}
 	}
 
@@ -4187,6 +4246,68 @@ Dom.identifier.identify = function (npc) {
 	}
 }
 
+// returns true if there is inventory space available for quantity "num" of item "item" to be added to inventory
+// optionally, this can be forced to be at a certain inventory posn "position" (i.e. checks if there is space at this inventory position in particular)
+Dom.inventory.spaceAvailable = function (item, num, position) {
+	if (num === undefined) {
+		num = 1;
+	}
+
+	let spaceAvailable = false;
+	let numRemainingToCheck = num;
+
+	if (typeof item.stack === "undefined") {
+		item.stack = 1;
+	}
+
+	if (typeof position === "undefined") {
+		// see if the item can be added to an existing stack
+		for (let i = 0; i < Player.inventory.items.length; i++) {
+			// if the item is already in the inventory
+			if (Player.inventory.items[i].id === item.id && Player.inventory.items[i].type === item.type) {
+				if (Player.inventory.items[i].stacked === undefined) {
+					Player.inventory.items[i].stacked = 1;
+				}
+				if (Player.inventory.items[i].stacked < Player.inventory.items[i].stack) {
+					// item can be added to the existing stack
+					numRemainingToCheck -= Player.inventory.items[i].stacked - Player.inventory.items[i].stack;
+					
+					if (numRemainingToCheck <= 0) {
+						return true;
+					}
+				}
+			}
+		}
+
+		// the item could not all be added to an existing stack; add it to the first empty slot(s) found
+		for (let i = 0; i < Player.inventory.items.length; i++) {
+			// if the slot is empty then the item is added
+			if (Player.inventory.items[i].image === undefined) {
+				// slot is empty
+				numRemainingToCheck -= item.stack;
+				if (numRemainingToCheck <= 0) {
+					return true;
+				}
+			}
+		}
+
+		// every slot has been checked, but numRemainingToCheck > 0
+		return false;
+	}
+	else {
+		// input validation - item should all be able to fit into one stack if position !== undefined
+		if (item.stack < num) {
+			console.error("Item is trying to be added to a specific inventory position, but thre is too much of it to fit in one stack!")
+			return false;
+		}
+
+	    // see if the item can be added to a specific inventory position
+	    if (Player.inventory.items[position].image === undefined) {
+            spaceAvailable = true;
+	    }
+	}
+}
+
 // this is the only way that items should be added to the player's inventory.
 // returns the position of the item, or false if it couldn't be added (inventory full)
 // item is the item that should be given, num is the quantity to be given
@@ -4195,14 +4316,28 @@ Dom.identifier.identify = function (npc) {
 // noSave is true if the game should not be saved upon this function being called (i.e. if there is further processing required after the item is added)
 // noArchaeology is true if this should not count towards archaeology progress
 Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
-	let added = false; // true if item was succesfully given; this is what is returned at the end of the function
-	let finishedAdding = false; // set to true once the item has been finished adding
 	if (num === undefined) {
 		num = 1;
 	}
-	if (position === undefined) {
-		for (let y = 0; y < num; y++) {
 
+	let spaceAvailable = this.spaceAvailable(item, num, position);
+	if (!spaceAvailable) {
+		return false;
+	}
+	// we are now operating under the assumption that there is space for the item to be added
+
+	if (typeof item.stack === "undefined") {
+		item.stack = 1;
+	}
+
+	let numRemainingToAdd = num;
+	let positionsAddedTo = []; // this is what is returned
+	let positionsToAddTo = []; // inventory positions that need a whole new item stack initialised in there
+	// positionsToAddTo is an array of objects with properties "pos" (position index) and "num" (number to be added at this posn)
+
+	// the following mirrors Dom.inventory.spaceAvailable to add the item to the inventory
+	if (spaceAvailable) {
+		if (typeof position === "undefined") {
 			// see if the item can be added to an existing stack
 			for (let i = 0; i < Player.inventory.items.length; i++) {
 				// if the item is already in the inventory
@@ -4210,95 +4345,127 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 					if (Player.inventory.items[i].stacked === undefined) {
 						Player.inventory.items[i].stacked = 1;
 					}
+
 					if (Player.inventory.items[i].stacked < Player.inventory.items[i].stack) {
-						// adds the item to the existing stack
-						added = true;
-						Player.inventory.items[i].stacked++;
+						// item can be added to the existing stack
+						let stackCapacity = Player.inventory.items[i].stack - Player.inventory.items[i].stacked; // space left in stack
+
+						if (stackCapacity >= numRemainingToAdd) {
+							// stack has space for all remaining items to be added to it
+							Player.inventory.items[i].stacked += numRemainingToAdd;
+							numRemainingToAdd = 0;
+						}
+						else {
+							// not all of our item can be added to stack
+							Player.inventory.items[i].stacked = Player.inventory.items[i].stack; // full stack
+							numRemainingToAdd -= stackCapacity;
+						}
+
+						// update DOM item display element
 						Dom.elements.itemInventory.getElementsByTagName("td")[i].innerHTML = "<img src='"+Player.inventory.items[i].image+"' draggable='true' ondragstart='Dom.inventory.drag(event, Player.inventory.items, "+i+")' "+(Player.inventory.items[i].onClick !== undefined ? "onclick='Player.inventory.items["+i+"].onClick("+i+")'" : "") +"></img><div class='stackNum' id='stackNum"+i+"'>"+Player.inventory.items[i].stacked+"</div>";
-						finishedAdding = true;
+
+						positionsAddedTo.push(i);
 					}
 				}
 			}
-
-			// the item could not be added to an existing stack; add it to the first empty slot found
-			if (!finishedAdding) {
+	
+			if (numRemainingToAdd > 0) {
+				// the item could not all be added to an existing stack; add it to the first empty slot(s) found
 				for (let i = 0; i < Player.inventory.items.length; i++) {
 					// if the slot is empty then the item is added
 					if (Player.inventory.items[i].image === undefined) {
-					    // slot is empty; add the item
-						added = true;
-						position = i;
+						// slot is empty
+						let numAdded = Math.min(item.stack, numRemainingToAdd);
+						positionsToAddTo.push({pos: i, num: numAdded});
+						numRemainingToAdd -= numAdded;
 
-						break; // stops the item being placed in multiple slots
+						if (numRemainingToAdd <= 0) {
+							break;
+						}
 					}
 				}
 			}
+	
+			// every slot has been checked, but numRemainingToAdd > 0
+			if (numRemainingToAdd > 0) {
+				console.error("Not all items could be given by Dom.inventory.give, despite Dom.inventory.spaceAvailable saying it was possible.");
+			}
+		}
+		else {
+			positionsToAddTo.push({pos: position, num: num});
+			numRemainingToAdd = 0;
 		}
 	}
-	else {
-	    // add the item to a specific position
-	    if (Player.inventory.items[position].image === undefined) {
-            added = true;
-	    }
+
+	if (positionsToAddTo.length > 0) {
+		while (positionsToAddTo.length > 0) {
+			let pos = positionsToAddTo[0].pos;
+			let numToAdd = positionsToAddTo[0].num;
+
+			// the item has stack(s) that are ready to be given, but hasn't yet been prepared in the inventory
+			Player.inventory.items[pos] = Object.assign({},item);
+
+			Dom.inventory.assignInstanceId(Player.inventory.items[pos]); // assigns a unique id to this instance of the item in player's inventory
+
+			if (Player.inventory.items[pos].maxCharges !== undefined) {
+				Player.inventory.items[pos].charges = Player.inventory.items[pos].maxCharges;
+			}
+
+			// assign a random lore from the item's lore array (if it has one)
+			if (Array.isArray(Player.inventory.items[pos].lore)) {
+				let lores = item.lore;
+				if (Player.inventory.items[pos].loreEventRequirements !== undefined) {
+					for (let x = 0; x < Player.inventory.items[pos].lore.length; x++) {
+						if (Player.inventory.items[pos].loreEventRequirements[x] !== "" && Player.inventory.items[pos].loreEventRequirements[x] !== Event.event) {
+							lores.splice(x, 1);
+						}
+					}
+				}
+				Player.inventory.items[pos].lore = lores[Random(0, lores.length-1)];
+			}
+
+			Player.inventory.items[pos].stacked = numToAdd;
+
+			Dom.inventory.prepare(Player.inventory.items, pos, Dom.elements.itemInventory.getElementsByTagName("td")[pos]);
+
+			positionsAddedTo.push(pos);
+			positionsToAddTo.splice(0,1);
+		}
 	}
 
-	if (added && !finishedAdding) {
-	    // the item is ready to be given, but hasn't yet been prepared in the inventory
-        Player.inventory.items[position] = Object.assign({},item);
+	// if a bag is being given to the bag slot
+	/*if (position === 5 && item.type === "bag") {
+		for (let x = 0; x < Math.floor(item.size/6); x++) {
+			let str = "<tr>";
+			for (let inv = Player.inventory.items.length; inv < Player.inventory.items.length+6; inv++) {
+				str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
+			}
+			Dom.elements.itemInventory.innerHTML += str+"</tr>";
+			Player.inventory.items.push({},{},{},{},{},{});
+		}
+		Dom.inventory.update();
+	}*/
 
-        Dom.inventory.assignInstanceId(Player.inventory.items[position]); // assigns a unique id to this instance of the item in player's inventory
-
-        if (Player.inventory.items[position].maxCharges !== undefined) {
-            Player.inventory.items[position].charges = Player.inventory.items[position].maxCharges;
-        }
-
-        // assign a random lore from the item's lore array (if it has one)
-        if (Array.isArray(Player.inventory.items[position].lore)) {
-            let lores = item.lore;
-            if (Player.inventory.items[position].loreEventRequirements !== undefined) {
-                for (let x = 0; x < Player.inventory.items[position].lore.length; x++) {
-                    if (Player.inventory.items[position].loreEventRequirements[x] !== "" && Player.inventory.items[position].loreEventRequirements[x] !== Event.event) {
-                        lores.splice(x, 1);
-                    }
-                }
-            }
-            Player.inventory.items[position].lore = lores[Random(0, lores.length-1)];
-        }
-        if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
-            let obtained = true;
-            for (let x = 0; x < Items.set[item.set].armour.length; x++) {
-                if (Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x]).length === 0) {
-                    obtained = false;
-                }
-            }
-            if (obtained) {
-                User.archaeology.push(Items.set[item.set].name);
-            }
-        }
-
-        Player.inventory.items[position].stacked = num;
-
-        Dom.inventory.prepare(Player.inventory.items, position, Dom.elements.itemInventory.getElementsByTagName("td")[position]);
-
-        // if a bag is being given to the bag slot
-        /*if (position === 5 && item.type === "bag") {
-            for (let x = 0; x < Math.floor(item.size/6); x++) {
-                let str = "<tr>";
-                for (let inv = Player.inventory.items.length; inv < Player.inventory.items.length+6; inv++) {
-                    str += '<td ondrop="Dom.inventory.drop(event, Player.inventory.items, '+inv+');Game.inventoryUpdate(event)" ondragover="Dom.inventory.allowDrop(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.items['+inv+'], undefined, \'inventoryPage\')" onmouseleave="Dom.expand(\'information\')" ondrag="Dom.expand(\'information\')" onclick="Game.inventoryUpdate()"></td>';
-                }
-                Dom.elements.itemInventory.innerHTML += str+"</tr>";
-                Player.inventory.items.push({},{},{},{},{},{});
-            }
-            Dom.inventory.update();
-        }*/
-        if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
-            User.archaeology.push(item.name);
-        }
-
-        // special images to be loaded with item
-        Dom.inventory.loadItemRequiredImages(item);
+	// archaeology set progress
+	if (!noArchaeology && item.set !== undefined && !User.archaeology.includes(Items.set[item.set].name)) {
+		let obtained = true;
+		for (let x = 0; x < Items.set[item.set].armour.length; x++) {
+			if (Dom.inventory.find(-1, -1, undefined, undefined, Items.set[item.set].armour[x]).length === 0) {
+				obtained = false;
+			}
+		}
+		if (obtained) {
+			User.archaeology.push(Items.set[item.set].name);
+		}
 	}
+
+	// archaeology progress
+	if (!noArchaeology && (item.type === "helm" || item.type === "chest" || item.type === "greaves" || item.type === "boots" || item.type === "sword" || item.type === "staff" || item.type === "bow") && !User.archaeology.includes(item.name) && item.name !== undefined) {
+		User.archaeology.push(item.name);
+	}
+
+	// special images to be loaded with item
+	Dom.inventory.loadItemRequiredImages(item);
 
 	// increment any user progress variables
 	if (item.name === "Fishing Seal") {
@@ -4319,19 +4486,17 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 	}
 
 	// onGive function
-	if (added) {
-
-		if (item.onGive !== undefined) {
-			item.onGive();
-		}
-
-		Game.inventoryUpdate();
-
-		return position;
+	if (item.onGive !== undefined) {
+		item.onGive();
 	}
-	else {
-		return false;
+
+	Game.inventoryUpdate();
+
+	if (positionsAddedTo.length === 1) {
+		positionsAddedTo = positionsAddedTo[0];
 	}
+
+	return positionsAddedTo;
 }
 
 // prepares the object of image(s) to be loaded for an item that can be worn visibly

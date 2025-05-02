@@ -3688,6 +3688,7 @@ var Areas = {
 		eaglecrestGhost2: {samhain: "assets/enemies/eaglecrestGhost2.png"},
 		crateSamhain: {samhain: "assets/objects/crateSamhain.png"},
 		melee: {samhain: "assets/projectiles/melee.png"},
+		pieRomancer: {normal: "assets/npcs/pieRomancer.png"}
 
 	},
 
@@ -4408,6 +4409,15 @@ var Areas = {
 				inventoryFull: "You don't have enough space to hold that mask.",
 				tooPoor: "That mask seems out of your price range. Kill something and return.",
 				chooseChat: "",
+			},
+		},
+		{
+			x: 4392,
+			y: 2123,
+			image: "pieRomancer",
+			template: Villagers[18],
+			canBeShown: function () {
+				return Player.quests.possibleQuestArray.includes("The Pyromancer's Shopping List") || Player.quests.activeQuestArray.includes("The Pyromancer's Shopping List");
 			},
 		},
 
@@ -6806,6 +6816,16 @@ animation: {
 			yellowSnakeLeft: {samhain: "assets/enemies/yellowSnake.png", flip: "vertical"},
 			catBowlEmpty: {normal: "assets/objects/catBowlEmpty.png"},
 			catBowlFull: {normal: "assets/objects/catBowlFull.png"},
+			cauldronQuestEmpty: {normal: "assets/objects/cauldronQuestEmpty.png"},
+			cauldronQuest: {normal: "assets/objects/cauldronQuest.png"},
+			cauldronMilk: {normal: "assets/objects/cauldronMilk.png"},
+			cauldronSpoon: {normal: "assets/objects/cauldronSpoon.png"},
+			imp: {normal: "assets/enemies/imp.png"},
+			katydidLeft: {normal: "assets/enemies/katydid.png"},
+			katydidRight: {normal: "./assets/enemies/katydid.png", flip: "vertical"},
+			fireball: {normal: "assets/projectiles/fireball.png"},
+			melee: {normal: "assets/projectiles/melee.png"},
+			icebolt: {normal: "assets/projectiles/icebolt.png"},
 		},
 
 		callAreaJoinOnInit: true,
@@ -6930,6 +6950,12 @@ animation: {
 						step: [4],
 					},
 					{
+						quest: Quests.eaglecrest[21],
+						role: "questProgress",
+						step: [5, 6],
+						chooseText: "Do you have some milk?",
+					},
+					{
 						sold: [
 							{item: Items.consumable[17], cost: 2, costCurrency: 5, eventRequirement: "Christmas"}, // Christmas Potion
 							{item: Items.consumable[4], cost: 2}, // potion of health I
@@ -6944,7 +6970,7 @@ animation: {
 								return Player.quests.completedQuestArray.includes("Potion Making IV");
 							}},
 							{item: Items.consumable[41], cost: 3, condition: function () { // milk
-								return Player.quests.completedQuestArray.includes("The Pyromancer's Shopping List");
+								return Player.quests.prog.eaglecrest[21].stepProgress[6]; // pyromancer quest
 							}},
 						],
 						role: "merchant",
@@ -6980,6 +7006,12 @@ animation: {
 				y: [600, 285, 280],
 				image: "cauldronEaglecrest",
 				name: "Cauldron",
+			},
+		],
+
+		characters: [
+			{
+				template: NPCTemplates.tamtamCauldron,
 			},
 		],
 
@@ -9329,6 +9361,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 					defence: 11,
 				},
 				roles: [
+					{
+						quest: Quests.eaglecrest[21],
+						role: "questProgress",
+						step: [1,4]
+					}
 				],
 				chat: {
 					notUnlockedRoles: "I could have y' done for trespassin'.",
@@ -9770,8 +9807,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 , y: [234.4, 290.3, 3639.7, 3639.7, 4149.4, 5802.3, 5802.3, 5943.1, 3641, 577.9, 525.7, 525.7, 529.7, 1894.8, 2019.7, 1924.3, 4928.1], image: 'barrel', name: 'Barrel'},
 			{x: [5572.8, 5710.3, 2274.5, 2346.2, 2346.2, 3118.5, 2308.2, 2363.7, 1455.7, 1390.6, 1317.1, 1371, 3499.1, 4324.6, 4392.7, 4478.3, 6456, 6522.6, 7411.7, 7440, 2908.5, 2806.8, 2841.7, 4276.1, 6787, 6309.5]
 , y: [5764.6, 5817.5, 5095.4, 5119.1, 5027, 3542, 3653.3, 3443.2, 300.7, 240.6, 240.6, 174.7, 536, -120, -97.1, -112.6, 1275.4, 1321, -92.1, -24, 4203.5, 4170.2, 4226, 353.6, 1992.9, 2188.4], image: 'crate', name: 'Crate'},
-			{x: 7320.8, y: 394.3, image: 'flourSack', name: 'Flour Sack'},
-			{x: 7174.2, y: 416.8, image: 'flourSack', name: 'Flour Sack'},
+			{x: [7320.8, 7174.2], y: [394.3, 416.8], image: 'flourSack', name: 'Flour Sack', canBePickedUp: {
+				channelTime: 2000, itemType: "item", itemId: 76, requirementFunction: function () {
+					return Player.quests.prog.eaglecrest[21].stepProgress[1] && !Player.quests.prog.eaglecrest[21].objectiveProgress[1];
+				}
+			}},
 			{x: [5919.7, 5669.8, 5730.5, 5520.3, 4830.9, 4162, 851.1, -183.9], y: [1132.1, 1754.3, 2050.6, 220.7, 712.8, 1204.6, 1120.6, 6081.3], image: 'wateringCan', name: 'Watering Can'},
 			{x: [5933.8, 5063.7, 6461.3], y: [712.5, 590.4, 227.3], image: 'wheelBarrowRed', name: 'Red Wheelbarrow'},
 			{x: [5769, 4731.6, 5098.3, 4271.1, 4863, 5845.3, 6534.3, 6244.2, 7012.6, 7078.5, 6355.6, 6813.2], y: [79.1, 664.9, 347.1, 678.7, 377.3, 508.6, 568.7, 817.4, 1456.3, 2179.6, 1747.1, 2701.4], image: 'scarecrow', name: 'Scarecrow'},

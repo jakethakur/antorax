@@ -1230,13 +1230,15 @@ Game.searchFor = function (id, array, mightNotBeInArray) {
 	return index;
 }
 
-// adds an object to the game
+// adds an object to the game and returns it
 // properties must contain type
 // tbd make this used throughout the game, wherever preparenpc appears
 // tbd remove preparenpc and put it in object contructors if possible
 Game.summonObject = function (obj) {
-	this[obj.type].push(new this.typeClasses[obj.type](this.prepareNPC(obj, obj.type)));
-	return true;
+	let prepared = this.prepareNPC(obj, obj.type);
+	let created = new this.typeClasses[prepared.type](prepared);
+	this[created.type].push(created);
+	return created;
 }
 
 // remove object from all arrays it is in using its id
@@ -1542,6 +1544,10 @@ class Entity {
 		this.area = Game.areaName;
 
 		this.map = properties.map;
+
+		this.associatedScoreboard = properties.associatedScoreboard; // if this is summoned due to a scoreboard, set to Dom.scoreboard.id
+		// if Dom.scoreboard.removeAssociatedEntitiesOnFinish is set to true, this gets removed at the end of the scoreboard
+
 		if (typeof properties.x !== "undefined") {
 			this.x = Math.round(properties.x);
 			this.y = Math.round(properties.y);
@@ -1551,7 +1557,17 @@ class Entity {
 
 		// optional function for when space is pressed when touching
 		this.onInteract = properties.onInteract;
+		this.onInteractRequirement = properties.onInteractRequirement; // function
 		this.interactCooldown = properties.interactCooldown; // cooldown between onInteract being able to be called, in seconds
+
+		// object of functions that can be called for entity-specific behaviour
+		// these are all bound to this object
+		this.behaviourFunctions = properties.behaviourFunctions;
+		if (typeof this.behaviourFunctions !== "undefined") {
+			Object.keys(this.behaviourFunctions).forEach(function(key) {
+				this.behaviourFunctions[key] = this.behaviourFunctions[key].bind(this);
+			}.bind(this));
+		}
 
 		// for if it can be mounted.. mountee position relative to this
 		this.rideAdjustX = properties.rideAdjustX || 0;
@@ -1625,7 +1641,19 @@ class Entity {
 			this.moveTowardsState = 0; // index in sequence that is currently being followed
 		}
 		
-		this.speed = properties.speed; // potentially used with moveTowards
+		this.speed = properties.speed; // used with moveTowards. NOT used with oscillate
+
+		// oscillatory motion
+		if (typeof properties.oscillate !== "undefined") {
+			this.oscillate = {displacementX: 0, displacementY: 0, timer: 0,}; // timer is the time in ms that this object has existed for
+			this.oscillate.amplitudeX = properties.oscillate.amplitudeX || 0;
+			this.oscillate.amplitudeY = properties.oscillate.amplitudeY || 0;
+			this.oscillate.period = properties.oscillate.period || 1000; // time in ms for a full oscillation
+			this.oscillate.phase = properties.oscillate.phase; // phase difference of y movement from x movement, in radians
+			if (typeof this.oscillate.phase === "undefined") {
+				this.oscillate.phase = Math.PI/2; // ellipsoid motion
+			}
+		}
 
 		this.rotate = 0;
 		this.rotateSpeed = ToRadians(properties.rotateSpeed); // input is in deg per second
@@ -2091,7 +2119,7 @@ class Thing extends Visible {
 
 
 		this.canBePickedUp = properties.canBePickedUp || false; // player can press space to channel and pick up
-		// if it can be picked up, it should be an object with properties "channelTime" (ms), "itemType" (i.e. "sword"), "itemId" (in itemdata), "channelText" (optional), "inventoryFullText" (optional), "onPickUp" (optional)
+		// if it can be picked up, it should be an object with properties "channelTime" (ms), "itemType" (i.e. "sword"), "itemId" (in itemdata), "channelText" (optional), "inventoryFullText" (optional), "onPickUp" (optional), "requirementFunction" (optional)
 		// optional property additionalFunction which is only called on pick up success
 		if (this.canBePickedUp !== false) {
 			if (typeof this.onInteract === "undefined") {
@@ -2123,6 +2151,14 @@ class Thing extends Visible {
 
 				this.onInteract = function () {
 					Game.hero.channel(channelFunction, [], this.canBePickedUp.channelTime, channelText);
+				}
+				this.onInteractRequirement = function () {
+					if (typeof pickUpProperties.requirementFunction === "undefined" || pickUpProperties.requirementFunction()) {
+						if (Dom.inventory.spaceAvailable(Items[pickUpProperties.itemType][pickUpProperties.itemId])) { // also checked on finishing channelling, just in case inv has filled up in this time
+							return true;
+						}
+					}
+					return false;
 				}
 			}
 			else {
@@ -3269,7 +3305,7 @@ class Character extends Thing {
 					}
 
 					// load checkpoint area
-					Game.loadArea(this.checkpoint, Areas[this.checkpoint].player);
+					Game.loadArea(this.checkpoint, Areas[this.checkpoint].player, true); // the true param ignores any scenario-related alert
 
 					this.health = this.stats.maxHealth/2; // respawn at half health
 
@@ -3665,7 +3701,7 @@ class Character extends Thing {
 		let distance = Game.distance(this, location);
 		let velocity = distance/time;
 		let direction = Game.bearing(this, location);
-		this.displace(delta, velocity, time, direction, canGoOverWalls);
+		this.displace(0, velocity, time, direction, canGoOverWalls);
 	}
 
 	// remove all status effects where statusEffect[key] === value
@@ -4669,7 +4705,7 @@ class Hero extends Attacker {
 						// finish attack instantly
 						this.finishAttack(e);
 					}
-					else if (weaponType === "sword" && distanceToMouse >= this.stats.meleeRange) {
+					/*else if (weaponType === "sword" && distanceToMouse >= this.stats.meleeRange) {
 						// knight summoned projectile (moving)
 						if (typeof this.summonsActive === "undefined") {
 							this.summonsActive = 0;
@@ -4772,7 +4808,7 @@ class Hero extends Attacker {
 							this.channellingInfo = false;
 							this.canAttack = true;
 						}
-					}
+					}*/
 					else {
 						// tbd... but for now do nothing
 						this.channelling = false; // very temp...
@@ -5637,7 +5673,10 @@ class Hero extends Attacker {
 				offsetY = 2-this.animation.state;
 			}
 			else {
-				offsetY = -1;
+				offsetY = 1;
+			}
+			if (this.direction === 1 || this.direction === 2) {
+				offsetY = -offsetY;
 			}
 
 			this.heldWeaponObj.x = this.x + offsetX;
@@ -6437,7 +6476,7 @@ class Projectile extends Thing {
 			}
 			else {
 				if (this.projectileType === "travelling") {
-					this.removeIn = 0.75;
+					this.removeIn = 0.1;
 				}
 				else {
 					// instant or snake
@@ -8932,29 +8971,29 @@ Game.questPresets = {};
 // note the object is resummoned / healed by this function if one is not passed in / it starts damaged
 
 // in addition to any desired properties from Dom.scoreboardInit, properties should include:
-// protectObject: the object to be protected. a progress bar will be displayed above this object
+// protectObject: either the object to be protected, or a function that may return this. a progress bar will be displayed above this object
 // protectObjectToCreate: the x, y and other properties of the object to be protected, in the case that protectObject is undefined so one needs to be created
 // progressBarColour: the colour the progress bar will be displayed as. as a hex code (inc. hash) standard channelling pink by default
 // progressBarDescription: the text shown over the progress bar
-// despawnEnemiesOnCompletion: TBA ?? maybe make it a general scoreboard thing ?? defaults to true
 
 // as with scoreboard, if success then if a quest is set, Player.quests.prog[questArea][questId].vars[progressKey] is set to progressValue [or true if progressValue not defined] (progressKey defaults to "scoreboardSuccess" if not defined)
 // unless properties.enableQuestReattempt is set to false, if failure, then if a quest and step are set, then Player.quests.prog[questArea][questId].stepProgress[questStep] is set to "reattempt", allowing the step's onFinish and dialogue to be replayed
 Game.questPresets.protect = function (properties) {
-	if (typeof protectObject === "undefined") {
+	if (typeof properties.protectObject === "function") {
+		properties.protectObject = properties.protectObject();
+	}
+	if (typeof properties.protectObject === "undefined") {
 		// spawn the object in
 		let obj = properties.protectObjectToCreate;
 		Game.summonObject(obj);
 	}
-	else if (protectObject.health < protectObject.maxHealth && !properties.protectObjectStartsDamaged) {
+	else if (properties.protectObject.health < properties.protectObject.maxHealth && !properties.protectObjectStartsDamaged) {
 		// object to protect might be damaged from a previous attempt - heal it up to max
-		protectObject.health = protectObject.maxHealth;
+		properties.protectObject.health = properties.protectObject.maxHealth;
 	}
 	
 	let channelSuccessFunction = function () { // function called upon object to protect finishing channelling (success)
-		console.log(this);
-		console.log("That should be the object that is channelling..................................")
-		this.onDeathAdditional = undefined;
+		properties.protectObject.onDeathAdditional = undefined;
 		Dom.scoreboardFinish(true, "direct");
 	};
 	
@@ -8962,8 +9001,6 @@ Game.questPresets.protect = function (properties) {
 	// tbd at some point allow multiple channels, in case this object also wants to channel (say) some spells
 	
 	let onDeathFunction = function () { // function called upon object to protect dying (failure)
-		console.log(this);
-		console.log("That should be the object that is channelling..................................")
 		this.onDeathAdditional = undefined;
 		Dom.scoreboardFinish(false, "direct");
 	};
@@ -8979,14 +9016,14 @@ Game.questPresets.protect = function (properties) {
 	if (typeof properties.displayScoreboard === "undefined") {
 		properties.displayScoreboard = false;
 	}
+	if (typeof properties.displayTimer === "undefined") {
+		properties.displayTimer = false;
+	}
 	if (typeof properties.allowedAreas === "undefined") {
 		properties.allowedAreas = [Game.areaName];
 	}
 	if (typeof properties.enableQuestReattempt === "undefined") {
 		properties.enableQuestReattempt = true; // means the player can restart the step straight from the relevant npc if they fail
-	}
-	if (typeof properties.despawnEnemiesOnCompletion === "undefined") {
-		properties.despawnEnemiesOnCompletion = true;
 	}
 	properties.finishOnTimeLimit = false; // the scoreboard will be automatically finished on whichever is first of the object dying or its channelling finishing, so no need for it to finish on time up
 	
@@ -9415,8 +9452,8 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea.bind(Game), ev: [areaName, destination, true]}, true); // clicking yes calls this function but with abandonAgreed = true
 	}
 
-	if (abandonAgreed) {
-		// abandon quest as the player agreed...
+	if (abandonAgreed && typeof Player.scenario !== "undefined") {
+		// abandon quest as the player agreed... (provided scenario is still active)
 		Dom.quest.abandon(Quests[Player.scenario.quest.area][Player.scenario.quest.id]); // this in turn abandons the scenario and saves progress
 	}
 
@@ -10791,7 +10828,9 @@ Game.prepareNPC = function (npc, type, overrideCanBeShown) {
 	if ((this.canBeShown(newNpc) && this.bossCanBeShown(newNpc)) || overrideCanBeShown) {
 
 		newNpc.map = map;
-		newNpc.type = type;
+		if (typeof type !== "undefined") { // not essential for this function to set type (it might already be in npc object)
+			newNpc.type = type;
+		}
 
 		this.setMailboxImage(newNpc);
 
@@ -11595,7 +11634,7 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 
 		if (questCanBeStarted) {
 			// check that, if this quest step would start a quest scenario, then there isn't another scenario active
-			if (typeof quest.steps[0].startScoreboard !== "undefined" || typeof quest.steps[0].startScenario !== "undefined") {
+			if (typeof quest.steps[0].startScoreboard !== "undefined" || typeof quest.steps[0].startScenario !== "undefined" || typeof quest.steps[0].startProtect !== "undefined") {
 				if (typeof Player.scenario !== "undefined") {
 					returnObj.scenarioActive = true;
 					return returnObj;
@@ -11609,6 +11648,9 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 			// quest has already been started, but first step (step 0) is available for reattempting (i.e. rerunning its questFinish)
 			returnObj[0] = "reattempt";
 		}
+	}
+	else {
+		questCanBeStarted = false;
 	}
 
 	if (!questCanBeStarted) {
@@ -11704,11 +11746,23 @@ Game.questCanBeProgressed = function (quest, step, newQuestFrequency, questVaria
 					}
 				}
 
+				if (stepDone && typeof quest.steps[stepId].removeItems !== "undefined") {
+					// check they have all of the required items
+					for (let i = 0; i < quest.steps[stepId].removeItems.length; i++) {
+						if (!quest.steps[stepId].removeItems[i].notRequired) {
+							if (!Dom.inventory.check(quest.steps[stepId].removeItems[i].item.id, quest.steps[stepId].removeItems[i].item.type, quest.steps[stepId].removeItems[i].quantity)) {
+								stepDone = false;
+								break;
+							}
+						}
+					}
+				}
+
 				// check if ready for this step to be completed
 				if (stepDone) {
 					// check that, if this quest step would start a quest scenario, then there isn't another scenario active
 					// we do this last, so that returnObj.scenarioActive is set to true only if the player would have been able to finish the step without the scenario being active (for chat message)
-					if (typeof Player.scenario !== "undefined" && (typeof quest.steps[stepId].startScoreboard !== "undefined" || typeof quest.steps[stepId].startScenario !== "undefined")) {
+					if (typeof Player.scenario !== "undefined" && (typeof quest.steps[stepId].startScoreboard !== "undefined" || typeof quest.steps[stepId].startScenario !== "undefined" || typeof quest.steps[0].startProtect !== "undefined")) {
 						returnObj.scenarioActive = true;
 						// this step can't be started (but would have been able to be without the scenario being active)
 					}
@@ -12010,9 +12064,10 @@ Game.update = function (delta) {
 							let stepToBeCompleted = false;
 							let stepStatus = false;
 							for (let stepNum = 0; stepNum < numSteps; stepNum++) {
-								if (result[stepNum]) {
-									stepToBeCompleted = stepNum; // just take the first possible step to be completed
-									stepStatus = result[stepNum]; // will be either true or "reattempt"
+								let stepId = role.step[stepNum];
+								if (result[stepId]) {
+									stepToBeCompleted = stepId; // just take the first possible step to be completed
+									stepStatus = result[stepId]; // will be either true or "reattempt"
 									break;
 								}
 							}
@@ -12657,6 +12712,9 @@ Game.update = function (delta) {
 			// interact on cooldown, due to interactCooldown property
 			canInteract = false;
 		}
+		else if (typeof thing.onInteractRequirement !== "undefined" && !thing.onInteractRequirement()) {
+			canInteract = false;
+		}
 		else if (this.minigameInProgress !== undefined && this.minigameInProgress.playing) {
 			// hero is playing minigame
 			canInteract = false;
@@ -12845,6 +12903,21 @@ Game.update = function (delta) {
 					entity.moveTowards = entity.moveTowardsLoop[entity.moveTowardsState];
 				}
 			}
+		}
+
+
+		// oscillate (oscillatory motion)
+		if (typeof entity.oscillate !== "undefined") {
+			entity.oscillate.timer += delta*1000;
+
+			entity.x -= entity.oscillate.displacementX; 
+			entity.y -= entity.oscillate.displacementY;
+
+			entity.oscillate.displacementX = entity.oscillate.amplitudeX * Math.sin(2*Math.PI * entity.oscillate.timer / entity.oscillate.period);
+			entity.oscillate.displacementY = entity.oscillate.amplitudeY * Math.sin(2*Math.PI * entity.oscillate.timer / entity.oscillate.period + entity.oscillate.phase);
+
+			entity.x += entity.oscillate.displacementX;
+			entity.y += entity.oscillate.displacementY;
 		}
 
 		// rotateSpeed
@@ -14178,8 +14251,8 @@ Game.drawCharacterInformation = function (ctx, character) {
 	let characterInformationHeight = 3; // size of healthbar or other similar thing (e.g: damage taken), so that it is known how much to offset other information by (in y axis)
 	// starts at 3 for initial padding of first thing that is drawn
 
-	if (character.showHealthBar !== false) {
-		if (character.hostility === "friendly" || character.hostility === "neutral" || character.hostility === "gameHostile") {
+	if (character.showHealthBar !== false && typeof character.health !== "undefined") {
+		if (character.hostility === "friendly" || character.hostility === "neutral" || character.hostility === "gameHostile" || typeof character.hostility === "undefined") {
 			// only draw health bar if character is damaged
 			if (character.health !== character.stats.maxHealth) {
 				this.drawHealthBar(ctx, character, character.screenX - character.width * 0.5, character.screenY - character.height * 0.5 - 15 - characterInformationHeight, character.width, 15);
