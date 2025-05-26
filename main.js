@@ -9543,7 +9543,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 								}
 
 								let areadataObj = {}
-								if (typeof Areas[areaName].objectData[imageKey] !== "undefined") { // all objects with this image are given the same properties if added to areadata through tmx
+								if (typeof Areas[areaName].objectData !== "undefined" && typeof Areas[areaName].objectData[imageKey] !== "undefined") { // all objects with this image are given the same properties if added to areadata through tmx
 									Object.assign(areadataObj, Areas[areaName].objectData[imageKey]);
 								}
 
