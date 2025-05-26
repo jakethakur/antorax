@@ -9517,21 +9517,36 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 								// find the image in the tileset
 								let imageSrc;
 								let imageKey = "tmxImage"+object.gid;
+								let objectId;
 								for (let j = 0; j < xmlObject.map.tileset.length; j++) {
-									let finalGid = Number(xmlObject.map.tileset[j].firstgid)+Number(xmlObject.map.tileset[j].tilecount)-1;
-									if (finalGid >= Number(object.gid) && Number(xmlObject.map.tileset[j].firstgid <= Number(object.gid))) {
-										// image lies in tileset j
-										let index = Number(object.gid)-Number(xmlObject.map.tileset[j].firstgid);
-										imageSrc = xmlObject.map.tileset[j].tile[index].image.source;
-										break;
+									let tileset = xmlObject.map.tileset[j];
+									if (typeof tileset.tile !== "undefined") {
+										let tiles = tileset.tile; // images that lie in this tileset
+										let finalGid = tiles[tiles.length-1].id+tileset.firstgid; // final gid in the tileset
+										
+										if (finalGid >= Number(object.gid) && Number(tileset.firstgid <= Number(object.gid))) {
+											// image's gid lies in tileset j - search through the "tiles" to find the correct image
+											for (let k = 0; k < tiles.length; k++) {
+												if (Number(tiles[k].id)+Number(tileset.firstgid) === Number(object.gid)) {
+													objectId = tiles[k].id;
+													imageSrc = tiles[k].image.source;
+													break;
+												}
+											}
+											if (typeof imageSrc !== "undefined") {
+												// image has been found :)
+												break;
+											}
+										}
 									}
 								}
 								if (typeof imageSrc === "undefined") {
 									console.error("Unable to find image src in tmx image collection for object", object);
 								}
-								Areas[areaName].images[imageKey] = {normal: imageSrc.split('..')[2].substring(1)}; // without the split command, image source would start with "../../assets/", where we want "assets/"
+								let src = imageSrc.split('..')[2].substring(1); // without the split command, image source would start with "../../assets/", where we want "assets/"
 								// without the substring command, there'd be a "/" at the start, which would cause an issue with the file path on online version
-
+								Areas[areaName].images[imageKey] = {normal: src};
+								
 								// change the x and y to account for shifted origin of area
 								object.x = Number(object.x);
 								object.y = Number(object.y);
@@ -9543,13 +9558,16 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 								}
 
 								let areadataObj = {}
-								if (typeof Areas[areaName].objectData !== "undefined" && typeof Areas[areaName].objectData[imageKey] !== "undefined") { // all objects with this image are given the same properties if added to areadata through tmx
-									Object.assign(areadataObj, Areas[areaName].objectData[imageKey]);
+								if (typeof Areas[areaName].objectData !== "undefined" && typeof Areas[areaName].objectData[objectId] !== "undefined") { // all objects with this image are given the same properties if added to areadata through tmx
+									Object.assign(areadataObj, Areas[areaName].objectData[objectId]);
 								}
 
 								areadataObj.x = object.x+object.width/2;
 								areadataObj.y = object.y-object.height/2;
-								areadataObj.image = imageKey;
+
+								if (typeof areadataObj.dayImage !== "undefined") {
+									areadataObj.image = imageKey;
+								}
 
 								// add the object to areadata!
 								let type = areadataObj.type || "things";
@@ -9575,7 +9593,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 
 					})
 					.catch(function (err) {
-						console.error("There was an error requesting XML tilemap data for area "+areaName, err.statusText);
+						console.error("There was an error requesting XML tilemap data for area "+areaName, err);
 					}));
 				}
 			});
