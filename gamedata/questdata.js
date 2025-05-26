@@ -4166,7 +4166,7 @@ var Quests = {
 					revealStep: 2,
 					completeStep: 3,
 				},
-				{id: 4, text: "Open the chest",
+				{id: 4, text: "Open the chest.",
 					revealStep: 3,
 				},
 				{id: 3, text: "Speak to Captain Greenbeard.",
@@ -4176,8 +4176,9 @@ var Quests = {
 			],
 
 			howToStart: "Open your mail from <b>an Unknown Sender</b>.",
-			levelRequirement: 7,
-			questRequirements: ["Overdraft"],
+			levelRequirement: 1,
+			//levelRequirement: 7,
+			//questRequirements: ["Overdraft"],
 		},
 		{
 			id: 23,

@@ -3914,8 +3914,6 @@ Dom.scoreboardFinish = function (result, reason) {
 		}
 	}
 
-	this.scoreboard.finishFunction();
-
 	if (this.scoreboard.removeAssociatedEntitiesOnFinish) {
 		// despawn all enemies that are linked to the scoreboard
 		for (let i = 0; i < Game.allEntities.length; i++) {

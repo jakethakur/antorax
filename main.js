@@ -9542,12 +9542,18 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 									object.y -= Areas[areaName].mapData.origin.y;
 								}
 
+								let areadataObj = {}
+								if (typeof Areas[areaName].objectData[imageKey] !== "undefined") { // all objects with this image are given the same properties if added to areadata through tmx
+									Object.assign(areadataObj, Areas[areaName].objectData[imageKey]);
+								}
+
+								areadataObj.x = object.x+object.width/2;
+								areadataObj.y = object.y-object.height/2;
+								areadataObj.image = imageKey;
+
 								// add the object to areadata!
-								Areas[areaName].things.push({
-									x: object.x+object.width/2,
-									y: object.y-object.height/2,
-									image: imageKey,
-								});
+								let type = areadataObj.type || "things";
+								Areas[areaName][type].push(areadataObj);
 							}
 						}
 
