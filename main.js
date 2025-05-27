@@ -9565,7 +9565,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 								areadataObj.x = object.x+object.width/2;
 								areadataObj.y = object.y-object.height/2;
 
-								if (typeof areadataObj.dayImage !== "undefined") {
+								if (typeof areadataObj.dayImage === "undefined") {
 									areadataObj.image = imageKey;
 								}
 
