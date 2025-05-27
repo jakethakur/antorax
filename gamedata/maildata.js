@@ -6,13 +6,15 @@ const Mail = {
 		{
 			title: "Welcome to Antorax!",
 			sender: "The Tinkering Guild",
-			image: "dolph",
+			image: "tinkererSilhouette", // see MailNpcs variable below
 			chat: [{
 				text: `Hello ${Player.name},`,
 			},{
 				text: `It's great to have new people joining us in Antorax. We look forward to meeting you very soon in a secret, undisclosed location.`,
 			},{
-				text: `Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge. Pop us a letter if it explodes, otherwise see you soon!`,
+				text: `Perhaps you would like to try out one of our newest inventions - the ScreenGrabber 3000! It's free of charge.`,
+			},{
+				text: `Pop us a letter if it explodes, otherwise see you soon!`,
 			},{
 				text: `Love from,<br>The Tinkering Guild`,
 			}],
@@ -29,7 +31,41 @@ const Mail = {
 	onProgress: [ // these are all checked whenever Dom.checkProgress is called
 
 	]
-}
+};
+
+// source and display infromation for mail npc images
+var MailNpcs = {
+	cartDriver: {image: "assets/npcs/driver.png", x: 83, y: -15},
+	weaponsmith: {image: "assets/npcs/weaponsmith.png", x: 75, y: -10},
+	fishermanTobenam: {image: "assets/npcs/tobenam.png", x: -10, y: -10},
+	marshallTeper: {image: "assets/npcs/teper.png", x: 117, y: -10},
+	combatTrainerSaral: {image: "assets/npcs/saral.png", x: 71, y: -10},
+	eaglecrestMailman: {image: "assets/npcs/mailman.png", x: 140, y: -10},
+	identifierGilas: {image: "assets/npcs/gilas.png", x: 120, y: -10},
+	soulHealerNalaa: {image: "assets/npcs/nalaa.png", x: 110, y: -10},
+	galuthelTheTrapMechanic: {image: "assets/npcs/galuthel.png", x: 83, y: 0},
+	itemBuyerNoledar: {image: "assets/npcs/noledar.png", x: -5, y: -10},
+	ciarraDarkbrew: {image: "assets/npcs/darkbrew.png", x: 30, y: -10},
+	gregorGoldenbrew: {image: "assets/npcs/gregor.png", x: 115, y: -20},
+	goblinTorch: {image: "assets/items/staff/7.png", x: 0, y: 0},
+	samhainGhost: {image: "assets/npcs/ghost.png", x: 83, y: -10},
+	fatherChristmas: {image: "assets/player/m4.png", x: 13, y: -1.5},
+	goblinRockthrower: {image: "assets/enemies/goblinRockthrower.png", x: 45, y: -15},
+	goblinBruiser: {image: "assets/enemies/goblinBruiser.png", x: 10, y: -15},
+	goblinCrusader: {image: "assets/enemies/goblinCrusader.png", x: -200, y: -10},
+	goblinKing: {image: "assets/enemies/goblinKing.png", x: 57, y: 0},
+	eaglecrestKing: {image: "assets/npcs/king.png", x: 33, y: -5},
+	lordOfThunder: {image: "assets/player/m5.png", x: 19, y: -2},
+	alysLoreworth: {image: "assets/npcs/alysLoreworth.png", x: 225, y: -2},
+	shadow: {image: "assets/npcs/shadow.png", x: 55, y: -5},
+	dolph: {image: "assets/npcs/dolph.png", x: 50, y: 6},
+	cartDriverAlaran: {image: "assets/npcs/alaran.png", x: 120, y: -3},
+	alfonsoMurbry: {image: "assets/npcs/alfonsoMurbry.png", x: 290, y: -6},
+	archbishopLynch: {image: "assets/npcs/archbishop.png", x: 95, y: 9},
+	shopkeeperBarda: {image: "assets/npcs/barda.png", x: 60, y: -7},
+	fishTank: {image: "assets/npcs/fishTankFront.png", x: 50, y: 30},
+	tinkererSilhouette: {image: "assets/npcs/tinkererSilhouette.png", x: 40, y: 1},
+};
 
 // add this to the above object after there is a way to make NPC chat banners display what the player is given
 function toBeFinished () {
@@ -40,8 +76,8 @@ function toBeFinished () {
 			// christmas daily rewards
 			if (Event.event === "Christmas") {
 				let randomNPC = "";
-				// keep finding a new npc the player has met until we find one that has information in Offsets
-				while (typeof Offsets[ToCamelCase(randomNPC)] === "undefined") {
+				// keep finding a new npc the player has met until we find one that has information in MailNpcs
+				while (typeof MailNpcs[ToCamelCase(randomNPC)] === "undefined") {
 					randomNPC = Player.metNPCs[Random(0, Player.metNPCs.length-1)]; // NPC that sent message (one the player's met before!)
 				}
 				if (Event.christmasDay) { // christmas day

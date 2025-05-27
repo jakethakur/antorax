@@ -6967,11 +6967,11 @@ Dom.mail.page = function (override) {
 				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+Player.mail.mail[i].image+".png')";
 			}
 			else {
-				let offset = Offsets[Player.mail.mail[i].image];
+				let offset = MailNpcs[Player.mail.mail[i].image];
 				if (typeof offset === "undefined") {
-					offset = Offsets.shadow;
+					offset = MailNpcs.shadow;
 				}
-				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+offset.image+".png')";
+				document.getElementsByClassName("mailImage")[ii].style.backgroundImage = "url('"+offset.image+"')";
 				document.getElementsByClassName("mailImage")[ii].style.backgroundPosition = offset.x+"%"+offset.y+"%";
 			}
 			document.getElementsByClassName("mailDelete")[ii].onclick = function () {
@@ -7015,12 +7015,13 @@ Dom.mail.page = function (override) {
 					}
 
 					// set a variable of NPC associated with the message that's being opened (a hybrid of the mailbox (Dom.currentNPC) and the sender)
-					let mailNPC = {x: Dom.currentNPC.x, y: Dom.currentNPC.y, image: Player.mail.mail[i].image, name: Player.mail.mail[i].sender};
+					let mailNPC = {x: Dom.currentNPC.x, y: Dom.currentNPC.y, imageSrc: MailNpcs[Player.mail.mail[i].image].image, name: Player.mail.mail[i].sender};
 
-					Dom.closePage("mailPage", true);
+					Dom.closePage("mailPage");
 
 					if (typeof Player.mail.mail[i].openFunction === "undefined" || Player.mail.mail[i].openFunction === "chat.npcBanner") {
 						// use chat banner by default
+						// tbd maybe changeBook should be used here instead?
 						Dom.chat.npcBanner(mailNPC, Player.mail.mail[i].chat);
 					}
 					else if (Player.mail.mail[i].openFunction === "quest.progressFromNpc") {
