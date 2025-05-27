@@ -3435,7 +3435,7 @@ var Areas = {
 	mapData: {
 		origin: {x:  960, y: 0},
 		cols: 191,
-		rows: 80,
+		rows: 68,
 		tsize: 60,
 		tilesPerRow: 8,
 		solidTiles: [1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 51, 53, 55, 57, 58, 61, 65, 69, 73, 77, 82, 83, 161, 164, 168, 196, 197, 286, 292, 303, 304, 328, 327, 231, 232, 244, 245, 269, 68, 394, 393, 388],
@@ -3692,7 +3692,7 @@ var Areas = {
 
 	},
 	objectData: {
-        eaglecrestLampDay: {
+        93: {
             imageDay: "eaglecrestLampDay",
             imageNight: "eaglecrestLampNight",
             name: "Eaglecrest Lamp",
@@ -4482,8 +4482,7 @@ var Areas = {
 
 
 
-		{x: [2761.6, 2357.9, 3201.4, 4656.7, 4192], y: [3040.6, 1811.7, 964.4, 1669.4, 2194], image: 'bench', name: ''},
-    
+		    
 		
 
 
@@ -4497,7 +4496,7 @@ var Areas = {
 
 
 
-		{x: [4750, 4298, 2845, 3306], y: [3050, 964, 1670, 2203], image: 'benchFlip', name: ''},
+		
 		{x: [5858.3], y: [2891.8], image: 'tent2light', name: ''},
 		{x: [3620.6, 3890.1, 4054.6, 3472.6,  2717.4, 4987.5], y: [893, 893, 943.6, 943.6, 1366.4, 1362.7], image: 'flowerPot', name: ''},
 		{x: [2229, 2811, 5019, 4953, 2554, 2477, 4691, 4561, 2386], y: [1873, 2540, 3073, 2222, 2207, 3065, 2540, 1423, 1461], image: 'flowerPot', name: '', },
@@ -4662,24 +4661,6 @@ animation: {
 		{x: 718.9, y: 818.2, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
 		{x: 1295.2, y: 1671.8, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
 
-		{
-			x: 2103.1,
-			y: 3419.3,
-			orderOffsetY: -20,
-			image: "cart2",
-		},
-		{
-			x: 1927.9,
-			y: 3215.7,
-			orderOffsetY: -20,
-			image: "cart3",
-		},
-		{
-			x: 2452.1,
-			y: 3490.2,
-			orderOffsetY: -20,
-			image: "cart1",
-		},
 
 		
 
