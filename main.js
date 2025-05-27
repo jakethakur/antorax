@@ -146,6 +146,32 @@ Game.loadPlayer = function () {
 	else {
 		Player.face = "base";
 	}
+
+	// easter eggs for certain names
+	if (Player.name === "Sammer") {
+		Player.skinTone = "fish"
+		Player.hair = "null";
+		Player.beard = "null";
+		Player.face = "null";
+	}
+	if (Player.name === "Pingu") {
+		Player.skinTone = "penguin"
+		Player.hair = "null";
+		Player.beard = "null";
+		Player.face = "null";
+	}
+	if (Player.name === "James") {
+		Player.skinTone = "slug";
+		Player.hair = "null";
+		Player.beard = "null";
+		Player.face = "null";
+	}
+	if (Player.name === "Axparagus") {
+		Player.skinTone = "humanDark2"
+		Player.hair = "skinFade";
+		Player.hat = "null";
+		Player.beard = "null";
+	}
 }
 
 //
@@ -196,12 +222,15 @@ Game.initWebSocket = function () {
 				},
 				achievementPoints: User.achievementPoints.total,
 				// customisation
-				skinTone: Player.skinTone,
-				face: Player.face,
-				clothing: Player.clothing,
-				hair: Player.hair,
-				beard: Player.beard,
-				hat: Player.hat,
+				image: {
+					clothingClass: Player.classFull,
+					skinTone: Player.skinTone,
+					face: Player.face,
+					clothing: Player.clothing,
+					hair: Player.hair,
+					beard: Player.beard,
+					hat: Player.hat,
+				}
 			}));
 
 			// show other players online in chat (because player is connected to server)
@@ -237,7 +266,7 @@ Game.initWebSocket = function () {
 						if (message.direction !== user.direction) {
 							// direction changed
 							user.direction = message.direction;
-							user.updateRotation();
+							user.updateRotation();eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 						}
 						if (message.expand !== undefined && message.expand !== user.expand) {
 							// expand changed
@@ -636,7 +665,7 @@ Game.addPlayer = function (player) {
 			copiedPlayer = this.prepareNPC(copiedPlayer, "players");
 			if (playerAlreadyAdded === -1 && copiedPlayer !== false) {
 
-				// object properties (to stop attacker breaking)
+				// object properties (to stop constructor breaking)
 				copiedPlayer.stats = {};
 				copiedPlayer.stats.maxHealth = 50 + (copiedPlayer.level-1) * 5;
 				copiedPlayer.projectile = {};
@@ -649,35 +678,12 @@ Game.addPlayer = function (player) {
 					copiedPlayer.hostility = "friendly";
 				}
 
-				copiedPlayer.animation = {
-					type: "spritesheet",
-					frameTime: 18,
-					imagesPerRow: 4,
-					totalImages: 4,
-					animateBasis: "walk"
-				}
-				copiedPlayer.spritesheetRotate = true,
-
-				// add the player
-				// tbd the images should be loaded first THEN the player object should be added ??
-				this.players.push(new UserControllable(copiedPlayer));
-				let addedPlayer = this.players[this.players.length-1];
+				let loadForThisNpc = this.formatNpcImages(copiedPlayer); // turns .image into .images, which is then turned into a .image and .additionalImages by constructor
 
 				// load its image
-				Promise.all(addedPlayer.init()).then(function () {
-					// set the image
-					addedPlayer.setImage("playerSkin_"+addedPlayer.skinTone, {
-						x: 0,
-						y: 0,
-						width: 52,
-						height: 127
-					});
-					addedPlayer.setAdditionalImages([{imageName: "playerFace_"+addedPlayer.face, doNotAnimate: true}, {imageName: "playerClothing_"+addedPlayer.clothing}, {imageName: "playerBeard_"+addedPlayer.beard, doNotAnimate: true}, {imageName: "playerHair_"+addedPlayer.hair, doNotAnimate: true}, {imageName: "playerEars_"+addedPlayer.skinTone, doNotAnimate: true}, {imageName: "playerHat_"+addedPlayer.hat, doNotAnimate: true}]);
-
-					addedPlayer.updateRotation();
-
-					// allow player to be shown
-					addedPlayer.hidden = false;
+				Promise.all(Loader.loadMultipleImages(loadForThisNpc, false)).then(function () {
+					// add the player
+					Game.players.push(new UserControllable(copiedPlayer));
 				});
 			}
 		}
@@ -2282,7 +2288,8 @@ class Thing extends Visible {
 					image: imageObject.img,
 					imageSrc: imageObject.src,
 					doNotAnimate: additionalImageArray[i].doNotAnimate, // optional
-					// more tbd ?
+					offsetX: additionalImageArray[i].offsetX, // optional
+					offsetY: additionalImageArray[i].offsetY, // optional
 				})
 			}
 		}
@@ -3827,8 +3834,10 @@ class Character extends Thing {
 	}
 
 	updateRotation (dirx, diry) {
-		// first update direction
-		this.setDirection(dirx, diry);
+		if (typeof dirx !== "undefined") {
+			// first update direction if a dirx and diry are specified (otherwise, it is assumed that this.direction is already set)
+			this.setDirection(dirx, diry);
+		}
 
 		if (typeof this.rotationImages === "undefined" && this.spritesheetRotate) {
 			// spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. i.e. same as player
@@ -4181,17 +4190,15 @@ class InfoPoint extends Thing {
 	}
 }
 
-// useed for *other* players through websocket
+// used for *other* players through websocket
 // TBD revise what this inherits from - uses same functions as other classes
 class UserControllable extends Attacker {
 	constructor (properties) {
 		super(properties);
 
-		this.hidden = true;
-
 		this.userID = properties.userID;
 
-		// these should be the id in skindata
+		// these should be the src as displayed in skindata
 		this.skinTone = properties.skinTone;
 		this.clothing = properties.clothing;
 		this.beard = properties.beard;
@@ -4199,26 +4206,6 @@ class UserControllable extends Attacker {
 		this.face = properties.face;
 		this.hat = properties.hat;
 		// these should be given as a word
-	}
-
-	// call to load image after constructor
-	init () {
-		let skinKeyName = "playerSkin_"+this.skinTone;
-		let earsKeyName = "playerEars_"+this.skinTone;
-		let clothingKeyName = "playerClothing_"+this.clothing;
-		let beardKeyName = "playerBeard_"+this.beard;
-		let hairKeyName = "playerHair_"+this.hair;
-		let faceKeyName = "playerFace_"+this.face;
-		let hatKeyName = "playerHat_"+this.hat;
-		let loadObj = {};
-		loadObj[skinKeyName] = {normal: "./assets/playerCustom/skinTone/" + this.skinTone + ".png"};
-		loadObj[faceKeyName] = {normal: "./assets/playerCustom/facialExpression/" + this.face + ".png"};
-		loadObj[clothingKeyName] = {normal: "./assets/playerCustom/clothing/" + this.classFull + "/" + this.clothing + ".png"}; // tbd get from skindata
-		loadObj[beardKeyName] = {normal: "./assets/playerCustom/beard/" + this.beard + ".png"};
-		loadObj[hairKeyName] = {normal: "./assets/playerCustom/hair/" + this.hair + ".png"};
-		loadObj[earsKeyName] = {normal: "./assets/playerCustom/ears/" + this.skinTone + ".png"};
-		loadObj[hatKeyName] = {normal: "./assets/playerCustom/hat/" + this.hat + ".png"};
-		return Loader.loadMultipleImages(loadObj, false);
 	}
 }
 
@@ -4321,6 +4308,8 @@ class Hero extends Attacker {
 		// (same as in constructor)
 		// old image does not need to be saved, since it can be figured out from saved data (this is the hero)
 		this.setImageFromProperties(properties);
+		let load = Game.formatNpcImages(this);
+		// tbd need to actually load these images !!! and keep them loaded in with condition that player is transformed
 
 		// projectile
 		if (typeof this.projectile.image !== "undefined") {
@@ -4362,6 +4351,7 @@ class Hero extends Attacker {
 	untransform () {
 		if (this.transformed) {
 			let heroProperties = Game.heroBaseProperties();
+			Game.formatNpcImages(this);
 			// image and animation
 			this.setImageFromProperties(heroProperties);
 	
@@ -6795,7 +6785,7 @@ class Villager extends NPC {
 		this.state.type = "wait";
 
 		// make them face forwards
-		this.updateRotation(0, -1);
+		this.updateRotation(0, 1);
 	}
 
 	move (delta) {
@@ -9346,41 +9336,9 @@ Game.minigameReset = function () {
 Game.loadDefaultImages = function () {
 	let toLoad = [];
 
-	if (Player.name === "Sammer") {
-		Player.skinTone = "fish"
-		Player.hair = "null";
-		Player.beard = "null";
-		Player.face = "null";
-	}
-	if (Player.name === "Pingu") {
-		Player.skinTone = "penguin"
-		Player.hair = "null";
-		Player.beard = "null";
-		Player.face = "null";
-	}
-	if (Player.name === "James") {
-		Player.skinTone = "slug";
-		Player.hair = "null";
-		Player.beard = "null";
-		Player.face = "null";
-	}
-	if (Player.name === "Axparagus") {
-		Player.skinTone = "humanDark2"
-		Player.hair = "skinFade";
-		Player.hat = "null";
-		Player.beard = "null";
-	}
-	
-	Player.ears = Player.skinTone;
-
-	// load player images
-	toLoad.push(Loader.loadImage("playerSkin_"+Player.skinTone, "./assets/playerCustom/skinTone/" + Player.skinTone + ".png", false));
-	toLoad.push(Loader.loadImage("playerFace_"+Player.face, "./assets/playerCustom/facialExpression/" + Player.face + ".png", false));
-	toLoad.push(Loader.loadImage("playerClothing_"+Player.clothing, "./assets/playerCustom/clothing/" + Player.classFull + "/" + Player.clothing + ".png", false));
-	toLoad.push(Loader.loadImage("playerBeard_"+Player.beard, "./assets/playerCustom/beard/" + Player.beard + ".png", false));
-	toLoad.push(Loader.loadImage("playerHair_"+Player.hair, "./assets/playerCustom/hair/" + Player.hair + ".png", false));
-	toLoad.push(Loader.loadImage("playerEars_"+Player.skinTone, "./assets/playerCustom/ears/" + Player.skinTone + ".png", false));
-	toLoad.push(Loader.loadImage("playerHat_"+Player.hat, "./assets/playerCustom/hat/" + Player.hat + ".png", false));
+	let heroProperties = Game.heroBaseProperties(); // object of properties - image, crop, animation
+	let heroLoad = this.formatNpcImages(heroProperties); // replaces image object with images array
+	toLoad = toLoad.concat(Loader.loadMultipleImages(heroLoad, false));
 
 	// load class' default projectile
 	toLoad.push(Loader.loadImage(this.heroProjectileName, "./assets/projectiles/" + this.heroProjectileName + ".png", false));
@@ -9633,7 +9591,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 					load = Object.assign(load, loadForThisNpc);
 				}
 			}
-			if (typeof Areas[areaName].villagers !== "undefined") {
+			if (typeof Areas[areaName].villagers !== "undefined") { // villagers that aren't generated through generateVillagers. i.e. ones that always appear in this area
 				for (let i = 0; i < Areas[areaName].villagers.length; i++) {
 					let npc = Areas[areaName].villagers[i];
 					let loadForThisNpc = this.formatNpcImages(npc);
@@ -10202,6 +10160,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 
 
 				// players (these are added from websocket instead of areadata)
+				// note this includes image loading for these players. tbd move this image loading into the general area promise
 				if (ws !== false && ws.readyState === 1) {
 					// websocket is active
 					for (let i = 0; i < Dom.players.length; i++) {
@@ -10411,8 +10370,9 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 }
 
 // used in loadArea for when NPC image is in a deconstructed format like the player's
-// the properties of the NPC that are passed in are edited by this
-// returns an object of images to be loaded
+// this is to be used before NPC's constructor is called !
+// the properties of the NPC that are passed in are edited by this - if .image property is an object, it is replaced by .images array property (which then sets .additionalImages in setAdditionalImages fn called by constructor)
+// in addition, this returns an object of images to be loaded (in the form of that in areadata)
 Game.formatNpcImages = function (properties) {
 	// if image is an object that specifies at least a skinTone, construct the entity from the images in assets/playerCustom
 	// (i.e. how hero is constructed)
@@ -10447,7 +10407,27 @@ Game.formatNpcImages = function (properties) {
 				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/base.png"};
 			}
 		}
-		// clothing - might be all in one, or separated (tbd)
+		// clothing - might be all in one (.clothing), or separated (.clothingTop, .clothingBottom, etc.)
+		if (typeof properties.image.clothingTop !== "undefined") {
+			imgName = "playerClothingTop_"+properties.image.clothingTop;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothingTop/" + properties.image.clothingTop + ".png"};
+		}
+		if (typeof properties.image.clothingBottom !== "undefined") {
+			imgName = "playerClothingBottom_"+properties.image.clothingBottom;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothingBottom/" + properties.image.clothingBottom + ".png"};
+		}
+		if (typeof properties.image.clothingOver !== "undefined") {
+			imgName = "playerClothingOver_"+properties.image.clothingOver;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothingOver/" + properties.image.clothingOver + ".png"};
+		}
+		if (typeof properties.image.clothingShoes !== "undefined") {
+			imgName = "playerClothingShoes_"+properties.image.clothingShoes;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothingShoes/" + properties.image.clothingShoes + ".png"};
+		}
 		if (typeof properties.image.clothing !== "undefined") {
 			let clothingClass = "npc"; // folder the clothing appears in (defaults to npc)
 			if (typeof properties.image.clothingClass !== "undefined") {
@@ -10482,8 +10462,17 @@ Game.formatNpcImages = function (properties) {
 		}
 		// hat - optional
 		if (typeof properties.image.hat !== "undefined") {
+			// find the corresponding skindata object, in case there is any offset
+			// tbd currently just hats have the option to be offset - add this to other types by making this a function / in a for loop
+			let skinObj = {};
+			for (let i = 0; i < Skins.hat.length; i++) {
+				if (Skins.hat[i].src === properties.image.hat) {
+					skinObj = Skins.hat[i];
+					break;
+				}
+			}
 			imgName = "playerHat_"+properties.image.hat;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
+			properties.images.push({imageName: imgName, doNotAnimate: true, offsetX: skinObj.offsetX, offsetY: skinObj.offsetY});
 			loadObj[imgName] = {normal: "assets/playerCustom/hat/" + properties.image.hat + ".png"};
 		}
 		// accessories - optional
@@ -10572,7 +10561,8 @@ Game.init = function () {
 
 	// its x and y are not set until Game.loadArea resumes
 
-	let heroProperties = Game.heroBaseProperties(); // object of properties - images, crop, animation
+	let heroProperties = Game.heroBaseProperties(); // object of properties - image, crop, animation
+	this.formatNpcImages(heroProperties); // replaces image object with images array
 
 	this.hero = new Hero({
 		// properties inherited from Entity
@@ -10751,29 +10741,17 @@ Game.init = function () {
 
 // returns object of base properties for hero
 // called on initially creating the hero, as well as untransforming the hero
+// note formatNpcImages must be called after this, to format the image function, and add crop and animation
 Game.heroBaseProperties = function () {
 	let properties = {
-		images: [
-			{imageName: "playerSkin_"+Player.skinTone},
-			{imageName: "playerFace_"+Player.face, doNotAnimate: true},
-			{imageName: "playerClothing_"+Player.clothing},
-			{imageName: "playerBeard_"+Player.beard, doNotAnimate: true},
-			{imageName: "playerHair_"+Player.hair, doNotAnimate: true},
-			{imageName: "playerEars_"+Player.skinTone, doNotAnimate: true},
-			{imageName: "playerHat_"+Player.hat, doNotAnimate: true} // tbd add weapon here
-		],
-		crop: {
-			x: 0,
-			y: 0,
-			width: 52,
-			height: 127
-		},
-		animation: {
-			type: "spritesheet",
-			frameTime: 18,
-			imagesPerRow: 4,
-			totalImages: 4,
-			animateBasis: "walk"
+		image: {
+			clothingClass: Player.classFull,
+			skinTone: Player.skinTone,
+			clothing: Player.clothing,
+			beard: Player.beard,
+			hair: Player.hair,
+			hat: Player.hat,
+			// tbd add weapon here as held item
 		},
 	};
 	return properties;
@@ -15074,7 +15052,6 @@ Game.renderObject = function (objectToRender) {
 
 	let drawX = objectToRender.screenX - objectToRender.width / 2;
 	let drawY = objectToRender.screenY - objectToRender.height / 2;
-
 
 	if (objectToRender.renderType === "image") {
 		// rendering an image!

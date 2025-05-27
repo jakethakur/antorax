@@ -91,12 +91,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 				ws.equipment = parsedMessage.equipment;
 				ws.achievementPoints = parsedMessage.achievementPoints;
 				// customisation
-				ws.skinTone = parsedMessage.skinTone;
-				ws.face = parsedMessage.face;
-				ws.clothing = parsedMessage.clothing;
-				ws.hair = parsedMessage.hair;
-				ws.beard = parsedMessage.beard;
-				ws.hat = parsedMessage.hat;
+				ws.image = parsedMessage.image;
 
 				// message the user to tell them what their userID is
 				// this information is used by the client if they want to except themselves from broadcasts
@@ -135,12 +130,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 					equipment: parsedMessage.equipment,
 					achievementPoints: parsedMessage.achievementPoints,
 					// customisation
-					skinTone: parsedMessage.skinTone,
-					face: parsedMessage.face,
-					clothing: parsedMessage.clothing,
-					hair: parsedMessage.hair,
-					beard: parsedMessage.beard,
-					hat: parsedMessage.hat,
+					image: parsedMessage.image, // obj
 				}));
 
 				// message the user to tell them about all the other users online
@@ -165,12 +155,7 @@ wss.on("connection", (ws) => { // note that ws = client in wss.clients
 							achievementPoints: client.achievementPoints,
 							playingGame: client.playingGame,
 							// customisation
-							skinTone: client.skinTone,
-							face: client.face,
-							clothing: client.clothing,
-							hair: client.hair,
-							beard: client.beard,
-							hat: client.hat,
+							image: client.image, // obj
 						}));
 					}
 				});

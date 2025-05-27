@@ -360,15 +360,14 @@ var Skins = {
 			src: "catHatGinger",
 			series:	"Classic",
 			base: true,
+			offsetY: -8,
 		},
 		{
 			id: 4,
 			name: "Neo Hat",
 			src: "iglooghost",
 			series:	"NPC",
-			offset: {
-				//tbd
-			},
+			offsetY: -8,
 			// npc only - iglooghost
 		},
 	],
