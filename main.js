@@ -10416,6 +10416,11 @@ Game.formatNpcImages = function (properties) {
 			}
 		}
 		// clothing - might be all in one (.clothing), or separated (.clothingTop, .clothingBottom, etc.)
+		if (typeof properties.image.clothingFeet !== "undefined") {
+			imgName = "playerClothingFeet_"+properties.image.clothingFeet;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothingFeet/" + properties.image.clothingFeet + ".png"};
+		}
 		if (typeof properties.image.clothingBottom !== "undefined") {
 			imgName = "playerClothingBottom_"+properties.image.clothingBottom;
 			properties.images.push({imageName: imgName});
@@ -10430,11 +10435,6 @@ Game.formatNpcImages = function (properties) {
 			imgName = "playerClothingOver_"+properties.image.clothingOver;
 			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothingOver/" + properties.image.clothingOver + ".png"};
-		}
-		if (typeof properties.image.clothingFeet !== "undefined") {
-			imgName = "playerClothingFeet_"+properties.image.clothingFeet;
-			properties.images.push({imageName: imgName});
-			loadObj[imgName] = {normal: "assets/playerCustom/clothingFeet/" + properties.image.clothingFeet + ".png"};
 		}
 		if (typeof properties.image.clothing !== "undefined") {
 			let clothingClass = "npc"; // folder the clothing appears in (defaults to npc)
@@ -10756,10 +10756,10 @@ Game.heroBaseProperties = function () {
 			clothingClass: Player.classFull,
 			skinTone: Player.skinTone,
 			clothing: Player.clothing,
+			clothingFeet: Player.clothingFeet,
 			clothingBottom: Player.clothingBottom,
 			clothingTop: Player.clothingTop,
 			clothingOver: Player.clothingOver,
-			clothingFeet: Player.clothingFeet,
 			beard: Player.beard,
 			hair: Player.hair,
 			hat: Player.hat,
