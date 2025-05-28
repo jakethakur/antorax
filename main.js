@@ -175,9 +175,9 @@ Game.loadPlayer = function () {
 
 	/*
 	Player.clothing = undefined;
-	Player.clothingFeet = "shoesBrown";
-	Player.clothingTop = "shirtRed";
-	Player.clothingOver = "overallsGreen";
+	Player.clothingFeet = undefined;
+	Player.clothingTop = "tunicNatural";
+	Player.clothingOver = "dredgersGreen";
 	Player.hat = "valentinesGlasses2024";
 	*/
 }
@@ -10416,15 +10416,15 @@ Game.formatNpcImages = function (properties) {
 			}
 		}
 		// clothing - might be all in one (.clothing), or separated (.clothingTop, .clothingBottom, etc.)
-		if (typeof properties.image.clothingTop !== "undefined") {
-			imgName = "playerClothingTop_"+properties.image.clothingTop;
-			properties.images.push({imageName: imgName});
-			loadObj[imgName] = {normal: "assets/playerCustom/clothingTop/" + properties.image.clothingTop + ".png"};
-		}
 		if (typeof properties.image.clothingBottom !== "undefined") {
 			imgName = "playerClothingBottom_"+properties.image.clothingBottom;
 			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothingBottom/" + properties.image.clothingBottom + ".png"};
+		}
+		if (typeof properties.image.clothingTop !== "undefined") {
+			imgName = "playerClothingTop_"+properties.image.clothingTop;
+			properties.images.push({imageName: imgName});
+			loadObj[imgName] = {normal: "assets/playerCustom/clothingTop/" + properties.image.clothingTop + ".png"};
 		}
 		if (typeof properties.image.clothingOver !== "undefined") {
 			imgName = "playerClothingOver_"+properties.image.clothingOver;
@@ -10756,8 +10756,8 @@ Game.heroBaseProperties = function () {
 			clothingClass: Player.classFull,
 			skinTone: Player.skinTone,
 			clothing: Player.clothing,
-			clothingTop: Player.clothingTop,
 			clothingBottom: Player.clothingBottom,
+			clothingTop: Player.clothingTop,
 			clothingOver: Player.clothingOver,
 			clothingFeet: Player.clothingFeet,
 			beard: Player.beard,

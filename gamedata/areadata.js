@@ -3965,12 +3965,12 @@ var Areas = {
 
 	villagers: [
 		{
-			boundary: [
-			{x: 3604.8, y: 2998.2, width: 288, height: 205.3},],
 			image: "sylvie",
 			name: "Recruiter Sylvie",
 			hostility: "friendly",
 			level: 70,
+			boundary: [
+			{x: 3604.8, y: 2998.2, width: 288, height: 205.3},],
 			stats: {
 				maxHealth: 400,
 				defence: 6,
@@ -12156,7 +12156,7 @@ images: {
 	mrPeacock: {normal: "assets/npcs/mrPeacock.png"},
 	valAsh: {normal: "assets/npcs/valAsh.png"},
 	nest: {normal: "assets/objects/nest.png"},
-  maxilla: {normal: "assets/enemies/maxilla.png"},
+	maxilla: {normal: "assets/enemies/maxilla.png"},
 	vomer: {normal: "assets/enemies/vomer.png"},
 	palatine: {normal: "assets/enemies/palatine.png"},
 	stoneElemental1: {normal: "assets/enemies/stoneElemental1.png"},
@@ -12168,29 +12168,34 @@ images: {
 	crystalAntGreenQueen: {normal: "assets/enemies/crystalAntGreenQueen.png"},
 	coyoteCorpse: {normal: "assets/corpses/coyote.png"},
 	jaws: {normal: "assets/projectiles/jaws.png",},
+	},
 
+	things: [
 
-},
+	],
 
-
-
-things: [
-
-
-
-
-
-],
-
-npcs: [
-           
-
-					],
-
-					
-
-
-
+	villagers: [
+		{
+			boundary: 
+			{x: 2500, y: 1800, width: 288, height: 205.3},
+			image: {
+				skinTone: "humanTan1",
+				clothingTop: "shirtRed",
+				clothingOver: "overallsGreen",
+				clothingFeet: "shoesBrown",
+				hair: "longGinger",
+				hat: "valentinesGlasses2024",
+			},
+			name: "Archaeologist Afron",
+			hostility: "friendly",
+			level: 15,
+			stats: {
+				maxHealth: 125,
+				defence: 2,
+				walkSpeed: 100,
+			},
+		},
+	],
 },
 
 
