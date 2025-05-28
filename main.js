@@ -172,6 +172,14 @@ Game.loadPlayer = function () {
 		Player.hat = "null";
 		Player.beard = "null";
 	}
+
+	/*
+	Player.clothing = undefined;
+	Player.clothingFeet = "shoesBrown";
+	Player.clothingTop = "shirtRed";
+	Player.clothingOver = "overallsGreen";
+	Player.hat = "valentinesGlasses2024";
+	*/
 }
 
 //
@@ -10423,10 +10431,10 @@ Game.formatNpcImages = function (properties) {
 			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothingOver/" + properties.image.clothingOver + ".png"};
 		}
-		if (typeof properties.image.clothingShoes !== "undefined") {
-			imgName = "playerClothingShoes_"+properties.image.clothingShoes;
+		if (typeof properties.image.clothingFeet !== "undefined") {
+			imgName = "playerClothingFeet_"+properties.image.clothingFeet;
 			properties.images.push({imageName: imgName});
-			loadObj[imgName] = {normal: "assets/playerCustom/clothingShoes/" + properties.image.clothingShoes + ".png"};
+			loadObj[imgName] = {normal: "assets/playerCustom/clothingFeet/" + properties.image.clothingFeet + ".png"};
 		}
 		if (typeof properties.image.clothing !== "undefined") {
 			let clothingClass = "npc"; // folder the clothing appears in (defaults to npc)
@@ -10748,6 +10756,10 @@ Game.heroBaseProperties = function () {
 			clothingClass: Player.classFull,
 			skinTone: Player.skinTone,
 			clothing: Player.clothing,
+			clothingTop: Player.clothingTop,
+			clothingBottom: Player.clothingBottom,
+			clothingOver: Player.clothingOver,
+			clothingFeet: Player.clothingFeet,
 			beard: Player.beard,
 			hair: Player.hair,
 			hat: Player.hat,

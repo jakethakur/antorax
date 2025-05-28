@@ -363,7 +363,7 @@ var Skins = {
 			offsetY: -8,
 		},
 		{
-			id: 4,
+			id: 5,
 			name: "Neo Hat",
 			src: "iglooghost",
 			series:	"NPC",
