@@ -415,13 +415,7 @@ document.getElementById("play").onclick = function(){
 		selected[selected.class].clothing = selected[selected.class][selected.classFull+"Clothing"];
 		sessionStorage.setItem("customisation",JSON.stringify(selected[selected.class]));
 
-		// sometimes sessionStorage doesn't carry over i.e. firefox local version. so store this info in the domain name instead for local versions
-		if (location.hostname === "" || location.hostname === "localhost") {
-			window.location.replace("../index.html?class="+selected.class+"&name="+document.getElementById("name").value+"&skinTone="+selected[selected.class].skinTone+"&clothing="+selected[selected.class][selected.classFull+"Clothing"]+"&beard="+selected[selected.class].beard+"&hair="+selected[selected.class].hair+"&hairColour="+selected[selected.class].hairColour+"&hat="+selected[selected.class].hat);
-		}
-		else {
-			window.location.replace("../index.html");
-		}
+		window.location.replace("../index.html");
 
 	}else{
 		// no name entered

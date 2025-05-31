@@ -370,6 +370,13 @@ var Skins = {
 			offsetY: -8,
 			// npc only - iglooghost
 		},
+		{
+			id: 6,
+			name: "Pirate Hat",
+			src: "pirateHat",
+			series:	"Classic",
+			base: true,
+		},
 	],
 	// old skins below:
 	a: [

@@ -6,23 +6,6 @@ let playerClass = sessionStorage.getItem("class");
 // the keys of this (skin, hat, etc.) should be all the ids in skindata, other than the colour keys (hairColour etc.) which should be the word
 let customisation = JSON.parse(sessionStorage.getItem("customisation"));
 
-// note session storage doesn't work in firefox local versions, in which case we have to rely on query strings in domain name
-// (these are not used otherwise)
-const QueryStringParams = (new URL(document.location)).searchParams;
-if (customisation === null || typeof customisation.clothing === "undefined") {
-	// session storage doesn't work in firefox local versions
-	playerName = QueryStringParams.get("name");
-	playerClass = QueryStringParams.get("class");
-	customisation = {};
-	customisation.skinTone = QueryStringParams.get("skinTone");
-	//customisation.face = QueryStringParams.get("face"); // not yet customisable
-	customisation.clothing = QueryStringParams.get("clothing");
-	customisation.hair = QueryStringParams.get("hair");
-	customisation.hairColour = QueryStringParams.get("hairColour");
-	customisation.hat = QueryStringParams.get("hat");
-	customisation.beard = QueryStringParams.get("beard");
-}
-
 // customisation validation (probs unnecessary)
 if (customisation.skinTone === "undefined") {
 	customisation.skinTone = 0;
@@ -137,6 +120,10 @@ const AttackConstants = {
 };
 
 // note that this is just for default values for when the player FIRST joins antorax ! any changing values (e.g. customisation) should be set separately, otherwise they will just be overwritten
+leftHanded = false;
+if (Random(0, 9) === 2) {
+	leftHanded = true;
+}
 var Player = {
 	name: playerName,
 	class: playerClass,
@@ -172,6 +159,9 @@ var Player = {
 	consecutiveDays: 0,
 	metNPCs: [],
 	totalDeaths: 0, // doesn't include minigame deaths
+
+	// easter eggs etc
+	leftHanded: leftHanded,
 
 	chatOnJoin: [],
 

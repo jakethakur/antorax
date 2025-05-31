@@ -173,6 +173,11 @@ Game.loadPlayer = function () {
 		Player.beard = "null";
 	}
 
+	Player.clothingFeet = undefined;
+	Player.clothingBottom = undefined;
+	Player.clothingTop = undefined;
+	Player.clothingOver = undefined;
+	
 	/*
 	Player.clothing = undefined;
 	Player.clothingFeet = undefined;
@@ -274,7 +279,7 @@ Game.initWebSocket = function () {
 						if (message.direction !== user.direction) {
 							// direction changed
 							user.direction = message.direction;
-							user.updateRotation();eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+							user.updateRotation();
 						}
 						if (message.expand !== undefined && message.expand !== user.expand) {
 							// expand changed
@@ -2817,8 +2822,182 @@ class Character extends Thing {
 		this.showHealthBar = properties.showHealthBar; // only hides health bar if set to false
 
 
+		// held objects
+		this.held = {
+			// left hand
+			left: { // this is not stored as an actual thing because it should persist across areas and there's not a nice way to do that yet soz ! if this breaks, that's 100% why bc this is sooo hard coded
+				name: "",
+				renderType: "image",
+			},
+			// right hand
+			right: {
+				name: "",
+				renderType: "image",
+			}
+		};
+
+
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
+		}
+	}
+
+	// sets this.held[hand]
+	// hand should be "left" or "right"
+	// imgNormal and imgFlipped should be the loaded in images of what is being held
+	// properties can include width, height, crop (an object), offsetX (negated when flipped image is used), offsetY
+	setHeld (hand, imgNormal, imgFlipped, properties) {
+		let set = this.held[hand];
+
+		set.width = properties.width || imgNormal.width;
+		set.height = properties.height || imgNormal.height;
+		set.crop = properties.crop || {};
+		set.offsetX = properties.offsetX || 0;
+		set.offsetY = properties.offsetY || 0;
+
+		set.image = imgNormal;
+		set.imageNormal = imgNormal;
+		set.imageFlipped = imgFlipped;
+		set.renderType = "image";
+	}
+
+	renderHeldUnder () {
+		// right hand
+		if (typeof this.held.right.image !== "undefined" && (this.direction === 1 || this.direction === 2)) {
+			// held object should be rendered BEHIND and flipped
+			let offsetX = -18;
+			let offsetY = 0; // so it bobs up and down
+			if (this.direction === 1) { // facing backwards
+				offsetX = 21;
+			}
+			if (this.animation.state !== 3) {
+				offsetY = this.animation.state-2;
+			}
+			else {
+				offsetY = -1;
+			}
+
+			this.held.right.x = this.x + offsetX + this.held.right.offsetX;
+			this.held.right.y = this.y + offsetY + this.held.right.offsetY;
+
+			if (this.direction === 1) {
+				this.held.right.image = this.held.right.imageFlipped; // no need to change dimensions bc just flipped
+			}
+			else {
+				this.held.right.image = this.held.right.imageNormal;
+			}
+
+			Game.updateScreenPosition(this.held.right);
+			Game.renderObject(this.held.right);
+		}
+
+		// left hand 
+		if (typeof this.held.left.image !== "undefined" && (this.direction === 1 || this.direction === 4)) {
+			// held object should be rendered BEHIND and flipped
+			let offsetX = 18;
+			let offsetY = 0; // so it bobs up and down
+			if (this.direction === 1) { // facing backwards
+				offsetX = -21;
+				if (this.animation.state !== 3) {
+					offsetY = -this.animation.state;
+				}
+				else {
+					offsetY = -1;
+				}
+			}
+			else if (this.direction === 4) { // facing sideways
+				if (this.animation.state !== 3) {
+					offsetY = this.animation.state-2;
+				}
+				else {
+					offsetY = -1;
+				}
+			}
+
+			this.held.left.x = this.x + offsetX + this.held.left.offsetX;
+			this.held.left.y = this.y + offsetY + this.held.left.offsetY;
+
+			if (this.direction === 4) {
+				this.held.left.image = this.held.left.imageFlipped; // no need to change dimensions bc just flipped
+			}
+			else {
+				this.held.left.image = this.held.left.imageNormal;
+			}
+
+			Game.updateScreenPosition(this.held.left);
+			Game.renderObject(this.held.left);
+		}
+	}
+
+	renderHeldOver () {
+		// right hand
+		if (typeof this.held.right.image !== "undefined" && (this.direction === 3 || this.direction === 4)) {
+			// held item should be rendered IN FRONT and not flipped
+			let offsetX = 2;
+			let offsetY = 0; // so it bobs up and down
+			if (this.direction === 3) { // facing forward
+				offsetX = -21;
+			}
+			if (this.animation.state !== 3) {
+				offsetY = -this.animation.state;
+			}
+			else {
+				offsetY = -1;
+			}
+
+			this.held.right.x = this.x + offsetX + this.held.right.offsetX;
+			this.held.right.y = this.y + offsetY + this.held.right.offsetY;
+
+			if (this.direction === 4) {
+				this.held.right.image = this.held.right.imageFlipped; // no need to change dimensions bc just flipped
+			}
+			else {
+				this.held.right.image = this.held.right.imageNormal;
+			}
+
+			Game.updateScreenPosition(this.held.right);
+			Game.renderObject(this.held.right);
+		}
+
+		// left hand
+		if (typeof this.held.left.image !== "undefined" && (this.direction === 3 || this.direction === 2)) {
+			// held item should be rendered IN FRONT and not flipped
+			let offsetX = -2;
+			let offsetY = 0; // so it bobs up and down
+			if (this.direction === 3) { // facing forward
+				offsetX = 21;
+				if (this.animation.state !== 3) {
+					offsetY = this.animation.state-2;
+				}
+				else {
+					offsetY = -1;
+				}
+			}
+			else if (this.direction === 2) { // facing sideways
+				let animVal = this.animation.state+1;
+				if (animVal === 4) {
+					animVal = 0;
+				}
+				if (animVal !== 3) {
+					offsetY = -animVal;
+				}
+				else {
+					offsetY = -1;
+				}
+			}
+
+			this.held.left.x = this.x + offsetX + this.held.left.offsetX;
+			this.held.left.y = this.y + offsetY + this.held.left.offsetY;
+
+			if (this.direction === 3) {
+				this.held.left.image = this.held.left.imageFlipped; // no need to change dimensions bc just flipped
+			}
+			else {
+				this.held.left.image = this.held.left.imageNormal;
+			}
+
+			Game.updateScreenPosition(this.held.left);
+			Game.renderObject(this.held.left);
 		}
 	}
 
@@ -4271,24 +4450,14 @@ class Hero extends Attacker {
 		// temporary teleport teleport positions
 		this.oldPosition = properties.oldPosition; // might be undefined
 
-		// display player weapon on player model
-		this.heldWeaponName = "";
-		this.heldWeaponObj = { // this is not stored as an actual thing because it should persist across areas and there's not a nice way to do that yet soz ! if this breaks, that's 100% why bc this is sooo hard coded
-			x: 0,
-			y: 0,
-			height: 50,
-			width: 50,
-			renderType: "image",
-			crop: {x: 0, y: 0, width: 50, height: 50},
-		};
-		this.weaponUpdate();
-
 		// temporary transformations, i.e. into cat
 		// note that hex etc are NOT included under this, since your base stats, spells, etc. still remain
 		this.transformed = false;
 
 		this.spritesheetRotate = true; // spritesheetRotate means this uses a spritesheet of images, vertically, one for each direction. always the case for the hero unless transformed
 	
+		this.weaponUpdate(); // sets weapon being held
+
 		this.hasLey = false; // set to a ley aggregate if one is attached to the hero (only one can be attached at a time)
 	}
 
@@ -5662,69 +5831,10 @@ class Hero extends Attacker {
 			Game.ctx.globalAlpha = 0.6;
 		}
 
-		if (!this.weaponImageLoading && (this.direction === 1 || this.direction === 2)) {
-			// held weapon should be rendered BEHIND hero and flipped
-			let offsetX = -18;
-			let offsetY = 0; // so it bobs up and down
-			if (this.direction === 1) {
-				offsetX = 21;
-			}
-			if (this.animation.state !== 3) {
-				offsetY = 2-this.animation.state;
-			}
-			else {
-				offsetY = 1;
-			}
-			if (this.direction === 1 || this.direction === 2) {
-				offsetY = -offsetY;
-			}
-
-			this.heldWeaponObj.x = this.x + offsetX;
-			this.heldWeaponObj.y = this.y + offsetY;
-
-			if (this.direction === 1) {
-				this.heldWeaponObj.image = this.heldWeaponObj.imageFlipped; // no need to change dimensions bc just flipped
-			}
-			else {
-				this.heldWeaponObj.image = this.heldWeaponObj.imageNormal;
-			}
-
-			Game.updateScreenPosition(this.heldWeaponObj);
-			Game.renderObject(this.heldWeaponObj);
-		}
-
 		return true;
 	}
 
 	postRenderFunction () {
-		if (!this.weaponImageLoading && (this.direction === 3 || this.direction === 4)) {
-			// held weapon should be rendered IN FRONT of hero and not flipped
-			let offsetX = 2;
-			let offsetY = 0; // so it bobs up and down
-			if (this.direction === 3) {
-				offsetX = -21;
-			}
-			if (this.animation.state !== 3) {
-				offsetY = -this.animation.state;
-			}
-			else {
-				offsetY = -1;
-			}
-
-			this.heldWeaponObj.x = this.x + offsetX;
-			this.heldWeaponObj.y = this.y + offsetY;
-
-			if (this.direction === 4) {
-				this.heldWeaponObj.image = this.heldWeaponObj.imageFlipped; // no need to change dimensions bc just flipped
-			}
-			else {
-				this.heldWeaponObj.image = this.heldWeaponObj.imageNormal;
-			}
-
-			Game.updateScreenPosition(this.heldWeaponObj);
-			Game.renderObject(this.heldWeaponObj);
-		}
-
 		// reset globalAlpha in case it was changed by preRenderFunction due to stealth
 		Game.ctx.globalAlpha = 1;
 
@@ -5735,10 +5845,15 @@ class Hero extends Attacker {
 
 	// update weapon being held (called on weapon being changed)
 	weaponUpdate () {
+		let hand = "right";
+		if (Player.leftHanded) {
+			hand = "left";
+		}
+		let held = this.held[hand];
 		// check weapon has acc been changed
-		if (this.heldWeaponName !== Player.inventory.weapon.name) {
-			this.heldWeaponName = Player.inventory.weapon.name;
-			this.weaponImageLoading = true; // don't display it yet
+		if (held.name !== Player.inventory.weapon.name) {
+			held.image = undefined; // don't display it yet
+			held.name = Player.inventory.weapon.name;
 
 			Loader.deleteImage("heroHeldWeapon", true);
 			Loader.deleteImage("heroHeldWeaponFlipped", true);
@@ -5755,21 +5870,18 @@ class Hero extends Attacker {
 				Promise.all([p1,p2]).then(function () {
 					let imgNormal = Loader.getImageInfo("heroHeldWeapon").img;
 					let imgFlipped = Loader.getImageInfo("heroHeldWeaponFlipped").img;
-					// bascially just doing setImage :
-					this.heldWeaponObj.width = imgNormal.width; // set width and height ! (note flipped will have the same width and height)
-					this.heldWeaponObj.height = imgNormal.height;
-					this.heldWeaponObj.crop.width = imgNormal.width;
-					this.heldWeaponObj.crop.height = imgNormal.height;
-					this.heldWeaponObj.image = imgNormal; // and set img
-					this.heldWeaponObj.imageNormal = imgNormal;
-					this.heldWeaponObj.imageFlipped = imgFlipped;
-
-					this.weaponImageLoading = false; // can now be displayed !
+					this.setHeld(hand, imgNormal, imgFlipped, {
+						width: imgNormal.width,
+						height: imgNormal.height,
+						offsetX: Player.inventory.weapon.offsetX, // location offset; negated when flipped image is used
+						offsetY: Player.inventory.weapon.offsetY,
+						name: held.name,
+					});
 				}.bind(this));
 			}
 			else {
 				// not holding anything
-				// weaponImageLoading hangs as true until a weapon is equipped
+				// held.imageLoading hangs as true until a weapon is equipped
 			}
 		}
 	}
@@ -15062,6 +15174,10 @@ Game.renderObject = function (objectToRender) {
 		this.ctx.globalAlpha = objectToRender.transparency;
 	}
 
+	if (typeof objectToRender.renderHeldUnder !== "undefined") {
+		objectToRender.renderHeldUnder(); // render held objects
+	}
+
 	let drawX = objectToRender.screenX - objectToRender.width / 2;
 	let drawY = objectToRender.screenY - objectToRender.height / 2;
 
@@ -15084,17 +15200,28 @@ Game.renderObject = function (objectToRender) {
 		}
 		else {
 			// draw image (unrotated)
-			this.ctx.drawImage(
-				objectToRender.image,
-				Math.round(objectToRender.crop.x), Math.round(objectToRender.crop.y),
-				Math.round(objectToRender.crop.width), Math.round(objectToRender.crop.height),
-				Math.round(drawX),
-				Math.round(drawY),
-				Math.round(objectToRender.width),
-				Math.round(objectToRender.height)
-			);
+			if (typeof objectToRender.crop !== "undefined" && typeof objectToRender.crop.x !== "undefined") {
+				this.ctx.drawImage(
+					objectToRender.image,
+					Math.round(objectToRender.crop.x), Math.round(objectToRender.crop.y),
+					Math.round(objectToRender.crop.width), Math.round(objectToRender.crop.height),
+					Math.round(drawX),
+					Math.round(drawY),
+					Math.round(objectToRender.width),
+					Math.round(objectToRender.height)
+				);
+			}
+			else {
+				this.ctx.drawImage(
+					objectToRender.image,
+					Math.round(drawX),
+					Math.round(drawY),
+					Math.round(objectToRender.width),
+					Math.round(objectToRender.height)
+				);
+			}
 		}
-
+		
 		if (typeof objectToRender.additionalImages !== "undefined") {
 			for (let i = 0; i < objectToRender.additionalImages.length; i++) {
 				let crop = objectToRender.crop;
@@ -15105,15 +15232,26 @@ Game.renderObject = function (objectToRender) {
 				let offsetX = objectToRender.additionalImages[i].offsetX || 0;
 				let offsetY = objectToRender.additionalImages[i].offsetY || 0;
 
-				this.ctx.drawImage(
-					objectToRender.additionalImages[i].image,
-					Math.round(crop.x), Math.round(crop.y),
-					Math.round(crop.width), Math.round(crop.height),
-					Math.round(drawX + offsetX),
-					Math.round(drawY + offsetY),
-					Math.round(objectToRender.width),
-					Math.round(objectToRender.height)
-				);
+				if (typeof objectToRender.crop !== "undefined" && typeof objectToRender.crop.x !== "undefined") {
+					this.ctx.drawImage(
+						objectToRender.additionalImages[i].image,
+						Math.round(crop.x), Math.round(crop.y),
+						Math.round(crop.width), Math.round(crop.height),
+						Math.round(drawX + offsetX),
+						Math.round(drawY + offsetY),
+						Math.round(objectToRender.width),
+						Math.round(objectToRender.height)
+					);
+				}
+				else {
+					this.ctx.drawImage(
+						objectToRender.additionalImages[i].image,
+						Math.round(drawX + offsetX),
+						Math.round(drawY + offsetY),
+						Math.round(objectToRender.width),
+						Math.round(objectToRender.height)
+					);
+				}
 			}
 		}
 	}
@@ -15176,6 +15314,10 @@ Game.renderObject = function (objectToRender) {
 		if (typeof objectToRender.borderColour !== "undefined") {
 			this.ctx.stroke();
 		}
+	}
+
+	if (typeof objectToRender.renderHeldOver !== "undefined") {
+		objectToRender.renderHeldOver(); // held items
 	}
 
 	if (objectToRender.postRenderFunction !== undefined) {
