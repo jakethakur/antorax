@@ -4261,7 +4261,7 @@ var Areas = {
 			meetable: false,
 		},
 		{
-			x: 1209,
+			x: 1159,
 			y: 1897,
 			image: "pieMerchant",
 			name: "Billie the Beetroot Merchant",
@@ -4668,7 +4668,7 @@ animation: {
 				return !Player.quests.completedQuestArray.includes("Overdraft");
 			},
 		},
-		{x: 1209, y: 1885, image: 'marketStall', name: 'Billie the Beetroot Merchant', showNameTag: true},
+		{x: 1159, y: 1885, image: 'marketStall', name: 'Billie the Beetroot Merchant', showNameTag: true},
 
 		// samhain quest
 		{
