@@ -2823,6 +2823,7 @@ class Character extends Thing {
 
 
 		// held objects
+		// these are set through properties.heldLeft and heldRight
 		this.held = {
 			// left hand
 			left: { // this is not stored as an actual thing because it should persist across areas and there's not a nice way to do that yet soz ! if this breaks, that's 100% why bc this is sooo hard coded
@@ -2835,7 +2836,12 @@ class Character extends Thing {
 				renderType: "image",
 			}
 		};
-
+		if (typeof properties.heldLeft !== "undefined") {
+			this.setHeld("left", Loader.getImage(properties.heldLeft.imgNormalSrc), Loader.getImage(properties.heldLeft.imgFlippedSrc), properties.heldLeft);
+		}
+		if (typeof properties.heldRight !== "undefined") {
+			this.setHeld("right", Loader.getImage(properties.heldRight.imgNormalSrc), Loader.getImage(properties.heldRight.imgNormalSrc), properties.heldRight);
+		}
 
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
@@ -10489,7 +10495,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 	}
 }
 
-// used in loadArea for when NPC image is in a deconstructed format like the player's
+// used in loadArea for when NPC image is in a deconstructed format (i.e. the player's)
 // this is to be used before NPC's constructor is called !
 // the properties of the NPC that are passed in are edited by this - if .image property is an object, it is replaced by .images array property (which then sets .additionalImages in setAdditionalImages fn called by constructor)
 // in addition, this returns an object of images to be loaded (in the form of that in areadata)
@@ -10600,6 +10606,26 @@ Game.formatNpcImages = function (properties) {
 			imgName = "playerAccessories_"+properties.images.accessories;
 			properties.images.push({imageName: imgName, doNotAnimate: true});
 			loadObj[imgName] = {normal: "assets/playerCustom/accessories/" + properties.image.accessories + ".png"};
+		}
+
+		// held objects - load in images
+		if (typeof properties.heldLeft !== "undefined") {
+			imgName = "heldLeft_"+properties.name;
+			properties.heldLeft.imgNormalSrc = imgName;
+			loadObj[imgName] = properties.heldLeft; // this is set to the object that should be loaded in (unlike properties.image keys) - i.e. an object of form {normal: "src"}
+			imgName = "heldLeftFlipped_"+properties.name;
+			properties.heldLeft.imgFlippedSrc = imgName;
+			loadObj[imgName] = properties.heldLeft;
+			loadObj[imgName].flip = "vertical";
+		}
+		if (typeof properties.heldRight !== "undefined") {
+			imgName = "heldRight_"+properties.name;
+			properties.heldRight.imgNormalSrc = imgName;
+			loadObj[imgName] = properties.heldRight; // this is set to the object that should be loaded in (unlike all other properties.image keys) - i.e. an object of form {normal: "src"}
+			imgName = "heldRightFlipped_"+properties.name;
+			properties.heldRight.imgFlippedSrc = imgName;
+			loadObj[imgName] = properties.heldRight;
+			loadObj[imgName].flip = "vertical";
 		}
 
 		properties.image = undefined;

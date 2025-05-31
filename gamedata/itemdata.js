@@ -6720,7 +6720,7 @@ unidentifiedArea: ["caves"],
 			name: "Golden Watering Can",
 			type: "tool",
 			toolType: "meleeTool", // acts like how old swords used to
-			image: "assets/items/tool/4.png",
+			image: "assets/items/tool/5.png",
 			projectile: "slashWater",
 			rarity: "mythic",
 			stats: {
@@ -6745,6 +6745,18 @@ unidentifiedArea: ["caves"],
 				damage: 1,
 			},
 			functionText: "Can be used at a melee range to catch some small creatures",
+		},
+		{
+			id: 7,
+			name: "Well-Used Archaeologist's Brush",
+			type: "tool",
+			toolType: "meleeTool",
+			image: "assets/items/tool/7.png",
+			projectile: "melee",
+			rarity: "common",
+			stats: {
+				damage: 0,
+			},
 		},
 	],
 	mount: [

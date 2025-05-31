@@ -3406,7 +3406,7 @@ var Areas = {
 		],
 	},
 
-	eaglecrest: {
+eaglecrest: {
 	id: 10,
 
 	data: {
@@ -4023,6 +4023,59 @@ var Areas = {
 				inventoryFull: "Your bags are full!",
 				christmasGreeting: `${Player.name}! Now it's Christmas, there's even more you can do for <b>Eaglecrest</b>!`,
 				antoraxDayGreeting: `Isn't it great? To take a step back and look at how much we have achieved for the city in these ${Event.antoraxAge} years?`,
+			},
+		},
+		// statue archaeologists
+		{
+			image: {
+				skinTone: "elfLight2",
+				hair: "bedheadBrown",
+				clothingTop: "shirtRed",
+				clothingBottom: "shortsBrown",
+				clothingFeet: "shoesBrown",
+				hat: "archaeologistHat",
+			},
+			heldLeft: {
+				normal: "./assets/items/tool/7.png",
+			},
+			name: "Sr. Arch. Wendy",
+			hostility: "friendly",
+			level: 40,
+			boundary: [
+			{x: 3499.9, y: 1508.7, width: 453.2, height: 9},],
+			stats: {
+				maxHealth: 250,
+				defence: 9,
+				walkSpeed: 98,
+			},
+			chat: {
+				notUnlockedRoles: "What are you doing here?",
+			},
+		},
+		{
+			image: {
+				skinTone: "orcOrange2",
+				hair: "curlyWhite",
+				clothingTop: "tunicNatural",
+				clothingBottom: "kneepadTrousersBrown",
+				clothingFeet: "shoesBrown",
+				hat: "archaeologistHat",
+			},
+			heldRight: {
+				normal: "./assets/objects/archaeologistBrush2.png",
+			},
+			name: "Sr. Arch. Paulo",
+			hostility: "friendly",
+			level: 40,
+			boundary: [
+			{x: 3439.9, y: 1568.7, width: 573.2, height: 9},],
+			stats: {
+				maxHealth: 250,
+				defence: 9,
+				walkSpeed: 78,
+			},
+			chat: {
+				notUnlockedRoles: "What are you doing here?",
 			},
 		},
 	],
