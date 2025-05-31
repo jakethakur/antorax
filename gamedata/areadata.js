@@ -3435,7 +3435,7 @@ var Areas = {
 	mapData: {
 		origin: {x:  960, y: 0},
 		cols: 191,
-		rows: 68,
+		rows: 67,
 		tsize: 60,
 		tilesPerRow: 8,
 		solidTiles: [1, 2, 3, 4, 6, 7, 9, 10, 11, 12, 13, 15, 17, 18, 19, 20, 21, 23, 25, 26, 27, 28, 29, 31, 33, 34, 35, 36, 37, 38, 39, 42, 43, 44, 45, 46, 47, 51, 53, 55, 57, 58, 61, 65, 69, 73, 77, 82, 83, 161, 164, 168, 196, 197, 286, 292, 303, 304, 328, 327, 231, 232, 244, 245, 269, 68, 394, 393, 388],
@@ -3463,6 +3463,12 @@ var Areas = {
 		// Tinkerer Windows!
 		tiles: [356, 358, 359, 350, 357, 360],
 		animateTime: 400,
+		},
+
+		{
+		// Tinkerer Windows!
+		tiles: [752, 744, 743],
+		animateTime: 200,
 		},
 
 		{
@@ -4498,20 +4504,17 @@ var Areas = {
 
 		
 		
-		{x: [3620.6, 3890.1, 4054.6, 3472.6,  2717.4, 4987.5], y: [893, 893, 943.6, 943.6, 1366.4, 1362.7], image: 'flowerPot', name: ''},
-		{x: [2229, 2811, 5019, 4953, 2554, 2477, 4691, 4561, 2386], y: [1873, 2540, 3073, 2222, 2207, 3065, 2540, 1423, 1461], image: 'flowerPot', name: '', },
-
-	{x: [1], y: [1], image: 'archaeologistBrush1', name: ''},
-	{x: [1], y: [1], image: 'archaeologistBrush2', name: ''},
+		
+	
 
 
-{x: [3953.7, 3660.8, 3894.4, 3476, 3518.7], y: [1431.3, 1628.2, 1823.7, 1797.2, 1434.1], image: 'lanternCave', name: ''},
+
 {x: [6025.6], y: [2003.4], image: 'freeItemBox', name: ''},
 {x: [6025.6], y: [2003.4], image: 'freeItemBoxValentines2024', name: ''},
 		{x: 7126.9, y: 2021.4, image: 'cauldronEaglecrest', name: ''},
 		{x: 6539.9, y: 2039.2, image: 'anvil', name: ''},
 		{x: 3747.5, y: 1480, z: -2, image: 'eaglecrestStatue', name: 'Eaglecrest Statue'},
-		{x: 3747.5, y: 1024.9, z: 2, image: 'eaglecrestStatueHead', name: 'Eaglecrest Statue'},
+		{x: 3747.5, y: 1024.9, image: 'eaglecrestStatueHead', name: 'Eaglecrest Statue'},
 		{x: 8306.1, y: 1658.7, image: 'gargoyleLeft', name: 'Monastery Gargoyle', orderOffsetY: 100,},
 		{x: 10474.3, y: 1581.6, image: 'gargoyleRight', name: 'Monastery Gargoyle', orderOffsetY: 100,},
 		{x: [8941.2, 9427.7, 9842, 10055.4, 9689.7], y: [2755.6, 3060.4, 2800, 2315.6, 2514.1,], image: 'gravestone1', name: 'Gravestone'},
@@ -4649,7 +4652,6 @@ animation: {
 
 	
 
-		{x: [2070.6, 2309.3, 2267.9, 2174, 2133.5, 3029.5, 3078.6, 2128.2, 1423.1, 1461.2, 1670.6, 1720.1, 3553.6, 3608.8, 3833.2, 3892.4, 3506.2,  5363.9, 5339.4, 5282.9, 5329.5, 5489.9, 5916.3, 6083, 6052.1, 4177.8, 2769.2, 2737.8, 1880.6, 3296.4, 3331.4, 4755.8, 4734.2, 5607.2, 6155.7, 5860, 5806], y: [1885.9, 1403.2, 1358.8, 1263.3, 1215.4, 1281.9, 1238.8, 1868.8, 1694.5, 1722.1, 1887.2, 1887.2, 1349.3, 1349, 1531.6, 1531.6, 1712.4,  1201.2, 1252.7, 1803.2, 1843.8, 1899.2, 1892.8, 1750.3, 1794.6, 3010.1, 2851.5, 2896.1, 2906.7, 2986.5, 3014, 2922, 2885.2, 2895.2, 2738.3, 2621.2, 2621.2], image: 'barrel', orderOffsetY: -6, name: 'barrel'},
 		{x: 75.8, y: 281.2, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
 		{x: 718.9, y: 818.2, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
 		{x: 1295.2, y: 1671.8, image: 'gingerbreadHouse', name: 'Gingerbread House', canBeShown: function (){return Event.event === "Christmas"}},
