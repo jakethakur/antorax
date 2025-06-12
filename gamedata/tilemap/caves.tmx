@@ -51,10 +51,10 @@
    <image source="../../assets/objects/beehive.png" width="79" height="110"/>
   </tile>
   <tile id="15">
-   <image source="../../assets/objects/bench.png" width="180" height="195"/>
+   <image source="../../assets/objects/bench.png" width="135" height="146"/>
   </tile>
   <tile id="16">
-   <image source="../../assets/objects/benchFlip.png" width="180" height="195"/>
+   <image source="../../assets/objects/benchFlip.png" width="135" height="146"/>
   </tile>
   <tile id="17">
    <image source="../../assets/objects/blueprints.png" width="112" height="75"/>
@@ -258,7 +258,7 @@
    <image source="../../assets/objects/flowerBasketSide.png" width="112" height="200"/>
   </tile>
   <tile id="84">
-   <image source="../../assets/objects/flowerPot.png" width="67" height="85"/>
+   <image source="../../assets/objects/flowerPot.png" width="50" height="64"/>
   </tile>
   <tile id="85">
    <image source="../../assets/objects/flowerPotDead.png" width="67" height="85"/>
@@ -366,7 +366,7 @@
    <image source="../../assets/objects/hayBale2PawPeaks.png" width="123" height="120"/>
   </tile>
   <tile id="120">
-   <image source="../../assets/objects/hayWagon.png" width="226" height="197"/>
+   <image source="../../assets/objects/hayWagon.png" width="170" height="148"/>
   </tile>
   <tile id="121">
    <image source="../../assets/objects/hearth1.png" width="200" height="122"/>
