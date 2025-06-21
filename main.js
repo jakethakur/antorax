@@ -1585,8 +1585,8 @@ class Entity {
 		else if (typeof this.onInteract !== "undefined") {
 			// defaults to on (glowing gold) if it has an onInteract
 			this.sparkleNearPlayer = {
-				colour: "#FFE000", // gold
 				interactOnly: true, // only glows if the onInteract is enabled
+				// defaults are used for all other values
 			}; 
 		}
 
@@ -2002,7 +2002,9 @@ class Entity {
 			}
 		}
 
+		// ~
 		// trail object data preparation :::
+		// ~
 
 		particleData.trailName = name;
 
@@ -2014,7 +2016,7 @@ class Entity {
 			// time spacing in ms between particles being added ; must be a multiple of 10ms
 			// this can be specified through intensity (as below)
 			if (typeof particleData.intensity !== "undefined") {
-				// particles per 100ms
+				// particles per 1s
 				particleData.particleTimeGap = Round((1/particleData.intensity * 100)/10, 0)*10;
 			}
 			else {
@@ -2024,9 +2026,26 @@ class Entity {
 
 		particleData.timeElapsed = 0;
 
+		// ~
 		// default values
+		// ~
+
 		if (typeof particleData.transparency === "undefined") {
 			particleData.transparency = 0.75;
+		}
+		
+		if (typeof particleData.scatter === "undefined" && typeof particleData.variance === "undefined") {
+			// default scatter to over the size of this object (potentially scaled by a scatterMultiplier if specified)
+
+			if (typeof particleData.scatterMultiplier === "undefined") {
+				particleData.scatterMultiplier = 1.3;
+			}
+
+			particleData.scatter = {
+				width: this.width,
+				height: this.height,
+				multiplier: particleData.scatterMultiplier,
+			}
 		}
 
 		this.trails.push(particleData);
@@ -2059,7 +2078,6 @@ class Entity {
 				colour: colour,
 				removeIn: 1000,
 				rotation: 0,
-				variance: 50, // variance in position (in x/y axis in one direction from player)
 				intensity: 3, // no. of particles every 100ms
 				light: true,
 				transparency: 0.65,
@@ -4501,12 +4519,21 @@ class Tripwire extends Entity {
 }
 
 // drawn as a rectangle with a colour; is removed after a certain period of time
-class Particle extends Entity { // tbd should extend shape ?
+class Particle extends Entity { // tbd maybe should extend shape ?
 	constructor(properties) {
 		super(properties);
 
 		// variance
-		if (typeof properties.variance !== "undefined") {
+		if (typeof properties.scatter !== "undefined") {
+			// randomly scatters in a box of width and height around its (x,y position)
+			// tbd add a way to make it trend towards the centre of this box
+			if (typeof properties.scatter.multiplier === "undefined") {
+				properties.scatter.multiplier = 1;
+			}
+			this.x += Random(-properties.scatter.width*properties.scatter.multiplier/2, properties.scatter.width*properties.scatter.multiplier/2);
+			this.y += Random(-properties.scatter.height*properties.scatter.multiplier/2, properties.scatter.height*properties.scatter.multiplier/2);
+		}
+		else if (typeof properties.variance !== "undefined") {
 			this.x += Random(-properties.variance, properties.variance);
 			this.y += Random(-properties.variance, properties.variance);
 		}
@@ -9246,9 +9273,7 @@ Game.trailUpdate = function () {
 							trail.x = entity.x;
 							trail.y = entity.y;
 							
-							for (let i = 0; i < trail.intensity; i++) {
-								Game.createParticle(trail); // Game not this because it is called by setInterval
-							}
+							Game.createParticle(trail); // Game not this because it is called by setInterval
 						}
 					}
 				}
@@ -13192,11 +13217,10 @@ Game.update = function (delta) {
 				entity.addTrail("&sparkleNearPlayer", {
 					width: 3,
 					height: 3,
-					colour: entity.sparkleNearPlayer.colour || "#FFE000", // gold
+					colour: entity.sparkleNearPlayer.colour || "#FFE000", // gold default
 					removeIn: 1000,
 					rotation: 0,
-					variance: 50, // variance in position (in x/y axis in one direction from player)
-					intensity: 2, // no. of particles every 100ms
+					intensity: entity.sparkleNearPlayer.intensity || 2, // no. of particles every 100ms
 					light: true,
 					transparency: 0.65,
 				});

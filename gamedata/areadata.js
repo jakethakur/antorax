@@ -3801,7 +3801,6 @@ eaglecrest: {
 			colour: ["#8317C6", "#621191"], // class Particle chooses random colour from array
 			removeIn: 1000,
 			rotation: 0,
-			variance: 50, // variance in position (in x/y axis in one direction from player)
 			intensity: 3, // no. of particles every 100ms
 		});
 		// find nearest statue; give it trail and animate it
@@ -3813,7 +3812,6 @@ eaglecrest: {
 			colour: ["#8317C6", "#621191"], // class Particle chooses random colour from array
 			removeIn: 1000,
 			rotation: 0,
-			variance: 80, // variance in position (in x/y axis in one direction from player)
 			intensity: 8, // no. of particles every 100ms
 		});*/
 		if (typeof statue.animation === "undefined") {

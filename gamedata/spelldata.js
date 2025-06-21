@@ -733,7 +733,6 @@ const Spells = {
 							colour: ["#880808", "#8a0303"], // class Particle chooses random colour from array
 							removeIn: 1500,
 							rotation: 0,
-							variance: 50, // variance in position (in x/y axis in one direction from player)
 							intensity: 1, // no. of particles every 100ms
 						});
 					},
@@ -783,7 +782,6 @@ const Spells = {
 						width: 3,
 						colour: ["#2CE831"],
 						removeIn: 1000,
-						variance: 50,
 						intensity: 4,
 						duration: 2.5,
 					});
@@ -819,7 +817,6 @@ const Spells = {
 						width: 3,
 						colour: ["#cc0404"],
 						removeIn: 1000,
-						variance: 50,
 						intensity: 2,
 						duration: this.stats.duration,
 					});
@@ -962,7 +959,6 @@ const Spells = {
 					width: 3,
 					colour: ["#2CE831"],
 					removeIn: 500,
-					variance: 50,
 					intensity: 4,
 					duration: 2.5,
 				});
@@ -1845,7 +1841,6 @@ var SpellsOld = [
 						colour: ["#880808", "#8a0303"], // class Particle chooses random colour from array
 						removeIn: 1500,
 						rotation: 0,
-						variance: 50, // variance in position (in x/y axis in one direction from player)
 						intensity: 1, // no. of particles every 100ms
 					});
 				},
@@ -1893,7 +1888,6 @@ var SpellsOld = [
 					width: 3,
 					colour: ["#2CE831"],
 					removeIn: 1000,
-					variance: 50,
 					intensity: 4,
 					duration: 2.5,
 				});
@@ -1932,7 +1926,6 @@ var SpellsOld = [
 					width: 3,
 					colour: ["#cc0404"],
 					removeIn: 1000,
-					variance: 50,
 					intensity: 2,
 					duration: 6,
 				});
@@ -2291,7 +2284,6 @@ var SpellsOld = [
 						colour: ["#880808", "#8a0303"], // class Particle chooses random colour from array
 						removeIn: 1500,
 						rotation: 0,
-						variance: 50, // variance in position (in x/y axis in one direction from player)
 						intensity: 1, // no. of particles every 100ms
 					});
 				},
