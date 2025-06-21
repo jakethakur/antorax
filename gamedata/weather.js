@@ -23,6 +23,12 @@ let Weather = {
 			windMultiplier: 0.3, // multiplied with wind intensity
 			windAffectsY: true, // wind affects y pos (doesn't usually with snow/rain)
 		},
+		pollen: {
+			weight: 0, // down movement per second
+			windMultiplier: 0.35, // multiplied with wind intensity
+			windAffectsY: true, // wind affects y pos (doesn't usually with snow/rain)
+			intensityMultiplier: 0.03,
+		},
 		// "additional" particles
 		fish: {
 			weight: 300,
@@ -57,7 +63,7 @@ Weather.tick = function (init) {
 			// not called on init
 
 			// gusts
-			if (Weather.weatherType == "ley")
+			if (Weather.weatherType == "ley" || Weather.weatherType == "pollen")
 			{
 				Weather.gust(Random(0, 360));
 			}
@@ -203,6 +209,10 @@ Weather.updateIntensity = function () {
 		// increased intensity
 		this.intensity *= 1.4
 	}
+	
+	if (typeof this.particleData[this.weatherType] !== "undefined" && typeof this.particleData[this.weatherType].intensityMultiplier !== "undefined") {
+		this.intensity *= this.particleData[this.weatherType].intensityMultiplier;
+	}
 
 	// scale it up based on canvas size
 	this.intensity *= (Game.canvasArea / 36000);
@@ -283,7 +293,7 @@ Weather.heroMove = function (screenMovedX, screenMovedY) {
 		}
 		else {
 			// player moving down
-			if (this.weatherType == "ley")
+			if (this.weatherType == "ley" || this.weatherType == "pollen")
 			{
 				particle.y -= screenMovedY;
 			}
@@ -478,6 +488,10 @@ Weather.render = function () {
 		}
 		else if (particle.type === "ley") {
 			Game.ctx.fillStyle = "#c565fc";
+			Game.ctx.fillRect(particle.x, particle.y , 3, 3);
+		}
+		else if (particle.type === "pollen") {
+			Game.ctx.fillStyle = "#ffe187";
 			Game.ctx.fillRect(particle.x, particle.y , 3, 3);
 		}
 	}

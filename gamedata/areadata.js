@@ -8279,6 +8279,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			displayOnEnter: true,
 		},
 
+		weather: "pollen",
+
 		tagGameAllowed: true,
 
 		song_day: "assets/music/Eaglecrest.mp3",
@@ -8366,8 +8368,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				},
 				{
 					tile: 241,
-					ySpacing: 20,
-					xSpacing: -30,
+					ySpacing: 14,
+					xSpacing: -17,
 					name: "Marigolds",
 					objectProperties: {
 						canBePickedUp: {

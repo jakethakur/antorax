@@ -7450,7 +7450,7 @@ class Enemy extends NonPlayerAttacker {
 
 				// validation
 				if (typeof properties.lootTableTemplate[i] === "undefined") {
-					console.error(this.name + " has undefined loot table template at index " + i + ".")
+					console.warn(this.name + " has undefined loot table template at index " + i + ".")
 				}
 			}
 		}
@@ -15185,7 +15185,7 @@ Game.render = function (delta) {
 	// draw minimap
 	this.ctxMinimap.clearRect(0, 0, this.camera.minimap.width, this.camera.minimap.height);
 	if (!this.keysDown.SHIFT && !this.takePhoto) {
-		this.renderMinimap();
+		//this.renderMinimap(); // disabled because it's very slow on firefox (though fine on chrome)
 	}
 
 

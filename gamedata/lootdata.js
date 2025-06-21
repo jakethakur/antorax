@@ -3,6 +3,13 @@
 // chances are multiplied by looting
 // largest number that roll is more than is chosen for item
 
+const ArchaeologyLootTables = {
+	upperCaves: [
+		Items.fish[14],
+		{name: "unidentified", tier: 2, area: "caves",},
+	]
+}
+
 const EnemyLootTables = {
 	global: [
 		// all enemies have this (usually for events)
@@ -667,6 +674,31 @@ const EnemyLootTables = {
 			],
 		},
 		// tbd add flowers
+	],
+	crystalSmall: [
+		{ // ley fracture
+			item: Items.item[56],
+			chance: [
+				80,				// 0
+				50,				// 1
+				30,	//2
+				0, // 3
+			],
+			repeatTimes: 4
+		},
+	],
+	crystalLarge: [
+		{ // ley fracture
+			item: Items.item[56],
+			chance: [
+				80,				// 0
+				60,				// 1
+				40,				// 2
+				20,	//3
+				0, // 4
+			],
+			repeatTimes: 7
+		},
 	],
 };
 
