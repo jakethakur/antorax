@@ -7266,7 +7266,8 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 						Dom.chat.insert("<i>You found a yellow gnome~")
 						User.progress.gnomesFound.push("yellow");
 					}
-				}
+				},
+				sparkleNearPlayer: false,
 			},
 			{
 				x: 180,
@@ -9970,7 +9971,8 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 						Dom.chat.insert("<i>You found a blue gnome ⚬°</i>")
 						User.progress.gnomesFound.push("blue");
 					}
-				}
+				},
+				sparkleNearPlayer: false,
 			},
 			{
                 x: [2667.7, 2054.5, 2055.1, 2150.1, 2363.3, 2291.2, 2020.4, 4543.8],
@@ -10022,7 +10024,8 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 				    else {
 				        Dom.chat.npcBanner(false, "<i>Looks like a pretty deep well...</i>", true);
 				    }
-				}
+				},
+				// tbd change location of the sparkleNearPlayer to make it look more normal
 			},
 			{
 				x: 257,
@@ -11858,7 +11861,8 @@ eaglecrestWell: {
 					Dom.chat.insert("<i>You found a green gnome﹏</i>")
 					User.progress.gnomesFound.push("green");
 				}
-			}
+			},
+			sparkleNearPlayer: false,
 		},
 		{
 			x: [209.2, 119.4, 38, 1232.5, 1332.7, 1474.3, 1412, 1177.2, 1112.1, 34.2, 410.8],

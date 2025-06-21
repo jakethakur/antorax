@@ -1579,6 +1579,17 @@ class Entity {
 		this.onInteractRequirement = properties.onInteractRequirement; // function
 		this.interactCooldown = properties.interactCooldown; // cooldown between onInteract being able to be called, in seconds
 
+		if (typeof properties.sparkleNearPlayer !== "undefined") { // whether it sparkles when the player is nearby. should be set to an object
+			this.sparkleNearPlayer = properties.sparkleNearPlayer;
+		}
+		else if (typeof this.onInteract !== "undefined") {
+			// defaults to on (glowing gold) if it has an onInteract
+			this.sparkleNearPlayer = {
+				colour: "#FFE000", // gold
+				interactOnly: true, // only glows if the onInteract is enabled
+			}; 
+		}
+
 		// object of functions that can be called for entity-specific behaviour
 		// these are all bound to this object
 		this.behaviourFunctions = properties.behaviourFunctions;
@@ -1733,8 +1744,8 @@ class Entity {
 
 		// sparkling trail for quest
 		if (properties.sparkle) {
-			this.sparkle(properties.sparkleColour); // leave as undefined for gold
-			// sets this.sparkling to true
+			this.sparkleOn(properties.sparkleColour); // leave as undefined for gold
+			// the above function also sets this.sparkling to true
 		}
 
 		// clears any darkness visual effect around it (i.e. nighttime, or dark ambience i.e. caves)
@@ -1990,11 +2001,31 @@ class Entity {
 				return false; // trail already exists
 			}
 		}
+
+		// trail object data preparation :::
+
 		particleData.trailName = name;
+
 		if (typeof particleData.height === "undefined") {
 			particleData.height = particleData.width;
 		}
+
+		if (typeof particleData.particleTimeGap === "undefined") {
+			// time spacing in ms between particles being added ; must be a multiple of 10ms
+			// this can be specified through intensity (as below)
+			if (typeof particleData.intensity !== "undefined") {
+				// particles per 100ms
+				particleData.particleTimeGap = Round((1/particleData.intensity * 100)/10, 0)*10;
+			}
+			else {
+				particleData.particleTimeGap = 30; // default val
+			}
+		}
+
+		particleData.timeElapsed = 0;
+
 		this.trails.push(particleData);
+
 		return true;
 	}
 
@@ -2015,7 +2046,7 @@ class Entity {
 	sparkleOn (colour) {
 		if (!this.sparkling) {
 			if (typeof colour === "undefined") {
-				colour = "FFE000"; // gold , default
+				colour = "#FFE000"; // gold , default
 			}
 			this.addTrail("&sparkle", {
 				width: 3,
@@ -2024,8 +2055,9 @@ class Entity {
 				removeIn: 1000,
 				rotation: 0,
 				variance: 50, // variance in position (in x/y axis in one direction from player)
-				intensity: 4, // no. of particles every 100ms
-				light: true
+				intensity: 3, // no. of particles every 100ms
+				light: true,
+				transparency: 0.65,
 			});
 			this.sparkling = true;
 		}
@@ -4903,7 +4935,7 @@ class Hero extends Attacker {
 								colour: ["FB6304", "#FFBF00", "#FFFF00", "#FFAC1C", "#FF4433"], //particle chooses random colour from array
 								removeIn: 750,
 								variance: 15, // variance in position (in x/y axis in one direction from player)
-								intensity: 2,
+								intensity: 7,
 							};
 						}
 						else if (weaponType === "bow") {
@@ -4913,7 +4945,7 @@ class Hero extends Attacker {
 								colour: ["#CECDCC", "#D7D8D2"], // particle chooses random colour from array
 								removeIn: 1500,
 								variance: 5, // variance in position (in x/y axis in one direction from player)
-								intensity: 1,
+								intensity: 4,
 							};
 							hitboxSize = 10;
 							projectileName = "Arrow Attack";
@@ -9178,8 +9210,9 @@ Game.levelUpFireworks = function (numberRemaining) {
 	}
 }
 
-// called every 100ms by Game.trailInterval
-Game.addTrailParticles = function () {
+// called every 10ms by Game.trailInterval
+// draws a trail's particles around the entity, and elapses duration of trrail
+Game.trailUpdate = function () {
 	// check game has initialised already !
 	if (typeof Game.allEntities !== "undefined") {
 		for (let i = 0; i < Game.allEntities.length; i++) {
@@ -9188,35 +9221,34 @@ Game.addTrailParticles = function () {
 				// iterate through each trail
 				for (let j = 0; j < entity.trails.length; j++) {
 					let trail = entity.trails[j];
+
 					if (typeof trail.duration !== "undefined") {
-						trail.duration -= 0.1; // measured in seconds
+						trail.duration -= 0.01; // measured in seconds
 					}
+
 					if (typeof trail.duration !== "undefined" && trail.duration <= 0) {
 						entity.trails.splice(j);
 						j--;
 					}
+
 					else {
-						Game.drawTrail(entity, trail)
+						// draw particles
+						trail.timeElapsed += 10; // measured in ms
+						if (trail.timeElapsed % trail.particleTimeGap === 0) {
+							// draw one particle
+							
+							// set trail position
+							trail.x = entity.x;
+							trail.y = entity.y;
+							
+							for (let i = 0; i < trail.intensity; i++) {
+								Game.createParticle(trail); // Game not this because it is called by setInterval
+							}
+						}
 					}
 				}
 			}
 		}
-	}
-}
-
-// draws a trail's particles around the entity
-// this function is called by addTrailPartcicles
-Game.drawTrail = function (entity, trail) {
-	if (typeof trail.intensity === "undefined") {
-		// no. of particles to be added every 100ms
-		trail.intensity = 1; // default val
-	}
-	// set trail position
-	trail.x = entity.x;
-	trail.y = entity.y;
-	// draw particles
-	for (let i = 0; i < trail.intensity; i++) {
-		this.createParticle(trail); // Game not this because it is called by setInterval
 	}
 }
 
@@ -10602,20 +10634,6 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 
 				this.totalAnimationTime = 0; // used to find if animate should be called for an object
 
-				// time travel fog
-				/*
-				if (Areas[areaName].timeTravel === true) {
-					this.createParticle({
-						x: 0,
-						y: 0,
-						width: 2,
-						height: 2,
-						colour: "#b7b7b7",
-						transparency: Random(3, 7) / 10,
-					});
-				}
-				*/
-
 				// they logged out at this area - call areaLeave if there are quests that need to be abandoned, variables that need to be reset etc.
 				// note quests may also be abandoned on logout through Game.hero.abandonQuestsOnLogout, which is dealt with in Game.init
 				if (init && Areas[Game.areaName].onAreaLeave !== undefined && Areas[Game.areaName].callAreaLeaveOnLogout) {
@@ -10943,8 +10961,8 @@ Game.init = function () {
 	this.canvasDisplayQueue = [];
 
 	// trail interval
-	// new particle(s) every 100ms (tbd make this called more often?)
-	Game.trailInterval = Game.setInterval(Game.addTrailParticles, 10);
+	// new particle(s) every 10ms (tbd make this called more often?)
+	Game.trailInterval = Game.setInterval(Game.trailUpdate, 10);
 
 	// intervalEffects of items
 	this.equipmentKeys = ["helm", "chest", "greaves", "boots", "weapon"];
@@ -13158,6 +13176,32 @@ Game.update = function (delta) {
 		// rotateSpeed
 		if (typeof entity.rotateSpeed !== "undefined") {
 			entity.rotate += entity.rotateSpeed*delta;
+		}
+
+		// sparkleNearPlayer
+		if (typeof entity.sparkleNearPlayer !== "undefined") {
+			let triggerRange = entity.sparkleNearPlayer.triggerRange || 250; // distance required for sparkling
+			let triggerCondition = this.distance(entity, Game.hero) <= triggerRange && (!entity.sparkleNearPlayer.interactOnly || !entity.interactOnCooldown);
+			if (!entity.sparkleNearPlayer.active && triggerCondition) {
+				// not yet active; activate it
+				entity.addTrail("&sparkleNearPlayer", {
+					width: 3,
+					height: 3,
+					colour: entity.sparkleNearPlayer.colour || "#FFE000", // gold
+					removeIn: 1000,
+					rotation: 0,
+					variance: 50, // variance in position (in x/y axis in one direction from player)
+					intensity: 2, // no. of particles every 100ms
+					light: true,
+					transparency: 0.65,
+				});
+				entity.sparkleNearPlayer.active = true;
+			}
+			else if (entity.sparkleNearPlayer.active && !triggerCondition) {
+				// currently active; de-activate it
+				entity.removeTrail("&sparkleNearPlayer");
+				entity.sparkleNearPlayer.active = false;
+			}
 		}
 	}
 
