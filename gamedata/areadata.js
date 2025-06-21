@@ -3802,7 +3802,7 @@ eaglecrest: {
 			removeIn: 1000,
 			rotation: 0,
 			variance: 50, // variance in position (in x/y axis in one direction from player)
-			intensity: 1, // no. of particles every 100ms
+			intensity: 3, // no. of particles every 100ms
 		});
 		// find nearest statue; give it trail and animate it
 		let statueArray = Game.things.filter(entity => entity.name === "Eagle Statue");

@@ -2024,6 +2024,11 @@ class Entity {
 
 		particleData.timeElapsed = 0;
 
+		// default values
+		if (typeof particleData.transparency === "undefined") {
+			particleData.transparency = 0.75;
+		}
+
 		this.trails.push(particleData);
 
 		return true;
