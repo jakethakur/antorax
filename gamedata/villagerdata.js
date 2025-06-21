@@ -24,7 +24,8 @@ BuyFunctions.closeDomPage = function () {
 var Villagers = [
     {
         id: 0,
-        images: {silvioStarstrike: {normal: "assets/npcs/silvioStarstrike.png"}},
+		image: "silvioStarstrike",
+        imagesToLoad: {silvioStarstrike: {normal: "assets/npcs/silvioStarstrike.png"}},
         name: "Silvio Starstrike",
         level: 20,
         stats: {
@@ -45,7 +46,8 @@ var Villagers = [
     },
     {
         id: 1,
-        images: {darioHorfern: {normal: "assets/npcs/darioHorfern.png"}},
+		image: "darioHorfern",
+        imagesToLoad: {darioHorfern: {normal: "assets/npcs/darioHorfern.png"}},
         name: "Dario Horfern",
         level: 10,
         stats: {
@@ -71,7 +73,8 @@ var Villagers = [
     },
     {
         id: 2,
-        images: {gremaRoskin: {normal: "assets/npcs/gremaRoskin.png"}},
+		image: "gremaRoskin",
+        imagesToLoad: {gremaRoskin: {normal: "assets/npcs/gremaRoskin.png"}},
         name: "Grema Roskin",
         level: 15,
         stats: {
@@ -96,7 +99,8 @@ var Villagers = [
     },
     {
         id: 3,
-        images: {feller: {normal: "assets/npcs/feller.png"}},
+		image: "feller",
+        imagesToLoad: {feller: {normal: "assets/npcs/feller.png"}},
         name: "Logging Camp Feller",
         level: 4,
         stats: {
@@ -118,7 +122,8 @@ var Villagers = [
     },
     {
         id: 4,
-        images: {treecutter: {normal: "assets/npcs/treecutter.png"}},
+		image: "treecutter", 
+        imagesToLoad: {treecutter: {normal: "assets/npcs/treecutter.png"}},
         name: "Logging Camp Treecutter",
         level: 7,
         stats: {
@@ -244,7 +249,8 @@ var Villagers = [
     },
     {
         id: 8,
-        images: {gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"}},
+		image: "gildoCleftbeard",
+        imagesToLoad: {gildoCleftbeard: {normal: "assets/npcs/gildoCleftbeard.png"}},
         name: "Gildo Cleftbeard",
         level: 14,
 		corpseOnDeath: false,
@@ -274,7 +280,8 @@ var Villagers = [
     },
     {
         id: 9,
-        images: {eaglecrestGuard: {normal: "assets/npcs/eaglecrestGuard.png"}},
+		image: "eaglecrestGuard",
+        imagesToLoad: {eaglecrestGuard: {normal: "assets/npcs/eaglecrestGuard.png"}},
         name: "Eaglecrest Guard",
         level: 50,
         stats: {
@@ -296,7 +303,8 @@ var Villagers = [
     },
     {
         id: 10,
-        images: {eaglecrestGuard2: {normal: "assets/npcs/eaglecrestGuard2.png"}},
+		image: "eaglecrestGuard2",
+        imagesToLoad: {eaglecrestGuard2: {normal: "assets/npcs/eaglecrestGuard2.png"}},
         name: "Eaglecrest Guard",
         level: 50,
         stats: {
@@ -318,7 +326,8 @@ var Villagers = [
     },
     {
         id: 11,
-        images: {alfonsoMurbry: {normal: "assets/npcs/alfonsoMurbry.png"}},
+		image: "alfonsoMurbry",
+        imagesToLoad: {alfonsoMurbry: {normal: "assets/npcs/alfonsoMurbry.png"}},
         name: "Alfonso Murbry",
         level: 18,
         stats: {
@@ -349,7 +358,7 @@ var Villagers = [
     },
     {
         id: 12,
-        images: {
+        imagesToLoad: {
             catTabbyLeft: {normal: "assets/npcs/catTabbyLeft.png"},
             catTabbyRight: {normal: "assets/npcs/catTabbyLeft.png", flip: "vertical"},
         },
@@ -376,7 +385,7 @@ var Villagers = [
     },
     {
         id: 13,
-        images: {
+        imagesToLoad: {
             catTigerLeft: {normal: "assets/npcs/catTigerLeft.png"},
             catTigerRight: {normal: "assets/npcs/catTigerLeft.png", flip: "vertical"},
         },
@@ -403,7 +412,7 @@ var Villagers = [
     },
     {
         id: 14,
-        images: {
+        imagesToLoad: {
             catCowLeft: {normal: "assets/npcs/catCowLeft.png"},
             catCowRight: {normal: "assets/npcs/catCowLeft.png", flip: "vertical"},
         },
@@ -430,7 +439,8 @@ var Villagers = [
     },
 	{
         id: 15,
-        images: {alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"}},
+		image: "alysLoreworth",
+        imagesToLoad: {alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"}},
 		name: "Alys Loreworth, Lead Archaeologist",
 		hostility: "friendly",
 		level: 100,
@@ -481,7 +491,8 @@ var Villagers = [
 	},
 	{
         id: 16,
-        images: {mailman: {normal: "assets/npcs/mailman.png"}},
+		image: "mailman",
+        imagesToLoad: {mailman: {normal: "assets/npcs/mailman.png"}},
 		name: "Eaglecrest Mailman",
 		hostility: "friendly",
 		level: 10,
@@ -737,7 +748,8 @@ var Villagers = [
 	},
 	{
         id: 18,
-        images: {pieRomancer: {normal: "assets/npcs/pieRomancer.png"}},
+		image: "pieRomancer",
+        imagesToLoad: {pieRomancer: {normal: "assets/npcs/pieRomancer.png"}},
 		name: "Peto the Pyromancer",
 		nameFunction: function () {
 			if (Player.quests.completedQuestArray.includes("The Pyromancer's Shopping List")) {
@@ -970,7 +982,8 @@ var Villagers = [
 	},
 	{
         id: 23,
-        images: {ghostVillager: {normal: "assets/npcs/ghost.png"}},
+		image: "ghostVillager",
+        imagesToLoad: {ghostVillager: {normal: "assets/npcs/ghost.png"}},
 		name: "Ghost?",
 		hostility: "friendly",
 		level: 25,
@@ -993,7 +1006,8 @@ var Villagers = [
 	},
     {
         id: 24,
-        images: {jester: {normal: "assets/npcs/jester.png"}},
+		image: "jester",
+        imagesToLoad: {jester: {normal: "assets/npcs/jester.png"}},
         name: "The Jester",
         level: 19,
 		corpseOnDeath: false,
@@ -1122,7 +1136,8 @@ var Villagers = [
     },
 	{
         id: 25,
-        images: {countVarney: {normal: "assets/npcs/countVarney.png"}},
+		image: "countVarney",
+        imagesToLoad: {countVarney: {normal: "assets/npcs/countVarney.png"}},
 		name: "Count Varney",
 		hostility: "friendly",
 		level: 35,
@@ -1147,7 +1162,8 @@ var Villagers = [
 	},
 	{
         id: 26,
-        images: {fishTankFront: {normal: "assets/npcs/fishTankFront.png"}, fishTankSide: {normal: "assets/npcs/fishTankSide.png"}},
+		image: "fishTankFront",
+        imagesToLoad: {fishTankFront: {normal: "assets/npcs/fishTankFront.png"}, fishTankSide: {normal: "assets/npcs/fishTankSide.png"}},
 		name: "Fish Tank",
 		hostility: "friendly",
 		level: 1,
@@ -1171,7 +1187,7 @@ var Villagers = [
 	},
     {
         id: 27,
-        images: {
+        imagesToLoad: {
             catOcelotLeft: {normal: "assets/npcs/catOcelotLeft.png"},
             catOcelotRight: {normal: "assets/npcs/catOcelotLeft.png", flip: "vertical"},
         },
@@ -1201,7 +1217,7 @@ var Villagers = [
     },
     {
         id: 28,
-        images: { // tbd make observatory cat ??
+        imagesToLoad: { // tbd make observatory cat ??
             catBlueLeft: {normal: "assets/npcs/catBlueLeft.png"},
             catBlueRight: {normal: "assets/npcs/catBlueLeft.png", flip: "vertical"},
         },
@@ -1231,7 +1247,7 @@ var Villagers = [
     },
     {
         id: 29,
-        images: { // jamie's cat
+        imagesToLoad: { // jamie's cat
             catThorLeft: {normal: "assets/npcs/catCowLeft.png"},// tbd needs its own art !!!!
             catThorRight: {normal: "assets/npcs/catCowLeft.png", flip: "vertical"},
         },
@@ -1261,7 +1277,7 @@ var Villagers = [
     },
     {
         id: 30,
-        images: { // jamie's cat
+        imagesToLoad: { // jamie's cat
             catLokiLeft: {normal: "assets/npcs/catLokiLeft.png"},
             catLokiRight: {normal: "assets/npcs/catLokiLeft.png", flip: "vertical"},
         },
@@ -1291,7 +1307,7 @@ var Villagers = [
     },
     {
         id: 31,
-        images: {
+        imagesToLoad: {
             catObsidianLeft: {normal: "assets/npcs/catObsidianLeft.png"},
             catObsidianRight: {normal: "assets/npcs/catObsidianLeft.png", flip: "vertical"},
         },
@@ -1321,7 +1337,7 @@ var Villagers = [
     },
     {
         id: 32,
-        images: { // alex's cat
+        imagesToLoad: { // alex's cat
             catSnowyLeft: {normal: "assets/npcs/catSnowyLeft.png"},
             catSnowyRight: {normal: "assets/npcs/catSnowyLeft.png", flip: "vertical"},
         },
@@ -1351,7 +1367,7 @@ var Villagers = [
     },
     {
         id: 33,
-        images: {
+        imagesToLoad: {
             catSphynxLeft: {normal: "assets/npcs/catSphynxLeft.png"},
             catSphynxRight: {normal: "assets/npcs/catSphynxLeft.png", flip: "vertical"},
         },
@@ -1381,7 +1397,7 @@ var Villagers = [
     },
     {
         id: 34,
-        images: {
+        imagesToLoad: {
             catWitchLeft: {normal: "assets/npcs/catWitchLeft.png"},
             catWitchRight: {normal: "assets/npcs/catWitchLeft.png", flip: "vertical"},
         },
@@ -1411,7 +1427,7 @@ var Villagers = [
     },
     {
         id: 35,
-        images: { // leo's cat
+        imagesToLoad: { // leo's cat
             catMerlinLeft: {normal: "assets/npcs/catMerlinLeft.png"},// tbd needs its own art !!!!
             catMerlinRight: {normal: "assets/npcs/catMerlinLeft.png", flip: "vertical"},
         },
@@ -1441,7 +1457,8 @@ var Villagers = [
     },
 	{
         id: 36,
-        images: {namelessOne: {normal: "assets/npcs/namelessOne.png"}},
+		image: "namelessOne",
+        imagesToLoad: {namelessOne: {normal: "assets/npcs/namelessOne.png"}},
 		name: "The Nameless One",
 		hostility: "friendly",
 		level: 20,

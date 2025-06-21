@@ -691,7 +691,7 @@ Game.addPlayer = function (player) {
 					copiedPlayer.hostility = "friendly";
 				}
 
-				let loadForThisNpc = this.formatNpcImages(copiedPlayer); // turns .image into .images, which is then turned into a .image and .additionalImages by constructor
+				let loadForThisNpc = this.getNpcImagesToLoad(copiedPlayer); // turns .image into .images, which is then turned into a .image and .additionalImages by constructor
 
 				// load its image
 				Promise.all(Loader.loadMultipleImages(loadForThisNpc, false)).then(function () {
@@ -2199,6 +2199,8 @@ class Thing extends Visible {
 	// sets all image and animation related variables
 	// called from constructor, or if the whole image structure needs to be changed, e.g. for transformations (see hero)
 	setImageFromProperties (properties) {
+		this.formatImages(properties);
+
 		// set image to a default rotation image if image is undefined but rotationImages is not
 		// otherwise npc would be made hidden by the next block of code
 		if (properties.image === undefined && properties.rotationImages !== undefined) {
@@ -2206,13 +2208,13 @@ class Thing extends Visible {
 		}
 
 		// multiple images included in an array, to be rendered on top of each other
-		this.additionalImages = properties.images; // can be undefined
-		if (properties.image === undefined && properties.images !== undefined) {
-			// if image is not specified, it becomes the first additionalImage
-			properties.image = this.additionalImages.shift();
-			properties.image = properties.image.imageName;
+		if (typeof this.images !== "undefined") {
+			this.setAdditionalImages(this.images);
 		}
-		this.setAdditionalImages(this.additionalImages);
+		if (properties.image === undefined && this.additionalImages !== undefined) {
+			// if this.image is not specified, it becomes the first additionalImage
+			properties.image = this.additionalImages.shift().imageName;
+		}
 
 		if (properties.image !== undefined) {
 			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
@@ -2260,6 +2262,142 @@ class Thing extends Visible {
 		this.setAnimation(properties.animation); // see setAnimation function for what properties should be passed in etc
 	}
 
+	// creates a this.additionalImages from a this.image that is in a deconstructed format (like the player's)
+	// the imgName values in this function correspond to those set and loaded by Game.getNpcImagesToLoad (called in Game.loadArea)
+	formatImages (properties) {
+		// if image is an object that specifies at least a skinTone, construct the entity from the images in assets/playerCustom
+		// (i.e. how hero is constructed)
+		if (typeof properties.image === "object" && !Array.isArray(properties.image) && typeof properties.image.skinTone !== "undefined") {
+			this.additionalImages = [];
+			// skin tone
+			let imgName = "playerSkin_"+properties.image.skinTone;
+			this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName)});
+			// face
+			if (typeof properties.image.face !== "undefined") {
+				imgName = "playerFace_"+properties.image.face;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+			}
+			else {
+				// base face, unless they're an orc or special skin
+				if (properties.image.skinTone.substring(0,3) === "orc") {
+					imgName = "playerFace_baseOrc";
+					this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+				}
+				else if (properties.image.skinTone === "fish" || properties.image.skinTone === "panda" || properties.image.skinTone === "penguin" || properties.image.skinTone === "slug") {
+					imgName = "playerFace_null";
+					this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+				}
+				else {
+					imgName = "playerFace_base";
+					this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+				}
+			}
+			// clothing - might be all in one (.clothing), or separated (.clothingTop, .clothingBottom, etc.)
+			if (typeof properties.image.clothingFeet !== "undefined") {
+				imgName = "playerClothingFeet_"+properties.image.clothingFeet;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName)});
+			}
+			if (typeof properties.image.clothingBottom !== "undefined") {
+				imgName = "playerClothingBottom_"+properties.image.clothingBottom;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName)});
+			}
+			if (typeof properties.image.clothingTop !== "undefined") {
+				imgName = "playerClothingTop_"+properties.image.clothingTop;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName)});
+			}
+			if (typeof properties.image.clothingOver !== "undefined") {
+				imgName = "playerClothingOver_"+properties.image.clothingOver;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName)});
+			}
+			if (typeof properties.image.clothing !== "undefined") {
+				let clothingClass = "npc"; // folder the clothing appears in (defaults to npc)
+				if (typeof properties.image.clothingClass !== "undefined") {
+					clothingClass = properties.image.clothingClass;
+				}
+				imgName = "playerClothing_"+properties.image.clothing;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName)});
+			}
+			// facial hair (optional)
+			if (typeof properties.image.beard !== "undefined") {
+				imgName = "playerBeard_"+properties.image.beard;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+			}
+			// hair (optional if they're bald)
+			if (typeof properties.image.hair !== "undefined") {
+				imgName = "playerHair_"+properties.image.hair;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+			}
+			// ears - usually done to match skin tone, but can be customised ig
+			if (typeof properties.image.ears !== "undefined") {
+				imgName = "playerEars_"+properties.image.ears;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+			}
+			else {
+				imgName = "playerEars_"+properties.image.skinTone;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+			}
+			// hat - optional
+			if (typeof properties.image.hat !== "undefined") {
+				// find the corresponding skindata object, in case there is any offset
+				// tbd currently just hats have the option to be offset - add this to other types by making this a function / in a for loop
+				let skinObj = {};
+				for (let i = 0; i < Skins.hat.length; i++) {
+					if (Skins.hat[i].src === properties.image.hat) {
+						skinObj = Skins.hat[i];
+						break;
+					}
+				}
+				imgName = "playerHat_"+properties.image.hat;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true, offsetX: skinObj.offsetX, offsetY: skinObj.offsetY});
+			}
+			// accessories - optional
+			if (typeof properties.image.accessories !== "undefined") {
+				imgName = "playerAccessories_"+properties.image.accessories;
+				this.additionalImages.push({imageName: imgName, image: Loader.getImage(imgName), doNotAnimate: true});
+			}
+
+			// held objects - load in images
+			if (typeof properties.heldLeft !== "undefined") {
+				imgName = "heldLeft_"+properties.name;
+				properties.heldLeft.imgNormalSrc = imgName;
+				imgName = "heldLeftFlipped_"+properties.name;
+				properties.heldLeft.imgFlippedSrc = imgName;
+			}
+			if (typeof properties.heldRight !== "undefined") {
+				imgName = "heldRight_"+properties.name;
+				properties.heldRight.imgNormalSrc = imgName;
+				imgName = "heldRightFlipped_"+properties.name;
+				properties.heldRight.imgFlippedSrc = imgName;
+			}
+
+			properties.image = undefined;
+
+			if (typeof properties.crop !== "undefined") {
+				console.warn("Crop of npc is overwritten by formatImages", properties);
+			}
+			if (typeof properties.animation !== "undefined") {
+				console.warn("Animation of npc is overwritten by formatImages", properties);
+			}
+			properties.crop = {
+				x: 0,
+				y: 0,
+				width: 52,
+				height: 127
+			};
+			properties.animation = {
+				type: "spritesheet",
+				frameTime: 18,
+				imagesPerRow: 4,
+				totalImages: 4,
+				animateBasis: "walk",
+			};
+			properties.spritesheetRotate = true;
+
+			return properties.images;
+		}
+		return false;
+	}
+
 	// imageName is the key name of the image stored in loader
 	// crop is object with width and height information (x, y , width, height)
 	// width and height are optional "stretch" parameters
@@ -2299,6 +2437,7 @@ class Thing extends Visible {
 				let imageObject = Loader.getImageInfo(additionalImageArray[i].imageName);
 				this.additionalImages.push({
 					image: imageObject.img,
+					imageName: additionalImageArray[i].imageName,
 					imageSrc: imageObject.src,
 					doNotAnimate: additionalImageArray[i].doNotAnimate, // optional
 					offsetX: additionalImageArray[i].offsetX, // optional
@@ -4491,7 +4630,7 @@ class Hero extends Attacker {
 		// (same as in constructor)
 		// old image does not need to be saved, since it can be figured out from saved data (this is the hero)
 		this.setImageFromProperties(properties);
-		let load = Game.formatNpcImages(this);
+		let load = Game.getNpcImagesToLoad(this);
 		// tbd need to actually load these images !!! and keep them loaded in with condition that player is transformed
 
 		// projectile
@@ -4534,7 +4673,7 @@ class Hero extends Attacker {
 	untransform () {
 		if (this.transformed) {
 			let heroProperties = Game.heroBaseProperties();
-			Game.formatNpcImages(this);
+			//Game.formatNpcImages(this); doesn't exist anymore
 			// image and animation
 			this.setImageFromProperties(heroProperties);
 	
@@ -9463,7 +9602,7 @@ Game.loadDefaultImages = function () {
 	let toLoad = [];
 
 	let heroProperties = Game.heroBaseProperties(); // object of properties - image, crop, animation
-	let heroLoad = this.formatNpcImages(heroProperties); // replaces image object with images array
+	let heroLoad = this.getNpcImagesToLoad(heroProperties);
 	toLoad = toLoad.concat(Loader.loadMultipleImages(heroLoad, false));
 
 	// load class' default projectile
@@ -9702,25 +9841,25 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 
 			// also add npc layered images (like the hero) - these don't need to be loaded in in areadata as their addresses are obvious
 			// tbd iterate through additional entity types that might have layered images like this
-			let load = {};
+			let load = {}; // images to be loaded
 			if (typeof Areas[areaName].npcs !== "undefined") {
 				for (let i = 0; i < Areas[areaName].npcs.length; i++) {
 					let npc = Areas[areaName].npcs[i];
-					let loadForThisNpc = this.formatNpcImages(npc); // prepares the NPC images for adding, as well as returning the images that need to be loaded in
+					let loadForThisNpc = this.getNpcImagesToLoad(npc);
 					load = Object.assign(load, loadForThisNpc);
 				}
 			}
 			if (typeof Areas[areaName].enemies !== "undefined") {
 				for (let i = 0; i < Areas[areaName].enemies.length; i++) {
 					let npc = Areas[areaName].enemies[i];
-					let loadForThisNpc = this.formatNpcImages(npc);
+					let loadForThisNpc = this.getNpcImagesToLoad(npc);
 					load = Object.assign(load, loadForThisNpc);
 				}
 			}
 			if (typeof Areas[areaName].villagers !== "undefined") { // villagers that aren't generated through generateVillagers. i.e. ones that always appear in this area
 				for (let i = 0; i < Areas[areaName].villagers.length; i++) {
 					let npc = Areas[areaName].villagers[i];
-					let loadForThisNpc = this.formatNpcImages(npc);
+					let loadForThisNpc = this.getNpcImagesToLoad(npc);
 					load = Object.assign(load, loadForThisNpc);
 				}
 			}
@@ -10495,63 +10634,65 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 	}
 }
 
-// used in loadArea for when NPC image is in a deconstructed format (i.e. the player's)
-// this is to be used before NPC's constructor is called !
-// the properties of the NPC that are passed in are edited by this - if .image property is an object, it is replaced by .images array property (which then sets .additionalImages in setAdditionalImages fn called by constructor)
-// in addition, this returns an object of images to be loaded (in the form of that in areadata)
-Game.formatNpcImages = function (properties) {
-	// if image is an object that specifies at least a skinTone, construct the entity from the images in assets/playerCustom
-	// (i.e. how hero is constructed)
+// used in Game.loadArea to extract images to be loaded from an areadata.js object
+// this returns an object of images to be loaded, as an object of format {imageKeyName: {normal: "imageSrc"}}
+// this does not edit properties, so no need to deep copy beforehand
+Game.getNpcImagesToLoad = function (properties) {
+	let loadObj = {}; // obj of images to be loaded
+
+	let imgName;
+
+	if (typeof properties.imagesToLoad === "object" && !Array.isArray(properties.imagesToLoad)) {
+		// properties.imagesToLoad is an object, thus must be specifying image(s) to be loaded
+		// iterate through the object's properties
+		for (const [key, value] of Object.entries(properties.imagesToLoad)) {
+			if (typeof value === "object" && !Array.isArray(value)) { // validation - check image to be loaded is an object
+				loadObj[key] = value;
+			}
+		}
+	}
+
 	if (typeof properties.image === "object" && !Array.isArray(properties.image) && typeof properties.image.skinTone !== "undefined") {
-		properties.images = [];
-		let loadObj = {}; // to be loaded in; returned by the function
-		// skin tone
-		let imgName = "playerSkin_"+properties.image.skinTone;
-		properties.images.push({imageName: imgName});
+		// construct the entity from the images in assets/playerCustom
+		// (i.e. how hero is constructed)
+		imgName = "playerSkin_"+properties.image.skinTone;
 		loadObj[imgName] = {normal: "assets/playerCustom/skinTone/" + properties.image.skinTone + ".png"};
+
 		// face
 		if (typeof properties.image.face !== "undefined") {
 			imgName = "playerFace_"+properties.image.face;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
 			loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/" + properties.image.face + ".png"};
 		}
 		else {
 			// base face, unless they're an orc or special skin
 			if (properties.image.skinTone.substring(0,3) === "orc") {
 				imgName = "playerFace_baseOrc";
-				properties.images.push({imageName: imgName, doNotAnimate: true});
 				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/baseOrc.png"};
 			}
 			else if (properties.image.skinTone === "fish" || properties.image.skinTone === "panda" || properties.image.skinTone === "penguin" || properties.image.skinTone === "slug") {
 				imgName = "playerFace_null";
-				properties.images.push({imageName: imgName, doNotAnimate: true});
 				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/null.png"};
 			}
 			else {
 				imgName = "playerFace_base";
-				properties.images.push({imageName: imgName, doNotAnimate: true});
 				loadObj[imgName] = {normal: "assets/playerCustom/facialExpression/base.png"};
 			}
 		}
 		// clothing - might be all in one (.clothing), or separated (.clothingTop, .clothingBottom, etc.)
 		if (typeof properties.image.clothingFeet !== "undefined") {
 			imgName = "playerClothingFeet_"+properties.image.clothingFeet;
-			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothingFeet/" + properties.image.clothingFeet + ".png"};
 		}
 		if (typeof properties.image.clothingBottom !== "undefined") {
 			imgName = "playerClothingBottom_"+properties.image.clothingBottom;
-			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothingBottom/" + properties.image.clothingBottom + ".png"};
 		}
 		if (typeof properties.image.clothingTop !== "undefined") {
 			imgName = "playerClothingTop_"+properties.image.clothingTop;
-			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothingTop/" + properties.image.clothingTop + ".png"};
 		}
 		if (typeof properties.image.clothingOver !== "undefined") {
 			imgName = "playerClothingOver_"+properties.image.clothingOver;
-			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothingOver/" + properties.image.clothingOver + ".png"};
 		}
 		if (typeof properties.image.clothing !== "undefined") {
@@ -10560,33 +10701,28 @@ Game.formatNpcImages = function (properties) {
 				clothingClass = properties.image.clothingClass;
 			}
 			imgName = "playerClothing_"+properties.image.clothing;
-			properties.images.push({imageName: imgName});
 			loadObj[imgName] = {normal: "assets/playerCustom/clothing/" + clothingClass + "/" + properties.image.clothing + ".png"};
 		}
-		// facial hair (optional)
+		// facial hair
 		if (typeof properties.image.beard !== "undefined") {
 			imgName = "playerBeard_"+properties.image.beard;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
 			loadObj[imgName] = {normal: "assets/playerCustom/beard/" + properties.image.beard + ".png"};
 		}
-		// hair (optional if they're bald)
+		// hair
 		if (typeof properties.image.hair !== "undefined") {
 			imgName = "playerHair_"+properties.image.hair;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
 			loadObj[imgName] = {normal: "assets/playerCustom/hair/" + properties.image.hair + ".png"};
 		}
 		// ears - usually done to match skin tone, but can be customised ig
 		if (typeof properties.image.ears !== "undefined") {
 			imgName = "playerEars_"+properties.image.ears;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
 			loadObj[imgName] = {normal: "assets/playerCustom/ears/" + properties.image.ears + ".png"};
 		}
 		else {
 			imgName = "playerEars_"+properties.image.skinTone;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
 			loadObj[imgName] = {normal: "assets/playerCustom/ears/" + properties.image.skinTone + ".png"};
 		}
-		// hat - optional
+		// hat
 		if (typeof properties.image.hat !== "undefined") {
 			// find the corresponding skindata object, in case there is any offset
 			// tbd currently just hats have the option to be offset - add this to other types by making this a function / in a for loop
@@ -10598,62 +10734,32 @@ Game.formatNpcImages = function (properties) {
 				}
 			}
 			imgName = "playerHat_"+properties.image.hat;
-			properties.images.push({imageName: imgName, doNotAnimate: true, offsetX: skinObj.offsetX, offsetY: skinObj.offsetY});
 			loadObj[imgName] = {normal: "assets/playerCustom/hat/" + properties.image.hat + ".png"};
 		}
-		// accessories - optional
+		// accessories
 		if (typeof properties.image.accessories !== "undefined") {
-			imgName = "playerAccessories_"+properties.images.accessories;
-			properties.images.push({imageName: imgName, doNotAnimate: true});
+			imgName = "playerAccessories_"+properties.image.accessories;
 			loadObj[imgName] = {normal: "assets/playerCustom/accessories/" + properties.image.accessories + ".png"};
 		}
-
-		// held objects - load in images
-		if (typeof properties.heldLeft !== "undefined") {
-			imgName = "heldLeft_"+properties.name;
-			properties.heldLeft.imgNormalSrc = imgName;
-			loadObj[imgName] = properties.heldLeft; // this is set to the object that should be loaded in (unlike properties.image keys) - i.e. an object of form {normal: "src"}
-			imgName = "heldLeftFlipped_"+properties.name;
-			properties.heldLeft.imgFlippedSrc = imgName;
-			loadObj[imgName] = properties.heldLeft;
-			loadObj[imgName].flip = "vertical";
-		}
-		if (typeof properties.heldRight !== "undefined") {
-			imgName = "heldRight_"+properties.name;
-			properties.heldRight.imgNormalSrc = imgName;
-			loadObj[imgName] = properties.heldRight; // this is set to the object that should be loaded in (unlike all other properties.image keys) - i.e. an object of form {normal: "src"}
-			imgName = "heldRightFlipped_"+properties.name;
-			properties.heldRight.imgFlippedSrc = imgName;
-			loadObj[imgName] = properties.heldRight;
-			loadObj[imgName].flip = "vertical";
-		}
-
-		properties.image = undefined;
-
-		if (typeof properties.crop !== "undefined") {
-			console.warn("Crop of npc is overwritten by Game.formatNpcImages", properties);
-		}
-		if (typeof properties.animation !== "undefined") {
-			console.warn("Animation of npc is overwritten by Game.formatNpcImages", properties);
-		}
-		properties.crop = {
-			x: 0,
-			y: 0,
-			width: 52,
-			height: 127
-		};
-		properties.animation = {
-			type: "spritesheet",
-			frameTime: 18,
-			imagesPerRow: 4,
-			totalImages: 4,
-			animateBasis: "walk",
-		};
-		properties.spritesheetRotate = true;
-
-		return loadObj;
 	}
-	return false;
+
+	// held objects
+	if (typeof properties.heldLeft !== "undefined") {
+		imgName = "heldLeft_"+properties.name;
+		loadObj[imgName] = properties.heldLeft; // this is set to the object that should be loaded in (unlike properties.image keys) - i.e. an object of form {normal: "src"}
+		imgName = "heldLeftFlipped_"+properties.name;
+		loadObj[imgName] = properties.heldLeft;
+		loadObj[imgName].flip = "vertical";
+	}
+	if (typeof properties.heldRight !== "undefined") {
+		imgName = "heldRight_"+properties.name;
+		loadObj[imgName] = properties.heldRight; // this is set to the object that should be loaded in (unlike all other properties.image keys) - i.e. an object of form {normal: "src"}
+		imgName = "heldRightFlipped_"+properties.name;
+		loadObj[imgName] = properties.heldRight;
+		loadObj[imgName].flip = "vertical";
+	}
+
+	return loadObj;
 }
 
 // viewportOffset and canvasArea variables
@@ -10708,7 +10814,6 @@ Game.init = function () {
 	// its x and y are not set until Game.loadArea resumes
 
 	let heroProperties = Game.heroBaseProperties(); // object of properties - image, crop, animation
-	this.formatNpcImages(heroProperties); // replaces image object with images array
 
 	this.hero = new Hero({
 		// properties inherited from Entity
@@ -10722,7 +10827,7 @@ Game.init = function () {
 		hostility: "hero",
 
 		// properties inheritied from Thing
-		images: heroProperties.images,
+		image: heroProperties.image,
 		crop: heroProperties.crop,
 		animation: heroProperties.animation,
 
@@ -10887,7 +10992,7 @@ Game.init = function () {
 
 // returns object of base properties for hero
 // called on initially creating the hero, as well as untransforming the hero
-// note formatNpcImages must be called after this, to format the image function, and add crop and animation
+// note constructor.formatImages must be called after this, to format the image function, and add crop and animation
 Game.heroBaseProperties = function () {
 	let properties = {
 		image: {
@@ -11388,18 +11493,6 @@ Game.generateVillagers = function (data, areaName) {
 			(this.canBeShown(villager));
 	});
 
-	for (let i = 0; i < possibleVillagers.length; i++) {
-		let villager = possibleVillagers[i];
-		// deep copy
-		let newVillager = Object.assign({}, villager);
-		newVillager.stats = Object.assign({}, villager.stats);
-		if (typeof villager.image === "object") {
-			newVillager.image = Object.assign({}, villager.image);
-		}
-		possibleVillagers[i] = newVillager;
-	}
-
-
 	// now loop through possible villagers, picking them based the number of possible villagers in the area
 
 	// starting index, increase value, and number to add vary with time (thus villagers picked varies with time)
@@ -11431,23 +11524,8 @@ Game.generateVillagers = function (data, areaName) {
 
 		let villager = possibleVillagers[villagerIndex];
 
-		let formattedImages = this.formatNpcImages(villager);
-
-		// images to be added
-		// note that, for duplicate keys, initial ones will be overritten
-		if (formattedImages === false) {
-			// villager has standard images
-			Object.assign(images, villager.images);
-
-			// set image name, if one was not already set, from first image loading key
-			if (villager.image === undefined && villager.rotationImages === undefined) {
-				villager.image = Object.keys(villager.images)[0];
-			}
-		}
-		else {
-			// villager has layered images, like the player
-			Object.assign(images, formattedImages);
-		}
+		let imagesToLoad = this.getNpcImagesToLoad(villager);
+		Object.assign(images, imagesToLoad);
 	}
 
 	// load the images
