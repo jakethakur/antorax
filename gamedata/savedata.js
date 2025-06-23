@@ -170,6 +170,8 @@ var Player = {
 		locations: {},
 	},
 
+	digNodes: [],
+
 	bossesKilled: {
     },
 

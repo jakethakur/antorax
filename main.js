@@ -1348,11 +1348,16 @@ Game.removeObject = function (id, type, index) {
 	}
 }
 
-// checks if an NPC can be shown (from their canBeShown function)
+// checks if an object can be shown (from their canBeShown function etc.)
 Game.canBeShown = function (NPC) {
 	let show = true;
 	if (NPC.canBeShown !== undefined) {
 		if (!NPC.canBeShown()) {
+			show = false;
+		}
+	}
+	if (typeof NPC.hiddenUntiLevel !== "undefined") {
+		if (Player.level < NPC.hiddenUntiLevel) {
 			show = false;
 		}
 	}
@@ -7967,6 +7972,113 @@ class Ley extends Thing {
 				this.y = Game.hero.y + Math.cos(radians)*10;
 			}
 		}
+	}
+}
+
+// a thing that can be excavated upon pressing space and channelling
+class DigNode extends Thing {
+	constructor(properties) {
+		super(properties);
+
+		// check progress - has this been excavated before ?
+		// this is checked based on location of the node in the game
+		let progressObj = {area: Game.areaName, x: Math.round(this.x), y: Math.round(this.y)};
+		if (!Player.digNodes.includes(progressObj)) {
+			// not been excavated before
+
+			this.itemTableKeyName = properties.itemTableKeyName; // refers to property of ArchaeologyLootTables
+			this.statusEffectTableKeyName = properties.statusEffectTableKeyName; // refers to property of ArchaeologyLootTables
+
+			this.generatedItemTable = this.generateLootTable(properties.itemTableKeyName);
+			this.generatedStatusEffectTable = this.generateLootTable(properties.statusEffectTableKeyName);
+
+			// overwrites any onInteract specified in properties
+			this.onInteract = function () {
+				if (!this.excavated) {
+					if (Dom.inventory.checkSpace >= 1) {
+						let messageArray = ["Excavating", "Unearthing", "Archaeology", "Revealing treasures", "Artefact hunting"];
+						let msg = messageArray[Random(0, messageArray.length-1)];
+						Game.hero.channel(function () {
+							this.excavate();
+						}.bind(this), [], 2000, msg);
+					}
+					else {
+						// insufficient inventory space
+						Dom.chat.insert("You don't have enough inventory space to excavate there!");
+					}
+				}
+			}
+			this.interactCooldown = properties.interactCooldown || 0.6; // default value to avoid spamming of chat message
+		}
+		else {
+			// been excavated before
+			this.excavated = true;
+			this.displayExcavatedImage();
+		}
+	}
+
+	generateLootTable (tableKey) {
+		let table = ArchaeologyLootTables[tableKey];
+
+		let newTable = [];
+
+		let weightingProportionList = [];
+		let proportionToBeMadeUp = 0;
+
+		for (let i = 0; i < table.length; i++) {
+			let weighting = table[i].weighting;
+			if (typeof table[i].weightingProportion === "undefined") {
+				for (let j = 0; j < weighting; j++) {
+					newTable.push(table[i]); // push it "weighting" times
+				}
+			}
+			else {
+				// save this for the end, and move onto the next one
+				weightingProportionList.push(table[i]);
+				proportionToBeMadeUp += table[i].weightingProportion;
+			}
+		}
+
+		// now we calculate weighting for each of these items with a weightingProportion
+		let weightingSoFar = newTable.length;
+		let multiplier = ((weightingSoFar / (1-proportionToBeMadeUp)) - weightingSoFar) / proportionToBeMadeUp;
+
+		for (let i = 0; i < weightingProportionList.length; i++) {
+			let weighting = weightingProportionList[i].weightingProportion * multiplier;
+			if (typeof weightingProportionList[i].weightingProportion === "undefined") {
+				for (let j = 0; j < weighting; j++) {
+					newTable.push(weightingProportionList[i]); // push it "weighting" times
+				}
+			}
+		}
+
+		return newTable;
+	}
+
+	excavate () {
+		let itemToGive = this.generatedItemTable[Random(0, this.generatedItemTable.length-1)];
+		if (Dom.inventory.give(itemToGive)) {
+			// there was sufficient inventory space
+
+			//tbd message to notify them what they got (probably same as quest progress popup)
+
+			// tbd status effect
+
+			this.excavated = true;
+			// save progress
+			Player.digNodes.push({area: Game.areaName, x: Math.round(this.x), y: Math.round(this.y)})
+
+			// replace image of this with excavated version
+			this.displayExcavatedImage();
+		}
+		else {
+			// insufficient inventory space
+			Dom.chat.insert("You don't have enough inventory space to excavate there!");
+		}
+	}
+
+	displayExcavatedImage () {
+		// tbd
 	}
 }
 

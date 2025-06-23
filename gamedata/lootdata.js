@@ -4,10 +4,43 @@
 // largest number that roll is more than is chosen for item
 
 const ArchaeologyLootTables = {
-	upperCaves: [
-		Items.fish[14],
-		{name: "unidentified", tier: 2, area: "caves",},
-	]
+	caves: [
+		{
+			item: {name: "unidentified", tier: 2, area: "caves"},
+			weightingProportion: 0.4, // this must have a 0.4 chance of being picked, regardless of what the weighting of other items in the pool is
+		},
+		{
+			item: Items.fish[14], // rusted coin
+			weighting: 5,
+		},
+	],
+	cavesStatusEffect: [
+		{
+			effect: "healthRegen",
+			statIncrease: 3,
+			time: 10,
+			weighting: 5,
+		},
+		{
+			effect: "walkSpeed",
+			speedIncrease: 30,
+			time: 10,
+			weighting: 8,
+		},
+		{
+			effect: "poisonDamage",
+			poisonDamage: 20,
+			time: 10,
+			weighting: 2,
+		},
+		{
+			effect: "walkSpeed",
+			speedIncrease: -20,
+			time: 10,
+			weighting: 2,
+		},
+	],
+
 }
 
 const EnemyLootTables = {
