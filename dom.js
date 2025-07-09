@@ -79,6 +79,7 @@ let Dom = {
 		driverPageBuy: document.getElementById("driverPageBuy"),
 		driverPageMain: document.getElementById("driverPageMain"),
 		durability: document.getElementById("durability"),
+		externalNotifsOn: document.getElementById("externalNotifsOn"),
 		food: document.getElementById("food"),
 		fpsOn: document.getElementById("fpsOn"),
 		fullscreenOff: document.getElementById("fullscreenOff"),
@@ -136,7 +137,7 @@ let Dom = {
 		mountSlotUnlocked: document.getElementById("mountSlotUnlocked"),
 		musicOn: document.getElementById("musicOn"),
 		name: document.getElementById("name"),
-		notifsOn: document.getElementById("notifsOn"),
+		notifWrapper: document.getElementById("notifWrapper"),
 		npcChatBanner1: document.getElementById("npcChatBanner1"),
 		npcChatBannerText1: document.getElementById("npcChatBannerText1"),
 		npcChatBannerHeader1: document.getElementById("npcChatBannerHeader1"),
@@ -251,6 +252,7 @@ let Dom = {
 	achievements: {},
 	spellChoice: {},
 	spellbook: {},
+	notifications: {list:[], nextId:0,},
 };
 
 //
@@ -557,7 +559,7 @@ Dom.closeNPCPages = function () {
 Dom.trade.interrupt = function () {
 	if (Dom.trade.requested) {
 		Dom.chat.insert("Your trade request with " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
-        Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
+        Dom.chat.browserNotification(Dom.currentlyDisplayed + " has cancelled the trade request.");
 		Dom.trade.requested = false;
 	}
 	else if (Dom.trade.received) {
@@ -567,7 +569,7 @@ Dom.trade.interrupt = function () {
 			//document.getElementById("alertNo"+alert.id).onclick();
 		}
         Dom.chat.insert("Your trade request from " + Dom.currentlyDisplayed + " has been cancelled because one of you walked away.");
-        Dom.chat.notification(Dom.currentlyDisplayed + " has cancelled the trade request.");
+        Dom.chat.browserNotification(Dom.currentlyDisplayed + " has cancelled the trade request.");
 		Dom.trade.received = false;
 	}
 
@@ -1556,6 +1558,115 @@ Dom.chat.npcChatFinished = function() {
 
 	Dom.elements.npcChatBanner1.hidden = true;
 }
+
+
+//
+// Notifications (appear at top left of screen)
+// (not to be confused with browser notifications, which are notifications the browser itself gives)
+//
+
+// the elements parameter should be an array of objects, each specifying an element that appears in the notification (in sequence). these should be one of the following:
+// {type: "title", text: String} (large text)
+// {type: "subtitle", text: String} (smaller text)
+// {type: "items", arr: Array, xp: Integer} (shows items that can be hovered over; arr should be an array of objects as specified in questdata step.rewards.items) (xp is optional and displays alongside items)
+// the disappearIn parameter is optional, and is in milliseconds. after this time, the notif will fade away over 3 seconds
+Dom.notifications.create = function (elements, disappearIn) {
+	let id = Dom.notifications.nextId;
+	let htmlConstruct = '<div class="notif" id="notif'+id+'" onmousemove="Dom.notifications.mouseMove('+id+')" onmouseout="Dom.notifications.mouseOff('+id+')">';
+	Dom.notifications.nextId++;
+
+	// add close button
+	htmlConstruct += '<div class="notifClose" onclick="Dom.notifications.close('+id+')">X</div>';
+
+	for (let i = 0; i < elements.length; i++) {
+		let el = elements[i];
+		switch (el.type) {
+			case "title":
+				htmlConstruct += '<b class="notifTitle">'+el.text+'</b>';
+				break;
+			case "subtitle":
+				htmlConstruct += '<p class="notifSubtitle">'+el.text+'</p>';
+				break;
+			case "items":
+				if (typeof el.xp !== "undefined") {
+					htmlConstruct += '<div class="notifXP"></div><span class="xpClass">&nbsp;&nbsp;</span>';
+				}
+				htmlConstruct += '<div class="notifItems">'+el.arr+'</div>'; //tbd
+				break;
+			default:
+				console.error("Unexpected notification element", el);
+		}
+	}
+
+	htmlConstruct += '</div>';
+
+	Dom.elements.notifWrapper.innerHTML = htmlConstruct + Dom.elements.notifWrapper.innerHTML; // make notification appear at top
+
+	// add to notification list
+	let i = Dom.notifications.list.push({id: id, disappearIn: disappearIn});
+	let obj = Dom.notifications.list[i-1];
+
+	// start timeout if disappearIn is defined
+	if (typeof disappearIn !== "undefined") {
+		obj.disappearTimeout = setTimeout(Dom.notifications.startFade, disappearIn, id);
+	}
+}
+
+// called by player clicking the close button, or a notification timing out (after fading away)
+// id should correspond to the id of the notification, which can be found in Dom.notifications.list, as well as the number in its HTML id
+Dom.notifications.close = function (id) {
+	let i = Dom.notifications.list.findIndex(notif => notif.id === id);
+	if (i !== -1) {
+		Dom.notifications.list.splice(i, 1);
+		document.getElementById("notif"+id).remove();
+	}
+	else {
+		console.error("An active notification does not exist of id", id)
+	}
+}
+
+// starts the notification fading away over a second
+// id should correspond to the id of the notification
+Dom.notifications.startFade = function (id) {
+	let obj = Dom.notifications.list.find(notif => notif.id === id);
+	// make sure this el hasn't been removed already (it being removed can trigger mouseOff)
+	if (typeof obj !== "undefined") {
+		let el = document.getElementById("notif"+id);
+		if (!el.classList.contains("notifDisappearing")) {
+			el.classList.add("notifDisappearing"); // sets css animation and opacity
+
+			obj.disappearTimeout = setTimeout(Dom.notifications.close, 3000, id); // remove it once it's finished fading away
+		}
+		else {
+			console.warn("Notification with id "+id+" is already fading away, however startFade was called for it.");
+		}
+	}
+}
+
+// remove a fade timeout of a notification
+// id should correspond to the id of the notification
+Dom.notifications.mouseMove = function (id) {
+	let obj = Dom.notifications.list.find(notif => notif.id === id);
+	if (typeof obj.disappearTimeout !== "undefined") {
+		clearTimeout(obj.disappearTimeout);
+		obj.disappearTimeout = undefined;
+
+		let el = document.getElementById("notif"+id);
+		if (el.classList.contains("notifDisappearing")) {
+			el.classList.remove("notifDisappearing"); // stop it from fading away
+		}
+	}
+}
+
+// restart a fade timeout of a notification
+// id should correspond to the id of the notification
+Dom.notifications.mouseOff = function (id) {
+	let obj = Dom.notifications.list.find(notif => notif.id === id);
+	if (typeof obj.disappearTimeout === "undefined" && typeof obj.disappearIn !== "undefined") {
+		obj.disappearTimeout = setTimeout(Dom.notifications.startFade, obj.disappearIn, id);
+	}
+}
+
 
 
 // toggle whether an element is hidden or not
@@ -4931,7 +5042,7 @@ Dom.canvas.drop = function (ev) {
 }
 
 for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
-	document.getElementsByClassName("DOM")[i].style.zIndex = 6+i;
+	document.getElementsByClassName("DOM")[i].style.zIndex = 8+i;
 	document.getElementsByClassName("DOM")[i].onmousedown = function (event) {
 		let scroll = event.target.scrollTop;
 		if (!event.target.draggable && event.target.className !== "stackNum" && event.target.autocomplete === undefined && event.composedPath().find(el => el.className === "chatPara") === undefined) {
@@ -7605,7 +7716,7 @@ Dom.chat.players = function (object, action) {
 		// if someone else has logged on
         if (object.userID !== ws.userID) {
             Dom.chat.insert(object.name+" has joined the game!");
-			Dom.chat.notification(object.name + " has joined the game!");
+			Dom.chat.browserNotification(object.name + " has joined the game!");
         }
         Dom.players.push(object);
     }
@@ -7615,7 +7726,7 @@ Dom.chat.players = function (object, action) {
 			// find the player that has logged off
             if (Dom.players[i].userID === object.userID) {
 				Dom.chat.insert(Dom.players[i].name+" has left the game.");
-				Dom.chat.notification(Dom.players[i].name + " has left the game.");
+				Dom.chat.browserNotification(Dom.players[i].name + " has left the game.");
                 Dom.players.splice(i, 1);
             }
         }
@@ -7929,10 +8040,11 @@ window.onbeforeunload = function() {
 	}
 }
 
-// notification if user has given permission
-Dom.chat.notification = function (title, body) {
-	if (Notification.permission === "granted" && Dom.elements.notifsOn.checked && !Dom.focus) { // setting radio button is also checked just in case they accepted but then turned it off by settings
-        let notification = new Notification(title, {body: body, silent: true});
+// browser notification if user has given permission
+// not to be confused with in-game notifications, which can be found at Dom.notifications
+Dom.chat.browserNotification = function (title, body) {
+	if (Notification.permission === "granted" && Dom.elements.externalNotifsOn.checked && !Dom.focus) { // setting radio button is also checked just in case they accepted but then turned it off by settings
+        let browserNotification = new Notification(title, {body: body, silent: true});
     }
 }
 
@@ -8669,9 +8781,9 @@ Dom.init = function () {
 			},
 		});
 	}
-	// notifications
+	// browser notifications
 	if (Notification.permission === "granted" && localStorage.getItem("notifsRefused") !== "true") {
-		Dom.elements.notifsOn.checked = true;
+		Dom.elements.externalNotifsOn.checked = true;
 	}
 
 	// keyboard functions

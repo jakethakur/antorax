@@ -65,6 +65,31 @@
 	<input id="canvasChatInput" type="text" class="canvasChatInput" placeholder="Type a message to send to chat."></input>
 	<p id="canvasSend" onclick="Dom.chat.input('chatInput')">send</p>
 
+
+	<span id="notifWrapper"></span>
+
+
+	<div id="npcChatBanner1" class="npcChatBanner" hidden>
+		<div id="npcChatImage"></div>
+		<div id="npcChatHeaderParentBox" class="npcChatHeaderParentBox">
+			<div id="npcChatHeaderBox" class="npcChatHeaderBox";>
+				<p id="npcChatBannerHeader1" class="npcChatBannerHeader"></p>
+			</div><div id="npcChatHeaderEdge"; class="npcChatHeaderEdge";> </div>
+		</div>
+		<div class="clear"></div>
+		<p id="npcChatBannerText1" class="npcChatBannerText"></p>
+		<img id="npcChatNext" src="assets/icons/dialogueNext.png"></img>
+	</div>
+
+	<div id="chatBannerOptions" hidden>
+		<ul id="chatBannerOptionList">
+			<!-- example: -->
+			<li class="chatBannerOption" onclick="Dom.chat.chooseOption(0)">Say hello casually</li>
+			<li class="chatBannerOption" onclick="Dom.chat.chooseOption(1)">Reveal your identity</li>
+		</ul>
+	</div>
+
+
 	<div id="chatPage" hidden class="DOM">
 		<div id="players" hidden></div>
 		<div id="chatText"></div>
@@ -182,9 +207,9 @@
 		</div>
 		<span id="settingNotifsHolder">
 			<div id="settingNotifs" class="settings">
-				Enable notifications:
-				<span class="radio1"><input type="radio" id="notifsOn" name="notifsOnOff" onclick="Notification.requestPermission(); localStorage.setItem('notifsRefused', 'false');">Yes</input></span>
-				<span class="radio2"><input type="radio" name="notifsOnOff" checked="true" onclick="localStorage.setItem('notifsRefused', 'true');">No</input></span>
+				Enable browser notifications:
+				<span class="radio1"><input type="radio" id="externalNotifsOn" name="externalNotifsOnOff" onclick="Notification.requestPermission(); localStorage.setItem('notifsRefused', 'false');">Yes</input></span>
+				<span class="radio2"><input type="radio" name="externalNotifsOnOff" checked="true" onclick="localStorage.setItem('notifsRefused', 'true');">No</input></span>
 			</div>
 		</span>
 		<span id="settingTutorialHolder">
@@ -429,26 +454,6 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 		<div id="choosePageContent"></div>
 	</div>
 	<div id="textPage" hidden class="DOM"></div>
-
-	<div id="npcChatBanner1" class="npcChatBanner" hidden>
-		<div id="npcChatImage"></div>
-		<div id="npcChatHeaderParentBox" class="npcChatHeaderParentBox">
-			<div id="npcChatHeaderBox" class="npcChatHeaderBox";>
-				<p id="npcChatBannerHeader1" class="npcChatBannerHeader"></p>
-			</div><div id="npcChatHeaderEdge"; class="npcChatHeaderEdge";> </div>
-		</div>
-		<div class="clear"></div>
-		<p id="npcChatBannerText1" class="npcChatBannerText"></p>
-		<img id="npcChatNext" src="assets/icons/dialogueNext.png"></img>
-	</div>
-
-	<div id="chatBannerOptions" hidden>
-		<ul id="chatBannerOptionList">
-			<!-- example: -->
-			<li class="chatBannerOption" onclick="Dom.chat.chooseOption(0)">Say hello casually</li>
-			<li class="chatBannerOption" onclick="Dom.chat.chooseOption(1)">Reveal your identity</li>
-		</ul>
-	</div>
 
 	<div id="bookmarks">
 		<img id="changeChat" class="changePage" src="assets/icons/Tag1.png" onclick="Dom.changeBook('chatPage', undefined, true)"></img>

@@ -164,7 +164,7 @@ var Areas = {
 			},
 		],
 
-		npcs: [
+		characters: [
 			{
 				x: 3470,
 				y: 320,
@@ -551,7 +551,7 @@ var Areas = {
 			],
 		},
 
-		npcs: [
+		characters: [
 			{
 				// id: 0,
 				x: 1350,
@@ -626,13 +626,13 @@ var Areas = {
 							// close page
 							Dom.closePage("textPage");
 							// chat message
-							Game.npcs[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", 0, false); // Teper is Game.npcs[0]
+							Game.characters[0].say("Thank you. I hope you find these rewards useful to your progression. Now, back to work.", 0, false); // Teper is Game.characters[0]
 						},
 						function () {
 							// close page
 							Dom.closePage("textPage");
 							// chat message
-							Game.npcs[0].say("What, are you even allowed to keep them? I'd like my boots back!", 0, false); // Teper is Game.npcs[0]
+							Game.characters[0].say("What, are you even allowed to keep them? I'd like my boots back!", 0, false); // Teper is Game.characters[0]
 						}],
 						roleRequirement: function () {
 							return Dom.inventory.check(6, "boots", 1, false); // check that the player has Marshall Teper's lost boots
@@ -1458,7 +1458,7 @@ var Areas = {
 			],
 		},
 
-		npcs: [
+		characters: [
 			{
 				// id: 0
 				x: 154,
@@ -2182,7 +2182,7 @@ var Areas = {
 			},
 		],
 
-		npcs: [
+		characters: [
 			{
 				x: 1047,
 				y: 120,
@@ -3375,7 +3375,7 @@ var Areas = {
 			},
 		],
 
-		npcs: [
+		characters: [
 			{
 				template: NPCTemplates.nessyTintop,
 				x: 490,
@@ -4080,7 +4080,7 @@ eaglecrest: {
 		},
 	],
 
-	npcs: [
+	characters: [
 
 		{
 			x: 4095,
@@ -4948,7 +4948,7 @@ animation: {
 			{x: 360, y: 297, orderOffsetY: -6, image: 'catBowlEmpty', name: 'Cat Bowl'},
 		],
 
-		npcs: [
+		characters: [
 			{
 				// id: 0,
 				x: 894,
@@ -5204,7 +5204,7 @@ animation: {
 			},
 		],
 
-		npcs: [
+		characters: [
 			{
 				// id: 6,
 				x: 224,
@@ -5376,7 +5376,7 @@ animation: {
 			],
 		},
 
-		npcs: [
+		characters: [
 			{
 				// id: 0,
 				x: 900,
@@ -5936,7 +5936,7 @@ animation: {
 		onAreaJoin: function () {
 			// phishing for treasure - they've opened greenbeard's letter but haven't spoken to him in the tavern yet
 			if (Player.quests.prog.eaglecrest[22][0] && !Player.quests.prog.eaglecrest[22][1]) {
-				let greenbeard = this.npcs.find(npc => npc.name === "Captain Greenbeard");
+				let greenbeard = this.characters.find(npc => npc.name === "Captain Greenbeard");
 				Game.setTimeout(function () {
 					let location = {x: Game.hero.x + 50, y: Game.hero.y - 20};
 					greenbeard.displaceToLocation(location, 3, true);
@@ -5973,7 +5973,7 @@ animation: {
 			],
 		},
 
-		npcs: [
+		characters: [
 			{
 				x: 646,
 				y: 970,
@@ -6682,7 +6682,7 @@ animation: {
 			],
 		},
 
-		npcs: [
+		characters: [
 			{
 				x: 390,
 				y: 335,
@@ -6907,7 +6907,7 @@ animation: {
 			],
 		},
 
-		npcs: [
+		characters: [
 			{
 				x: 340,
 				y: 322,
@@ -7158,7 +7158,7 @@ animation: {
 			{x: 670.5, y: 227.1, image: 'stuffedCat', name: 'Stuffed Cat', onTouchChat: "A stuffed cat."},
 		],
 
-		npcs: [
+		characters: [
 			{
 				x: 450,
 				y: 328,
@@ -7993,7 +7993,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			],
 		},
 
-		npcs: [
+		characters: [
 
 			{
 				x: 525,
@@ -9037,7 +9037,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			},
 		],
 
-		npcs: [
+		characters: [
 			{
 				x: 3436,
 				y: 1171,
@@ -10247,7 +10247,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			],
 		},
 
-		npcs: [
+		characters: [
 			{
 				x: 300,
 				y: 280,
@@ -10563,7 +10563,7 @@ image: 'steppingStone', name: 'Stepping Stone', z: -1, walkable: true,},
 			potionStand: {normal: "assets/objects/potionStand.png"},
 		},
 
-		npcs: [
+		characters: [
 		],
 
 		collisions: [
@@ -11379,7 +11379,7 @@ animateTiles: [
 			}
 		],
 
-		npcs: [
+		characters: [
             {
                 x: 2524,
                 y: 3100,
@@ -12223,7 +12223,7 @@ things: [
 	},
 ],
 
-npcs: [
+characters: [
 	{
 		x: 723,
 		y: 406,
@@ -12537,7 +12537,7 @@ undergrove: {
 			harroway: {normal: "assets/npcs/harroway.png"},
 			explosive: {normal: "assets/items/consumable/33.png"},
 		},
-		npcs: [
+		characters: [
 			{
 				x: 461,
 				y: 1452,
@@ -13035,7 +13035,7 @@ undergrove: {
 				destinationY: 2888,
 			},
 ],
-			npcs: [
+			characters: [
 			            {
 			                x: 361,
 			                y: 285,
@@ -13697,7 +13697,7 @@ undergrove: {
 
 	],
 
-	npcs: [
+	characters: [
 
 		],
 		areaTeleports: [

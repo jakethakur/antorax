@@ -69,12 +69,12 @@ const SpeciesTemplates = {
 		attackTargets: [
 			{target: function () { // for Overdraft quest
 				if (Player.quests.npcProgress.eaglecrest[2] === 2) {
-					return Game.npcs.find(character => character.name === "Gildo Cleftbeard");
+					return Game.characters.find(character => character.name === "Gildo Cleftbeard");
 				}
 			}, baseAggro: 5},
 			{target: function () { // for Jester quest
 				if (Player.quests.possibleQuestArray.includes("A Fool's Errand")) {
-					return Game.npcs.find(character => character.name === "The Jester");
+					return Game.characters.find(character => character.name === "The Jester");
 				}
 			}, baseAggro: 5,
 			requirement: function (target) { // jester is passed in
@@ -1846,6 +1846,9 @@ const EnemyTemplates = {
 			lootTableTemplate: [BossLootTables.foxglove],
 			inventorySpace: 32,
 			bossKilledVariable: "foxglove",
+			attackBehaviour: {
+				baseAggro: 0, // not aggroed until spoken to
+			},
 			spells: [
 					/*{
 						id: 25,

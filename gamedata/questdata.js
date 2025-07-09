@@ -781,8 +781,8 @@ var Quests = {
 			},
 
 			onQuestStart: function () {
-                let torchNPC = Game.npcs.find(npc => npc.name === "Goblin Torch");
-                Game.removeObject(torchNPC.id, "npcs");
+                let torchNPC = Game.characters.find(npc => npc.name === "Goblin Torch");
+                Game.removeObject(torchNPC.id, "characters");
             },
 
 			rewards: {
@@ -795,7 +795,7 @@ var Quests = {
 
 			onQuestFinish: function() {
 				if (Game.areaName === "nilbog") {
-					Game.npcs.push(new NPC(Areas.nilbog.npcs[0])); // add goblin torch image to the map
+					Game.characters.push(new Character(Areas.nilbog.characters[0])); // add goblin torch image to the map
 				}
 			},
 		},
@@ -949,7 +949,7 @@ var Quests = {
 				onFinish: function () {
 					if (Game.areaName === "eaglecrestLoggingCamp") {
 						// damage Ciarra
-						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
+						Game.characters.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
 						// displace player if they are too close
 						let d = Game.distance(Game.hero, {x: 1571, y: 633}); // distance from ciarra
 						if (d < 240) {
@@ -979,7 +979,7 @@ var Quests = {
 				Game.setTimeout(function () {
 					if (Game.areaName === "eaglecrestLoggingCamp") {
 						// damage Ciarra
-						Game.npcs.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
+						Game.characters.find(NPC => NPC.name === "Ciarra Darkbrew").takeDamage(100);
 						// displace player if they are too close
                         let d = Game.distance(Game.hero, {x: 1571, y: 633}); // distance from ciarra
                         if (d < 240) {
@@ -1739,16 +1739,16 @@ var Quests = {
 			onQuestStart: function () {
 				if (Game.areaName === "eaglecrestLoggingCamp") {
 					if (Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === null || Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === undefined) {
-						Areas.eaglecrestLoggingCamp.npcs[9] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[9], "npcs", true);
-						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[9]));
+						Areas.eaglecrestLoggingCamp.characters[9] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.characters[9], "characters", true);
+						Game.things.push(new Character(Areas.eaglecrestLoggingCamp.characters[9]));
 	                }
 					else if (Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 5) {
-						Areas.eaglecrestLoggingCamp.npcs[10] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[10], "npcs", true);
-						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[10]));
+						Areas.eaglecrestLoggingCamp.characters[10] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.characters[10], "characters", true);
+						Game.things.push(new Character(Areas.eaglecrestLoggingCamp.characters[10]));
 					}
 					else if (Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 8) {
-						Areas.eaglecrestLoggingCamp.npcs[11] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.npcs[11], "npcs", true);
-						Game.things.push(new NPC(Areas.eaglecrestLoggingCamp.npcs[11]));
+						Areas.eaglecrestLoggingCamp.characters[11] = Game.prepareNPC(Areas.eaglecrestLoggingCamp.characters[11], "characters", true);
+						Game.things.push(new Character(Areas.eaglecrestLoggingCamp.characters[11]));
 					}
 				}
 			}
@@ -2090,7 +2090,7 @@ var Quests = {
 			],
 
 			onQuestFinish: function () {
-				let npc = Game.npcs.find(npc => npc.name === "???");
+				let npc = Game.characters.find(npc => npc.name === "???");
 				npc.name = "The Soothsssayer";
 			},
 
@@ -2675,7 +2675,7 @@ var Quests = {
 					stepNum: 0,
 					name: "Recruiter Sylvie",
 					chat: [{
-						text: `${Player.name}! You look like you need something to do!`,
+						text: `${Player.name}! You look like you need something to get on with!`,
 					},{
 						text: `The City has recently been having trouble with Coyotes in the eastern grassy region of the Plains.`,
 					},{
@@ -3150,7 +3150,7 @@ var Quests = {
 							if(Game.areaName === "eaglecrestPlains")
 							{
 								let beeSwarms = Game.enemies.filter(enemy => enemy.name === "Bee Swarm" && enemy.hostility === "hostile");
-								let farmerEloise = Game.npcs.filter(npc => npc.name === "Farmer Eloise")[0];
+								let farmerEloise = Game.characters.filter(npc => npc.name === "Farmer Eloise")[0];
 								let nearest = Game.closest(beeSwarms, farmerEloise);
 								objCompleted = (Game.distance(nearest, farmerEloise) < 300);
 								if (objCompleted) {
@@ -5130,14 +5130,39 @@ var Quests = {
 				"scoreboardProgress",
 			],
 		},
-		/*{
-			id: 17,
+		{
+			id: 32,
 			quest: "WANTED: Baron Foxglove!!",
 			questArea: "eaglecrest",
 
+			steps: [
+				{
+					stepNum: 0,
+					name: "Recruiter Sylvie",
+					chat: [{
+						text: `Greetings, ${Player.name}. Another hostile Party has come to the City's attention.`,
+					},{
+						text: `We've had reports of a .`,
+					},],
+				},
+				{
+					stepNum: 1,
+					name: "Baron Foxglove",
+					chat: [{
+						text: `Greetings, ${Player.name}. Another hostile Party has come to the City's attention.`,
+					},],
+					onFinish: function () {
+						let foxglove = Game.enemies.find(enemy => enemy.name === "Baron Foxglove");
+						foxglove.setAggro(Game.hero, 20);
+					}
+				},
+			],
+
 			startName: "Recruiter Sylvie",
 			startChat: [{
-				text: `Greetings, ${Player.name}. Another Party has come to the City's attention - tbd.`,
+				text: `Greetings, ${Player.name}. Another hostile Party has come to the City's attention.`,
+			},{
+				text: `We've had reports of a .`,
 			},],
 
 			finishName: "Recruiter Sylvie",
@@ -5176,7 +5201,7 @@ var Quests = {
 					eaglecrestCity: 60,
 				},
 			},
-		},*/
+		},
 	],
 
 	tavern: [
@@ -5344,7 +5369,7 @@ var Quests = {
 						}
 	                }));
 
-					let array = Game.things.concat(Game.npcs); // array of things that cannot be touched
+					let array = Game.things.concat(Game.characters); // array of things that cannot be touched
 
 					// if the centre of the dirt is touching any thing then choose a new location
 					let dirt = Game.characters[Game.characters.length-1];

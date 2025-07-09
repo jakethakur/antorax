@@ -301,16 +301,16 @@ Game.initWebSocket = function () {
 				case "chat":
 					// do not allow user ta use < or > in chat (stop HTML injection)
 					let messageContent = message.content.replace(/[<>]/g, "");
-					// translate message (do this now and not in Dom.chat.say as we want the notification to be similarly translated)
+					// translate message (do this now and not in Dom.chat.say as we want the browser notification to be similarly translated)
 					messageContent = Dom.chat.translate(messageContent, message.language);
 					// insert in chat
 					Dom.chat.insert(Dom.chat.say(message.name, messageContent));
-				    // notification if user has given permission
+				    // browser notification if user has given permission
 					if (message.sender !== undefined) {
-						// private message ("msg") - because message.name contains a unicode icon that does not display on notification, it should be changed
+						// private message ("msg") - because message.name contains a unicode icon that does not display on browser notification, it should be changed
 						message.name = message.sender + " (private message)";
 					}
-					Dom.chat.notification(message.name, messageContent);
+					Dom.chat.browserNotification(message.name, messageContent);
 					break;
 
 				case "info":
@@ -376,7 +376,7 @@ Game.initWebSocket = function () {
 							}
 							if (currentNPC !== undefined) {
 								Dom.trade.requestReceived(message.userID, message.name, currentNPC);
-								Dom.chat.notification("You have received a trade request from " + message.name + ".");
+								Dom.chat.browserNotification("You have received a trade request from " + message.name + ".");
 							}
 							else {
 								console.error("Trade request received from a player that isn't in the same area.")
@@ -386,14 +386,14 @@ Game.initWebSocket = function () {
 						case "accept":
 							// trade accepted by user that player is waiting on to accept/decline
 							Dom.trade.page();
-							Dom.chat.notification("Your trade request with " + message.name + " has been accepted.");
+							Dom.chat.browserNotification("Your trade request with " + message.name + " has been accepted.");
 							break;
 
 						case "decline":
 							// trade declined by user that player is waiting on to accept/decline
 							Dom.currentlyDisplayed = "";
 							Dom.chat.insert("Your trade request with " + message.name + " has been declined.");
-							Dom.chat.notification("Your trade request with " + message.name + " has been declined.");
+							Dom.chat.browserNotification("Your trade request with " + message.name + " has been declined.");
 							break;
 
 						case "busy":
@@ -412,14 +412,14 @@ Game.initWebSocket = function () {
 	 					case "confirm":
 							// trade confirmed by another user
 							Dom.trade.confirmOther();
-							Dom.chat.notification(message.name + " has confirmed the trade.");
+							Dom.chat.browserNotification(message.name + " has confirmed the trade.");
 							break;
 
 						case "close":
 							// close trade (true = called by other person)
 							Dom.trade.close(true);
 							Dom.chat.insert(message.name + " has cancelled the trade.");
-							Dom.chat.notification(message.name + " has cancelled the trade.");
+							Dom.chat.browserNotification(message.name + " has cancelled the trade.");
 							break;
 
 						case "walkAway":
@@ -470,7 +470,7 @@ Game.initWebSocket = function () {
                                     ev: [message.spawnArea, message.spawnX, message.spawnY], // parameters for function
                                 });
 								// notifiction
-								Dom.chat.notification("A game of tag has been started in " + message.displayAreaName + ".");
+								Dom.chat.browserNotification("A game of tag has been started in " + message.displayAreaName + ".");
 							}
 							break;
 
@@ -500,7 +500,7 @@ Game.initWebSocket = function () {
 								// playing game!
 								Dom.chat.insert("The game has started!");
 								// notifiction for if they're not on the tab
-								Dom.chat.notification("The game of tag has started!");
+								Dom.chat.browserNotification("The game of tag has started!");
 								// length of game (displayed on infoBar by newTaggedPlayer)
 								Game.minigameInProgress.timeRemaining = TimeDisplay(message.gameLength);
 								// tagged player
@@ -568,7 +568,7 @@ Game.initWebSocket = function () {
 								else {
 									Dom.chat.insert("There were not enough players to start the game because the game host left.");
 								}
-								Dom.chat.notification("There were not enough players to start the game."); // in case they were not on the tab
+								Dom.chat.browserNotification("There were not enough players to start the game."); // in case they were not on the tab
 							}
 
 							// hide infobar
@@ -2933,6 +2933,11 @@ class Character extends Thing {
 		this.onDeathAdditional = properties.onDeathAdditional; // so that we can have an ondeath from the speciestemplate and from areadata for example
 		// onDeathAdditional doesn't require damage to be dealt by hero, but onDeath does!!!
 		// tbd these should be combined and turned into an array of ondeaths, where it can be optionally specified whether damage from hero is required
+
+
+		this.roles = properties.roles; // array of objects, containing anything that can happen when the NPC is interacted with. for quest npcs, merchants, identifiers, etc.
+
+		this.meetable = (properties.meetable === false || typeof properties.roles === "undefined") ? false : true; // whether it can get added to Player.metNPCs (i.e. lost cat poster is not meetable)
 
 
 		this.chat = properties.chat || {}; // object containing properties that are inserted into chat when specific things happen
@@ -6988,24 +6993,8 @@ class Mount extends Character {
 	}
 }
 
-
-// quest NPC (to be merged with merchant)
-class NPC extends Character {
-	constructor(properties) {
-		super(properties);
-
-		this.roles = properties.roles; // array of objects, containing anything that can happen when the NPC is touched
-
-		this.meetable = properties.meetable === false ? false : true; // whether it can get added to Player.metNPCs (i.e. lost cat poster is not meetable)
-
-		if (properties.addToObjectArrays !== false) {
-			Game.allNPCs.push(this); // array for current area only
-		}
-	}
-}
-
-// NPC that walks around
-class Villager extends NPC {
+// character that walks around
+class Villager extends Character {
 	constructor(properties) {
 		super(properties);
 
@@ -7218,6 +7207,9 @@ class NonPlayerAttacker extends Attacker {
 		this.attackTargets = {}; // each id corresponds to the id of the character it has aggro on. if it is undefined, it just has baseaggro on this character
 		// for format of its constituent objects and how aggro works , see the comments at the bottom of the Enemy constructor
 
+		// attackTargetTypes and additionalAttackTargets give the list of characters that it is interested in attacking
+		// meanwhile attackTargets specifies any characters that have attacked this and increased their aggro. if they do not fall in attackTargetTypes or additionalAttackTargets, then they will not be attacked back
+
 		this.attackTargetTypes = properties.attackTargetTypes || []; // properties are the array names that targets are found in
 		// any additional attack targets (or any attack targets with a different baseAggro or a requirement function) should be added directly to attackTargets via properties.attackTargets (where .target is a function that returns the target)
 		// these additional attack targets are stored in additionalAttackTargets as seen below
@@ -7228,9 +7220,7 @@ class NonPlayerAttacker extends Attacker {
 		this.forgivenessTime = properties.attackBehaviour.forgivenessTime || 4000; // if this is negative then they never forgive you (:
 		this.attackThreshold = properties.attackBehaviour.attackThreshold || 1; // aggro-distance quotients below this aren't attacked
 
-
-
-		// construct attackTargets from properties (these are additional attackTargets that aren't included in attackTargetTypes)
+		// construct additionalAttackTargets from properties (these are additional attackTargets that aren't included in attackTargetTypes)
 		this.additionalAttackTargets = [];
 		if (typeof properties.attackTargets !== "undefined") {
 			for (let i = 0; i < properties.attackTargets.length; i++) {
@@ -10016,9 +10006,9 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 			// also add npc layered images (like the hero) - these don't need to be loaded in in areadata as their addresses are obvious
 			// tbd iterate through additional entity types that might have layered images like this
 			let load = {}; // images to be loaded
-			if (typeof Areas[areaName].npcs !== "undefined") {
-				for (let i = 0; i < Areas[areaName].npcs.length; i++) {
-					let npc = Areas[areaName].npcs[i];
+			if (typeof Areas[areaName].characters !== "undefined") {
+				for (let i = 0; i < Areas[areaName].characters.length; i++) {
+					let npc = Areas[areaName].characters[i];
 					let loadForThisNpc = this.getNpcImagesToLoad(npc);
 					load = Object.assign(load, loadForThisNpc);
 				}
@@ -10225,7 +10215,6 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				this.allThings = [];
 				this.allCharacters = [];
 				this.allAttackers = [];
-				this.allNPCs = []; // includes villagers
 				this.damageableByPlayer = []; // everything that has this.damageableByPlayer set to true (ofc must be character or higher in hierarchy)
 				this.walkableObjects = []; // moving platforms etc (things with .walkable as true)
 				this.allShapes = [];
@@ -10307,7 +10296,6 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 					chests: LootChest,
 					dummies: Dummy,
 					villagers: Villager,
-					npcs: NPC,
 					enemies: Enemy,
 					players: UserControllable,
 					projectiles: Projectile,
@@ -12389,9 +12377,9 @@ Game.update = function (delta) {
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, etc.
 	let choosePageInformation = []; // parameter for Dom.choose.page, called with the information of any NPCs being touched
 
-	for (let i = 0; i < this.allNPCs.length; i++) { // iterate though npcs
+	for (let i = 0; i < this.allCharacters.length; i++) { // iterate though npcs
 
-		let npc = this.allNPCs[i];
+		let npc = this.allCharacters[i];
 
 		let canSpeak = true; // set to false if they can't speak to npc
 

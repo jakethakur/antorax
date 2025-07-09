@@ -3440,11 +3440,11 @@ unidentifiedArea: ["caves"],
 				// remove item
 				Dom.inventory.removeById(8, "bow");
 				// "the christmas spirit" quest progress
-				if (projectile.isTouching(Game.npcs[0]) && Game.areaName === "eaglecrestLoggingCamp") {
+				if (projectile.isTouching(Game.characters[0]) && Game.areaName === "eaglecrestLoggingCamp") {
 					Player.quests.questProgress.hitTeper = Increment(Player.quests.questProgress.hitTeper);
 					if (Player.quests.questProgress.hitTeper === 3) {
 						Game.projectiles.splice(Game.searchFor(projectile.id, Game.projectiles), 1); // find the id of the to-be-removed projectile and remove it
-						Game.npcs[0].image = Loader.getImage("teperAngry");
+						Game.characters[0].image = Loader.getImage("teperAngry");
 					}
 				}
 				Game.inventoryUpdate();
@@ -7349,18 +7349,18 @@ unidentifiedArea: ["caves"],
 					// list of areas with NPCs
 					let possibleAreas = ["eaglecrestLoggingCamp", "tutorial", "eaglecrest", "eaglecrestBank", "eaglecrestBazaar", "theForge", "eaglecrest", "eaglecrestTavern", "eaglecrestPlains"];
 					Player.inventory.items[position].randomArea = Areas[possibleAreas[Random(0, possibleAreas.length - 1)]];
-					Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.npcs[Random(0, Player.inventory.items[position].randomArea.npcs.length - 1)];
+					Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.characters[Random(0, Player.inventory.items[position].randomArea.characters.length - 1)];
 					Player.inventory.items[position].randomNPC = Game.setInformationFromTemplate(Player.inventory.items[position].randomNPC);
 
 					Player.inventory.items[position].functionText = "To be delivered to " + Player.inventory.items[position].randomNPC.name;
 
 					if (Player.inventory.items[position].randomArea === Player.areaName)
 					{
-						Player.inventory.items[position].randomNPC = Game.npcs.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
+						Player.inventory.items[position].randomNPC = Game.characters.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
 					}
 					else
 				    {
-						Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.npcs.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
+						Player.inventory.items[position].randomNPC = Player.inventory.items[position].randomArea.characters.find(npc => npc.name === Player.inventory.items[position].randomNPC.name);
 					}
 					Player.inventory.items[position].randomNPC.roles.push({
 						role: "function",

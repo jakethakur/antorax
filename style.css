@@ -314,7 +314,7 @@ thead:after { /* space after bags in bank */
 	margin: auto;
 	opacity: var(--opacity);
 
-	z-index: 50;
+	z-index: 7;
 }
 
 #npcChatImage {
@@ -393,7 +393,7 @@ thead:after { /* space after bags in bank */
 	margin: auto;
 	opacity: var(--opacity);
 
-	z-index: 50;
+	z-index: 7;
 
 }
 
@@ -915,7 +915,7 @@ left: 55px;
 	height: 55px;
 }
 
-#questStartXP, #questFinishXP{
+#questStartXP, #questFinishXP, .notifXP{
 	margin-top: 5px;
 	width: 60px;
 	height: 60px;
@@ -1121,7 +1121,7 @@ left: 55px;
 	line-height: 28px;
 }
 
-.mailDelete, .mailFlag{
+.mailDelete, .mailFlag, .notifClose{
 	height: 30px;
 	width: 30px;
 	position: absolute;
@@ -1316,6 +1316,53 @@ left: 55px;
 	font-size: 16px;
 	height: 100px;
 	overflow-y: scroll;
+}
+
+/*					*/
+/*   	NOTIFS		*/
+/*					*/
+
+#notifWrapper {
+	position: absolute;
+	width: 300px;
+	top: 100px;
+	left: 20px;
+
+	z-index: 6;
+}
+
+.notif {
+	width: 300px;
+	margin-bottom: 15px;
+	background-color: var(--alert);
+	border: 5px solid var(--border);
+	padding: 20px;
+	padding-bottom: 10px;
+	text-align: center;
+	opacity: var(--opacity);
+}
+
+.notifDisappearing {
+	transition: opacity 5s; /* note it gets removed in 3s instead, as it's barely visible after this time */
+	opacity: 0;
+}
+
+.notifTitle {
+	font-size: 22px;
+	line-height: 8px;
+}
+
+.notifSubtitle {
+	font-size: 18px;
+	line-height: 6px;
+}
+
+.notifClose{
+    top: -25px;
+	right: -295px;
+    position: relative;
+    cursor: pointer;
+    margin-bottom: -30px;
 }
 
 /*					*/
