@@ -1568,7 +1568,7 @@ Dom.chat.npcChatFinished = function() {
 // the elements parameter should be an array of objects, each specifying an element that appears in the notification (in sequence). these should be one of the following:
 // {type: "title", text: String} (large text)
 // {type: "subtitle", text: String} (smaller text)
-// {type: "items", arr: Array, xp: Integer} (shows items that can be hovered over; arr should be an array of objects as specified in questdata step.rewards.items) (xp is optional and displays alongside items)
+// {type: "items", arr: Array, services: Array, xp: Integer} (shows items that can be hovered over; arr should be an array of objects as specified in questdata step.rewards.items) (xp and services are optional and display alongside items)
 // the disappearIn parameter is optional, and is in milliseconds. after this time, the notif will fade away over 3 seconds
 Dom.notifications.create = function (elements, disappearIn) {
 	let id = Dom.notifications.nextId;
@@ -1589,9 +1589,64 @@ Dom.notifications.create = function (elements, disappearIn) {
 				break;
 			case "items":
 				if (typeof el.xp !== "undefined") {
-					htmlConstruct += '<div class="notifXP"></div><span class="xpClass">&nbsp;&nbsp;</span>';
+					htmlConstruct += '<div class="notifXP">'+el.xp+'</div><span class="xpClass">&nbsp;&nbsp;</span>';
 				}
-				htmlConstruct += '<div class="notifItems">'+el.arr+'</div>'; //tbd
+				if (typeof el.services !== "undefined") {
+					for (let i = 0; i < el.services.length; i++) {
+						Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + el.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
+					}
+				}
+
+				htmlConstruct += '<div class="notifItems" id="notifItems'+id+'"></div><';
+				for (let i = 0; i < el.items.length; i++) {
+					if (el.items[i].item.type !== "item" || el.items[i].item.id !== 1) {
+						Dom.quest.addReward(el.items[i], "notifItems"+id, "notif"+id+"Item", "notif"+id+"StackNum");
+						//tbd make the above fn also assign generic classes to everything, which have the style applied to them
+					}
+				}
+
+				// add mouseovers
+				//tbd from here
+				let array = document.getElementsByClassName("theseQuestFinishServices");
+				if (array.length === 0) {
+					array = document.getElementsByClassName("theseQuestFinishOptions");
+				}
+				if (array.length === 0) {
+					array = [document.getElementById("questFinishXP")];
+				}
+				else {
+					for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
+						rewards.services[x].type = "item";
+						rewards.services[x].name = "Service Reward";
+						document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
+							Dom.inventory.displayInformation(rewards.services[x], undefined, "questFinish");
+						};
+						document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
+							Dom.expand("information");
+						};
+					}
+				}
+				array[array.length-1].onload = function () {
+					for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
+						document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
+							Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
+						};
+						document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
+							Dom.expand("information");
+						};
+					}
+					for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
+						document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
+							Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
+						};
+						document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
+							Dom.expand("information");
+						};
+						document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
+						document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
+					}
+				}
+
 				break;
 			default:
 				console.error("Unexpected notification element", el);
@@ -2929,6 +2984,10 @@ Dom.quest.formatBannerChat = function (chat) {
 	return chat;
 }
 
+// displays an item reward, for quest start, quest progress notification, etc.
+// the hoverover is added separately - tbd change this !
+// element is the ID name of the element to be added to
+// className and stackNum are the chosen class names for the individual item elements, and the text saying how big the item stack is
 Dom.quest.addReward = function (item, element, className, stackNum) {
 	if (item.condition === undefined || item.condition()) {
 		if (item.quantity !== undefined && item.quantity !== 1) {

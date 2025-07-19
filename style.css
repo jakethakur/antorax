@@ -890,7 +890,7 @@ left: 55px;
 /*	START & FINISH	*/
 /*					*/
 
-#questStartItems, #questStartStartItems, #questFinishItems {
+#questStartItems, #questStartStartItems, #questFinishItems, .notifItems {
 	display: inline-block;
 }
 

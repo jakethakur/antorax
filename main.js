@@ -10261,7 +10261,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				}
 
 				// now camera has been initialised, draw minimap for this area
-				this.prepareMinimap();
+				//this.prepareMinimap();
 
 				//
 				// interactable objects

@@ -6821,10 +6821,6 @@ animation: {
 			dayTiles: [11, 27, 34, 42, 7], // windows and lights
 			nightTiles: [3, 19, 2, 18, 15],
 			pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76],
-			/*layers: [
-				[6, 6, 6, 23, 47, 31, 55, 31, 55, 39, 6, 6, 6, 6, 7, 6, 31, 55, 39, 7, 39, 23, 47, 6, 7, 6, 6, 101, 6, 39, 23, 47, 23, 47, 31, 55, 6, 6, 6, 6, 10, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 46, 46, 46, 46, 46, 46, 46, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30],
-				[350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			],*/
 			animateTiles: [{
 				// christmas lights on walls!
 				tiles: [350, 356, 351, 359, 352, 360],
@@ -8835,10 +8831,6 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 			crate: {normal: "assets/objects/crate.png", christmas: "assets/objects/crateChristmas.png"},
 			coyoteUnbotheredLeft: {normal: "assets/enemies/coyoteUnbothered.png"},
 			coyoteUnbotheredRight: {normal: "assets/enemies/coyoteUnbothered.png", flip: "vertical"},
-			coyoteBotheredLeft: {normal: "assets/enemies/coyoteBothered.png", flip: "vertical"},
-			coyoteBotheredRight: {normal: "assets/enemies/coyoteBothered.png"},
-			coyoteShootingLeft: {normal: "assets/enemies/coyoteShooting.png", flip: "vertical"},
-			coyoteShootingRight: {normal: "assets/enemies/coyoteShooting.png"},
 			coyoteCorpse: {normal: "assets/corpses/coyote.png"},
 			jaws: {normal: "assets/projectiles/jaws.png",},
 			coyoteWrangler: {normal: "assets/enemies/coyotePackWrangler.png"},
@@ -9551,6 +9543,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				x: 6200,
 				y: 4100,
 				template: EnemyTemplates.eaglecrest.coyoteWrangler,
+			},
+			{
+				x: 1000,
+				y: 1000,
+				template: EnemyTemplates.hive.carpenterNest,
 			},
 			{
 				x: 6300,
@@ -13718,4 +13715,103 @@ undergrove: {
 	},
 
 
+
+	hive: {
+		id: 33,
+
+		data: {
+			name: "Hive Entrance",
+			subtitle: "",
+			displayOnEnter: true,
+		},
+
+		indoors: true,
+
+		tagGameAllowed: true,
+
+		song_day: "assets/music/Eaglecrest.mp3",
+		song_night: "assets/music/Eaglecrest.mp3",
+
+		checkpoint: false,
+
+		lootArea: "eaglecrest",
+		lootTier: 1,
+
+		mapData: {
+			cols: 125,
+			rows: 210,
+			tsize: 60,
+			tilesPerRow: 10,
+			solidTiles: [],
+			pathTiles: [],
+		},
+
+		images: {
+			tiles: {normal: "assets/tilemap/caves.png"},
+			bumblebeeLeft1: {normal: "assets/enemies/hiveHoneyBee.png"},
+			bumblebeeRight1: {normal: "assets/enemies/hiveHoneyBee.png", flip: "vertical"}
+			
+		},
+
+		areaTeleports: [
+			{
+				x: 420,
+				y: 1,
+				width: 210,
+				height: 2,
+				teleportTo: "tinkerersWorkshop",
+				destinationX: 1442,
+				destinationY: 683,
+			},
+		],
+
+		enemies: [
+			{
+				x: 150,
+				y: 1300,
+				template: EnemyTemplates.hive.workerBee,
+				moveTowardsLoop: [
+					{
+						x: 150,
+						y: 1300
+					},
+					{
+						x: 810,
+						y: 1010
+					}
+				]
+			},
+			{
+				x: 745, 
+				y: 950,
+				template: EnemyTemplates.hive.workerBee,
+				moveTowardsLoop: [
+					{
+						x: 745,
+						y: 950
+					},
+					{
+						x: 80, 
+						y: 580,
+					}
+				]
+			},
+			{
+				x: 155, 
+				y: 535,
+				template: EnemyTemplates.hive.workerBee,
+				moveTowardsLoop: [
+					{
+						x: 155,
+						y: 535
+					},
+					{
+						x: 820, 
+						y: 290,
+					}
+				]
+			}
+		],
+
+	},
 };
