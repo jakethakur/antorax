@@ -3924,6 +3924,16 @@ eaglecrest: {
 			destinationY: 300,
 		},
 		{
+			// teleport to cave entrance
+			x: 2200,
+			y: 2592,
+			width: 304.4,
+			height: 2,
+			teleportTo: "caveEntrance",
+			destinationX: 149.4,
+			destinationY: 4945,
+		},
+		{
 			// teleport to a shop that hasn't been made yet...
 			x: 6153,
 			y: 2898,
@@ -11884,6 +11894,7 @@ caveEntrance: {
 
 	song_day: "assets/music/Eaglecrest.mp3",
 	song_night: "assets/music/Eaglecrest.mp3",
+	darkness: 0.3,
 
 	checkpoint: false,
 
@@ -11898,6 +11909,7 @@ caveEntrance: {
 		solidTiles: [23, 24, 33, 34],
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
+		lightEmitTiles: [{tile: 871, brightness: 0.8, radius: 150}, {tile: 872, brightness: 0.8, radius: 150}],
 		animateTiles: [{
 			// water
 			tiles: [80, 90, 100],
@@ -11926,14 +11938,25 @@ caveEntrance: {
 
 areaTeleports: [
 	{
-		// teleport to plains
-		x: 12,
-		y: 1500.8,
-		width: 2,
-		height: 259.2,
-		teleportTo: "eaglecrestPlains",
-		destinationX: 7250,
-		destinationY: 3963,
+		// teleport to eaglecrest
+		x: 175,
+		y: 5100,
+		width: 324,
+		height: 2,
+		teleportTo: "eaglecrest",
+		destinationX: 2199,
+		destinationY: 2672,
+	},
+
+	{
+		// teleport to caves
+		x: 1267.2,
+		y: 787.4,
+		width: 351,
+		height: 2,
+		teleportTo: "caves",
+		destinationX: 584,
+		destinationY: 142,
 	},
 ],
 
@@ -12082,6 +12105,18 @@ images: {
 	things: [
 
 	],
+	areaTeleports: [
+	{
+		// teleport to caveEntrance
+		x: 600.3,
+		y: 208.4,
+		width: 350,
+		height: 2,
+		teleportTo: "caveEntrance",
+		destinationX: 1269,
+		destinationY: 904,
+	},
+],
 
 	villagers: [
 		{
