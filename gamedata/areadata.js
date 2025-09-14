@@ -11915,6 +11915,11 @@ caveEntrance: {
 			tiles: [80, 90, 100],
 			animateTime: 250,
 		},
+		{
+			// torch
+			tiles: [871, 872],
+			animateTime: 400,
+		},
 	],
 		objectTiles: [36, 37, 47], // bones
 
