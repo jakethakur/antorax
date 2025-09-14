@@ -11939,7 +11939,34 @@ caveEntrance: {
 		campfire2: {normal: "assets/objects/campfire2.png"},
 		campfire3: {normal: "assets/objects/campfire3.png"},
 		alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"},
+		tortle: {normal: "assets/npcs/tortle.png"},
 },
+
+
+things: [
+
+	{
+			x: [1283],
+			y: [2800],
+			z: [-1],
+			name: "tortle",
+			image: "tortle",
+			crop: {
+				x: 0,
+				y: 0,
+				width: 240,
+				height: 240
+			},
+			animation: {
+				type: "spritesheet",
+				frameTime: 300,
+				imagesPerRow: 3,
+				totalImages: 3,
+			},
+		},
+
+		],
+
 
 areaTeleports: [
 	{
@@ -11965,9 +11992,6 @@ areaTeleports: [
 	},
 ],
 
-
-things: [
-],
 },
 
 caves: {
