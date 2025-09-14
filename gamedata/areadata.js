@@ -11909,11 +11909,11 @@ caveEntrance: {
 		solidTiles: [23, 24, 33, 34],
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
-		lightEmitTiles: [{tile: 871, brightness: 0.8, radius: 150}, {tile: 872, brightness: 0.8, radius: 150}],
+		lightEmitTiles: [{tile: 871, brightness: 0.5, radius: 75}, {tile: 872, brightness: 0.8, radius: 75}],
 		animateTiles: [{
 			// water
 			tiles: [881, 889, 897],
-			animateTime: 250,
+			animateTime: 400,
 		},
 		{
 			// torch
@@ -11946,8 +11946,8 @@ caveEntrance: {
 things: [
 
 	{
-			x: [1283],
-			y: [2800],
+			x: [1293],
+			y: [2820],
 			z: [-1],
 			name: "tortle",
 			image: "tortle",
