@@ -11912,7 +11912,7 @@ caveEntrance: {
 		lightEmitTiles: [{tile: 871, brightness: 0.8, radius: 150}, {tile: 872, brightness: 0.8, radius: 150}],
 		animateTiles: [{
 			// water
-			tiles: [80, 90, 100],
+			tiles: [881, 889, 897],
 			animateTime: 250,
 		},
 		{
