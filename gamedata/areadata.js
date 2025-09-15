@@ -11945,8 +11945,75 @@ caveEntrance: {
 		campfire3: {normal: "assets/objects/campfire3.png"},
 		alysLoreworth: {normal: "assets/npcs/alysLoreworth.png"},
 		tortle: {normal: "assets/npcs/tortle.png"},
+		tortleFlip: {normal: "assets/npcs/tortle.png", flip:"horizontal"},
 },
+tripwires: [
+	{
+		// get on turtle to go to alfa base
+		x: 1283,
+		y: 2960.6,
+		width: 200,
+		height: 2,
+		collisionType: "feet",
+		collision: {relativeX:0, relativeY:-5, width:200, height:2},
+		onPlayerTouch: function () {
+			if (Game.hero.channelling === false) {
+				Game.hero.channel(function () {
+					let turtle = Game.things.find(thing => thing.name === "tortle");
+					Game.hero.getOnMount(turtle);
+					turtle.moveTowards = {
+						x: 1347.1,
+						y: 1901.5,
+						speed: 50,
+					};
+                    let finishFunction = function () {
+                        Game.hero.getOffMount();
+                        Game.hero.displace(0, 200, 1, 3*Math.PI/2, true);
+                        turtle.setImage("tortleFlip", turtle.crop, turtle.width, turtle.height);
+                    };
+					turtle.moveTowardsFinishFunction = finishFunction;
+				}, [], 1000, "Tortle Time!");
+			}
+		}
+	},
+	{
+		
+		x: 1359.3,
+		y: 1766,
+		width: 500,
+		height: 2,
+		collisionType: "feet",
+		collision: {relativeX:0, relativeY:5, width:500, height:2},
+		onPlayerTouch: function () {
+			if (Game.hero.channelling === false) {
+				Game.hero.channel(function () {
+					let turtle = Game.things.find(thing => thing.name === "tortle");
+					Game.hero.getOnMount(turtle);
+					turtle.moveTowards = {
+						x: 1293,
+						y: 2820,
+						speed: 50,
+					};
+                    let finishFunction = function () {
+                        Game.hero.getOffMount();
+                        Game.hero.displace(0, 200, 1, Math.PI/2, true);
+                        turtle.setImage("tortle", turtle.crop, turtle.width, turtle.height);
+                    };
+					turtle.moveTowardsFinishFunction = finishFunction;
+				}, [], 1000, "Let's go to the City!");
+			}
+		}
+	},
+],
 
+callAreaJoinOnInit:true,
+onAreaJoin:function(){
+	if(Game.hero.y<2274){
+		let turtle = Game.things.find(thing => thing.name === "tortle");
+		turtle.setImage("tortleFlip", turtle.crop, turtle.width, turtle.height);
+		turtle.x=1347.1, turtle.y=1901.5;
+	}
+},
 
 things: [
 
@@ -11956,6 +12023,7 @@ things: [
 			z: [-1],
 			name: "tortle",
 			image: "tortle",
+			rideAdjustY: -50,
 			crop: {
 				x: 0,
 				y: 0,
@@ -12151,6 +12219,7 @@ images: {
 		destinationY: 769,
 	},
 ],
+
 
 	villagers: [
 		{
