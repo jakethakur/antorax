@@ -11882,7 +11882,7 @@ caveEntrance: {
 
 	// data displayed on moving to area
 	data: {
-		name: "Cave Entrance",
+		name: "???",
 		level: "Level 10 - 15",
 		territory: "Neutral",
 		displayOnEnter: true,
@@ -11909,11 +11909,16 @@ caveEntrance: {
 		solidTiles: [23, 24, 33, 34],
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
-		lightEmitTiles: [{tile: 871, brightness: 0.5, radius: 75}, {tile: 872, brightness: 0.8, radius: 75}],
+		lightEmitTiles: [{tile: 871, brightness: 0.5, radius: 75}, {tile: 872, brightness: 0.8, radius: 75}, {tile: 868, brightness: 0.8, radius: 150}, {tile: 872, brightness: 0.8, radius: 75}],
 		animateTiles: [{
 			// water
 			tiles: [881, 889, 897],
 			animateTime: 400,
+		},
+		{
+			// water boundary
+			tiles: [879, 880],
+			animateTime: 1200,
 		},
 		{
 			// torch
@@ -11983,7 +11988,7 @@ areaTeleports: [
 	{
 		// teleport to caves
 		x: 1267.2,
-		y: 787.4,
+		y: 690.4,
 		width: 351,
 		height: 2,
 		teleportTo: "caves",
@@ -12143,7 +12148,7 @@ images: {
 		height: 2,
 		teleportTo: "caveEntrance",
 		destinationX: 1269,
-		destinationY: 904,
+		destinationY: 769,
 	},
 ],
 
