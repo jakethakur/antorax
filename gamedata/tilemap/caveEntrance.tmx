@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="41" height="85" tilewidth="60" tileheight="60" infinite="0" nextlayerid="5" nextobjectid="1213">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="41" height="85" tilewidth="60" tileheight="60" infinite="0" nextlayerid="5" nextobjectid="1241">
  <tileset firstgid="1" name="eaglecrest" tilewidth="60" tileheight="60" tilecount="928" columns="8">
   <image source="../../assets/tilemap/eaglecrest.png" width="480" height="7000"/>
  </tileset>
@@ -1020,7 +1020,7 @@
    <image source="../../assets/npcs/alysLoreworth.png" width="51" height="128"/>
   </tile>
   <tile id="338">
-   <image source="../../assets/objects/spiderNest.png" width="120" height="120"/>
+   <image source="../../assets/objects/spiderNest.png" width="60" height="60"/>
   </tile>
  </tileset>
  <layer id="1" name="Tile Layer 1" width="41" height="85">
@@ -1487,14 +1487,13 @@
   <object id="816" gid="1092" x="42" y="4392.33" width="92" height="118"/>
   <object id="817" gid="1091" x="868.667" y="4257.67" width="92" height="118"/>
   <object id="818" gid="1091" x="1475" y="3190" width="92" height="118"/>
-  <object id="833" gid="1171" x="1362.33" y="3969.33" width="86" height="43"/>
-  <object id="837" gid="1149" x="1302.33" y="3948.33" width="46" height="58"/>
-  <object id="838" gid="1149" x="1387.33" y="3910.66" width="46" height="58"/>
+  <object id="833" gid="1171" x="1609.33" y="3652.33" width="86" height="43"/>
+  <object id="837" gid="1149" x="1545.33" y="3628.66" width="46" height="58"/>
+  <object id="838" gid="1149" x="1616.33" y="3587.66" width="46" height="58"/>
   <object id="841" gid="1150" x="1272.33" y="3876.33" width="66" height="52"/>
   <object id="842" gid="1150" x="1682" y="3702" width="66" height="52"/>
   <object id="843" gid="1150" x="1713" y="3640" width="66" height="52"/>
-  <object id="844" gid="1150" x="1589" y="3652" width="66" height="52"/>
-  <object id="845" gid="1150" x="1499.67" y="3442" width="66" height="52"/>
+  <object id="845" gid="1150" x="1453.67" y="3582" width="66" height="52"/>
   <object id="846" gid="1150" x="1157" y="3700" width="66" height="52"/>
   <object id="848" gid="1150" x="1130" y="3343" width="66" height="52"/>
   <object id="849" gid="1150" x="1091" y="3055" width="66" height="52"/>
@@ -1563,5 +1562,8 @@
   <object id="1209" gid="1092" x="786" y="503" width="92" height="118"/>
   <object id="1211" gid="1091" x="1792" y="539" width="92" height="118"/>
   <object id="1212" gid="1091" x="1838" y="1157" width="92" height="118"/>
+  <object id="1232" gid="954" x="1802" y="3386" width="180" height="180"/>
+  <object id="1239" gid="955" x="1356" y="3922" width="56" height="88"/>
+  <object id="1240" gid="955" x="1393" y="3957" width="56" height="88"/>
  </objectgroup>
 </map>

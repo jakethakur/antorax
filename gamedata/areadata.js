@@ -11963,8 +11963,8 @@ tripwires: [
 					Game.hero.getOnMount(turtle);
 					turtle.moveTowards = {
 						x: 1347.1,
-						y: 1901.5,
-						speed: 50,
+						y: 1900.5,
+						speed: 100,
 					};
                     let finishFunction = function () {
                         Game.hero.getOffMount();
@@ -11991,8 +11991,8 @@ tripwires: [
 					Game.hero.getOnMount(turtle);
 					turtle.moveTowards = {
 						x: 1293,
-						y: 2820,
-						speed: 50,
+						y: 2840,
+						speed: 100,
 					};
                     let finishFunction = function () {
                         Game.hero.getOffMount();
@@ -12011,7 +12011,7 @@ onAreaJoin:function(){
 	if(Game.hero.y<2274){
 		let turtle = Game.things.find(thing => thing.name === "tortle");
 		turtle.setImage("tortleFlip", turtle.crop, turtle.width, turtle.height);
-		turtle.x=1347.1, turtle.y=1901.5;
+		turtle.x=1347.1, turtle.y=1900.5;
 	}
 },
 
@@ -12019,7 +12019,7 @@ things: [
 
 	{
 			x: [1293],
-			y: [2820],
+			y: [2840],
 			z: [-1],
 			name: "tortle",
 			image: "tortle",
