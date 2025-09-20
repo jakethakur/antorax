@@ -12413,8 +12413,8 @@ undergrove: {
 
 	mapData: {
 		origin: {x: 0, y: 0},
-		cols: 110,
-		rows: 175,
+		cols: 90,
+		rows: 70,
 		tsize: 60,
 		tilesPerRow: 10,
 		solidTiles: [23, 24, 33, 34],
