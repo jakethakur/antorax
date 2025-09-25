@@ -11959,19 +11959,23 @@ tripwires: [
 		onPlayerTouch: function () {
 			if (Game.hero.channelling === false) {
 				Game.hero.channel(function () {
-					let turtle = Game.things.find(thing => thing.name === "tortle");
-					Game.hero.getOnMount(turtle);
-					turtle.moveTowards = {
-						x: 1347.1,
-						y: 1900.5,
-						speed: 100,
-					};
-                    let finishFunction = function () {
-                        Game.hero.getOffMount();
-                        Game.hero.displace(0, 200, 1, 3*Math.PI/2, true);
-                        turtle.setImage("tortleFlip", turtle.crop, turtle.width, turtle.height);
-                    };
-					turtle.moveTowardsFinishFunction = finishFunction;
+					let scenarioId = Game.safeStartScenario("tortle riding");
+					if (scenarioId) {
+						let turtle = Game.things.find(thing => thing.name === "tortle");
+						Game.hero.getOnMount(turtle);
+						turtle.moveTowards = {
+							x: 1347.1,
+							y: 1900.5,
+							speed: 100,
+						};
+						let finishFunction = function () {
+							Game.hero.getOffMount();
+							Game.hero.displace(0, 200, 1, 3*Math.PI/2, true);
+							turtle.setImage("tortleFlip", turtle.crop, turtle.width, turtle.height);
+								Game.finishScenario(scenarioId);
+						};
+						turtle.moveTowardsFinishFunction = finishFunction;
+					}
 				}, [], 1000, "Tortle Time!");
 			}
 		}
@@ -11987,20 +11991,24 @@ tripwires: [
 		onPlayerTouch: function () {
 			if (Game.hero.channelling === false) {
 				Game.hero.channel(function () {
-					let turtle = Game.things.find(thing => thing.name === "tortle");
-					Game.hero.getOnMount(turtle);
-					turtle.moveTowards = {
-						x: 1293,
-						y: 2840,
-						speed: 100,
-					};
-                    let finishFunction = function () {
-                        Game.hero.getOffMount();
-                        Game.hero.displace(0, 200, 1, Math.PI/2, true);
-                        turtle.setImage("tortle", turtle.crop, turtle.width, turtle.height);
-                    };
-					turtle.moveTowardsFinishFunction = finishFunction;
-				}, [], 1000, "Let's go to the City!");
+					let scenarioId = Game.safeStartScenario("tortle riding");
+					if (scenarioId) {
+						let turtle = Game.things.find(thing => thing.name === "tortle");
+						Game.hero.getOnMount(turtle);
+						turtle.moveTowards = {
+							x: 1293,
+							y: 2840,
+							speed: 100,
+						};
+						let finishFunction = function () {
+							Game.hero.getOffMount();
+							Game.hero.displace(0, 200, 1, Math.PI/2, true);
+							turtle.setImage("tortle", turtle.crop, turtle.width, turtle.height);
+							Game.finishScenario(scenarioId);
+						};
+						turtle.moveTowardsFinishFunction = finishFunction;
+					}
+				}, [], 1000, "Tortle ride back home");
 			}
 		}
 	},

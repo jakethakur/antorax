@@ -9839,9 +9839,15 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 	if (!abandonAgreed && typeof Player.scenario !== "undefined" && typeof Player.scenario.allowedAreas !== "undefined" && !Player.scenario.allowedAreas.includes(areaName)) {
 		// player trying to go to an area which is not allowed in the current scenario
 		areaTpAllowed = false;
-		// give the player an alert which lets them decide if they want to go ahead with area teleport
-		let alertText = "Are you sure you want to leave this area? You will have to abandon your quest '" + Player.scenario.quest.title + "'.";
-		Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea.bind(Game), ev: [areaName, destination, true]}, true); // clicking yes calls this function but with abandonAgreed = true
+		if (typeof Player.scenario.quest !== "undefined") {
+			// give the player an alert which lets them decide if they want to go ahead with area teleport, at the cost of abandoning a quest
+			let alertText = "Are you sure you want to leave this area? You will have to abandon your quest '" + Player.scenario.quest.title + "'.";
+			Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea.bind(Game), ev: [areaName, destination, true]}, true); // clicking yes calls this function but with abandonAgreed = true
+		}
+		else {
+			// scenario is not associated with any quest - player necessarily can't leave their allowedAreas until the scenario is finished
+			Dom.alert.page("Finish " + Player.scenario.description + " before you go there.", 0, undefined, undefined);
+		}
 	}
 
 	if (abandonAgreed && typeof Player.scenario !== "undefined") {
@@ -12711,7 +12717,12 @@ Game.update = function (delta) {
 
 					if (scenarioActive) {
 						// tbd this message should definitely be more descriptive
-						Dom.chat.insert("Finish your quest '" + Player.scenario.quest.title + "' before you can progress this quest further!", 0, undefined, true);
+						if (typeof Player.scenario.quest !== "undefined") {
+							Dom.chat.insert("Finish your quest '" + Player.scenario.quest.title + "' before you can progress this quest further!", 0, undefined, true);
+						}
+						else {
+							Dom.chat.insert("Finish '" + Player.scenario.description + "' before you can progress this quest further!", 0, undefined, true);
+						}
 					}
 				}
 			}
@@ -15937,9 +15948,18 @@ Game.drawGlow = function (ctx, x, y, radius) {
 // Scenarios
 //
 
-// returns true if successful and false if not
+// a scenario can only be started if there is not already one active - Game.startScenario returns false and throws an error if there is one active
+// if you want to start a scenario when there might already be one active (e.g. a scenario for a world event), then use Game.safeStartScenario instead 
+
+// each scenario is associated a unique ID. a scenario can only be finished in Game.finishScenario by its ID, or associated quest, being passed in
+// the scenario's ID is returned by this function; or false is returned if a scenario was not successfully made
+
+// locator parameter is mandatory.
+// if this scenario is directly relevant to a quest (i.e. should be finished when the quest is abandoned, for example), then locator should be set to a quest object (containing at least the quest id and area)
+// otherwise, this should be set to a description of what the player is doing during this scenario. this should be an active verb, in all lowecase, i.e. "riding dolphins". This is used for chat messages, alerts, etc.
+
 // tradingAllowed defaults to false 
-Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasOnEnd) {
+Game.startScenario = function (locator, allowedAreas, tradingAllowed, vacateAreasOnEnd) {
 	if (typeof Player.scenario === "undefined") {
 		Game.saveProgress("scenarioPre");
 
@@ -15948,14 +15968,32 @@ Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasO
 			vacateAreasOnEnd = [vacateAreasOnEnd];
 		}
 
-		Player.scenario = {
-			// currently all scenarios must be attached to a quest. can be changed in the future if there is a need for a non-quest scenario
-			quest: {
-				id: quest.id,
-				area: quest.questArea,
+		let questParam;
+		let description;
+		if (typeof locator === "undefined") { // input validation
+			console.error("Scenario has been given no quest and no description, but scenarios should be assigned at least one of these.");
+		}
+		else if (typeof locator.id !== "undefined") {
+			questParam = {
+				id: locator.id,
+				area: locator.area || locator.questArea,
+			};
+		}
+		else {
+			description = locator;
+		}
 
-				tradingAllowed: tradingAllowed,
-			},
+		// assign scenario id
+		if (typeof Game.nextScenarioId === "undefined") {
+			Game.nextScenarioId = 1;
+		}
+
+		Player.scenario = {
+			id: Game.nextScenarioId,
+
+			quest: questParam,
+
+			description: description,
 			
 			// array of areas that the player is allowed to visit whilst in this scenario
 			// if they visit any different areas, an alert is shown asking them if they want to go ahead and abandon the relevant quest and end the scenario
@@ -15964,8 +16002,14 @@ Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasO
 			// an array of objects containing information on where the player should be teleported to if the scenario finishes and the player is in particular areas
 			// objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
 			vacateAreasOnEnd: vacateAreasOnEnd,
+
+			tradingAllowed: tradingAllowed,
 		};
-		Player.scenario.quest.title = Quests[Player.scenario.quest.area][Player.scenario.quest.id].quest;
+		if (typeof Player.scenario.quest !== "undefined") {
+			Player.scenario.quest.title = Quests[Player.scenario.quest.area][Player.scenario.quest.id].quest;
+		}
+
+		Game.nextScenarioId++;
 
 		if (!tradingAllowed) {
 			// if trade/alert/pending request is active, send a message to the other player telling them to close it
@@ -15980,18 +16024,36 @@ Game.startScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasO
 			}
 		}
 
-		return true;
+		return Player.scenario.id;
 	}
 	else {
-		console.error("A scenario was started when one was already active.", Player.scenario, quest);
+		console.error("A scenario was started when one was already active.", Player.scenario, locator);
 		return false;
 	}
 }
 
-// parameter contains quest object which is relevant for the scenario, for verification
+// same as Game.startScenario, but attempts to start a scenario when there may already be one currently active
+// this function returns false if there is a scenario currently active, and displays an alert to tell the player that their action is not possible
+Game.safeStartScenario = function (quest, allowedAreas, tradingAllowed, vacateAreasOnEnd, description) {
+	if (typeof Player.scenario === "undefined") {
+		return Game.startScenario(quest, allowedAreas, tradingAllowed, vacateAreasOnEnd, description);
+	}
+	else {
+		if (typeof Player.scenario.quest !== "undefined") {
+			Dom.alert.page("You cannot do that right now, due to your active quest '"+Player.scenario.quest.title+"'.", 0, undefined, "settingsPage");
+		}
+		else {
+			Dom.alert.page("You cannot do that right now. Try again once you have finished '"+Player.scenario.description+"'.", 0, undefined, "settingsPage");
+		}
+		return false;
+	}
+}
+
+// parameter id is the id number of the scenario to be finished (as validation that the correct scenario is being finished)
+// alternatively, id can be set to a quest object which is relevant for the scenario, for verification
 // reason could be "abandon" (quest was abandoned), or "scoreboard" (relevant scoreboard was finished)
-Game.finishScenario = function (quest, reason) {
-	if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
+Game.finishScenario = function (id, reason) {
+	if (typeof Player.scenario !== "undefined" && ((typeof id.questArea !== "undefined" && Player.scenario.quest.id === id.id && Player.scenario.quest.area === id.questArea) || id === Player.scenario.id)) {
 		if (typeof Player.scenario.vacateAreasOnEnd !== "undefined" && Player.scenario.vacateAreasOnEnd.length > 0) {
 			let obj = Player.scenario.vacateAreasOnEnd.find(foo => foo.areaName === Game.areaName);
 			if (typeof obj !== "undefined") {
@@ -16005,7 +16067,7 @@ Game.finishScenario = function (quest, reason) {
 		return true;
 	}
 	else {
-		console.error("The scenario that is active does not line up with the scenario that is trying to finish.", Player.scenario, quest);
+		console.error("The scenario that is active does not line up with the scenario that is trying to finish.", Player.scenario, id)
 		return false;
 	}
 }
@@ -16067,8 +16129,12 @@ Game.saveProgress = function (saveType) {
 			Dom.alert.page("Please accept local storage in the settings page to save your progress!", 0, undefined, "settingsPage");
 		}
 		else if (Player.scenario !== "undefined" && saveType !== "scenario") {
-			let quest = Player.scenario.quest;
-			Dom.alert.page("You cannot save your progress right now due to your active quest '"+Player.scenario.quest.title+"'.", 0, undefined, "settingsPage");
+			if (typeof Player.scenario.quest !== "undefined") {
+				Dom.alert.page("You cannot save your progress right now, due to your active quest '"+Player.scenario.quest.title+"'.", 0, undefined, "settingsPage");
+			}
+			else {
+				Dom.alert.page("You cannot save your progress right now. Try again once you have finished '"+Player.scenario.description+"'.", 0, undefined, "settingsPage");
+			}
 		}
 	}
 

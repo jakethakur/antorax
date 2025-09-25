@@ -1604,7 +1604,7 @@ Dom.notifications.create = function (elements, disappearIn) {
 						//tbd make the above fn also assign generic classes to everything, which have the style applied to them
 					}
 				}
-
+eeeeeeeeeeeeeeeeeeeeeee
 				// add mouseovers
 				//tbd from here
 				let array = document.getElementsByClassName("theseQuestFinishServices");
@@ -3727,6 +3727,7 @@ Dom.scoreboardInit = function (properties) {
 	// allowedAreas: (an optional array of area names) specifies the allowed areas the player can go to without abandoning the relevant quest and ending its scenario (thus the scoreboard)
 	// vacateAreasOnEnd: (an array of objects) contains information on where the player should be teleported to if the scenario finishes and the player is in particular areas
 	//      ''           these objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
+	// scenarioDescription: description for the scenario; should be an active verb that starts with a lowercase character (i.e. "eating beetroot pies"). this is required if there is no specified quest for scoreboard
 
 	// removeAssociatedEntitiesOnFinish: defaults to true. means any entity with associatedScoreboard set to Dom.scoreboard.id gets removed upon this scoreboard finishing
 
@@ -3742,7 +3743,12 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.questStep = properties.questStep;
 		if (typeof this.scoreboard.questArea !== "undefined") {
 			// initialise scenario
-			Game.startScenario({questArea: this.scoreboard.questArea, id: this.scoreboard.questId}, properties.allowedAreas, properties.tradingAllowed, properties.vacateAreasOnEnd);
+			let scenarioLocator = this.scoreboard.scenarioDescription;
+			if (typeof scenarioLocator === "undefined") {
+				scenarioLocator = {questArea: this.scoreboard.questArea, id: this.scoreboard.questId};
+			}
+			let scenarioId = Game.startScenario(scenarioLocator, properties.allowedAreas, properties.tradingAllowed, properties.vacateAreasOnEnd);
+			this.scoreboard.scenarioId = scenarioId; // used for finishing the scenario
 			this.scoreboard.allowedAreas = properties.allowedAreas;
 		}
 		else {
@@ -4104,7 +4110,7 @@ Dom.scoreboardFinish = function (result, reason) {
 	}
 
 	// leave scenario now that scoreboard is finished
-	Game.finishScenario({questArea: this.scoreboard.questArea, id: this.scoreboard.questId}, "scoreboard");
+	Game.finishScenario(this.scoreboard.scenarioId, "scoreboard");
 
 	this.scoreboard = undefined;
 	Dom.elements.scoreboard.hidden = true;
@@ -7887,7 +7893,12 @@ Dom.trade.page = function () {
 
 Dom.trade.request = function (userID, name) {
 	if (typeof Player.scenario !== "undefined" && !Player.scenario.tradingAllowed) {
-		Dom.chat.insert(name + " You cannot trade due to your active quest '"+Player.scenario.quest.title+"'.");
+		if (typeof Player.scenario.quest !== "undefined") {
+			Dom.chat.insert("You cannot trade due to your active quest '"+Player.scenario.quest.title+"'.");
+		}
+		else {
+			Dom.chat.insert("You cannot trade until you have finished '"+Player.scenario.description);
+		}
 	}
 	else {
 		Dom.trade.target = userID;
@@ -7908,7 +7919,12 @@ Dom.trade.request = function (userID, name) {
 
 Dom.trade.requestReceived = function (userID, name, npc) {
 	if (typeof Player.scenario !== "undefined" && !Player.scenario.tradingAllowed) {
-		Dom.chat.insert(name + " tried to trade with you but could not due to your active quest '"+Player.scenario.quest.title+"'.");
+		if (typeof Player.scenario.quest !== "undefined") {
+			Dom.chat.insert(name + " tried to trade with you but could not due to your active quest '"+Player.scenario.quest.title+"'.");
+		}
+		else {
+			Dom.chat.insert(name + " tried to trade with you but could not as you are '"+Player.scenario.description+"'.");
+		}
 		let message = {
 			type: "trade",
 			action: "busy",
@@ -8254,7 +8270,7 @@ Dom.quest.abandon = function (quest) {
 		}
 
 		// end scenario if one is currently active related to this quest
-		if (typeof Player.scenario !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea) {
+		if (typeof Player.scenario !== "undefined" && (typeof Player.scenario.quest !== "undefined" && Player.scenario.quest.id === quest.id && Player.scenario.quest.area === quest.questArea)) {
 			Game.finishScenario(quest, "abandon");
 		}
 
