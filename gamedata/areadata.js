@@ -9554,11 +9554,7 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				y: 4100,
 				template: EnemyTemplates.eaglecrest.coyoteWrangler,
 			},
-			{
-				x: 1000,
-				y: 1000,
-				template: EnemyTemplates.hive.carpenterNest,
-			},
+		
 			{
 				x: 6300,
 				y: 3800,
@@ -12818,8 +12814,8 @@ undergrove: {
 				crop: {
 					x: 0,
 					y: 0,
-					width: 493,
-					height: 388,
+					width: 370,
+					height: 291,
 				},
 				animation: {
 					type: "spritesheet",
@@ -13618,6 +13614,7 @@ undergrove: {
 		},
 
 		images: {
+			tinkererMech: {normal: "assets/mounts/tinkererMech/tinkererMechIdle.png"},
 			tiles: {normal: "assets/tilemap/caves.png"},
 			waterRock1: {normal: "assets/objects/waterRock1.png"},
 			waterRock2: {normal: "assets/objects/waterRock2.png"},
@@ -13641,6 +13638,24 @@ undergrove: {
 
 	},
 	things: [
+
+		{
+				x: 470, y: -900,
+				image: "tinkererMech",
+				name: "tinkererMech",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 370,
+					height: 291,
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 250,
+					imagesPerRow: 4,
+					totalImages: 4,
+				},
+			},
 		{
 			x: [888, 2254],
 			y: [551, 111],
