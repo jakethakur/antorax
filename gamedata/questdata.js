@@ -4096,7 +4096,7 @@ var Quests = {
 					stepNum: 0,
 					name: "???", // mail
 					chat: [{
-						text: `<s>AHOY</s> HELLO ${Player.name}, for your services at eaglecrest, we bestow upon you 1000 gold. Visit the tavern to claim your <s>booty</s> reward.`
+						text: `<s>AHOY</s> HELLO ${Player.name}, for your services at eaglecrest, we bestow upon you 100000 gold. Visit the tavern to claim your <s>booty</s> reward.`
 					},],
 				},
 				{
@@ -4621,7 +4621,7 @@ var Quests = {
 		},
 		{
 			id: 28,
-			quest: "Heart of Gold",
+			quest: "River's Blessing",
 			questArea: "eaglecrest",
 
 			steps: [

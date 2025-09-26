@@ -12438,7 +12438,7 @@ Game.update = function (delta) {
 			let scenarioActive = false; // if one of the npc's roles would hvae been able to be used had Player.scenario not been active
 			let textSaid = false; // if all of the above variables should be ignored (because something else has been said instead, e.g: soul healer cannot be healed text)
 			// see below for loop for logic regarding these variables
-
+			
 			if (npc.roles !== undefined && npc.roles.length !== 0) {
 				// the NPC is a functional NPC (does something when spoken to)
 
@@ -12691,11 +12691,6 @@ Game.update = function (delta) {
 				} // finished iterating through this npc's roles
 
 			}
-			else if (npc.roles === undefined || npc.roles.length === 0) {
-				// no roles exist
-				notUnlockedRoles = true;
-			}
-
 
 			// now functionarray has been populated, see if anything needs to be done ...
 			if (functionArray.length > 0) {

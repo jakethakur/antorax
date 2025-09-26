@@ -65,9 +65,10 @@ Weather.tick = function (init) {
 			// not called on init
 
 			// gusts
-			if (Weather.weatherType == "ley" || Weather.weatherType == "pollen")
+			if ((Weather.weatherType == "ley" || Weather.weatherType == "pollen") && Weather.gustTimeout === undefined)
 			{
-				Weather.gust(Random(0, 360));
+				let timeUntilGust = (120 - (Weather.intensity / (Game.canvasArea / 36000))) * 200 + 8000; // intensity varies from 0 to 120, thus time varies from 8s to 32s
+				Weather.gustTimeout = setTimeout(Weather.gust, timeUntilGust, Random(0, 360));
 			}
 
 			// lightning
@@ -229,7 +230,7 @@ Weather.gust = function (direction, multiplier, rate) {
 		direction = this.windDirection;
 	}
 	if (multiplier == undefined) {
-		multiplier = 4;
+		multiplier = 3;
 	}
 	if (rate == undefined) {
 		rate = 1;
@@ -243,6 +244,8 @@ Weather.gust = function (direction, multiplier, rate) {
 		rate: rate,
 		status: "increasing"
 	}; // wind is increasing intensity at rate windGust.rate until it reaches windGust.baseIntensity * windGust.multiplier
+
+	Weather.gustTimeout = undefined;
 }
 
 // called every in game tick by main !

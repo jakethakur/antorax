@@ -2642,9 +2642,9 @@ Dom.quest.progressFromNpc = function (quest, npc, step, finish) {
 	// check player has enough inventory space for any rewards after completing this step (or starting the quest, in case step=0)
 	if (typeof ourQuest.steps[step].rewards === "undefined" || typeof ourQuest.steps[step].rewards.items === "undefined" || Dom.inventory.requiredSpace(ourQuest.steps[step].rewards.items)) {
 		let chat = ourQuest.steps[step].chat;
-
-		if (Player.quests.prog[ourQuest.questArea][ourQuest.id].abandonedSteps[step] && typeof ourQuest.steps[step].reattemptChat !== "undefined") {
-			// step has been done before, but then quest was abandoned
+		
+		if (Player.quests.prog[ourQuest.questArea][ourQuest.id].stepProgress[step] === "reattempt" && typeof ourQuest.steps[step].reattemptChat !== "undefined") {
+			// step has been done before, but was failed 
 			chat = ourQuest.steps[step].reattemptChat;
 		}
 
@@ -3157,8 +3157,8 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	}
 
 	// reputation
-	if (typeof quest.steps[step].rewards !== "undefined") {
-		if (quest.steps[step].rewards.reputation !== undefined) {
+	if (typeof quest.steps[step].rewards !== "undefined" && typeof quest.steps[step].rewards.reputation !== "undefined") {
+		if (!Player.quests.prog[quest.questArea][quest.id].abandonedSteps[step]) { // if step has been completed and then abandoned before, don't give them the step's reputation rewards
 			for (let i = 0; i < Object.keys(quest.steps[step].rewards.reputation).length; i++) {
 				Dom.reputation.give(Object.keys(quest.steps[step].rewards.reputation)[i], quest.steps[step].rewards.reputation[Object.keys(quest.steps[step].rewards.reputation)[i]])
 			}
@@ -3203,7 +3203,9 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	Dom.adventure.update();
 
 	if (typeof quest.steps[step].rewards !== "undefined" && typeof quest.steps[step].rewards.xp !== "undefined") {
-		Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
+		if (!Player.quests.prog[quest.questArea][quest.id].abandonedSteps[step]) { // if step has been completed and then abandoned before, don't give them the step's XP rewards
+			Game.getXP(quest.steps[step].rewards.xp, false); // false = not affected by XP Bonus
+		}
 	}
 	Dom.checkProgress();
 
@@ -3211,18 +3213,34 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	// last because it saves
 	if (typeof quest.steps[step].rewards !== "undefined" && typeof quest.steps[step].rewards.items !== "undefined") {
 		for (let i = 0; i < quest.steps[step].rewards.items.length; i++) {
-			if (quest.steps[step].rewards.items[i].item.type !== "item" || quest.steps[step].rewards.items[i].item.id !== 1) {
-				if ((quest.steps[step].rewards.items[i].condition === undefined || quest.steps[step].rewards.items[i].condition()) && (quest.steps[step].rewards.items[i].chance === undefined || quest.steps[step].rewards.items[i].chance > Random(0, 99))) {
-					Dom.inventory.give(quest.steps[step].rewards.items[i].item, quest.steps[step].rewards.items[i].quantity);
+			let giveItem = true; // whether or not the item should be given
 
-					// items with probability (not used currently)
-					if (quest.steps[step].rewards.items[i].chance !== undefined) {
-						if (quest.steps[step].rewards.items[i].quantity > 1) {
-							Dom.chat.insert("You earned "+quest.steps[step].rewards.items[i].quantity+" rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
-						}
-						else {
-							Dom.chat.insert("You earned a rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
-						}
+			if (quest.steps[step].rewards.items[i].item.type === "item" && quest.steps[step].rewards.items[i].item.id === 1) {
+				giveItem = false; // Items.item[1] shouldn't be given
+			}
+
+			else if (Player.quests.prog[quest.questArea][quest.id].abandonedSteps[step] && quest.steps[step].rewards.items[i].item.removeOnAbandon !== quest.quest) { 
+				giveItem = false; // if step has been completed and then abandoned before, don't give them the step's item rewards (other than those which were taken away upon abandon)
+			}
+
+			else if (quest.steps[step].rewards.items[i].condition !== undefined && !quest.steps[step].rewards.items[i].condition()) {
+				giveItem = false;
+			}
+
+			else if (quest.steps[step].rewards.items[i].chance !== undefined && quest.steps[step].rewards.items[i].chance <= Random(0, 99)) {
+				giveItem = false;
+			}
+
+			if (giveItem) {
+				Dom.inventory.give(quest.steps[step].rewards.items[i].item, quest.steps[step].rewards.items[i].quantity);
+
+				// items with probability (not used currently)
+				if (quest.steps[step].rewards.items[i].chance !== undefined) {
+					if (quest.steps[step].rewards.items[i].quantity > 1) {
+						Dom.chat.insert("You earned "+quest.steps[step].rewards.items[i].quantity+" rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
+					}
+					else {
+						Dom.chat.insert("You earned a rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
 					}
 				}
 			}
@@ -8274,7 +8292,6 @@ Dom.quest.abandon = function (quest) {
 		Player.quests.prog[quest.questArea][quest.id].vars = {};
 		Player.quests.prog[quest.questArea][quest.id].objectiveProgress = [];
 		Player.quests.prog[quest.questArea][quest.id].stepProgress = [];
-		Player.quests.prog[quest.questArea][quest.id].stepRewardsProgress = [];
 		Player.quests.prog[quest.questArea][quest.id].startedFromNpc = undefined;
 
 		// update boxes
@@ -8607,7 +8624,6 @@ Dom.init = function () {
 					vars: {},
 					objectiveProgress: [],
 					stepProgress: [],
-					stepRewardsProgress: [],
 					abandonedSteps: [],
 				}; // see savedata for a full list of properties which could be found in here
 			}
