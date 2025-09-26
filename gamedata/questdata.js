@@ -5323,7 +5323,7 @@ var Quests = {
 
 			startRewards: {
 				items: [
-					{item: Items.sword[13],}, // the mop
+					{item: Items.sword[13], removeOnAbandon: true}, // the mop
 				],
 			},
 
@@ -5601,7 +5601,7 @@ var Quests = {
 						forceChoose: true, // forces choose dom
 						onClick: function () {
 							// remove the item
-							Dom.inventory.removeById(item.id, item.type, 1, undefined, true); // remove the QUEST item
+							Dom.inventory.removeById(item.id, item.type, 1, true, true, false, true); // remove the QUEST item
 							// quest progress
 							Game.villagers[i].tavernGoodsDelivered = true; // always the first NPC to be delivered to
 							// chat

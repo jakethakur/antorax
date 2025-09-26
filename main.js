@@ -13007,7 +13007,7 @@ Game.update = function (delta) {
 				else if (chest.locked && Dom.inventory.check(chest.chestKey.id, chest.chestKey.type)) {
 					// chest locked but player has key
 					// remove key
-					Dom.inventory.removeById(chest.chestKey.id, chest.chestKey.type);
+					Dom.inventory.removeById(chest.chestKey.id, chest.chestKey.type, 1);
 					// unlock chest (for if the player opens it again before changing area)
 					chest.locked = false;
 					// chat message to tell them that a key was used

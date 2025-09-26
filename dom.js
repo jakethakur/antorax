@@ -3149,7 +3149,7 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	Player.quests.prog[quest.questArea][quest.id].stepProgress[step] = true;
 
 	// removeItems
-	// note that the quest step cannot still be completed if this item is not in the player's inventory, unless the removeItems[i] has property "notRequired"
+	// note that the quest step cannot be completed if this item is not in the player's inventory, unless the removeItems[i] has property "notRequired"
 	if (typeof quest.steps[step].removeItems !== "undefined") {
 		for (let i = 0; i < quest.steps[step].removeItems.length; i++) {
 			Dom.inventory.removeById(quest.steps[step].removeItems[i].item.id, quest.steps[step].removeItems[i].item.type, quest.steps[step].removeItems[i].quantity);
@@ -3215,11 +3215,13 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 		for (let i = 0; i < quest.steps[step].rewards.items.length; i++) {
 			let giveItem = true; // whether or not the item should be given
 
-			if (quest.steps[step].rewards.items[i].item.type === "item" && quest.steps[step].rewards.items[i].item.id === 1) {
+			let item = quest.steps[step].rewards.items[i].item;
+
+			if (item.type === "item" && item.id === 1) {
 				giveItem = false; // Items.item[1] shouldn't be given
 			}
 
-			else if (Player.quests.prog[quest.questArea][quest.id].abandonedSteps[step] && quest.steps[step].rewards.items[i].item.removeOnAbandon !== quest.quest) { 
+			else if (Player.quests.prog[quest.questArea][quest.id].abandonedSteps[step] && !quest.steps[step].rewards.items[i].removeOnAbandon) { 
 				giveItem = false; // if step has been completed and then abandoned before, don't give them the step's item rewards (other than those which were taken away upon abandon)
 			}
 
@@ -3232,15 +3234,15 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 			}
 
 			if (giveItem) {
-				Dom.inventory.give(quest.steps[step].rewards.items[i].item, quest.steps[step].rewards.items[i].quantity);
+				Dom.inventory.give(item, quest.steps[step].rewards.items[i].quantity);
 
 				// items with probability (not used currently)
 				if (quest.steps[step].rewards.items[i].chance !== undefined) {
 					if (quest.steps[step].rewards.items[i].quantity > 1) {
-						Dom.chat.insert("You earned "+quest.steps[step].rewards.items[i].quantity+" rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
+						Dom.chat.insert("You earned "+quest.steps[step].rewards.items[i].quantity+" rare <strong>"+item.name+"</strong> from completing this quest.");
 					}
 					else {
-						Dom.chat.insert("You earned a rare <strong>"+quest.steps[step].rewards.items[i].item.name+"</strong> from completing this quest.");
+						Dom.chat.insert("You earned a rare <strong>"+item.name+"</strong> from completing this quest.");
 					}
 				}
 			}
@@ -4897,8 +4899,7 @@ Dom.inventory.disposeConfirm = function (all) {
 			Dom.inventory.update();
 		}
 
-		Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
-		Dom.inventory.fromArray[Dom.inventory.fromId] = {};
+		Dom.inventory.removeEquipment(Dom.inventory.fromId);
 		Dom.inventory.fromElement.innerHTML = "";
 	}
 	Game.inventoryUpdate();
@@ -4982,43 +4983,68 @@ Dom.inventory.dispose = function (ev) {
 
 // remove an item by its id and type
 // returns true is successful or false if not successful
-// set num to true to remove all items
-Dom.inventory.removeById = function (ID, type, num, array, quest) {
-
-	let equip = false;
-	if (array === undefined) {
-		array = Player.inventory.items;
-		equip = true;
+// num is the maximum number of this item that are removed. set num to true to remove all items
+// quest parameter means objects with quest: true should be prioritised. pretty much only used for tavern goods quest. tbd these goods should just be made into different items and this hard-coding should be removed
+// returns true if num of the item is successfully removed
+Dom.inventory.removeById = function (ID, type, num, checkInventory, checkEquipped, checkBank, quest) {
+	if (typeof checkInventory === "undefined") {
+		checkInventory = true;
+	}
+	if (typeof checkEquipped === "undefined") {
+		checkEquipped = true;
+	}
+	if (typeof num === "undefined") {
+		num = 1;
 	}
 
-	let remove = false;
-	for (let i = 0; i < array.length; i++) {
-		if (array[i].type === type && array[i].id === ID && (!quest || array[i].quest === true || (array[i].quest !== undefined && array[i].quest()))) {
-			Dom.inventory.remove(i, num);
-			remove = true;
-			if (num !== "all") {
-				break; // stops multiple items being removed
+	let numRemoved = 0;
+	let removeFinished = false; // set to true once all of the desired items have been removed
+
+	if (checkInventory) {
+		for (let i = 0; i < Player.inventory.items.length; i++) {
+			if (Player.inventory.items[i].type === type && Player.inventory.items[i].id === ID && (!quest || Player.inventory.items[i].quest === true || (Player.inventory.items[i].quest !== undefined && Player.inventory.items[i].quest()))) {
+				numRemoved += Dom.inventory.remove(i, num-numRemoved, Player.inventory.items);
+				if (num !== true && numRemoved >= num) {
+					removeFinished = true;
+					break;
+				}
 			}
 		}
 	}
-	// if the item has not yet been removed check the equipped slots
-	if (!remove && equip) {
+
+	// if the item has not yet been removed, check the equipped slots
+	if (!removeFinished && checkEquipped) {
 		for (let i = 0; i < Object.keys(Player.inventory).length-1; i++) {
 			let equipmentKey = Object.keys(Player.inventory)[i];
 			if (Player.inventory[equipmentKey].type === type && Player.inventory[equipmentKey].id === ID) {
-				Dom.inventory.removeEquipment(Player.inventory[equipmentKey]);
-				Player.inventory[equipmentKey] = {};
-				Game.equipmentUpdate();
-				document.getElementById(equipmentKey).innerHTML = "";
-				remove = true;
-				break; // stops multiple items being removed
+				Dom.inventory.removeEquipment(equipmentKey);
+				numRemoved++;
+				if (num !== true && numRemoved >= num) {
+					removeFinished = true;
+					break;
+				}
 			}
 		}
 	}
+	
+	// if the item has not yet been removed, and the function is allowed to, check bank slots
+	if (!removeFinished && checkBank) {
+		for (let i = 0; i < Player.bank.items.length; i++) {
+			if (Player.bank.items[i].type === type && Player.bank.items[i].id === ID) {
+				numRemoved += Dom.inventory.remove(i, num-numRemoved, Player.bank.items);
+				if (num !== true && numRemoved >= num) {
+					removeFinished = true;
+					break;
+				}
+			}
+		}
+	}
+	
 	Dom.expand("information");
 	Dom.hotbar.update();
 	Dom.checkProgress();
-	if (remove) {
+
+	if (removeFinished || (num === true && numRemoved>0)) {
 		return true;
 	}
 	else {
@@ -5026,10 +5052,14 @@ Dom.inventory.removeById = function (ID, type, num, array, quest) {
 	}
 }
 
-// array is optional array that the item is removed from (inventory by default)
-// num is the index in array that stuff is removed from
+// removes items from index of array. this should usually only be called internally by DOM functions. Call Dom.inventory.removeById if you are looking to remove items from the player
+// this function returns the number of item removed
+// array is optional array that the item is removed from (inventory by default). note that for equipped items, Dom.inventory.removeEquipped should be called instead
+// index is the index in array that stuff is removed from
 // all is the number to be removed, or removes all of the items if it is set to true
-Dom.inventory.remove = function (num, all, array) {
+Dom.inventory.remove = function (index, all, array) {
+	// return value
+	let numberRemoved = 0;
 
 	// loot (overwritten if not loot)
 	let element = "loot";
@@ -5047,45 +5077,63 @@ Dom.inventory.remove = function (num, all, array) {
 		stackNum = "bankStackNum";
 	}
 
-	if (array[num].image !== undefined && !array[num].unidentified && Items[array[num].type][array[num].id].onRemove !== undefined) {
-		Items[array[num].type][array[num].id].onRemove();
+	if (array[index].image !== undefined && !array[index].unidentified && Items[array[index].type][array[index].id].onRemove !== undefined) {
+		Items[array[index].type][array[index].id].onRemove();
 	}
 
 	// repeats once unless all is a number
 	for (let i = 0; i < (isNaN(all) ? 1 : all); i++) {
-		// remove item completely
-		if (array[num].stacked === 1 || array[num].stacked === undefined || all === true) {
-			if (typeof array[num].id !== "undefined") { // check an item exists at this location
-				// almost removed - only 1 thing left to remove in the stack, or everything from the stack is being removed
-				let id = array[num].id;
-				let type = array[num].type;
-				document.getElementById(element).getElementsByTagName("td")[num].innerHTML = "";
-				array[num] = {};
-				// if more items still need to be removed
-				if (!isNaN(all) && all - i !== 1) {
-					// check for more of the same items and remove them
-					Dom.inventory.removeById(id, type, all-i-1, array);
+		if (array[index].stacked === 1 || array[index].stacked === undefined || all === true) {
+			// remove item completely - it is either not stacked, or all instances of this item should be removed from the inventory
+			if (typeof array[index].id !== "undefined") { // check an item exists at this location
+				if (typeof array[index].stacked !== "undefined") {
+					numberRemoved += array[index].stacked;
 				}
+				else {
+					numberRemoved++;
+				}
+				
+				document.getElementById(element).getElementsByTagName("td")[index].innerHTML = "";
+				array[index] = {};
 			}
 		}
-		// decrease stack size
+		
 		else {
-			array[num].stacked--;
-			if (array[num].quantity !== undefined) {
-				array[num].quantity--;
+			// decrease stack size
+
+			numberRemoved++;
+
+			array[index].stacked--;
+			if (array[index].quantity !== undefined) {
+				array[index].quantity--;
 			}
-			if (array[num].stacked !== 1) {
-				document.getElementById(stackNum+num).innerHTML = array[num].stacked;
+
+			if (array[index].stacked !== 1) {
+				document.getElementById(stackNum+index).innerHTML = array[index].stacked;
 			}
 			else {
-				document.getElementById(stackNum+num).hidden = true;
+				// only one of this item left in the inventory - no longer need to display stacked amount
+				document.getElementById(stackNum+index).hidden = true;
 			}
 		}
 	}
+
 	Dom.expand("information");
 	Dom.hotbar.update();
 	Dom.checkProgress();
+
+	return numberRemoved;
 }
+
+// removes item from an equipment slot
+// equipmentKey is the keyname in Player.inventory to remove the item from
+Dom.inventory.removeEquipment = function (equipmentKey) {
+	Dom.inventory.removeEquipmentStats(Player.inventory[equipmentKey]);
+	Player.inventory[equipmentKey] = {};
+	Game.equipmentUpdate();
+	document.getElementById(equipmentKey).innerHTML = "";
+}
+
 /*
 Dom.draggedPage = "";
 Dom.draggedPageX = "";
@@ -5101,6 +5149,7 @@ for (let i = 0; i < document.getElementsByClassName("DOM").length; i++) {
 		let a = 0;
 	}
 }*/
+
 Dom.canvas.drop = function (ev) {
 	//if (!ev.target.classList.includes("stackNum")) {
 		Dom.inventory.dispose(ev);
@@ -5535,11 +5584,11 @@ Dom.inventory.drop = function (toElement, toArray, toId, fromElement, fromArray,
 
 				// remove old stats - must be done before items are switched (ocean warrior set)
 				if (Dom.inventory.fromArray === Player.inventory) {
-					Dom.inventory.removeEquipment(Dom.inventory.fromArray[Dom.inventory.fromId]);
+					Dom.inventory.removeEquipmentStats(Dom.inventory.fromArray[Dom.inventory.fromId]);
 				}
 				else if (Dom.inventory.toArray === Player.inventory) {
 					if (Dom.inventory.toArray[Dom.inventory.toId].image !== undefined) {
-						Dom.inventory.removeEquipment(Dom.inventory.toArray[Dom.inventory.toId]);
+						Dom.inventory.removeEquipmentStats(Dom.inventory.toArray[Dom.inventory.toId]);
 					}
 				}
 
@@ -5700,9 +5749,10 @@ Dom.inventory.setItemFunctions = function (element, array, id) {
 	}
 }
 
-// player wants to remove equipment from a slot
+// intermediate function to aid de-equipping of equipment from a slot
+// note this function doesn't actually remove the equipment itself from the slot, it just removes its stats
 // array is (the item in) that slot (misnomer)
-Dom.inventory.removeEquipment = function (array) {
+Dom.inventory.removeEquipmentStats = function (array) {
 	// draw slot background
 	let element = Dom.inventory.slotKeys[array.type];
 	let type; // for setting back the background image
@@ -5719,7 +5769,7 @@ Dom.inventory.removeEquipment = function (array) {
 
 	// bags
 	if (array.type === "bag") {
-		Dom.inventory.bagCases(); // DOESN'T YET WORK TBD FOR CLICKING OF BAGS TO UNEQUIP
+		Dom.inventory.bagCases(); // DOESN'T YET WORK TBD FOR CLICKING OF BAGS TO UNEQUIP aaaaaaaaaaaaaaaaaa
 	}
 
 	Dom.inventory.beforeChangedStats();
@@ -7508,10 +7558,7 @@ Dom.inventory.prepare = function (array, i, element) {
 				if (!chooseStats && !onClick) {
 					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND on in inventory
 						Dom.inventory.deEquip = true;
-						Dom.inventory.removeEquipment(Player.inventory[i]); // handles changing of stats, bag slots, etc.
-						Player.inventory[i] = {};
-						Game.equipmentUpdate();
-						document.getElementById(Dom.inventory.slotKeys[i]).innerHTML = "";
+						Dom.inventory.removeEquipment(i); // handles changing of stats, bag slots, etc., as well as actually removing the item
 						Game.inventoryUpdate();
 					}
 				}
@@ -8243,19 +8290,21 @@ Dom.settings.minigames = function () {
 	}
 }
 
-// completely abandons a quest and all of its steps
+// abandons some of the steps of a quest, or the whole quest
 // the quest object (as found in questdata) should be passed in as the first parameter
-// note that this does not remove rewards at all! So this should only be done in a way the player cannot exploit, i.e. at the end of an event
-Dom.quest.abandon = function (quest) {
-	// if the quest is active then abandon it
+// the steps parameter should either be an array of step indices, a single step index, or left blank if the whole quest should be abandoned
+// note that this does not remove rewards at all! these rewards, xp etc are not given back if the player does the steps again, with the exception of any items that have the removeOnAbandon property
+Dom.quest.abandon = function (quest, steps) {
 	if (Player.quests.activeQuestArray.includes(quest.quest)) {
-		// remove all items with the property removeOnAbandon set to the quest name
+		// remove all items with the property removeOnAbandon set to the relevant quest and step
 		for (let i = 0; i < Player.inventory.items.length; i++) {
 			if (Player.inventory.items[i].removeOnAbandon === quest.quest) {
 				Dom.inventory.remove(i, true);
 			}
 		}
 		for (let i = 0; i < Object.values(Player.inventory).length; i++) {
+eeeeeeeeeeeeeeeeeeeeeeee
+
 			if (Object.values(Player.inventory)[i].removeOnAbandon === quest.quest) {
 				Dom.inventory.fromArray = Player.inventory;
 				Dom.inventory.fromId = Object.keys(Player.inventory)[i]
@@ -8459,7 +8508,9 @@ Dom.init = function () {
 	let itemArray = Dom.inventory.playerInventoryArray();
     for (let i = 0; i < itemArray.length; i++) {
         let item = itemArray[i];
-        Dom.inventory.assignInstanceId(item); // assigns a unique id to the item's instance in the inventory (i.e. two stacks of gold would have different instanceIds)
+		if (typeof item.image !== "undefined") {
+        	Dom.inventory.assignInstanceId(item); // assigns a unique id to the item's instance in the inventory (i.e. two stacks of gold would have different instanceIds)
+		}
     }
 	// prepare the inventory
 	for (let i = 0; i < Player.inventory.items.length; i++) {
@@ -8968,7 +9019,7 @@ Dom.testing.resetStats = function () {
 
 	/*for (let i = 0; i < 5; i++) {
 		if (Object.values(Player.inventory)[i].image !== undefined) {
-			Dom.inventory.removeEquipment(Object.values(Player.inventory)[i]);
+			Dom.inventory.removeEquipmentStats(Object.values(Player.inventory)[i]);
 		}
 	}*/
 
