@@ -3148,7 +3148,7 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 	// any possible starting of scenario should be done *first*, as this forces a save (and we don't want this save to include the started quest)
 	if (quest.steps[step].startScenario !== undefined) {
-		Game.startScenario(quest.steps[step].startScenario);
+		Game.startScenario(...quest.steps[step].startScenario);
 	}
 	if (quest.steps[step].startScoreboard !== undefined) {
 		Dom.scoreboardInit(quest.steps[step].startScoreboard);
@@ -3321,6 +3321,7 @@ Dom.quest.acceptReattempt = function (quest, npc, step) {
 	if (quest.steps[step].startProtect !== undefined) {
 		Game.questPresets.protect(quest.steps[step].startProtect);
 	}
+	// onFinish is called after any potential scenario starting
 	if (typeof quest.steps[step].onFinish !== "undefined") {
 		quest.steps[step].onFinish(npc);
 	}
@@ -3731,6 +3732,8 @@ Dom.scoreboardInit = function (properties) {
 
 	// removeAssociatedEntitiesOnFinish: defaults to true. means any entity with associatedScoreboard set to Dom.scoreboard.id gets removed upon this scoreboard finishing
 
+	// scoreboardInitFunction: an optional function that is called BEFORE the scenario is started (rather than after, as a questFinish would)
+
 	if (typeof this.scoreboard === "undefined") {
 		this.scoreboard = {};
 		this.scoreboard.id = this.scoreboardNextId;
@@ -3741,19 +3744,19 @@ Dom.scoreboardInit = function (properties) {
 		this.scoreboard.questArea = properties.questArea;
 		this.scoreboard.questId = properties.questId;
 		this.scoreboard.questStep = properties.questStep;
-		if (typeof this.scoreboard.questArea !== "undefined") {
-			// initialise scenario
-			let scenarioLocator = this.scoreboard.scenarioDescription;
-			if (typeof scenarioLocator === "undefined") {
-				scenarioLocator = {questArea: this.scoreboard.questArea, id: this.scoreboard.questId};
-			}
-			let scenarioId = Game.startScenario(scenarioLocator, properties.allowedAreas, properties.tradingAllowed, properties.vacateAreasOnEnd);
-			this.scoreboard.scenarioId = scenarioId; // used for finishing the scenario
-			this.scoreboard.allowedAreas = properties.allowedAreas;
+
+		if (typeof properties.scoreboardInitFunction !== "undefined") {
+			properties.scoreboardInitFunction();
 		}
-		else {
-			console.warn("Scoreboard " + properties.title + " has no specified quest, so does not start a scenario.");
+
+		// initialise scenario
+		let scenarioLocator = this.scoreboard.scenarioDescription;
+		if (typeof scenarioLocator === "undefined") {
+			scenarioLocator = {questArea: this.scoreboard.questArea, id: this.scoreboard.questId};
 		}
+		let scenarioId = Game.startScenario(scenarioLocator, properties.allowedAreas, properties.tradingAllowed, properties.vacateAreasOnEnd);
+		this.scoreboard.scenarioId = scenarioId; // used for finishing the scenario
+		this.scoreboard.allowedAreas = properties.allowedAreas;
 
 		this.scoreboard.enableQuestReattempt = properties.enableQuestReattempt;
 
@@ -3821,7 +3824,13 @@ Dom.scoreboardInit = function (properties) {
 		// randomEventsInitialTimeout property can also be set, to allow a grace period before the events begin
 		// each time the timeout finishes, Dom.scoreboardRandomEvent is called, and a new timeout is set
 		if (typeof properties.randomEvents !== "undefined") {
-			this.scoreboard.randomEvents = properties.randomEvents;
+			this.scoreboard.randomEvents = [];
+			// deep copy properties.randomEvents object
+			for (let i = 0; i < properties.randomEvents.length; i++) {
+				let obj = Object.assign({}, properties.randomEvents[i]);
+				this.scoreboard.randomEvents.push(obj);
+			}
+
 			let time = 0;
 			if (typeof properties.randomEventsInitialTimeout !== "undefined") {
 				time = properties.randomEventsInitialTimeout;

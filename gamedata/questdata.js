@@ -4350,21 +4350,21 @@ var Quests = {
 					},{
 						text: `Remember we'll need at least 76% of them sorted to the correct hatches.`,
 					}],
-					onFinish: function () {
-						Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
-						Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0;
-						Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 1;
-						Game.areaVariables.qualityAssuranceQuestId = 25; // so the barrels know which quest variables to update
-						Game.areaVariables.conveyorSpeed = 100;
-						// update tile animation speeds
-						for (let i = 0; i < map.animateTiles.length; i++) {
-							if (map.animateTiles[i].conveyor) {
-								let intervalNum = map.animateTiles[i].intervalNumber;
-								Game.changeInterval(intervalNum, 180);
-							}
-						}
-					},
 					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
+						scoreboardInitFunction: function () {
+							Player.quests.prog.eaglecrest[25].vars.gameScore = 0; // initialise score variables
+							Player.quests.prog.eaglecrest[25].vars.failedBarrels = 0;
+							Player.quests.prog.eaglecrest[25].vars.percentageCorrect = 1;
+							Game.areaVariables.qualityAssuranceQuestId = 25; // so the barrels know which quest variables to update
+							Game.areaVariables.conveyorSpeed = 100;
+							// update tile animation speeds
+							for (let i = 0; i < map.animateTiles.length; i++) {
+								if (map.animateTiles[i].conveyor) {
+									let intervalNum = map.animateTiles[i].intervalNumber;
+									Game.changeInterval(intervalNum, 180);
+								}
+							}
+						},
 						timeLimit: 121,
 						stopEventsAfter: 112,
 						variablesArray: [{
@@ -4488,9 +4488,9 @@ var Quests = {
 							},
 						],
 						chatSequence: [
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 66200},
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 98200}
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 34300},
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 66200},
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 98200}
 						],
 					}
 				},
@@ -4735,21 +4735,21 @@ var Quests = {
 					},{
 						text: `Remember we'll need at least 82% of them sorted to the correct hatches.`,
 					}],
-					onFinish: function () {
-						Player.quests.prog.eaglecrest[30].vars.gameScore = 0; // initialise score variables
-						Player.quests.prog.eaglecrest[30].vars.failedBarrels = 0;
-						Player.quests.prog.eaglecrest[30].vars.percentageCorrect = 1;
-						Game.areaVariables.qualityAssuranceQuestId = 30; // so the barrels know which quest variables to update
-						Game.areaVariables.conveyorSpeed = 130;
-						// update tile animation speeds
-						for (let i = 0; i < map.animateTiles.length; i++) {
-							if (map.animateTiles[i].conveyor) {
-								let intervalNum = map.animateTiles[i].intervalNumber;
-								Game.changeInterval(intervalNum, 138);
-							}
-						}
-					},
 					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
+						scoreboardInitFunction: function () {
+							Player.quests.prog.eaglecrest[30].vars.gameScore = 0; // initialise score variables
+							Player.quests.prog.eaglecrest[30].vars.failedBarrels = 0;
+							Player.quests.prog.eaglecrest[30].vars.percentageCorrect = 1;
+							Game.areaVariables.qualityAssuranceQuestId = 30; // so the barrels know which quest variables to update
+							Game.areaVariables.conveyorSpeed = 130;
+							// update tile animation speeds
+							for (let i = 0; i < map.animateTiles.length; i++) {
+								if (map.animateTiles[i].conveyor) {
+									let intervalNum = map.animateTiles[i].intervalNumber;
+									Game.changeInterval(intervalNum, 138);
+								}
+							}
+						},
 						timeLimit: 117,
 						stopEventsAfter: 108,
 						variablesArray: [{
@@ -4855,8 +4855,8 @@ var Quests = {
 							},
 						],
 						chatSequence: [
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glog-- Conveyor belts to speed 3.`,},],time: 38300},
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 91200}
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Glog-- Conveyor belts to speed 3.`,},],time: 38300},
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Conveyor belts to maximum speed setting.`,},],time: 91200}
 						],
 					}
 				},
@@ -4931,21 +4931,21 @@ var Quests = {
 					},{
 						text: `We'll need at least 68% of the parts sorted to the correct hatches.`,
 					}],
-					onFinish: function () {
-						Player.quests.prog.eaglecrest[31].vars.gameScore = 0; // initialise score variables
-						Player.quests.prog.eaglecrest[31].vars.failedBarrels = 0;
-						Player.quests.prog.eaglecrest[31].vars.percentageCorrect = 1;
-						Game.areaVariables.qualityAssuranceQuestId = 31; // so the barrels know which quest variables to update
-						Game.areaVariables.conveyorSpeed = 100;
-						// update tile animation speeds
-						for (let i = 0; i < map.animateTiles.length; i++) {
-							if (map.animateTiles[i].conveyor) {
-								let intervalNum = map.animateTiles[i].intervalNumber;
-								Game.changeInterval(intervalNum, 180);
-							}
-						}
-					},
 					startScoreboard: { // starts a scoreboard with these parameters, after onFinish
+						scoreboardInitFunction: function () {
+							Player.quests.prog.eaglecrest[31].vars.gameScore = 0; // initialise score variables
+							Player.quests.prog.eaglecrest[31].vars.failedBarrels = 0;
+							Player.quests.prog.eaglecrest[31].vars.percentageCorrect = 1;
+							Game.areaVariables.qualityAssuranceQuestId = 31; // so the barrels know which quest variables to update
+							Game.areaVariables.conveyorSpeed = 100;
+							// update tile animation speeds
+							for (let i = 0; i < map.animateTiles.length; i++) {
+								if (map.animateTiles[i].conveyor) {
+									let intervalNum = map.animateTiles[i].intervalNumber;
+									Game.changeInterval(intervalNum, 180);
+								}
+							}
+						},
 						timeLimit: 121,
 						stopEventsAfter: 112,
 						variablesArray: [{
@@ -5045,7 +5045,7 @@ var Quests = {
 									Game.areaVariables.conveyorSpeed = 200; // 130 -> 200
 									// update movement speed of old objects
 									for (let i = 0; i < Game.characters.length; i++) {
-										if (Game.characters[i].name === "Red Barrel" || Game.characters[i].name === "Blue Barrel" || Game.things[i].name === "Green Barrel" || Game.things[i].name === "Explosive") {
+										if (Game.characters[i].name === "Red Barrel" || Game.characters[i].name === "Blue Barrel" || Game.characters[i].name === "Green Barrel" || Game.characters[i].name === "Explosive") {
 											Game.characters[i].speed = Game.areaVariables.conveyorSpeed;
 										}
 									}
@@ -5082,9 +5082,9 @@ var Quests = {
 							},
 						],
 						chatSequence: [
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 24300},
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 46200},
-							{npc: {name: "Technician Ustinov", image: "ustinov"}, chat: [{text: `Conveyor belts to maximum speed setting!`,},],time: 88200}
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Conveyor belts to speed 2.`,},],time: 24300},
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Glglglu-conveyor belts to speed 3.`,},],time: 46200},
+							{npc: {name: "Technician Ustinov", image: "assets/npcs/ustinov.png"}, chat: [{text: `Conveyor belts to maximum speed setting!`,},],time: 88200}
 						],
 						successFunction: function () {
 							if (Player.quests.prog.eaglecrest[31].vars.percentageCorrect > User.progress.qualityAssuranceAchievement2) {
