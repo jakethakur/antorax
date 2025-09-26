@@ -1335,20 +1335,18 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 			// still some text left to be shown after this
 			Dom.chat.upcomingBannerText = []; // used as parameter for successive npcBanner function calls
 			// deep copy text into upcomingBannerText:
-			for (let i = 0; i < text.length; i++) {
+			for (let i = 1; i < text.length; i++) {
 				Dom.chat.upcomingBannerText.push(text[i]);
 			}
 
 			Dom.chat.upcomingBannerNpc = npc;
-
-			// array of text parameters
-			toShow = Dom.chat.upcomingBannerText.shift();
 		}
 		else {
 			Dom.chat.upcomingBannerText = undefined;
-
-			toShow = text[0];
 		}
+
+		// array of text parameters
+		toShow = text[0];
 
 		Dom.chat.npcBannerParams = {}; // any additional params that are needed by the functions below
 
@@ -1493,10 +1491,15 @@ Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
 	if (Dom.chat.npcBannerReadyToProgress || forceProgress === true) { // current chat has showed
 		Dom.chat.npcBannerReadyToProgress = false;
 
+		let showNextChat = false; // flag that tracks if more chat is to be triggered. this is required since some of the functions below may start a completely new chat banner, which should NOT be progressed at the end of this function
+
 		if (typeof Dom.chat.upcomingBannerText === "undefined") {
 			// nothing more to be shown - clear dom currently displayed and remove banner from the screen
 			Dom.chat.npcChatFinished();
 			// case of more to be shown is done at bottom of function
+		}
+		else {
+			showNextChat = true;
 		}
 
 		// onFinish fn
@@ -1542,7 +1545,7 @@ Dom.chat.npcChatProgress = function (forceProgress, jumpToId) {
 			Dom.chat.upcomingBannerText = undefined;
 		}
 
-		if (typeof Dom.chat.upcomingBannerText !== "undefined") {
+		if (typeof Dom.chat.upcomingBannerText !== "undefined" && showNextChat) {
 			// new stuff to be shown
 			Dom.chat.npcBanner(Dom.chat.upcomingBannerNpc, Dom.chat.upcomingBannerText);
 		}
