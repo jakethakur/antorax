@@ -1437,7 +1437,7 @@ var Quests = {
 			quest: "The Legend of the Tattered Knight",
 			questArea: "eaglecrestLoggingCamp",
 
-			mailStart: true,
+			//mailStart: true,
 
 			startName: "There once was a knight sent into exile, from the magical realm of Azuras,",
 			startChat: `He invaded towers, looted innocents, and stole from the vulnerable and young.<br>
@@ -1981,12 +1981,14 @@ var Quests = {
 			quest: "The Slithering Truth",
 			questArea: "eaglecrest",
 
-			mailStart: true,
-
 			startName: "???",
-			startChat: `Greetingssssss ${Player.name},<br><br>
-			I have ssseen your effortssss. How about we make a deal?<br><br>
-			Attached isss a key to my lair. Find it in the City and we can discusssss.`,
+			startChat: [{
+				text: `Greetingssssss ${Player.name},`,
+			},{
+				text: `I have ssseen your aggresssionssss againsssst my kin. How about we make a deal?`,
+			},{
+				text: `Attached isss a key to my lair. Find it in the City and we can discusssss.`,
+			},],
 
 			finishName: "???",
 			finishChat: `Successssss. You found me.`,
@@ -4102,7 +4104,7 @@ var Quests = {
 					},{
 						text: `Help me find this treasure in the plains... and then consider us even.`
 					},{
-						text: `Arrr, take this <b>Eaglecrest Plains Treasure Map</b> I found the other day and meet me at the X! Yer'll see what I mean.`
+						text: `Arrr, take this <b>Eaglecrest Plains Treasure Map</b> and meet me at the red X! Yer'll see what I mean.`
 					},],
 				},
 				{

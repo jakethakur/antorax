@@ -164,10 +164,7 @@ let Dom = {
 		questFinishXP: document.getElementById("questFinishXP"),
 		questsPage: document.getElementById("questsPage"),
 		questStart: document.getElementById("questStart"),
-		questStartChat: document.getElementById("questStartChat"),
-		questStartChatWrapper: document.getElementById("questStartChatWrapper"),
 		questStartItems: document.getElementById("questStartItems"),
-		questStartName: document.getElementById("questStartName"),
 		questStartObjectives: document.getElementById("questStartObjectives"),
 		questStartQuest: document.getElementById("questStartQuest"),
 		questStartRewardsTitle: document.getElementById("questStartRewardsTitle"),
@@ -2723,26 +2720,6 @@ Dom.quest.start = function (quest, npc) {
 			if (timesCompleted === null || timesCompleted === undefined)
 			{
 				timesCompleted = 0;
-			}
-
-			// display text if it's started from player's mail
-			if (quest.mailStart) { // aaaaaaaaaaaaaaaaaaaaaa tbd
-				let startName = quest.startName || quest[ToObjectKey(npc.name)].startName;
-				if (Array.isArray(startName)) {
-					startName = startName[timesCompleted];
-				}
-				Dom.elements.questStartName.innerHTML = startName;
-
-				let startChat = quest.startChat || quest[ToObjectKey(npc.name)].startChat;
-				if (Array.isArray(startChat)) {
-					startChat = startChat[timesCompleted];
-				}
-				Dom.elements.questStartChat.innerHTML = startChat;
-
-				Dom.elements.questStartChatWrapper.hidden = false;
-			}
-			else {
-				Dom.elements.questStartChatWrapper.hidden = true;
 			}
 
 			let objectives = quest.objectivesList;

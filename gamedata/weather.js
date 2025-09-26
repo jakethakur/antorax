@@ -492,6 +492,7 @@ Weather.render = function () {
 		}
 		else if (particle.type === "pollen") {
 			Game.ctx.fillStyle = "#ffe187";
+			Game.ctx.globalAlpha = 0.5;
 			Game.ctx.fillRect(particle.x, particle.y , 3, 3);
 		}
 	}

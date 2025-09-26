@@ -1264,7 +1264,7 @@ const EnemyTemplates = {
 					removeIn: 1000,
 					rotation: 0,
 					variance: 10, // variance in position (in x/y axis in one direction from player)
-					intensity: 10, // no. of particles every 100ms
+					intensity: 50, // no. of particles every 100ms
 				}]
 			},
 			lootTableTemplate: [EnemyLootTables.crystalSmall], // tbd
@@ -1303,8 +1303,8 @@ const EnemyTemplates = {
 					colour: ["#8317C6", "#621191"], // purple
 					removeIn: 1000,
 					rotation: 0,
-					variance: 10, // variance in position (in x/y axis in one direction from player)
-					intensity: 10, // no. of particles every 100ms
+					variance: 15, // variance in position (in x/y axis in one direction from player)
+					intensity: 100, // no. of particles every 100ms
 				}]
 			},
 			lootTableTemplate: [EnemyLootTables.crystalLarge], // tbd

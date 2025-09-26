@@ -1745,7 +1745,15 @@ class Entity {
 
 		// trail
 		// array of particle trails
-		this.trails = properties.trails || [];
+		this.trails = [];
+		if (typeof properties.trails !== "undefined") {
+			if (!Array.isArray(properties.trails)) {
+				properties.trails = [properties.trails];
+			}
+			for (let i = 0; i < properties.trails.length; i++) {
+				this.addTrail("init"+i, properties.trails[i]);
+			}
+		}
 
 		// sparkling trail for quest
 		if (properties.sparkle) {
@@ -2020,13 +2028,19 @@ class Entity {
 		if (typeof particleData.particleTimeGap === "undefined") {
 			// time spacing in ms between particles being added ; must be a multiple of 10ms
 			// this can be specified through intensity (as below)
+			// intensity is the number of particles added every 100ms
 			if (typeof particleData.intensity !== "undefined") {
-				// particles per 1s
-				particleData.particleTimeGap = Round((1/particleData.intensity * 100)/10, 0)*10;
+				particleData.particleTimeGap = Math.max(Round((1/particleData.intensity * 100)/10, 0)*10, 10);
+				if (particleData.particleTimeGap === 10) {
+					particleData.particlesPerTimeGap = Math.max(Round(particleData.intensity/10, 0), 1);
+				}
 			}
 			else {
 				particleData.particleTimeGap = 30; // default val
 			}
+		}
+		if (typeof particleData.particlesPerTimeGap === "undefined") {
+			particleData.particlesPerTimeGap = 1; // number of particles to be added every particleTimeGap ms (for use when particleTimeGap is 10 i.e. minimum)
 		}
 
 		particleData.timeElapsed = 0;
@@ -9368,8 +9382,8 @@ Game.trailUpdate = function () {
 					else {
 						// draw particles
 						trail.timeElapsed += 10; // measured in ms
-						if (trail.timeElapsed % trail.particleTimeGap === 0) {
-							// draw one particle
+						for (let i = 0; i < trail.particlesPerTimeGap; i++) {
+							// draw a particle
 							
 							// set trail position
 							trail.x = entity.x;
@@ -12221,7 +12235,7 @@ Game.update = function (delta) {
 	}
 	for (let i = 0; i < this.intervals.length; i++) {
 		this.intervals[i].elapsed += delta * 1000;
-		if (this.intervals[i].elapsed >= this.intervals[i].time) {
+		while (this.intervals[i].elapsed >= this.intervals[i].time) {
 			// interval has finished, call its function
 			this.intervals[i].func(...this.intervals[i].params);
 			// ..and reset the interval
