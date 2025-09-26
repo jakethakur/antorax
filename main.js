@@ -9382,14 +9382,16 @@ Game.trailUpdate = function () {
 					else {
 						// draw particles
 						trail.timeElapsed += 10; // measured in ms
-						for (let i = 0; i < trail.particlesPerTimeGap; i++) {
-							// draw a particle
-							
-							// set trail position
-							trail.x = entity.x;
-							trail.y = entity.y;
-							
-							Game.createParticle(trail); // Game not this because it is called by setInterval
+						if (trail.timeElapsed % trail.particleTimeGap === 0) {
+							for (let i = 0; i < trail.particlesPerTimeGap; i++) {
+								// draw a particle
+								
+								// set trail position
+								trail.x = entity.x;
+								trail.y = entity.y;
+								
+								Game.createParticle(trail); // Game not this because it is called by setInterval
+							}
 						}
 					}
 				}
