@@ -9018,24 +9018,44 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				y: 5106,
 				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5300, y: 5000},
+				questArea: "eaglecrest",
+				questId: 22,
+				canBeShown: function () {
+					return Player.quests.prog.eaglecrest[22].stepProgress[1];
+				},
 			},
 			{
 				x: 3514, // crystal island
 				y: 5910,
 				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5093, y: 4906},
+				questArea: "eaglecrest",
+				questId: 22,
+				canBeShown: function () {
+					return Player.quests.prog.eaglecrest[22].stepProgress[1];
+				},
 			},
 			{
 				x: 5749, // coyote island
 				y: 3874,
 				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5437, y: 4797},
+				questArea: "eaglecrest",
+				questId: 22,
+				canBeShown: function () {
+					return Player.quests.prog.eaglecrest[22].stepProgress[1];
+				},
 			},
 			{
 				x: 4036, // river's blessing island
 				y: 4252,
 				template: EnemyTemplates.eaglecrest.leyAggregate,
 				target: {x: 5206, y: 4686},
+				questArea: "eaglecrest",
+				questId: 22,
+				canBeShown: function () {
+					return Player.quests.prog.eaglecrest[22].stepProgress[1];
+				},
 			},
 		],
 

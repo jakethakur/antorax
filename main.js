@@ -7887,7 +7887,7 @@ class Ley extends Thing {
 
 		this.successFunction = properties.successFunction; // optional function to be called upon this reaching its destination and being removed
 
-		// Player.quests.prog[questArea][questId].vars[progressKey] is the quest variable that would be set to true upon this arriving at its destination
+		// Player.quests.prog[questArea][questId].vars[progressKey] is the quest variable that would be incremented upon this arriving at its destination
 		this.questArea = properties.questArea;
 		this.questId = properties.questId;
 		this.progressKey = properties.progressKey || "leyAggregateEscorted";
@@ -7903,7 +7903,7 @@ class Ley extends Thing {
 				this.successFunction();
 			}
 			if (typeof this.questArea !== "undefined" && typeof this.questId !== "undefined") {
-				Player.quests.prog[this.questArea][this.questId].vars[this.progressKey] = true;
+				Player.quests.prog[this.questArea][this.questId].vars[this.progressKey] = Increment(Player.quests.prog[this.questArea][this.questId].vars[this.progressKey]);
 			}
 			Game.removeObject(this.id, "leyAggregates");
 		}

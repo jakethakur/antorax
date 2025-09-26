@@ -4040,14 +4040,17 @@ var Quests = {
 				},
 				{id: 1, text: "Gather a sack of flour from near the <b>Eaglecrest Farm</b> mill.",
 					revealStep: 1, // if this step is completed, this objective is revealed (hidden otherwise; overrides isHidden)
-					isCompleted: function() {return checkProgress(Dom.inventory.check(76, "item"), 1)},
+					isCompleted: function() {return Dom.inventory.check(76, "item")},
 					completeStep: 2, // if this step is completed, then this objective is always completed
 				},
 				{id: 2, text: "Give <b>Peto the Pyromancer</b> the flour.",
 					completeStep: 2,
 				},
 				{id: 3, text: "Gather three eggs from chickens in the Plains.",
-					isCompleted: function() {return checkProgress(Dom.inventory.check(40, "item"), 3)}, completeStep: 3,
+					isCompleted: function () {
+						return Dom.inventory.check(40, "item");
+					}, outOf: 3,
+					completeStep: 3,
 					revealStep: 2,
 				},
 				{id: 4, text: "Give <b>Peto the Pyromancer</b> the eggs.",
@@ -4163,6 +4166,8 @@ var Quests = {
 				},
 				{id: 2, text: "Appease the River Idols by guiding the purple orbs to them.",
 					revealStep: 2,
+					associatedVariable: "leyAggregateEscorted",
+					outOf: 4,
 				},
 				{id: 3, text: "Speak to Captain Greenbeard.",
 					revealStep: 2,

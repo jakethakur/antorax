@@ -28,6 +28,8 @@ let Weather = {
 			windMultiplier: 0.35, // multiplied with wind intensity
 			windAffectsY: true, // wind affects y pos (doesn't usually with snow/rain)
 			intensityMultiplier: 0.03,
+			particleSize: 3,
+			particleSizeVariance: 1,
 		},
 		// "additional" particles
 		fish: {
@@ -333,11 +335,17 @@ Weather.updateParticleNumber = function () {
 		for (let i = 0; i < Math.round(this.intensity) - numberOfParticles; i++) {
 			// add a particle, ensuring even distribution of them
 
+			let particleSize = this.particleData[this.weatherType].particleSize;
+			if (typeof particleSize !== "undefined" && this.particleData[this.weatherType].particleSizeVariance !== "undefined") {
+				particleSize = Random(particleSize-this.particleData[this.weatherType].particleSizeVariance, particleSize+this.particleData[this.weatherType].particleSizeVariance);
+			}
+
 			this.particleArray.push({
 				x: Random(0, Dom.canvas.width),
 				y: Random(0, Dom.canvas.height),
 				speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
 				type: this.weatherType,
+				size: particleSize,
 			});
 		}
 	}
@@ -354,11 +362,17 @@ Weather.addAdditionalParticles = function () {
 	if (typeof this.weatherAdditional !== "undefined"
 		&& Random(1, this.particleData[this.weatherAdditional].chance) === 1) {
 
+		let particleSize = this.particleData[this.weatherAdditional].particleSize;
+		if (typeof particleSize !== "undefined" && this.particleData[this.weatherAdditional].particleSizeVariance !== "undefined") {
+			particleSize = Random(particleSize-this.particleData[this.weatherAdditional].particleSizeVariance, particleSize+this.particleData[this.weatherAdditional].particleSizeVariance);
+		}
+
 		this.particleArray.push({
 			x: Random(0, Dom.canvas.width),
 			y: 0,
 			speedMultiplier: Random(6, 14) / 10, // all particles have their own speed multiplier as well
 			type: this.weatherAdditional,
+			size: particleSize,
 		});
 	}
 }
@@ -493,7 +507,7 @@ Weather.render = function () {
 		else if (particle.type === "pollen") {
 			Game.ctx.fillStyle = "#ffe187";
 			Game.ctx.globalAlpha = 0.5;
-			Game.ctx.fillRect(particle.x, particle.y , 3, 3);
+			Game.ctx.fillRect(particle.x, particle.y , particle.size, particle.size);
 		}
 	}
 	Game.ctx.globalAlpha = 1;
