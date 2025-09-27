@@ -3443,7 +3443,7 @@ eaglecrest: {
 		nightTiles: [3, 19, 2, 18, 15, 418, 419, 582, 590, 592, 600, 608, 749, 750, 751, 757, 758, 759, 745, 755, 756],
 		pathTiles: [5, 12, 41, 50, 51, 57, 58, 59, 60, 76, 113, 121, 129, 420, 421, 414],
 		iceTiles: [27, 35],
-		  lightEmitTiles: [{tile: 19, brightness: 0.8, radius: 150}, {tile: 3, brightness: 0.8, radius: 150}, {tile: 746, brightness: 0.8, radius: 150}, {tile: 599, brightness: 0.8, radius: 150}, {tile: 590, brightness: 0.8, radius: 150}, {tile: 582, brightness: 0.8, radius: 150}, {tile: 34, brightness: 0.8, radius: 150}, {tile: 42, brightness: 0.8, radius: 150},
+		  lightEmitTiles: [{tile: 19, brightness: 0.8, radius: 150}, {tile: 3, brightness: 0.8, radius: 150}, {tile: 745, brightness: 0.8, radius: 150}, {tile: 600, brightness: 0.8, radius: 150}, {tile: 590, brightness: 0.8, radius: 150}, {tile: 582, brightness: 0.8, radius: 150}, {tile: 18, brightness: 0.8, radius: 150}, {tile: 2, brightness: 0.8, radius: 150},
 			],
 		showIfTiles: [ // calculated in runtime so should be quite efficient if possible (only use if it needs to be checked every frame)
 			{
