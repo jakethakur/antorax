@@ -7951,7 +7951,7 @@ Dom.trade.request = function (userID, name) {
 			Dom.chat.insert("You cannot trade due to your active quest '"+Player.scenario.quest.title+"'.");
 		}
 		else {
-			Dom.chat.insert("You cannot trade until you have finished '"+Player.scenario.description);
+			Dom.chat.insert("You cannot trade until you have finished "+Player.scenario.description+".");
 		}
 	}
 	else {

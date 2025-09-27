@@ -1751,7 +1751,11 @@ class Entity {
 				properties.trails = [properties.trails];
 			}
 			for (let i = 0; i < properties.trails.length; i++) {
-				this.addTrail("init"+i, properties.trails[i]);
+				let trailName = properties.trails[i].trailName;
+				if (typeof trailName === "undefined") {
+					trailName = "init"+i;
+				}
+				this.addTrail(trailName, properties.trails[i]);
 			}
 		}
 
@@ -2290,15 +2294,15 @@ class Thing extends Visible {
 			properties.image = this.additionalImages.shift().imageName;
 		}
 
-		if (properties.image !== undefined) {
-			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
-		}
-		else if (properties.imageDay !== undefined) {
+		if (properties.imageDay !== undefined) {
 			// has separate day image and night image
 			this.imageDay = properties.imageDay;
 			this.imageNight = properties.imageNight;
 			this.setImage(properties.imageDay, properties.crop, properties.width, properties.height, properties.rotationImages);
 			// this is set by setDayNightImages
+		}
+		else if (properties.image !== undefined) {
+			this.setImage(properties.image, properties.crop, properties.width, properties.height, properties.rotationImages);
 		}
 		else {
 			// an image must be loaded and set via setImage before it can be shown (and then hidden may be set back to false)
@@ -4325,6 +4329,7 @@ class Character extends Thing {
 		this.mounted = false;
 		this.mount = undefined;
 		this.dynamicOrderOffsetY = undefined;
+		this.orderOffsetY = 0;eaglecrestLampNight
 	}
 
 	// get off mount with displacement in the direction moving!
@@ -10146,7 +10151,6 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				map.repeatTiles = []; // these are like tall grass, flowers, etc.. An array of objects where the objects include "tile", "orderOffsetY" (optionally), name, "ySpacing", "xSpacing" (how much x it moves for every time it moves up one)
 				map.transparentTiles = []; // so it is always an array
 				map.lightEmitTiles = [];
-				map.lightEmitAtNightTiles = [];
 
 				map.scrollX = undefined;
 				map.scrollY = undefined;
@@ -10582,31 +10586,6 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 					}
 				}
 
-				// lightEmit tiles
-				// search for these tiles, and make an entity at them with lightEmit
-				// each element of lightEmitTiles is an object
-				for (let layer = 0; layer < map.layers.length; layer++) {
-					for (let c = 0; c < map.cols; c++) {
-						for (let r = 0; r < map.rows; r++) {
-							let tile = map.getTile(layer, c, r); // tile number
-							let lightEmitTileObj = map.lightEmitTiles.find(el => (Array.isArray(el.tile) && el.tile.includes(tile)) || el.tile === tile);
-							if (typeof lightEmitTileObj !== "undefined") {
-								// tile should have lightEmit
-								let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
-								let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
-								this.entities.push(new Entity({
-									x: x,
-									y: y,
-									width: 1,
-									height: 1,
-									type: "entities",
-									lightEmit: lightEmitTileObj
-								}));
-							}
-						}
-					}
-				}
-
 
 				// players (these are added from websocket instead of areadata)
 				// note this includes image loading for these players. tbd move this image loading into the general area promise
@@ -10745,6 +10724,31 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				// dayNight canvas
 				this.screenTints = []; // removes all existing screen tints (other than ones associated with player armour or global game systems)
 				this.dayNightUpdate();
+
+				// lightEmit tiles
+				// search for these tiles, and make an entity at them with lightEmit
+				// each element of lightEmitTiles is an object
+				for (let layer = 0; layer < map.layers.length; layer++) {
+					for (let c = 0; c < map.cols; c++) {
+						for (let r = 0; r < map.rows; r++) {
+							let tile = map.getTile(layer, c, r); // tile number
+							let lightEmitTileObj = map.lightEmitTiles.find(el => (Array.isArray(el.tile) && el.tile.includes(tile)) || el.tile === tile);
+							if (typeof lightEmitTileObj !== "undefined") {
+								// tile should have lightEmit
+								let x = Math.round((c) * map.tsize) + 30 - map.origin.x;
+								let y = Math.round((r) * map.tsize) + 30 - map.origin.y;
+								this.entities.push(new Entity({
+									x: x,
+									y: y,
+									width: 1,
+									height: 1,
+									type: "entities",
+									lightEmit: lightEmitTileObj,
+								}));
+							}
+						}
+					}
+				}
 
 				// Antorax Day fireworks
 				if (Event.event === "Antorax" && Areas[areaName].data.territory === "Allied" && !Areas[areaName].indoors && this.fireworkInterval === undefined) {
@@ -12732,7 +12736,7 @@ Game.update = function (delta) {
 							Dom.chat.insert("Finish your quest '" + Player.scenario.quest.title + "' before you can progress this quest further!", 0, undefined, true);
 						}
 						else {
-							Dom.chat.insert("Finish '" + Player.scenario.description + "' before you can progress this quest further!", 0, undefined, true);
+							Dom.chat.insert("Finish " + Player.scenario.description + " before you can progress this quest further!", 0, undefined, true);
 						}
 					}
 				}
@@ -15877,7 +15881,7 @@ Game.renderDayNight = function () {
 	}
 	else {
 		// first draw glows around any "lightEmit" entities
-		// note that lightEmitTiles and lightEmitAtNightTiles have a dummy lightEmit entity made for them in areadata
+		// note that lightEmitTiles have a dummy lightEmit entity made for them in areadata
 		for (let i = 0; i < this.allEntities.length; i++) {
 			let entity = this.allEntities[i];
 			if (typeof entity.lightEmit !== "undefined") {
@@ -16054,7 +16058,7 @@ Game.safeStartScenario = function (quest, allowedAreas, tradingAllowed, vacateAr
 			Dom.alert.page("You cannot do that right now, due to your active quest '"+Player.scenario.quest.title+"'.", 0, undefined, "settingsPage");
 		}
 		else {
-			Dom.alert.page("You cannot do that right now. Try again once you have finished '"+Player.scenario.description+"'.", 0, undefined, "settingsPage");
+			Dom.alert.page("You cannot do that right now. Try again once you have finished "+Player.scenario.description+".", 0, undefined, "settingsPage");
 		}
 		return false;
 	}
@@ -16144,7 +16148,7 @@ Game.saveProgress = function (saveType) {
 				Dom.alert.page("You cannot save your progress right now, due to your active quest '"+Player.scenario.quest.title+"'.", 0, undefined, "settingsPage");
 			}
 			else {
-				Dom.alert.page("You cannot save your progress right now. Try again once you have finished '"+Player.scenario.description+"'.", 0, undefined, "settingsPage");
+				Dom.alert.page("You cannot save your progress right now. Try again once you have finished "+Player.scenario.description+".", 0, undefined, "settingsPage");
 			}
 		}
 	}
