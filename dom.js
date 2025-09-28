@@ -28,6 +28,7 @@ let Dom = {
 		adventurePage: document.getElementById("adventurePage"),
 		adventureWrapper: document.getElementById("adventureWrapper"),
 		aggroOn: document.getElementById("aggroOn"),
+		autolootInfo: document.getElementById("autolootInfo"),
 		bag: document.getElementById("bag"),
 		bagText: document.getElementById("bagText"),
 		bankPage: document.getElementById("bankPage"),
@@ -2199,7 +2200,7 @@ Dom.inventory.stats = function (stat, value, array) {
 // display the information of an item, i.e. on hoverover
 // stacked is for displaying how many of an item there are in its name (i.e. X Gold). only applies for currency items; can probably remove in the future (tbd)
 // element is the element which this hoverover is displayed above
-// position gives information about the context in which this item is being viewed - equip (if it's equipped), trade, buyer, questFinish, etc.
+// position gives information about the context in which this item is being viewed - equip (if it's equipped), trade, buyer, questFinish, loot etc.
 // hide is not used and can be removed
 // array is the array of equipment in chooseDOM (only used for position==="trade" currently)
 // emptySlotMessage is the message to be shown if the slot is empty but being hovered over
@@ -2561,6 +2562,14 @@ Dom.inventory.displayInformation = function (item, stacked, element, position, h
         }
         else {
             Dom.elements.buyer.innerHTML = "";
+        }
+
+		// autoloot information
+		if (position === "loot" && item.autoloot) {
+            Dom.elements.autolootInfo.innerHTML = "This item is looted automatically.";
+        }
+        else {
+            Dom.elements.autolootInfo.innerHTML = "";
         }
 
         // item cooldown (works as a misc timer)
@@ -4429,6 +4438,45 @@ Dom.identifier.identify = function (npc) {
 	}
 }
 
+// returns the number of empty item slots in the inventory
+Dom.inventory.checkSpace = function () {
+	let space = 0;
+	for (let i = 0; i < Player.inventory.items.length; i++) {
+		if (Player.inventory.items[i].image === undefined) {
+			space++
+		}
+	}
+	return space;
+}
+
+// checks if the player has inventory space for an array of item objects, as appears in quest rewards (i.e. the array should be of the format [{item: Items.helm[9]}, ...])
+// includeChance should be set to true if items that have a chance of being given should be included in this check (under the assumption that they will all be given to the player)
+Dom.inventory.requiredSpace = function (items, includeChance) {
+	let required = 0;
+	// repeat for each required item
+	for (let i = 0; i < items.length; i++) {
+		if ((items[i].condition === undefined || items[i].condition()) && (items[i].chance === undefined || includeChance) && (items[i].item.type !== "item" || items[i].item.id !== 1)) {
+			if (items[i].item.stack === undefined) {
+				items[i].item.stack = 1;
+			}
+			if (items[i].quantity === undefined) {
+				items[i].quantity = 1;
+			}
+			let notRequired = 0;
+			for (let x = 0; x < Player.inventory.items.length; x++) {
+				if (Player.inventory.items[x].stacked === undefined) {
+					Player.inventory.items[x].stacked = 1;
+				}
+				if (Player.inventory.items[x].id === items[i].item.id && Player.inventory.items[x].type === items[i].item.type) {
+					notRequired += items[i].item.stack - Player.inventory.items[x].stacked;
+				}
+			}
+			required += Math.ceil((items[i].quantity - notRequired) / items[i].item.stack); // required empty spaces for this item
+		}
+	}
+	return required <= Dom.inventory.checkSpace();
+}
+
 // returns true if there is inventory space available for quantity "num" of item "item" to be added to inventory
 // optionally, this can be forced to be at a certain inventory posn "position" (i.e. checks if there is space at this inventory position in particular)
 // tbd this is a better version of the requiredSpace function - replace it
@@ -6241,42 +6289,6 @@ if (User.settings.music === true) {
 	Dom.elements.musicOn.checked = true;
 }
 
-Dom.inventory.checkSpace = function () {
-	let space = 0;
-	for (let i = 0; i < Player.inventory.items.length; i++) {
-		if (Player.inventory.items[i].image === undefined) {
-			space++
-		}
-	}
-	return space;
-}
-
-Dom.inventory.requiredSpace = function (items, includeChance) {
-	let required = 0;
-	// repeat for each required item
-	for (let i = 0; i < items.length; i++) {
-		if ((items[i].condition === undefined || items[i].condition()) && (items[i].chance === undefined || includeChance) && (items[i].item.type !== "item" || items[i].item.id !== 1)) {
-			if (items[i].item.stack === undefined) {
-				items[i].item.stack = 1;
-			}
-			if (items[i].quantity === undefined) {
-				items[i].quantity = 1;
-			}
-			let notRequired = 0;
-			for (let x = 0; x < Player.inventory.items.length; x++) {
-				if (Player.inventory.items[x].stacked === undefined) {
-					Player.inventory.items[x].stacked = 1;
-				}
-				if (Player.inventory.items[x].id === items[i].item.id && Player.inventory.items[x].type === items[i].item.type) {
-					notRequired += items[i].item.stack - Player.inventory.items[x].stacked;
-				}
-			}
-			required += Math.ceil((items[i].quantity - notRequired) / items[i].item.stack); // required empty spaces for this item
-		}
-	}
-	return required <= Dom.inventory.checkSpace();
-}
-
 Dom.inventory.hideHotbar = function (hide) {
 	if (hide) {
 		Dom.elements.hotbar.hidden = true;
@@ -6286,98 +6298,121 @@ Dom.inventory.hideHotbar = function (hide) {
 }
 
 // npc is the full npc object
+// the format of the items is the same as Dom.quest.rewards
 Dom.loot.page = function (npc, items) {
-	if (Dom.changeBook("lootPage", npc)) {//, true/*false*/, true);
-		//Dom.changeBook("lootPage");
-		//Dom.changeBook("lootPage");
-
-		// the format of Dom.loot.looted is the same as Dom.quest.rewards
-		Dom.loot.looted = items;
-
-		Dom.elements.lootingPageTitle.innerHTML = npc.name;
-		let lootSpaces = "";
-		for (let i = 0; i < items.length; i+=8) {
-			lootSpaces += "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+	// assign indices to items
+	for (let i = 0; i < items.length; i++) {
+		if (items[i] !== undefined && items[i] !== null) {
+			items[i].lootedIndex = i;
 		}
-		Dom.elements.lootingPageClose.style.top = 55 * items.length/8 + "px";
-		Dom.elements.lootAll.style.top = 55 * items.length/8 - 50 + "px";
-		let promise = new Promise(function (resolve, reject) {
-			Dom.elements.loot.innerHTML = lootSpaces;
-			resolve("resolved");
-		// when the table has been drawn...
-		}).then(function (result) {
-			/*if (items.length > space) {
-				console.warn(name+" has generated too much loot for its space of "+space);
-			}*/
-			for (let i = 0; i < items.length; i++) {
-				//let currentSpaceNum = Random(0, spaces.length-1);
-				//let currentSpace = spaces[currentSpaceNum]; // random slot in the table array
-				//spaces.splice(currentSpaceNum,1); // removes slot from the table array so it can't be chosen again
-				if (items[i] !== undefined && items[i] !== null) {
-					if (items[i].quantity !== 1) {
-						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='false' ondragstart='Dom.inventory.drag(event, Dom.loot.items, "+i+")'><div id='lootStackNum"+i+"' class='lootStackNum'>"+items[i].quantity+"</div></img>";
-					}else {
-						Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='false' ondragstart='Dom.inventory.drag(event, Dom.loot.items, "+i+")'><span id='lootStackNum"+i+"' class='lootStackNum'></span></img>";
-					}
-					//Dom.inventory.setItemFunctions(Dom.elements.loot.getElementsByTagName("td")[i], Dom.loot.items, i);
-				}
+	}
+
+	// make sure player has enough space for autoloot items
+	let autolootItems = items.filter(itemObj => itemObj !== undefined && itemObj !== null && itemObj.item.autoloot);
+
+	if (Dom.inventory.requiredSpace(autolootItems)) {
+		if (Dom.changeBook("lootPage", npc)) {//, true/*false*/, true);
+			// the format of Dom.loot.looted is the same as Dom.quest.rewards
+			Dom.loot.looted = items;
+
+			// give autoloot items
+			for (let i = 0; i < autolootItems.length; i++) {
+				Dom.loot.lootItem(items[i], true); // true for autoloot
 			}
-			// add onclick for each piece of loot
-			let num = -1;
-			for (let i = 0; i < items.length; i++) {
-				if (items[i] !== undefined && items[i] !== null) {
-					num++;
-					items[i].num = num;
-					document.getElementsByClassName("lootOptions")[num].onclick = function () {
-						Dom.expand("information");
-						if (Dom.inventory.requiredSpace([items[i]])) {
-							let inventoryPosition = Dom.inventory.give(items[i].item, items[i].quantity);
-							if (typeof items[i].item !== "undefined" && typeof items[i].item.onLoot !== "undefined") {
-								items[i].item.onLoot(inventoryPosition);
-							}
-							document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
-							document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
-							Dom.loot.looted[i] = undefined;
+
+			// html of looting page
+			Dom.elements.lootingPageTitle.innerHTML = npc.name;
+			let lootSpaces = "";
+			for (let i = 0; i < items.length; i+=8) {
+				lootSpaces += "<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>";
+			}
+			Dom.elements.lootingPageClose.style.top = 55 * items.length/8 + "px";
+			Dom.elements.lootAll.style.top = 55 * items.length/8 - 50 + "px";
+			
+			let promise = new Promise(function (resolve, reject) {
+				Dom.elements.loot.innerHTML = lootSpaces;
+				resolve("resolved");
+			// wait until the table has been drawn...
+			}).then(function (result) {
+				/*if (items.length > space) {
+					console.warn(name+" has generated too much loot for its space of "+space);
+				}*/
+				for (let i = 0; i < items.length; i++) {
+					if (items[i] !== undefined && items[i] !== null) {
+						if (items[i].quantity !== 1) {
+							Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='false' ondragstart='Dom.inventory.drag(event, Dom.loot.items, "+i+")'><div id='lootStackNum"+i+"' class='lootStackNum'>"+items[i].quantity+"</div></img>";
 						}else {
-							Dom.alert.page("You do not have enough space in your inventory for that item.", 0 , undefined, "lootPage");
+							Dom.elements.loot.getElementsByTagName("td")[i].innerHTML = "<img src=" + items[i].item.image + " class='lootOptions' draggable='false' ondragstart='Dom.inventory.drag(event, Dom.loot.items, "+i+")'><span id='lootStackNum"+i+"' class='lootStackNum'></span></img>";
 						}
-					};
-					document.getElementsByClassName("lootStackNum")[num].onclick = function () {
-						Dom.expand("information");
-						if (Dom.inventory.requiredSpace([items[i]])) {
-							Dom.inventory.give(items[i].item, items[i].quantity);
-							document.getElementsByClassName("lootOptions")[items[i].num].outerHTML = "<span class='lootOptions'></span>";
-							document.getElementsByClassName("lootStackNum")[items[i].num].outerHTML = "<span class='lootStackNum'></span>";
-							Dom.loot.looted[i] = undefined;
-						}else {
-							Dom.alert.page("You do not have enough space in your inventory for that item.", 0 , undefined, "lootPage");
-						}
-					};
-					document.getElementsByClassName("lootOptions")[num].onmouseover = function () {
-						Dom.inventory.displayInformation(items[i].item, items[i].quantity, "lootPage");
-					}
-					document.getElementsByClassName("lootStackNum")[num].onmouseover = function () {
-						Dom.inventory.displayInformation(items[i].item, items[i].quantity, "lootPage");
-					}
-					document.getElementsByClassName("lootOptions")[num].onmouseleave = function () {
-						Dom.expand("information");
-					}
-					document.getElementsByClassName("lootStackNum")[num].onmouseleave = function () {
-						Dom.expand("information");
+						//Dom.inventory.setItemFunctions(Dom.elements.loot.getElementsByTagName("td")[i], Dom.loot.items, i);
 					}
 				}
-			}
-			Dom.elements.lootAll.onclick = function () {
-				for (let i = 0; i < document.getElementsByClassName("lootOptions").length; i++) {
-					if (document.getElementsByClassName("lootOptions")[i].onclick !== null) {
-						document.getElementsByClassName("lootOptions")[i].onclick();
+				// add onclick for each piece of loot
+				let num = -1;
+				for (let i = 0; i < items.length; i++) {
+					if (items[i] !== undefined && items[i] !== null) {
+						num++;
+						items[i].num = num;
+						document.getElementsByClassName("lootOptions")[num].onclick = function () {
+							Dom.expand("information");
+							Dom.loot.lootItem(items[i]); // this checks inventory space etc
+						};
+						document.getElementsByClassName("lootStackNum")[num].onclick = function () {
+							Dom.expand("information");
+							Dom.loot.lootItem(items[i]); // this checks inventory space etc
+						};
+						document.getElementsByClassName("lootOptions")[num].onmouseover = function () {
+							Dom.inventory.displayInformation(items[i].item, items[i].quantity, "lootPage", "loot");
+						}
+						document.getElementsByClassName("lootStackNum")[num].onmouseover = function () {
+							Dom.inventory.displayInformation(items[i].item, items[i].quantity, "lootPage", "loot");
+						}
+						document.getElementsByClassName("lootOptions")[num].onmouseleave = function () {
+							Dom.expand("information");
+						}
+						document.getElementsByClassName("lootStackNum")[num].onmouseleave = function () {
+							Dom.expand("information");
+						}
 					}
 				}
-				Dom.closePage('lootPage');
-				Game.lootClosed(Dom.loot.looted);
+				Dom.elements.lootAll.onclick = function () {
+					for (let i = 0; i < document.getElementsByClassName("lootOptions").length; i++) {
+						if (document.getElementsByClassName("lootOptions")[i].onclick !== null) {
+							document.getElementsByClassName("lootOptions")[i].onclick();
+						}
+					}
+					Dom.closePage('lootPage');
+					Game.lootClosed(Dom.loot.looted);
+				}
+			},items);
+			Game.saveProgress("auto");
+		}
+	}
+	else {
+		// player does not have enough space for autoloot items
+		Dom.alert.page("You don't have enough inventory space to loot that "+npc.name+"!", 0, undefined, undefined, undefined, true)
+	}
+}
+
+// function to be called by Dom.loot.page and its onclicks
+// itemObj is an object of the form {item: Items.helm[9], quantity: 1}
+// autoloot is set to true if the item is being looted due to its autoloot property (i.e. it gets given to the player as soon as the looting screen opens)
+Dom.loot.lootItem = function (itemObj, lootedIndex, autoloot) {
+	if (Dom.inventory.requiredSpace([itemObj])) {
+		if ((itemObj.item.autoloot && autoloot) || !itemObj.item.autoloot) { // don't give autoloot items if they're being clicked on, as they will have already been given when the looting screen was opened
+			let inventoryPosition = Dom.inventory.give(itemObj.item, itemObj.quantity);
+			if (typeof itemObj.item !== "undefined" && typeof itemObj.item.onLoot !== "undefined") {
+				itemObj.item.onLoot(inventoryPosition);
 			}
-		},items);
-		Game.saveProgress("auto");
+		}
+		if ((itemObj.item.autoloot && !autoloot) || !itemObj.item.autoloot) { // only remove object from display if it's being clicked on (not if it's been autolooted)
+			document.getElementsByClassName("lootOptions")[itemObj.num].outerHTML = "<span class='lootOptions'></span>";
+			document.getElementsByClassName("lootStackNum")[itemObj.num].outerHTML = "<span class='lootStackNum'></span>";
+		}
+		Dom.loot.looted[itemObj.lootedIndex] = undefined;
+	}
+	else {
+		Dom.alert.page("You do not have enough space in your inventory for that item.", 0 , undefined, "lootPage");
 	}
 }
 

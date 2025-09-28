@@ -8004,7 +8004,7 @@ class DigNode extends Thing {
 			// overwrites any onInteract specified in properties
 			this.onInteract = function () {
 				if (!this.excavated) {
-					if (Dom.inventory.checkSpace >= 1) {
+					if (Dom.inventory.checkSpace() >= 1) {
 						let messageArray = ["Excavating", "Unearthing", "Archaeology", "Revealing treasures", "Artefact hunting"];
 						let msg = messageArray[Random(0, messageArray.length-1)];
 						Game.hero.channel(function () {
@@ -12746,7 +12746,7 @@ Game.update = function (delta) {
 		// check if the currently displayed NPC is the current one in the for loop
 		if (npc.id === Dom.currentNPC.id && npc.type === Dom.currentNPC.type) {
 			// close the DOM if the player is too far away from the NPC or if the NPC is dead
-			if (npc.respawning || npc.isCorpse || this.distance(this.hero, npc) > this.hero.stats.domRange) {
+			if (((npc.respawning || npc.isCorpse) && Dom.currentlyDisplayed !== "lootPage") || this.distance(this.hero, npc) > this.hero.stats.domRange) {
 				// NPC is dead or player is more than 4 (can be changed) tiles away from NPC
 				Dom.closeNPCPages();
 			}
