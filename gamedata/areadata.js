@@ -8489,21 +8489,22 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 				// rippling river tiles
 				tiles: [112, 120, 128],
 				animateTime: 200,
-			},{
-				// water soil boundary
+			},
+			{
+				 //water soil boundary
 				tiles: [64, 183],
-				animateTime: 200,
+				animateTime: 600,
 			},
-			{
+			//{
 				// water soil boundary
-				tiles: [71, 182],
-				animateTime: 200,
-			},
-			{
+				//tiles: [71, 182],
+				//animateTime: 200,
+			//},
+			//{
 				// water soil boundary
-				tiles: [181, 24],
-				animateTime: 200,
-			},
+				//tiles: [181, 24],
+				//animateTime: 200,
+			//},
 
 
 
