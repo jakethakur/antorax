@@ -3455,11 +3455,11 @@ eaglecrest: {
 		],
 		animateTiles: [
 
-			{
+			//{
 			// water boundary
-			tiles: [307, 343],
-			animateTime: 180,
-		},
+			//tiles: [307, 343],
+			//animateTime: 180,
+		//},
 
 		{
 		// Tinkerer Windows!
@@ -3473,36 +3473,36 @@ eaglecrest: {
 		animateTime: 200,
 		},
 
-		{
+		//{
 		// water boundary 2
-		tiles: [311, 336],
-		animateTime: 180,
-	},
-	{
+		//tiles: [311, 336],
+		//animateTime: 180,
+	//},
+	//{
 	// water boundary
-	tiles: [344, 312],
-	animateTime: 180,
-},
+	//tiles: [344, 312],
+	//animateTime: 180,
+//},
 {
 	// river tiles
 	tiles: [222, 223, 230],
 	animateTime: 200,
 },
-{
+//{
 	// water soil boundary
-	tiles: [71, 182],
-	animateTime: 200,
-},
-{
+	//tiles: [71, 182],
+	//animateTime: 200,
+//},
+//{
 	// water soil boundary
-	tiles: [181, 24],
-	animateTime: 200,
-},
-{
+	//tiles: [181, 24],
+	//animateTime: 200,
+//},
+//{
 	// water soil boundary
-	tiles: [64, 183],
-	animateTime: 200,
-},
+	//tiles: [64, 183],
+	//animateTime: 200,
+//},
 
 {
 	// water
