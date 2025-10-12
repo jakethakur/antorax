@@ -3065,6 +3065,16 @@ class Character extends Thing {
 			this.setHeld("right", Loader.getImage(properties.heldRight.imgNormalSrc), Loader.getImage(properties.heldRight.imgNormalSrc), properties.heldRight);
 		}
 
+		// walking sfx
+		// by default, if this has a walking animation, then this has sfx on walk (animation frames 0 and 2, where 0 is the first frame - same as player) unless overridden by properties.noWalkSfx or a different this.animation.sfx being set
+		if (typeof this.animation !== "undefined" && this.animation.animateBasis === "walk" && typeof this.animation.sfx === "undefined" && !properties.noWalkSfx) {
+			this.animation.sfx = {
+				footstepSound: true,
+				playOnStates: [0],
+				soundRelativeToPlayer: true,
+			}
+		}
+
 		if (properties.addToObjectArrays !== false) {
 			Game.allCharacters.push(this); // array for current area only
 		}
@@ -4329,7 +4339,7 @@ class Character extends Thing {
 		this.mounted = false;
 		this.mount = undefined;
 		this.dynamicOrderOffsetY = undefined;
-		this.orderOffsetY = 0;eaglecrestLampNight
+		this.orderOffsetY = 0;
 	}
 
 	// get off mount with displacement in the direction moving!
@@ -9779,11 +9789,11 @@ Game.minigameReset = function () {
 // Init game / load new area
 //
 
-// load default images on init (e.g. player, status effect, etc.)
+// load default images and sounds on init (e.g. player, status effect, etc.)
 // these images are all never unloaded!
 // returns an array of these promises
 // called on init by loadArea
-Game.loadDefaultImages = function () {
+Game.loadDefaultImagesAndSounds = function () {
 	let toLoad = [];
 
 	let heroProperties = Game.heroBaseProperties(); // object of properties - image, crop, animation
@@ -9848,6 +9858,18 @@ Game.loadDefaultImages = function () {
 
 	toLoad.push(Loader.loadImage("explosion", "./assets/projectiles/explosion.png", false));
 
+	//
+	// Sounds
+	//
+	toLoad.push(Sounds.loadAll({
+		footstepCave1: "assets/sfx/footstepCave1.wav",
+		footstepCave2: "assets/sfx/footstepCave2.wav",
+		footstepCave3: "assets/sfx/footstepCave3.wav",
+		footstepCave4: "assets/sfx/footstepCave4.wav",
+		footstepCave5: "assets/sfx/footstepCave5.wav",
+		footstepCave6: "assets/sfx/footstepCave6.wav",
+	}));
+
 	return toLoad;
 }
 
@@ -9860,20 +9882,22 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 	if (!abandonAgreed && typeof Player.scenario !== "undefined" && typeof Player.scenario.allowedAreas !== "undefined" && !Player.scenario.allowedAreas.includes(areaName)) {
 		// player trying to go to an area which is not allowed in the current scenario
 		areaTpAllowed = false;
-		if (typeof Player.scenario.quest !== "undefined") {
-			// give the player an alert which lets them decide if they want to go ahead with area teleport, at the cost of abandoning a quest
+		if (typeof Player.scenario.quest !== "undefined" && typeof Player.scenario.onAreaLeaveAbandonSteps !== "undefined") {
+			// give the player an alert which lets them decide if they want to go ahead with area teleport, at the cost of abandoning quest steps
+			// the abandoning of these quest steps is done in Game.finishScenario
 			let alertText = "Are you sure you want to leave this area? You will have to abandon your quest '" + Player.scenario.quest.title + "'.";
 			Dom.alert.page(alertText, 2, undefined, undefined, {target: Game.loadArea.bind(Game), ev: [areaName, destination, true]}, true); // clicking yes calls this function but with abandonAgreed = true
 		}
 		else {
+			tbd
 			// scenario is not associated with any quest - player necessarily can't leave their allowedAreas until the scenario is finished
 			Dom.alert.page("Finish " + Player.scenario.description + " before you go there.", 0, undefined, undefined);
 		}
 	}
 
 	if (abandonAgreed && typeof Player.scenario !== "undefined") {
-		// abandon quest as the player agreed... (provided scenario is still active)
-		Dom.quest.abandon(Quests[Player.scenario.quest.area][Player.scenario.quest.id]); // this in turn abandons the scenario and saves progress
+		// finish scenario (and abandon quest steps) as the player agreed... (provided scenario is still active)
+		Game.finishScenario(Player.scenario.id, "areaLeave"); // this in turn abandons the quest steps (if applicable) and saves progress
 	}
 
 	if (areaTpAllowed) {
@@ -10032,6 +10056,7 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 
 			// also add npc layered images (like the hero) - these don't need to be loaded in in areadata as their addresses are obvious
 			// tbd iterate through additional entity types that might have layered images like this
+			// tbd move all/most image and sound loading to a system like this ?
 			let load = {}; // images to be loaded
 			if (typeof Areas[areaName].characters !== "undefined") {
 				for (let i = 0; i < Areas[areaName].characters.length; i++) {
@@ -10089,12 +10114,26 @@ Game.loadArea = function (areaName, destination, abandonAgreed) {
 				p = p.concat(Loader.loadImage(this.hero.hasOnLead.imageName, this.hero.hasOnLead.imageSrc));
 			}
 
-			// on init - check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
-			if (init) {
-				p.push(...this.loadDefaultImages());
+			// sounds
+			Sounds.unloadAreaSpecificSounds();
+			if (typeof Areas[areaName].sounds !== "undefined") {
+				p = p.concat(Sounds.loadAll(Areas[areaName].sounds), true);
+			}
+			
+			// area.soundData -> Game.soundData
+			if (typeof Areas[areaName].soundData !== "undefined") {
+				Game.soundData = Areas[areaName].soundData;
+			}
+			else {
+				Game.soundData = {};
 			}
 
-			// wait until images have been loaded
+			// on init - check that default images are loaded (e.g. player, status effect, etc.) and add any that aren't to toLoad
+			if (init) {
+				p.push(...this.loadDefaultImagesAndSounds());
+			}
+
+			// wait until images and sounds have been loaded
 			Promise.all(p).then(function (loaded) {
 
 				// call onAreaLeave function for previous area if there is one
@@ -13505,6 +13544,45 @@ Game.update = function (delta) {
 						onAnimationStop(object); // could be used to start a different animation
 					}
 				}
+
+				// sfx
+				if (typeof animate.sfx !== "undefined" && animate.sfx.playOnStates.includes(animate.state)) {
+					let playSound = true;
+
+					// sound name
+					let soundName = animate.sfx.soundName;
+					if (animate.sfx.footstepSound) {
+						// sound changes depending on the tile that player is walking on
+						if (typeof this.soundData.defaultFootstepSound !== "undefined") {
+							soundName = "footstep" + capitalizeFirstLetter(this.soundData.defaultFootstepSound) + Random(1,6);
+						}
+						else {
+							playSound = false;
+						}
+					}
+
+					// sound settings
+					let soundSettings = animate.sfx.soundSettings; // object with volume, pan, etc.
+					if (animate.sfx.soundRelativeToPlayer) {
+						// decide loudness and panning depending on distance to player
+						// tbd take into account if there is a wall between the player and entity
+						let distance  = this.distance(Game.hero, object);
+						if (distance < 600) { // only play sound if distance between player and entity is less than 600
+
+						}
+						if (distance === 0) {
+							distance = 100;
+						}
+						soundSettings = {
+							volume: Math.max(1, 100 / distance),
+							bearing: Math.cos(this.bearing(Game.hero, object))
+						};
+					}
+
+					if (playSound) {
+						Sounds.play(soundName, soundSettings);
+					}
+				}
 			}
 		}
 
@@ -15973,14 +16051,20 @@ Game.drawGlow = function (ctx, x, y, radius) {
 // if this scenario is directly relevant to a quest (i.e. should be finished when the quest is abandoned, for example), then locator should be set to a quest object (containing at least the quest id and area)
 // otherwise, this should be set to a description of what the player is doing during this scenario. this should be an active verb, in all lowecase, i.e. "riding dolphins". This is used for chat messages, alerts, etc.
 
+// onAreaLeaveAbandonSteps should be a single quest step, or array of steps, that are abandoned if the player chooses to leave their allowedAreas (or dies and respawns out of them)
+// set this to true if the full quest should be abandoned
+
 // tradingAllowed defaults to false 
-Game.startScenario = function (locator, allowedAreas, tradingAllowed, vacateAreasOnEnd) {
+Game.startScenario = function (locator, allowedAreas, tradingAllowed, vacateAreasOnEnd, onAreaLeaveAbandonSteps) {
 	if (typeof Player.scenario === "undefined") {
 		Game.saveProgress("scenarioPre");
 
 		// prepare parameters
 		if (typeof vacateAreasOnEnd !== "undefined" && !Array.isArray(vacateAreasOnEnd)) {
 			vacateAreasOnEnd = [vacateAreasOnEnd];
+		}
+		if (typeof onAreaLeaveAbandonSteps !== "undefined" && !Array.isArray(onAreaLeaveAbandonSteps)) {
+			vacateAreasOnEnd = [onAreaLeaveAbandonSteps];
 		}
 
 		let questParam;
@@ -16011,8 +16095,11 @@ Game.startScenario = function (locator, allowedAreas, tradingAllowed, vacateArea
 			description: description,
 			
 			// array of areas that the player is allowed to visit whilst in this scenario
-			// if they visit any different areas, an alert is shown asking them if they want to go ahead and abandon the relevant quest and end the scenario
+			// if they visit any different areas, the scenario ends
+			// *if* onAreaLeaveAbandonSteps isn't undefined, on attempting to leave the allowedAreas, an alert is shown asking them if they want to go ahead and abandon the relevant quest steps
 			allowedAreas: allowedAreas,
+			// step(s) that are abandoned if the player chooses to leave their allowedAreas (or dies and respawns out of them)
+			onAreaLeaveAbandonSteps: onAreaLeaveAbandonSteps,
 
 			// an array of objects containing information on where the player should be teleported to if the scenario finishes and the player is in particular areas
 			// objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
@@ -16069,6 +16156,10 @@ Game.safeStartScenario = function (quest, allowedAreas, tradingAllowed, vacateAr
 // reason could be "abandon" (quest was abandoned), or "scoreboard" (relevant scoreboard was finished)
 Game.finishScenario = function (id, reason) {
 	if (typeof Player.scenario !== "undefined" && ((typeof id.questArea !== "undefined" && Player.scenario.quest.id === id.id && Player.scenario.quest.area === id.questArea) || id === Player.scenario.id)) {
+		if (reason === typeof Player.scenario.onAreaLeaveAbandonSteps !== "undefined" && typeof Player.scenario.quest !== "undefined") {
+			Dom.quest.abandon(Player.scenario.quest, Player.scenario.onAreaLeaveAbandonSteps);
+		}eeeeeeeeeeeeeeeeeeeeee
+		
 		if (typeof Player.scenario.vacateAreasOnEnd !== "undefined" && Player.scenario.vacateAreasOnEnd.length > 0) {
 			let obj = Player.scenario.vacateAreasOnEnd.find(foo => foo.areaName === Game.areaName);
 			if (typeof obj !== "undefined") {

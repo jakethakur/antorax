@@ -3689,8 +3689,9 @@ Dom.scoreboardNextId = 0;
 
 // initialise a scoreboard which keeps track of variables, typically for a minigame being completed in a single area
 // not always visible, but optionally, a visual scoreboard appears below the mana bar
-// provided a quest is specified, this also initialises a scenario (in which saving, area mobility, etc. are limited)
+// this also initialises a scenario (in which saving, area mobility, etc. are limited)
 // this effectively means that the player will not be able to save the game during a scoreboard, unless specifically triggered by the game
+// scoreboards can be linked to a SINGLE quest step (not more than one)
 Dom.scoreboardInit = function (properties) {
     // this is the only way that Dom.scoreboard can be initialised! usually related to a quest (through the properties.questArea and questId values), but doesn't have to be
     // this function will fail and send a console.error if Dom.scoreboard is currently being used
@@ -3737,6 +3738,8 @@ Dom.scoreboardInit = function (properties) {
 	// allowedAreas: (an optional array of area names) specifies the allowed areas the player can go to without abandoning the relevant quest and ending its scenario (thus the scoreboard)
 	// vacateAreasOnEnd: (an array of objects) contains information on where the player should be teleported to if the scenario finishes and the player is in particular areas
 	//      ''           these objects should be in the form {areaName: String, vacateTo: {areaName: String, x: x, y: y}}
+	// onAreaLeaveAbandonSteps: should be a single quest step, or array of steps, that are abandoned if the player chooses to leave their allowedAreas (or dies and respawns out of them)
+	//      ''				    leave this as undefined if the full quest should be abandoned
 	// scenarioDescription: description for the scenario; should be an active verb that starts with a lowercase character (i.e. "eating beetroot pies"). this is required if there is no specified quest for scoreboard
 
 	// removeAssociatedEntitiesOnFinish: defaults to true. means any entity with associatedScoreboard set to Dom.scoreboard.id gets removed upon this scoreboard finishing
@@ -3760,10 +3763,10 @@ Dom.scoreboardInit = function (properties) {
 
 		// initialise scenario
 		let scenarioLocator = this.scoreboard.scenarioDescription;
-		if (typeof scenarioLocator === "undefined") {
+		if (typeof scenarioLocator === "undefined" && typeof this.scoreboard.questArea !== "undefined") {
 			scenarioLocator = {questArea: this.scoreboard.questArea, id: this.scoreboard.questId};
 		}
-		let scenarioId = Game.startScenario(scenarioLocator, properties.allowedAreas, properties.tradingAllowed, properties.vacateAreasOnEnd);
+		let scenarioId = Game.startScenario(scenarioLocator, properties.allowedAreas, properties.tradingAllowed, properties.vacateAreasOnEnd, properties.vacateAreasOnEnd);
 		this.scoreboard.scenarioId = scenarioId; // used for finishing the scenario
 		this.scoreboard.allowedAreas = properties.allowedAreas;
 
@@ -8327,7 +8330,9 @@ Dom.settings.minigames = function () {
 
 // abandons some of the steps of a quest, or the whole quest
 // the quest object (as found in questdata) should be passed in as the first parameter
-// the steps parameter should either be an array of step indices, a single step index, or left blank if the whole quest should be abandoned
+// the steps parameter should either be an array of step indices, a single step index, or left blank / set to true if the whole quest should be abandoned
+// if a step is requested to be abandoned that has not yet been completed, this will be ignored
+// if the quest is chronological, and a step has been completed after a step that is being asked to be abandoned, then this function will fail
 // note that this does not remove rewards at all! these rewards, xp etc are not given back if the player does the steps again, with the exception of any items that have the removeOnAbandon property
 Dom.quest.abandon = function (quest, steps) {
 	if (Player.quests.activeQuestArray.includes(quest.quest)) {

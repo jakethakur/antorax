@@ -232,6 +232,73 @@ Loader.prepareImageInformation = function (images) {
 }
 
 //
+// Sound
+// Uses web audio api: https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API
+//
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+const Sounds = {
+	gameBuffers: {}, // sounds that are kept loaded in permanently throughout the game
+	areaBuffers: {}, // sounds that are specific to the current area and unloaded when loadArea is called
+
+	// areaSpecific should be set to true if the sound should be unloaded once the area is left
+	async loadSound (name, url, areaSpecific) {
+		if (typeof this.areaBuffers[name] === "undefined" && typeof this.gameBuffers[name] === "undefined") {
+			const response = await fetch(url);
+			const arrayBuffer = await response.arrayBuffer();
+			let bufferArr = this.gameBuffers;
+			if (areaSpecific) {
+				bufferArr = this.areaBuffers;
+			}
+			bufferArr[name] = await audioCtx.decodeAudioData(arrayBuffer);
+		}
+		else {
+			console.error("A sound with name "+name+" was attempted to be loaded in, however a sound has already been loaded in with this name.")
+		}
+	},
+
+	// sounds should be a sounds object in the style of those in areadata
+	async loadAll (sounds, areaSpecific) {
+		const promises = Object.entries(sounds).map(
+			([name, url]) => this.loadSound(name, url, areaSpecific)
+		);
+		await Promise.all(promises);
+	},
+
+	unloadAreaSpecificSounds () {
+		areaBuffers = {};
+	},
+
+	play (name, { volume = 1.0, pan = 0.0 } = {}) {
+		let buffer;
+		if (typeof this.areaBuffers[name] !== "undefined") {
+			buffer = this.areaBuffers[name];
+		}
+		else if (typeof this.gameBuffers[name] !== "undefined") {
+			buffer = this.gameBuffers[name];
+		}
+		else {
+			return false;
+		}
+
+		const source = audioCtx.createBufferSource();
+		source.buffer = buffer;
+
+		const gainNode = audioCtx.createGain();
+		gainNode.gain.value = volume;
+
+		const pannerNode = audioCtx.createStereoPanner();
+		pannerNode.pan.value = pan;
+
+		source.connect(gainNode);
+		gainNode.connect(pannerNode);
+		pannerNode.connect(audioCtx.destination);
+
+		source.start(0);
+	}
+};
+
+//
 // XML requests
 //
 
