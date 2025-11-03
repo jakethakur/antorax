@@ -1789,6 +1789,9 @@ class Entity {
 
 		this.breathingArea = properties.breathingArea; // true or false; whether the player can breathe underwater when they're touching this WITH THEIR FEET
 
+		this.updateFunction = properties.updateFunction; // optional function that is called every update tick with delta parameter (seconds passed since last update)
+		// //Note this is called at the end of the entity's update cycle (i.e. after moveTowards, etc.)
+
 
 		this.use = properties.use; // optional metadata about object, can be used by anything that needs it
 		this.dev = properties.dev; // if this is true it was placed by a dev item, can be deleted by dev items, etc
@@ -13353,7 +13356,6 @@ Game.update = function (delta) {
 			}
 		}
 
-
 		// oscillate (oscillatory motion)
 		if (typeof entity.oscillate !== "undefined") {
 			entity.oscillate.timer += delta*1000;
@@ -13396,6 +13398,11 @@ Game.update = function (delta) {
 				entity.removeTrail("&sparkleNearPlayer");
 				entity.sparkleNearPlayer.active = false;
 			}
+		}
+
+		// updateFunction (optional additional function that can be called)
+		if (typeof entity.updateFunction !== "undefined") {
+			entity.updateFunction(delta);
 		}
 	}
 

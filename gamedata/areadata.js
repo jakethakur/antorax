@@ -12431,7 +12431,9 @@ undergrove: {
 		displayOnEnter: true,
 	},
 
-	indoors: true,
+	darkness: 0.9,
+	noRain: true,
+	noLightning: true,
 
 	tagGameAllowed: true,
 

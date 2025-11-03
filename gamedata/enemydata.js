@@ -2074,10 +2074,10 @@ const EnemyTemplates = {
 			lootTableTemplate: [EnemyLootTables.plainsToad, EnemyLootTables.frogQueenGuard],
 			inventorySpace: 16,
 		},
+	},
 
-
-		// tbd need to move the following to a new cave section
-
+	cave: {
+		
 //maxilla
 maxilla: {
 	rotationImages: {
@@ -2362,239 +2362,272 @@ palatine: {
 			},
 		},
 
+		crystalAntBlue: {
+			rotationImages: {
+				left: "crystalAntBlueLeft",
+				right: "crystalAntBlueRight"
+			},
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
+			image: "crystalAntBlue",
+			deathImage: "coyoteCorpse",
+			name: "Crystalant",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 120,
+				swimSpeed: 40,
+				iceSpeed: 160,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 15000,
+				respawnTime: 21000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin],
+			inventorySpace: 8,
+			animation: {
+				type: "spritesheet",
+				frameTime: 10,
+				imagesPerRow: 3,
+				totalImages: 3,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 102,
+				height: 60,
+			},
+		},
 
-//crystalantblue
-crystalAntBlue: {
-	rotationImages: {
-		left: "crystalAntBlueLeft",
-		right: "crystalAntBlueRight"
-	},
-	speciesTemplate: SpeciesTemplates.nilbogGoblin,
-	image: "crystalAntBlue",
-	deathImage: "coyoteCorpse",
-	name: "Crystalant",
-	hostility: "hostile",
-	level: 2,
-	stats: {
-		damage: 2,
-		walkSpeed: 120,
-		swimSpeed: 40,
-		iceSpeed: 160,
-		maxHealth: 10,
-		defence: 2,
-		range: 60,
-		healthRegen: 0.4,
-		reloadTime: 1500,
-		lootTime: 15000,
-		respawnTime: 21000,
-	},
-	xpGiven: 10,
-	projectile: {
-		image: "melee",
-	},
-	lootTableTemplate: [EnemyLootTables.nilbogGoblin],
-	inventorySpace: 8,
-	animation: {
-		type: "spritesheet",
-		frameTime: 10,
-		imagesPerRow: 3,
-		totalImages: 3,
-		animateBasis: "walk"
-	},
-	crop: {
-		x: 0,
-		y: 0,
-		width: 102,
-		height: 60,
-	},
-},
-crystalAntOrangeQueen: {
-	rotationImages: {
-		left: "crystalAntOrangeQueenLeft",
-		right: "crystalAntOrangeQueenRight"
-	},
-	speciesTemplate: SpeciesTemplates.nilbogGoblin,
-	image: "crystalAntOrangeQueen",
-	deathImage: "coyoteCorpse",
-	name: "Crystalant Queen",
-	hostility: "hostile",
-	level: 2,
-	stats: {
-		damage: 2,
-		walkSpeed: 120,
-		swimSpeed: 40,
-		iceSpeed: 160,
-		maxHealth: 10,
-		defence: 2,
-		range: 60,
-		healthRegen: 0.4,
-		reloadTime: 1500,
-		lootTime: 15000,
-		respawnTime: 21000,
-	},
-	xpGiven: 10,
-	projectile: {
-		image: "melee",
-	},
-	lootTableTemplate: [EnemyLootTables.nilbogGoblin],
-	inventorySpace: 8,
-	animation: {
-		type: "spritesheet",
-		frameTime: 10,
-		imagesPerRow: 3,
-		totalImages: 3,
-		animateBasis: "walk"
-	},
-	crop: {
-		x: 0,
-		y: 0,
-		width: 157,
-		height: 90,
-	},
-},
+		crystalAntOrangeQueen: {
+			rotationImages: {
+				left: "crystalAntOrangeQueenLeft",
+				right: "crystalAntOrangeQueenRight"
+			},
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
+			image: "crystalAntOrangeQueen",
+			deathImage: "coyoteCorpse",
+			name: "Crystalant Queen",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 120,
+				swimSpeed: 40,
+				iceSpeed: 160,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 15000,
+				respawnTime: 21000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin],
+			inventorySpace: 8,
+			animation: {
+				type: "spritesheet",
+				frameTime: 10,
+				imagesPerRow: 3,
+				totalImages: 3,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 157,
+				height: 90,
+			},
+		},
 
+		crystalAntBlueQueen: {
+			rotationImages: {
+				left: "crystalAntBlueQueenLeft",
+				right: "crystalAntBlueQueenRight"
+			},
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
+			image: "crystalAntBlueQueen",
+			deathImage: "coyoteCorpse",
+			name: "Crystalant Queen",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 120,
+				swimSpeed: 40,
+				iceSpeed: 160,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 15000,
+				respawnTime: 21000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin],
+			inventorySpace: 8,
+			animation: {
+				type: "spritesheet",
+				frameTime: 10,
+				imagesPerRow: 3,
+				totalImages: 3,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 157,
+				height: 90,
+			},
+		},
 
-crystalAntBlueQueen: {
-	rotationImages: {
-		left: "crystalAntBlueQueenLeft",
-		right: "crystalAntBlueQueenRight"
-	},
-	speciesTemplate: SpeciesTemplates.nilbogGoblin,
-	image: "crystalAntBlueQueen",
-	deathImage: "coyoteCorpse",
-	name: "Crystalant Queen",
-	hostility: "hostile",
-	level: 2,
-	stats: {
-		damage: 2,
-		walkSpeed: 120,
-		swimSpeed: 40,
-		iceSpeed: 160,
-		maxHealth: 10,
-		defence: 2,
-		range: 60,
-		healthRegen: 0.4,
-		reloadTime: 1500,
-		lootTime: 15000,
-		respawnTime: 21000,
-	},
-	xpGiven: 10,
-	projectile: {
-		image: "melee",
-	},
-	lootTableTemplate: [EnemyLootTables.nilbogGoblin],
-	inventorySpace: 8,
-	animation: {
-		type: "spritesheet",
-		frameTime: 10,
-		imagesPerRow: 3,
-		totalImages: 3,
-		animateBasis: "walk"
-	},
-	crop: {
-		x: 0,
-		y: 0,
-		width: 157,
-		height: 90,
-	},
-},
+		crystalAntGreenQueen: {
+			rotationImages: {
+				left: "crystalAntGreenQueenLeft",
+				right: "crystalAntGreenQueenRight"
+			},
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
+			image: "crystalAntGreenQueen",
+			deathImage: "coyoteCorpse",
+			name: "Crystalant Queen",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 120,
+				swimSpeed: 40,
+				iceSpeed: 160,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 15000,
+				respawnTime: 21000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin],
+			inventorySpace: 8,
+			animation: {
+				type: "spritesheet",
+				frameTime: 10,
+				imagesPerRow: 3,
+				totalImages: 3,
+				animateBasis: "walk"
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 157,
+				height: 90,
+			},
+		},
 
-crystalAntGreenQueen: {
-	rotationImages: {
-		left: "crystalAntGreenQueenLeft",
-		right: "crystalAntGreenQueenRight"
-	},
-	speciesTemplate: SpeciesTemplates.nilbogGoblin,
-	image: "crystalAntGreenQueen",
-	deathImage: "coyoteCorpse",
-	name: "Crystalant Queen",
-	hostility: "hostile",
-	level: 2,
-	stats: {
-		damage: 2,
-		walkSpeed: 120,
-		swimSpeed: 40,
-		iceSpeed: 160,
-		maxHealth: 10,
-		defence: 2,
-		range: 60,
-		healthRegen: 0.4,
-		reloadTime: 1500,
-		lootTime: 15000,
-		respawnTime: 21000,
-	},
-	xpGiven: 10,
-	projectile: {
-		image: "melee",
-	},
-	lootTableTemplate: [EnemyLootTables.nilbogGoblin],
-	inventorySpace: 8,
-	animation: {
-		type: "spritesheet",
-		frameTime: 10,
-		imagesPerRow: 3,
-		totalImages: 3,
-		animateBasis: "walk"
-	},
-	crop: {
-		x: 0,
-		y: 0,
-		width: 157,
-		height: 90,
-	},
-},
+		stoneElemental: {
+			rotationImages: {
+				left: "stoneElementalLeft",
+				right: "stoneElementalRight"
+			},
+			speciesTemplate: SpeciesTemplates.nilbogGoblin,
+			image: "stoneElemental1",
+			deathImage: "coyoteCorpse",
+			name: "Stone Elemental",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 120,
+				swimSpeed: 40,
+				iceSpeed: 160,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 15000,
+				respawnTime: 21000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin],
+			inventorySpace: 8,
+			animation: {
+				type: "spritesheet",
+				frameTime: 120,
+				imagesPerRow: 4,
+				totalImages: 4,
 
-
-stoneElemental: {
-	rotationImages: {
-		left: "stoneElementalLeft",
-		right: "stoneElementalRight"
-	},
-	speciesTemplate: SpeciesTemplates.nilbogGoblin,
-	image: "stoneElemental1",
-	deathImage: "coyoteCorpse",
-	name: "Stone Elemental",
-	hostility: "hostile",
-	level: 2,
-	stats: {
-		damage: 2,
-		walkSpeed: 120,
-		swimSpeed: 40,
-		iceSpeed: 160,
-		maxHealth: 10,
-		defence: 2,
-		range: 60,
-		healthRegen: 0.4,
-		reloadTime: 1500,
-		lootTime: 15000,
-		respawnTime: 21000,
-	},
-	xpGiven: 10,
-	projectile: {
-		image: "melee",
-	},
-	lootTableTemplate: [EnemyLootTables.nilbogGoblin],
-	inventorySpace: 8,
-	animation: {
-		type: "spritesheet",
-		frameTime: 120,
-		imagesPerRow: 4,
-		totalImages: 4,
-
-	},
-	crop: {
-		x: 0,
-		y: 0,
-		width: 128,
-		height: 180,
-	},
-},
-
-
-
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 128,
+				height: 180,
+			},
+		},
 	},
 
-	cave: {},
+	undergrove: {
+		firefly: { // class character (can't be damaged by player)
+			image: "stoneElemental1",
+			name: "Stone Elemental",
+			hostility: "hostile",
+			level: 2,
+			stats: {
+				damage: 2,
+				walkSpeed: 120,
+				swimSpeed: 40,
+				iceSpeed: 160,
+				maxHealth: 10,
+				defence: 2,
+				range: 60,
+				healthRegen: 0.4,
+				reloadTime: 1500,
+				lootTime: 15000,
+				respawnTime: 21000,
+			},
+			xpGiven: 10,
+			projectile: {
+				image: "melee",
+			},
+			lootTableTemplate: [EnemyLootTables.nilbogGoblin],
+			inventorySpace: 8,
+			animation: {
+				type: "spritesheet",
+				frameTime: 120,
+				imagesPerRow: 4,
+				totalImages: 4,
+
+			},
+			crop: {
+				x: 0,
+				y: 0,
+				width: 128,
+				height: 180,
+			},
+		},
+	},
 
 	hive: {
 		workerBee: {
