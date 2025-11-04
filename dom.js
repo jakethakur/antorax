@@ -1454,6 +1454,12 @@ Dom.chat.npcBannerIterate = function (i) {
 		else {
 			Dom.elements.npcChatNext.src = "assets/icons/dialogueNext.png";
 			Dom.chat.npcBannerReadyToProgress = true;
+
+			// if the player hasn't had to do this before, tell them to press enter
+			if (!Player.tipsSeen.includes("chatBanner")) {
+				Player.tipsSeen.push("chatBanner");
+				Dom.alert.page("Press the enter key to progress.", 0);
+			}
 		}
 	}
 }
@@ -3348,6 +3354,15 @@ Dom.quest.acceptReattempt = function (quest, npc, step) {
 Dom.quests.active = function (quest) {
 	if (quest !== undefined) {
 		Player.quests.activeQuestArray.push(quest.quest);
+	}
+
+	// temporary hardcoded instructions
+	let completed = Dom.inventory.check(12, "sword", 1) || Dom.inventory.check(11, "staff", 1) || Dom.inventory.check(11, "bow", 1)
+	if (completed && Player.tutorialProgress === 1) {
+		// tutorial
+		Game.setTimeout(function () {
+			Dom.instructions.page(2);
+		}, 2000);
 	}
 
 	// update scoreboard (if one is active)
@@ -8694,6 +8709,16 @@ Dom.init = function () {
 	}
 	if (Player.skipTutorial) {
 		Dom.elements.tutorialOn.checked = true;
+	}
+
+	if (false) {// temp until tutorial area is re-added
+		Player.skipTutorial = true;
+		Dom.instructions.unlockTab("quests", true);
+		Dom.instructions.unlockTab("chat", true);
+		Dom.instructions.unlockTab("inventory", true);
+		Dom.instructions.unlockTab("adventure", true);
+		Dom.elements.tutorialOn.checked = true;
+		Dom.elements.settingTutorialHolder.hidden = true;
 	}
 
 	for (let i = 0; i < Player.statusEffects.length; i++) {

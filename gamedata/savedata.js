@@ -139,8 +139,8 @@ var Player = {
 	}, // overrides base projectile and player weapon projectile
 
 	// updated by saved progress
-	x: 3752, // start coords
-	y: 4526,
+	x: 3640, // start coords
+	y: 4487,
 	areaName: "eaglecrest",
 	displayAreaName: "Eaglecrest", // changed to the proper name of the area by Game.changeArea
 	// tutorial is shown by the websocket before this happens

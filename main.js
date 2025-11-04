@@ -13553,7 +13553,7 @@ Game.update = function (delta) {
 				}
 
 				// sfx
-				if (typeof animate.sfx !== "undefined" && animate.sfx.playOnStates.includes(animate.state)) {
+				if (typeof animate !== "undefined" && typeof animate.sfx !== "undefined" && animate.sfx.playOnStates.includes(animate.state)) {
 					let playSound = true;
 
 					// sound name
@@ -13990,6 +13990,14 @@ Game.equipmentUpdate = function () {
 				}
 			}
 		}
+	}
+
+	// temporary hardcoded instructions
+	if (Player.inventory.weapon.name !== undefined && Player.tutorialProgress === 3) {
+		// tutorial
+		Game.setTimeout(function () {
+			Dom.instructions.page(4);
+		}, 5000);
 	}
 
     // send updated equipment information to websocket if websocket is open
@@ -16165,7 +16173,7 @@ Game.finishScenario = function (id, reason) {
 	if (typeof Player.scenario !== "undefined" && ((typeof id.questArea !== "undefined" && Player.scenario.quest.id === id.id && Player.scenario.quest.area === id.questArea) || id === Player.scenario.id)) {
 		if (reason === typeof Player.scenario.onAreaLeaveAbandonSteps !== "undefined" && typeof Player.scenario.quest !== "undefined") {
 			Dom.quest.abandon(Player.scenario.quest, Player.scenario.onAreaLeaveAbandonSteps);
-		}eeeeeeeeeeeeeeeeeeeeee
+		}//eeeeeeeeeeeeeeeeeeeeee
 		
 		if (typeof Player.scenario.vacateAreasOnEnd !== "undefined" && Player.scenario.vacateAreasOnEnd.length > 0) {
 			let obj = Player.scenario.vacateAreasOnEnd.find(foo => foo.areaName === Game.areaName);

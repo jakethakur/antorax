@@ -485,15 +485,6 @@ var Areas = {
 			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
 		},
 
-		onAreaJoin: function () {
-			// start instructions if the player hasn't already seen them
-			if (Player.tutorialProgress < 5) {
-				Dom.instructions.page(5);
-				// show chat tab
-				Dom.instructions.unlockTab("chat");
-			}
-		},
-
 		areaTeleports: [
 			{
 				// teleport to fishers' valley (path - south)
@@ -3732,6 +3723,11 @@ eaglecrest: {
 				Areas.eaglecrest.samhainLights("graveyard");
 			}
 		}
+
+		// temp - start instructions if the player hasn't already seen them
+		if (Player.tutorialProgress ===4) {
+			Dom.instructions.page(5);
+		}
 	},
 
 	// turn eaglecrest lights green!
@@ -3922,6 +3918,9 @@ eaglecrest: {
 			teleportTo: "eaglecrestPlains",
 			destinationX: 3000,
 			destinationY: 300,
+			teleportCondition: function () {
+				return Player.tutorialProgress >=2;
+			}
 		},
 		{
 			// teleport to cave entrance
@@ -4105,10 +4104,12 @@ eaglecrest: {
 			},
 			roles: [
 				{
-					sold: Player.class === "k" ? [{item: Items.sword[2], cost: 3},]
-					: Player.class === "m" ? [{item: Items.staff[2], cost: 3},]
-					: Player.class === "a" ? [{item: Items.bow[2], cost: 3,},]
-					: [],
+					sold: [Player.class === "k" ? {item: Items.sword[12], cost: 3}
+						: Player.class === "m" ? {item: Items.staff[11], cost: 3}
+						: {item: Items.bow[11], cost: 3},
+						{item: Items.boots[2], cost: 4},
+						{item: Items.bag[2], cost: 5},
+					],
 					role: "merchant",
 					shopGreeting: "Would you like to buy anything?",
 				},
@@ -4137,7 +4138,7 @@ eaglecrest: {
 					quest: Quests.eaglecrestLoggingCamp[23],
 					role: "questFinish",
 				},
-				{
+				/*{
 					role: "driver",
 					destinations: [
 						{
@@ -4152,7 +4153,7 @@ eaglecrest: {
 							cost: 5,
 						},
 					],
-				},
+				},*/
 				{
 					role: "chatBanner",
 					chooseText: "Ask about a <b>translator</b>.",
@@ -8647,6 +8648,11 @@ Last I saw him, he was visiting the <b>Eaglecrest Plains</b> to the <b>south</b>
 
 			// reset if player has seen jester or not
 			Player.quests.questProgress.seenJesterOnScreen = false;
+
+			// temp - start instructions if the player hasn't already seen them
+			if (Player.tutorialProgress < 3) {
+				Dom.instructions.page(3);
+			}
 		},
 
 		// same as onAreaJoin but called before anything is loaded

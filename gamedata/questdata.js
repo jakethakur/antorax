@@ -4183,8 +4183,8 @@ var Quests = {
 			],
 
 			howToStart: "Open your mail from <b>an Unknown Sender</b>.",
-			levelRequirement: 1,
-			//levelRequirement: 7,
+			//levelRequirement: 1,
+			levelRequirement: 7,
 			//questRequirements: ["Overdraft"],
 		},
 		{

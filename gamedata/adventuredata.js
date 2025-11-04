@@ -139,7 +139,171 @@ var Adventure = {
 	},
 };
 
+// temporary eaglecrest tutorial
 const Tutorial = [
+	{
+		chapter: 0, // called upon game starting
+		func: function () {
+			Dom.alert.page("Welcome to Antorax!<br><br>Use the <b>WSAD</b> keys to move.", 0);
+		},
+		altFunc: function () {
+			Dom.alert.page("Do you want to skip the tutorial? You can always re-enable it in settings.", 2, undefined, undefined, {
+				target: function () {
+					Dom.chat.insert(`Good luck on your travels!`, 500);
+					document.getElementById("tutorialOn").checked = true;
+					document.getElementById("tutorialOn").onclick();
+					// allow player to move again
+					Dom.instructions.decidingToSkip = false;
+					Game.hero.cleanse("Tutorial", "title");
+				},
+				targetNo: function () {
+					// same as func
+					Tutorial[0].func();
+					// allow player to move again
+					Dom.instructions.decidingToSkip = false;
+					Game.hero.cleanse("Tutorial", "title");
+				},
+			});
+
+			Dom.instructions.decidingToSkip = true; // means player won't be able to move when Game inits (given the "Tutorial" status effect)
+		},
+	},
+	{
+		chapter: 1, // called a little after player moving
+		func: function () {
+			if (typeof Dom.currentNPC.name === "undefined") {
+				Dom.alert.page("Great!<br><br>You need to buy a weapon - walk over to the <b>Weaponsmith</b> and press <b>Space</b> to buy a weapon from them.", 0);
+			}
+		},
+	},
+	{
+		chapter: 2, // called a little after player buying weapon
+		func: function () {
+			Dom.instructions.unlockTab("chat");
+			if (localStorage.getItem("accept") !== "true") {
+				Game.statusEffects.stun({
+					target: Game.hero,
+					effectTitle: "Tutorial",
+					effectDescription: "Making tricky decisions...",
+					hidden: true,
+				});
+				Dom.alert.page("We use local storage to save your progress - is that ok?", 2, undefined, "game", {
+					target: function () {
+						Dom.elements.acceptOn.checked = true;
+						Dom.settings.acceptOn();
+						Game.hero.cleanse("Tutorial", "title");
+						Dom.alert.page("Looking well equipped!<br><br>You can head to the Plains by heading directly south from here.", 0);
+					},
+					targetNo: function () {
+						Game.hero.cleanse("Tutorial", "title");
+						Dom.alert.page("Looking well equipped!<br><br>You can head to the Plains by heading directly south from here.", 0);
+					},
+				});
+			}
+		},
+	},
+	{
+		chapter: 3, // called upon going to the plains
+		func: function () {
+			Dom.instructions.unlockTab("inventory");
+			Dom.alert.page("Click on the <b>Red Bookmark</b> at the <b>bottom-right</b> of your screen to open your inventory and equip your sword!", 0);
+		},
+	},
+	{
+		chapter: 4, 
+		func: function () {
+			switch (Player.class) {
+				case "a":
+					Dom.alert.page("Press your <b>Left Mouse Button</b> to attack.<br><br>When you let go, an arrow will be shot somewhere in the <b>red circle</b>.<br><br><b>Hold down</b> your Left Mouse Button to increase your accuracy!", 0);
+					break;
+				case "m":
+					Dom.alert.page("Press your <b>Left Mouse Button</b> to attack something near you.<br><br>The longer you hold it down, the more damage your attack will do!", 0);
+					break;
+				case "k":
+					Dom.alert.page("Click your <b>Left Mouse Button</b> to attack something.", 0);
+					break;
+			}
+		},
+	},
+	{
+		chapter: 5,
+		func: function () {
+			Dom.alert.page("You might be able to find an item buyer or item identifier somewhere around the city...", 0);
+		},
+	},
+	{
+		chapter: 6,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 7,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 8,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 9,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 10,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 11,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 12,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 13,
+		branch: true,
+		func: function () {
+		},
+	},
+	{
+		chapter: 14, // called upon inventory filling up
+		branch: true,
+		func: function () {
+			Dom.alert.page("Your inventory is full!<br><br> Open up your inventory and drag out an item to discard it.", 0);
+		},
+	},
+	{
+		chapter: 15, // called upon killing an enemy
+		branch: true,
+		func: function () {
+			Dom.alert.page("Nice shot!<br><br>Press your <b>Spacebar</b> on the dead enemy to take some loot!", 0);
+		},
+	},
+	{
+		chapter: 16, // called upon unlocking Eaglecrest bank and speaking to a banker for the first time
+		branch: true,
+		func: function () {
+			Dom.alert.page("At the bank, you can store items that you can't fit in your inventory! Drag a <b>bag</b> into the bank, then put some items in storage.", 0);
+		},
+	},
+];
+
+// old logging camp tutorial
+/*const Tutorial = [
 	{
 		chapter: 0, // called upon game starting
 		func: function () {
@@ -312,4 +476,4 @@ const Tutorial = [
 			Dom.alert.page("At the bank, you can store items that you can't fit in your inventory! Drag a <b>bag</b> into the bank, then put some items in storage.", 0);
 		},
 	},
-];
+];*/
