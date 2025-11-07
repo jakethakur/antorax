@@ -847,7 +847,7 @@ var Quests = {
 			rewards: {
 				xp: 30,
 				services: [
-					{image: "itemBuyer", lore: "You will be able to sell items to Noledar after completing this quest."},
+					{image: "./assets/icons/itemBuyer.png", lore: "You will be able to sell items to Noledar after completing this quest."},
 				],
 				items: [
 					{item: Items.currency[2], quantity: 2,},
@@ -1539,7 +1539,7 @@ var Quests = {
 
 			startRewards: {
 				services: [
-					{image: "driver", lore: "You will be able to take a cart to Eaglecrest upon starting this quest."},
+					{image: "./assets/icons/driver.png", lore: "You will be able to take a cart to Eaglecrest upon starting this quest."},
 				],
 			},
 
@@ -1968,7 +1968,7 @@ var Quests = {
 					{item: Items.food[5], quantity: 1,},
 				],
 				services: [
-					{image: "bank", lore: "You will be able access the bank to store your items once you have finished this quest."},
+					{image: "./assets/icons/bank.png", lore: "You will be able access the bank to store your items once you have finished this quest."},
 				],
 				reputation: {
 					eaglecrestCity: 100,
@@ -3783,7 +3783,7 @@ var Quests = {
 					stepNum: 0,
 					name: "Peto the Pyromancer",
 					chat: [{
-						text: `Hello there, stranger! Would you mind helping me with a a certain... <i>ahahaha</i>... a certain matter?`,
+						text: `Hello there, stranger! Would you mind helping me with a certain... <i>ahahaha</i>... a certain matter?`,
 					},{
 						text: `I need a number of specific reagents for my... uh... experiments and you seem like you'd be able to help.`,
 					},{

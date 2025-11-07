@@ -794,7 +794,12 @@ var Villagers = [
 				roleRequirement: function () {
 					return !Player.quests.prog.eaglecrest[21].pieHat && Player.quests.prog.eaglecrest[21].questLastFinished < GetFullDate(); // pieromancer quest wasn't finished today
 				},
-			},
+			},		
+			{
+				quest: Quests.eaglecrest[21],
+				role: "questProgress",
+				step: [0,2,3,7]
+			}
 		],
 		chat: {
             notUnlockedRoles: "Nothing to see here! Just an honest man going about his daily business <i>ahahaha</i>.",

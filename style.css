@@ -256,7 +256,7 @@ thead:after { /* space after bags in bank */
 	top: 20px;
 }
 
-.stackNum, .questStackNum, .questFinishStackNum, .questStartStackNum, .lootStackNum, .textStackNum{
+.stackNum, .itemDisplayStackNum, .lootStackNum, .textStackNum{
 	position: relative;
     bottom: 30px;
 	height: 20px;
@@ -266,7 +266,7 @@ thead:after { /* space after bags in bank */
 	text-align: right;
 }
 
-.questStackNum, .questFinishStackNum, .questStartStackNum, .textStackNum{
+.questStackNum, .itemDisplayStackNum, .questStartStackNum, .textStackNum{
 	position: absolute;
 }
 
@@ -894,7 +894,7 @@ left: 55px;
 	display: inline-block;
 }
 
-.theseQuestOptions, .theseQuestFinishOptions, .theseQuestStartOptions, .theseTextOptions{
+.itemDisplay, .theseTextOptions{
 	margin-top: 4px;
 	border: 5px solid var(--border);
 	display: inline-block;
@@ -904,9 +904,10 @@ left: 55px;
 	margin-bottom: 10px;
 	position: relative;
 	background-color: var(--bottom);
+	margin-right: 7px;
 }
 
-.theseQuestServices, .theseQuestFinishServices, .theseQuestStartServices {
+.serviceDisplay {
 	margin-top: 4px;
 	display: inline-block;
 	vertical-align: middle;

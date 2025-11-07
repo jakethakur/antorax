@@ -1598,59 +1598,17 @@ Dom.notifications.create = function (elements, disappearIn) {
 				if (typeof el.xp !== "undefined") {
 					htmlConstruct += '<div class="notifXP">'+el.xp+'</div><span class="xpClass">&nbsp;&nbsp;</span>';
 				}
+
+				htmlConstruct += '<div class="notifItems" id="notifItems'+id+'"></div>';
+
 				if (typeof el.services !== "undefined") {
 					for (let i = 0; i < el.services.length; i++) {
-						Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + el.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
+						Dom.addServiceDisplay(el.services[i], "notifItems"+id, "notif"+id);
 					}
 				}
-
-				htmlConstruct += '<div class="notifItems" id="notifItems'+id+'"></div><';
 				for (let i = 0; i < el.items.length; i++) {
 					if (el.items[i].item.type !== "item" || el.items[i].item.id !== 1) {
-						Dom.quest.addReward(el.items[i], "notifItems"+id, "notif"+id+"Item", "notif"+id+"StackNum");
-						//tbd make the above fn also assign generic classes to everything, which have the style applied to them
-					}
-				}
-eeeeeeeeeeeeeeeeeeeeeee
-				// add mouseovers
-				//tbd from here
-				let array = document.getElementsByClassName("theseQuestFinishServices");
-				if (array.length === 0) {
-					array = document.getElementsByClassName("theseQuestFinishOptions");
-				}
-				if (array.length === 0) {
-					array = [document.getElementById("questFinishXP")];
-				}
-				else {
-					for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
-						rewards.services[x].type = "item";
-						rewards.services[x].name = "Service Reward";
-						document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
-							Dom.inventory.displayInformation(rewards.services[x], undefined, "questFinish");
-						};
-						document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
-							Dom.expand("information");
-						};
-					}
-				}
-				array[array.length-1].onload = function () {
-					for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
-						document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
-							Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
-						};
-						document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
-							Dom.expand("information");
-						};
-					}
-					for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
-						document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
-							Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
-						};
-						document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
-							Dom.expand("information");
-						};
-						document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
-						document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
+						Dom.addItemDisplay(el.items[i], "notifItems"+id, "notif"+id);
 					}
 				}
 
@@ -2745,10 +2703,15 @@ Dom.quest.start = function (quest, npc) {
 				if (typeof objectives[i].revealStep === "undefined" && (typeof objectives[i].isHidden === "undefined" || !objectives[i].isHidden()) && typeof objectives[i].reattempt === "undefined") {
 					Dom.elements.questStartObjectives.innerHTML += "<br>" + objectives[i].text;
 				}
+				else if (i === objectives.length-1 && quest.additionalSteps !== false) {
+					// final objective is not shown - display message saying there are additional steps
+					Dom.elements.questStartObjectives.innerHTML += "<br><i>" + npc.name + " has further tasks for you before you can claim this quest's reward.</i>";
+				}
 			}
 
 			// calculate the total rewards from the whole quest
-			// note this does NOT include start rewards (rewards from first step)
+			// note this does NOT include start rewards (rewards from first step) as these are displayed separately
+			// it also does not show items that you are given which are then taken away from you later in the quest (with the exception of currency items)
 			let totalXp = 0;
 			let itemsArray = [];
 			let servicesArray = [];
@@ -2760,7 +2723,7 @@ Dom.quest.start = function (quest, npc) {
 						totalXp += step.rewards.xp;
 					}
 					if (typeof step.rewards.items !== "undefined") {
-						for (let j = 0; i < step.rewards.items.length; j++) {
+						for (let j = 0; j < step.rewards.items.length; j++) {
 							let itemObj = step.rewards.items[j];
 							if (typeof itemObj.quantity === "undefined") {
 								itemObj.quantity = 1;
@@ -2788,6 +2751,31 @@ Dom.quest.start = function (quest, npc) {
 						}
 					}
 				}
+
+				if (typeof step.removeItems !== "undefined") {
+					for (let j = 0; j < step.removeItems.length; j++) {
+						let itemObj = step.removeItems[j];
+						if (typeof itemObj.quantity === "undefined") {
+							itemObj.quantity = 1;
+						}
+						if (itemObj.item.type !== "currency") {
+							// see if it exists in itemsArray yet
+							for (let k = 0; k < itemsArray.length; k++) {
+								let existingItemObj = itemsArray[k];
+								if (existingItemObj.item.id === itemObj.item.id && existingItemObj.item.type === itemObj.item.type) {
+									// same item is already in rewards array - just subtract the quantity
+									if (existingItemObj.quantity <= itemObj.quantity) {
+										itemsArray.splice(k,1);
+									}
+									else {
+										existingItemObj.quantity -= itemObj.quantity;
+									}
+									break;
+								}
+							}
+						}
+					}
+				}
 			}
 
 			// xp rewards
@@ -2804,7 +2792,7 @@ Dom.quest.start = function (quest, npc) {
 				// service rewards
 				if (servicesArray.length > 0) {
 					for (let i = 0; i < servicesArray.length; i++) {
-						Dom.elements.questStartItems.innerHTML += "<img src='./assets/icons/" + servicesArray[i].image + ".png' class='theseQuestServices'></img>&nbsp;&nbsp;";
+						Dom.addServiceDisplay(servicesArray[i], "questStartItems", "questStart");
 					}
 				}
 
@@ -2812,7 +2800,7 @@ Dom.quest.start = function (quest, npc) {
 
 				if (itemsArray.length > 0) {
 					for (let i = 0; i < itemsArray.length; i++) {
-						Dom.quest.addReward(itemsArray[i], "questStartItems", "theseQuestOptions", "questStackNum");
+						Dom.addItemDisplay(itemsArray[i], "questStartItems", "questStart");
 					}
 				}
 
@@ -2849,103 +2837,19 @@ Dom.quest.start = function (quest, npc) {
 				// service rewards
 				if (startRewards.services !== undefined) {
 					for (let i = 0; i < startRewards.services.length; i++) {
-						Dom.elements.questStartStartItems.innerHTML += "<img src='./assets/icons/" + startRewards.services[i].image + ".png' class='theseQuestStartServices'></img>&nbsp;&nbsp;";
+						Dom.addServiceDisplay(startRewards.services[i], "questStartStartItems", "questStart");
 					}
 				}
 
 				// item rewards
 				if (startRewards.items !== undefined) {
 					for (let i = 0; i < startRewards.items.length; i++) {
-						Dom.quest.addReward(startRewards.items[i], "questStartStartItems", "theseQuestStartOptions", "questStartStackNum");
+						Dom.addItemDisplay(startRewards.items[i], "questStartStartItems", "questStart");
 					}
 				}
 			}
 			else {
 				Dom.elements.questStartStartRewardsTitle.innerHTML = "";
-			}
-
-			// now repeat for all start & finish item rewards, adding their hover over information display
-			// service start rewards
-			let startArray = document.getElementsByClassName("theseQuestStartServices");
-			if (startArray.length === 0) {
-				startArray = document.getElementsByClassName("theseQuestStartOptions");
-			}
-			else {
-				for (let x = 0; x < document.getElementsByClassName("theseQuestStartServices").length; x++) {
-					quest.startRewards.services[x].type = "item";
-					quest.startRewards.services[x].name = "Service Reward";
-					document.getElementsByClassName("theseQuestStartServices")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(quest.steps[0].rewards.services[x], undefined, "questStart");
-					};
-					document.getElementsByClassName("theseQuestStartServices")[x].onmouseleave = function () {
-						Dom.expand("information");
-					};
-				}
-			}
-			// item start rewards
-			if (startArray.length > 0) {
-				startArray[startArray.length-1].onload = function () {
-					for (let x = 0; x < document.getElementsByClassName("theseQuestStartOptions").length; x++) {
-						document.getElementsByClassName("theseQuestStartOptions")[x].onmouseover = function () {
-							Dom.inventory.displayInformation(quest.steps[0].rewards.items[x].item, quest.steps[0].rewards.items[x].quantity, "questStart");
-						};
-						document.getElementsByClassName("theseQuestStartOptions")[x].onmouseleave = function () {
-							Dom.expand("information");
-						};
-					}
-
-					for (let x = 0; x < document.getElementsByClassName("questStartStackNum").length; x++) {
-						document.getElementsByClassName("questStartStackNum")[x].onmouseover = function () {
-							Dom.inventory.displayInformation(quest.steps[0].rewards.items[x].item, quest.steps[0].rewards.items[x].quantity, "questStart");
-						};
-						document.getElementsByClassName("questStartStackNum")[x].onmouseleave = function () {
-							Dom.expand("information");
-						};
-						document.getElementsByClassName("questStartStackNum")[x].style.left = document.getElementsByClassName("theseQuestStartOptions")[x].offsetLeft + 5 + "px";
-						document.getElementsByClassName("questStartStackNum")[x].style.top = document.getElementsByClassName("theseQuestStartOptions")[x].offsetTop + 33 + "px";
-					}
-				}
-			}
-			// service step rewards
-			let array = document.getElementsByClassName("theseQuestServices");
-			if (array.length === 0) {
-				array = document.getElementsByClassName("theseQuestOptions");
-			}
-			else {
-				for (let x = 0; x < document.getElementsByClassName("theseQuestServices").length; x++) {
-					servicesArray[x].type = "item";
-					servicesArray[x].name = "Service Reward";
-					document.getElementsByClassName("theseQuestServices")[x].onmouseover = function () {
-						Dom.inventory.displayInformation(servicesArray[x], undefined, "questStart");
-					};
-					document.getElementsByClassName("theseQuestServices")[x].onmouseleave = function () {
-						Dom.expand("information");
-					};
-				}
-			}
-			// item step rewards
-			if (array.length > 0) {
-				array[array.length-1].onload = function () {
-					for (let x = 0; x < document.getElementsByClassName("theseQuestOptions").length; x++) {
-						document.getElementsByClassName("theseQuestOptions")[x].onmouseover = function () {
-							Dom.inventory.displayInformation(itemsArray[x].item, itemsArray[x].quantity, "questStart");
-						};
-						document.getElementsByClassName("theseQuestOptions")[x].onmouseleave = function () {
-							Dom.expand("information");
-						};
-					}
-
-					for (let x = 0; x < document.getElementsByClassName("questStackNum").length; x++) {
-						document.getElementsByClassName("questStackNum")[x].onmouseover = function () {
-							Dom.inventory.displayInformation(itemsArray[x].item, itemsArray[x].quantity, "questStart");
-						};
-						document.getElementsByClassName("questStackNum")[x].onmouseleave = function () {
-							Dom.expand("information");
-						};
-						document.getElementsByClassName("questStackNum")[x].style.left = document.getElementsByClassName("theseQuestOptions")[x].offsetLeft + 5 + "px";
-						document.getElementsByClassName("questStackNum")[x].style.top = document.getElementsByClassName("theseQuestOptions")[x].offsetTop + 33 + "px";
-					}
-				}
 			}
 
 			Dom.currentlyDisplayed = quest;
@@ -2979,26 +2883,79 @@ Dom.quest.formatBannerChat = function (chat) {
 	return chat;
 }
 
-// displays an item reward, for quest start, quest progress notification, etc.
-// the hoverover is added separately - tbd change this !
-// element is the ID name of the element to be added to
-// className and stackNum are the chosen class names for the individual item elements, and the text saying how big the item stack is
-Dom.quest.addReward = function (item, element, className, stackNum) {
+// displays an item in DOM which can be hovered over, for quest start, quest progress notification, etc.
+// item should be an object as appears in quest rewards etc. i.e. {item: Items[...], quantity: 1}
+// container is the ID name of the container element that this item should be appended inside
+// page is used for Dom.inventory.displayInformation and is the id of the general page / element that this item appears within (e.g. "questFinish")
+// service should be set to true if being called from Dom.addServiceDisplay, which will make the style slightly different (no border around the item, etc)
+// tbd this should be also used for bank, looting, etc?
+Dom.addItemDisplay = function (item, container, page, service) {
 	if (item.condition === undefined || item.condition()) {
-		if (item.quantity !== undefined && item.quantity !== 1) {
-			document.getElementById(element).innerHTML += "<img src=" + item.item.image + " class='"+className+"'><div class='"+stackNum+"'>"+item.quantity+"</div></img>&nbsp;&nbsp;";
-		}else {
-			document.getElementById(element).innerHTML += "<img src=" + item.item.image + " class='"+className+"'><div class='"+stackNum+"'></div></img>&nbsp;&nbsp;";
+		let className = "itemDisplay";
+		if (service) {
+			className = serviceDisplay;
 		}
+
+		// create the item image
+		const img = document.createElement("img");
+		img.src = item.item.image;
+		img.className = className;
+
+		// create the item stack number overlay
+		const stackNum = document.createElement("div");
+		stackNum.className = "itemDisplayStackNum";
+		stackNum.textContent = typeof item.quantity !== "undefined" && item.quantity !== 1 ? item.quantity : "";
+
+		// wrap the image and quantity together
+		const wrapper = document.createElement("span");
+		wrapper.className = "itemDisplayWrapper"; // optional wrapper for styling
+		wrapper.appendChild(img);
+		wrapper.appendChild(stackNum);
+
+		// append to container
+		document.getElementById(container).appendChild(wrapper);
+
 		if (item.chance !== undefined) {
-			let array = document.getElementById(element).getElementsByClassName(stackNum);
-			array[array.length-1].innerHTML = item.chance+"%<br>"+array[array.length-1].innerHTML;
-			array[array.length-1].style.marginTop = "-23px";
+			stackNum.innerHTML = item.chance+"%<br>"+stackNum.innerHTML;
+			stackNum.style.marginTop = "-23px";
 			//if (item.quantity !== undefined && item.quantity !== 1) {
 				//array[array.length-1].style.marginLeft = "8px";
 			//}
 		}
+
+		img.onload = function() {
+			// image hoverover
+			img.onmouseover = function () {
+				Dom.inventory.displayInformation(item.item, item.quantity, page);
+			};
+			img.onmouseleave = function () {
+				Dom.expand("information");
+			};
+
+			// stackNum positioning
+			stackNum.style.left = img.offsetLeft + 5 + "px";
+			stackNum.style.top = img.offsetTop + 33 + "px";
+
+			// stackNum hoverover
+			stackNum.onmouseover = function () {
+				Dom.inventory.displayInformation(item.item, item.quantity, page);
+			};
+			stackNum.onmouseleave = function () {
+				Dom.expand("information");
+			};
+		}
 	}
+}
+
+// displays a service in DOM which can be hovered over, for quest start, quest progress notification, etc.
+// services visually look like items, but aren't physically associated with an item. e.g. unlocking of an item buyer, or a temporary status effect, might be displayed as a service
+// services should be an object with an image property
+// container is the ID name of the container element that this item should be appended inside
+// page is used for Dom.inventory.displayInformation and is the name of the general page / element that this item appears within (e.g. "questFinish")
+Dom.addServiceDisplay = function (service, container, page) {
+	service.type = "item";
+	service.name = "Service Reward";
+	Dom.addItemDisplay({item: service}, container, page);
 }
 
 // called after quest NPC's dialogue for everything other than starting quest (where quest.start is instead called)
@@ -3055,7 +3012,7 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 			// service rewards
 			if (rewards.services !== undefined) {
 				for (let i = 0; i < rewards.services.length; i++) {
-					Dom.elements.questFinishItems.innerHTML += "<img src='./assets/icons/" + rewards.services[i].image + ".png' class='theseQuestFinishServices'></img>&nbsp;&nbsp;";
+					Dom.addServiceDisplay(startRewards.services[i], "questFinishItems", "questFinish");
 				}
 			}
 
@@ -3064,7 +3021,7 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 			if (rewards.items !== undefined) {
 				for (let i = 0; i < rewards.items.length; i++) {
 					if (rewards.items[i].item.type !== "item" || rewards.items[i].item.id !== 1) {
-						Dom.quest.addReward(rewards.items[i], "questFinishItems", "theseQuestFinishOptions", "questFinishStackNum");
+						Dom.addItemDisplay(rewards.items[i], "questFinishItems", "questFinish");
 					}
 					else {
 						rewards.items.splice(i, 1);
@@ -3092,47 +3049,6 @@ Dom.quest.progress = function (quest, npc, step, finish) {
 		else {
 			Dom.elements.questFinishRewardsTitle.innerHTML = "";
 			//Dom.elements.questFinishStartItems.innerHTML = "";
-		}
-
-		// add mouseovers
-		let array = document.getElementsByClassName("theseQuestFinishServices");
-		if (array.length === 0) {
-			array = document.getElementsByClassName("theseQuestFinishOptions");
-		}
-		if (array.length === 0) {
-			array = [document.getElementById("questFinishXP")];
-		}
-		else {
-			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishServices").length; x++) {
-				rewards.services[x].type = "item";
-				rewards.services[x].name = "Service Reward";
-				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(rewards.services[x], undefined, "questFinish");
-				};
-				document.getElementsByClassName("theseQuestFinishServices")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
-			}
-		}
-		array[array.length-1].onload = function () {
-			for (let x = 0; x < document.getElementsByClassName("theseQuestFinishOptions").length; x++) {
-				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
-				};
-				document.getElementsByClassName("theseQuestFinishOptions")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
-			}
-			for (let x = 0; x < document.getElementsByClassName("questFinishStackNum").length; x++) {
-				document.getElementsByClassName("questFinishStackNum")[x].onmouseover = function () {
-					Dom.inventory.displayInformation(rewards.items[x].item, rewards.items[x].quantity, "questFinish");
-				};
-				document.getElementsByClassName("questFinishStackNum")[x].onmouseleave = function () {
-					Dom.expand("information");
-				};
-				document.getElementsByClassName("questFinishStackNum")[x].style.left = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetLeft + 5 + "px";
-				document.getElementsByClassName("questFinishStackNum")[x].style.top = document.getElementsByClassName("theseQuestFinishOptions")[x].offsetTop + 33 + "px";
-			}
 		}
 	}
 }
