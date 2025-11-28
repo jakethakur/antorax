@@ -524,7 +524,6 @@ Dom.closeNPCPages = function () {
 	Dom.trade.interrupt();
 
 	this.elements.questStart.hidden = true;
-	this.elements.questFinish.hidden = true;
 	this.elements.merchantPage.hidden = true;
 	this.elements.identifierPage.hidden = true;
 	this.elements.identifiedPage.hidden = true;
@@ -2921,7 +2920,7 @@ Dom.quest.formatBannerChat = function (chat) {
 // displays an item in DOM which can be hovered over, for quest start, quest progress notification, etc.
 // item should be an object as appears in quest rewards etc. i.e. {item: Items[...], quantity: 1}
 // container is the ID name of the container element that this item should be appended inside
-// page is used for Dom.inventory.displayInformation and is the id of the general page / element that this item appears within (e.g. "questFinish")
+// page is used for Dom.inventory.displayInformation and is the id of the general page / element that this item appears within (e.g. "questStart")
 // service should be set to true if being called from Dom.addServiceDisplay, which will make the style slightly different (no border around the item, etc)
 // tbd this should be also used for bank, looting, etc?
 Dom.addItemDisplay = function (item, container, page, service) {
@@ -2986,7 +2985,7 @@ Dom.addItemDisplay = function (item, container, page, service) {
 // services visually look like items, but aren't physically associated with an item. e.g. unlocking of an item buyer, or a temporary status effect, might be displayed as a service
 // services should be an object with an image property
 // container is the ID name of the container element that this item should be appended inside
-// page is used for Dom.inventory.displayInformation and is the name of the general page / element that this item appears within (e.g. "questFinish")
+// page is used for Dom.inventory.displayInformation and is the name of the general page / element that this item appears within (e.g. "questStart")
 Dom.addServiceDisplay = function (service, container, page) {
 	service.type = "item";
 	service.name = "Service Reward";
@@ -3119,8 +3118,6 @@ Dom.quest.acceptRewards = function (quest, npc, step, finish) {
 
 		Player.quests.prog[quest.questArea][quest.id].questLastFinished = GetFullDate();
 	}
-
-	quest.wasCompleted = undefined; // for Dom.quests.active triggering "quest log updated" message
 
 	Dom.adventure.update();
 
@@ -3320,6 +3317,8 @@ Dom.quests.active = function (quest) {
 			let completedObjectives = 0;
 			let objectives = currentQuest.objectivesList;
 
+			let questLogUpdated = false; // set to true if "quest log updated" msg should be shown. this only gets shown when an objective is completed due to something outside of a step being completed
+
 			for (let i = 0; i < objectives.length; i++) {
 				// see if the objective is hidden
 				let hidden = true;
@@ -3346,36 +3345,23 @@ Dom.quests.active = function (quest) {
 				if (!hidden) {
 					// see if the objective is completed / what the progress is
 					let completed = false;
-					if (typeof objectives[i].completeStep !== "undefined") {
+					if (typeof objectives[i].completeStep !== "undefined" && Player.quests.prog[currentQuest.questArea][currentQuest.id].stepProgress[objectives[i].completeStep]) {
 						// objective is always completed if this step is completed
-						if (Player.quests.prog[currentQuest.questArea][currentQuest.id].stepProgress[objectives[i].completeStep]) {
-							// the required step has not been completed
-							completed = true;
-						}
+						// the required step has not been completed
+						completed = true;
 					}
 					if (!completed && typeof objectives[i].isCompleted !== "undefined") {
 						completed = objectives[i].isCompleted(); // gives the progress (as a number or symbol to be displayed, or as true/false)
+						completed = Dom.quests.formatCompleted(completed, objectives[i]); // sets completed to true, false, or a progress (i.e. 2/5)
+						if (completed === true && Player.quests.prog[currentQuest.questArea][currentQuest.id].objectiveProgress[i] !== true) {
+							questLogUpdated = true;
+						}
 					}
 					else if (!completed && typeof objectives[i].associatedVariable !== "undefined") { // associated variable with this objective - usually Dom.quests.active is called whenever this var is updated
 						completed = Player.quests.prog[currentQuest.questArea][currentQuest.id].vars[objectives[i].associatedVariable];
-					}
-
-					if (completed === 0) {
-						completed = false; // no point displaying it as the player has no progress yet
-					}
-
-					if (completed === 1 && typeof objectives[i].outOf === "undefined") {
-						completed = true; // assume it's out of 1
-					}
-
-					// if the progress is a number, and there's an outOf value, display it as "x/y"
-					if (typeof objectives[i].outOf !== "undefined" && !isNaN(completed) && completed !== true && completed !== false) {
-						if (objectives[i].outOf <= completed) {
-							// reached objective - completed!
-							completed = true;
-						}
-						else {
-							completed = completed + "/" + objectives[i].outOf;
+						completed = Dom.quests.formatCompleted(completed, objectives[i]); // sets completed to true, false, or a progress (i.e. 2/5)
+						if (completed === true && Player.quests.prog[currentQuest.questArea][currentQuest.id].objectiveProgress[i] !== true) {
+							questLogUpdated = true;
 						}
 					}
 
@@ -3417,27 +3403,8 @@ Dom.quests.active = function (quest) {
 					parameters: [[currentQuest, {name: npcName, imageSrc: currentQuest.finishNpcSrc}]], // finishNpcSrc is optional src to image of npc to be shown
 				}]);
 			}
-
-			let objectiveProgress = Player.quests.prog[currentQuest.questArea][currentQuest.id].objectiveProgress;
-
-			// set to whether or not this was completed last time this function was called (to track and announce if quest log is updated)
-			if (currentQuest.wasCompleted === undefined) {
-				currentQuest.wasCompleted = [];
-				for (let obj = 0; obj < objectiveProgress.length; obj++) {
-					currentQuest.wasCompleted.push(objectiveProgress[obj]);
-				}
-			}
-			else {
-				for (let i = 0; i < currentQuest.wasCompleted.length; i++) {
-					if (currentQuest.wasCompleted[i] !== true && objectiveProgress[i] === true) {
-						Dom.chat.insert("Quest log updated");
-						currentQuest.wasCompleted = [];
-						for (let obj = 0; obj < objectiveProgress.length; obj++) {
-							currentQuest.wasCompleted.push(objectiveProgress[obj]);
-						}
-						break;
-					}
-				}
+			else if (questLogUpdated) {
+				Dom.chat.insert("Quest log updated");
 			}
 		}
 		else {
@@ -3454,6 +3421,31 @@ Dom.quests.active = function (quest) {
 		Dom.elements.activeQuestBox.style.textAlign = "center";
 		Dom.elements.activeQuestBox.innerText = "You have no active quests";
 	}
+}
+
+// sets completed variable (as returned from an objective's isCompleted) to either true, false, or a progress (e.g. 2/5)
+// objective is the corresponding objectives object from objectiveList in questdata
+Dom.quests.formatCompleted = function (completed, objective) {
+	if (completed === 0) {
+		completed = false; // no point displaying it as the player has no progress yet
+	}
+
+	if (completed === 1 && typeof objective.outOf === "undefined") {
+		completed = true; // assume it's out of 1
+	}
+
+	// if the progress is a number, and there's an outOf value, display it as "x/y"
+	if (typeof objective.outOf !== "undefined" && !isNaN(completed) && completed !== true && completed !== false) {
+		if (objective.outOf <= completed) {
+			// reached objective - completed!
+			completed = true;
+		}
+		else {
+			completed = completed + "/" + objective.outOf;
+		}
+	}
+
+	return completed;
 }
 
 // updates Player.quests.possibleQuestArray, an array of quests that are possible to be started

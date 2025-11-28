@@ -13379,7 +13379,7 @@ Game.update = function (delta) {
 		}
 
 		// sparkleNearPlayer
-		if (typeof entity.sparkleNearPlayer !== "undefined") {
+		if (typeof entity.sparkleNearPlayer !== "undefined" && entity.sparkleNearPlayer !== false) {
 			let triggerRange = entity.sparkleNearPlayer.triggerRange || 250; // distance required for sparkling
 			let triggerCondition = this.distance(entity, Game.hero) <= triggerRange && (!entity.sparkleNearPlayer.interactOnly || !entity.interactOnCooldown);
 			if (!entity.sparkleNearPlayer.active && triggerCondition) {

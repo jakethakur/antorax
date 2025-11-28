@@ -3800,12 +3800,6 @@ var Quests = {
 					},{
 						text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the waterwheel, then get off with ye!`
 					},],
-					rewards: {
-						xp: 100,
-						items: [
-							{item: Items.currency[2], quantity: 5,},
-						],
-					},
 				},
 				{
 					stepNum: 2,
@@ -3813,11 +3807,14 @@ var Quests = {
 					chat: [{
 						text: `Oh goody! A bag of flour! This'll do nicely for my pyromancer experiments <i>hahaha</i>.`
 					},{
-						text: `If you're still willing, two eggs would go down a treat! You can nick them off the local chickens <i>hehe</i>.`
+						text: `If you're still willing, three eggs would go down a treat! You can nick them off the local chickens <i>hehe</i>.`
 					},],
 					removeItems: [
 						{item: Items.item[76], quantity: 1},
 					],
+					rewards: {
+						xp: 25,
+					}
 				},
 				{
 					stepNum: 3,
@@ -3832,6 +3829,9 @@ var Quests = {
 					removeItems: [
 						{item: Items.item[40], quantity: 3},
 					],
+					rewards: {
+						xp: 25,
+					}
 				},
 				{
 					stepNum: 4,
@@ -4032,7 +4032,7 @@ var Quests = {
 						{item: Items.item[77], quantity: 1},
 					],
 					rewards: {
-						xp: 100,
+						xp: 50,
 						items: [
 							{item: Items.currency[2], quantity: 5,},
 						],
