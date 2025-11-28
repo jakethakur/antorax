@@ -715,14 +715,13 @@ overflow: auto;
 }
 
 #adventureWrapper {
-position: absolute;
-width: 300px;
-left: 405px;
-top: 60px;
-height: 390px;
-overflow-y:: auto;
-overflow-x: visible;
-
+	position: absolute;
+	width: 300px;
+	left: 405px;
+	top: 60px;
+	height: 390px;
+	overflow-y: auto;
+	overflow-x: visible;
 }
 
 .adventureContent {

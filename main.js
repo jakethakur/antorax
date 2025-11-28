@@ -7144,6 +7144,9 @@ class Villager extends Character {
 
 		// make them face forwards
 		this.updateRotation(0, 1);
+
+		this.x = Math.round(this.x);
+		this.y = Math.round(this.y);
 	}
 
 	move (delta) {

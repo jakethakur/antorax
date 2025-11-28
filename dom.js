@@ -1403,53 +1403,55 @@ Dom.chat.npcBanner = function (npc, text, skippable) {
 }
 
 Dom.chat.npcBannerIterate = function (i) {
-	if (Dom.chat.npcBannerText[i-1] === "<") {
-		let afterSubstring = Dom.chat.npcBannerText.substr(i); // ith index onwards
-		i += afterSubstring.indexOf(">") + 1;
-	}
-
-	let textToShow = Dom.chat.npcBannerText.substr(0, i); // 0th to i-1th index
-	Dom.elements.npcChatBannerText1.innerHTML = textToShow;
-
-	if (i < Dom.chat.npcBannerText.length) {
-		let timeoutTime = Dom.chat.timeoutTime; // default
-
-		let longerPauseArray = [".", "-", "!", "?", ";", "…", "⁀", "‿", "~", "ᵔ", "ᵕ"];
-		if (longerPauseArray.includes(Dom.chat.npcBannerText[i-1])) {
-			timeoutTime *= 10;
+	if (typeof Dom.currentlyDisplayed !== "undefined" && Dom.currentlyDisplayed !== '') {
+		if (Dom.chat.npcBannerText[i-1] === "<") {
+			let afterSubstring = Dom.chat.npcBannerText.substr(i); // ith index onwards
+			i += afterSubstring.indexOf(">") + 1;
 		}
 
-		let shorterPauseArray = [",", ":", "˚"];
-		if (shorterPauseArray.includes(Dom.chat.npcBannerText[i-1])) {
-			timeoutTime *= 4;
-		}
+		let textToShow = Dom.chat.npcBannerText.substr(0, i); // 0th to i-1th index
+		Dom.elements.npcChatBannerText1.innerHTML = textToShow;
 
-		Dom.chat.npcBannerParams.timeout = setTimeout(Dom.chat.npcBannerIterate, timeoutTime, i+1);
-	}
-	else if (!Dom.chat.npcBannerParams.autoProgress) {
-		// done
+		if (i < Dom.chat.npcBannerText.length) {
+			let timeoutTime = Dom.chat.timeoutTime; // default
 
-		// check if there are options to be made by the player
-		if (typeof Dom.chat.npcBannerParams.options !== "undefined") {
-			// player must make choice
-			Dom.elements.npcChatNext.src = "assets/icons/dialogueChoice.png";
-
-			Dom.elements.npcChatOptionList.innerHTML = "";
-			Dom.elements.npcChatOptions.hidden = false;
-			for (let i = 0; i < Dom.chat.npcBannerParams.options.length; i++) {
-				Dom.elements.npcChatOptionList.innerHTML += "<li class='chatBannerOption' onclick='Dom.chat.chooseOption("+i+")'>"+Dom.chat.npcBannerParams.options[i].text+"</li>";
+			let longerPauseArray = [".", "-", "!", "?", ";", "…", "⁀", "‿", "~", "ᵔ", "ᵕ"];
+			if (longerPauseArray.includes(Dom.chat.npcBannerText[i-1])) {
+				timeoutTime *= 10;
 			}
 
-			Dom.chat.npcBannerReadyToProgress = false;
-		}
-		else {
-			Dom.elements.npcChatNext.src = "assets/icons/dialogueNext.png";
-			Dom.chat.npcBannerReadyToProgress = true;
+			let shorterPauseArray = [",", ":", "˚"];
+			if (shorterPauseArray.includes(Dom.chat.npcBannerText[i-1])) {
+				timeoutTime *= 4;
+			}
 
-			// if the player hasn't had to do this before, tell them to press enter
-			if (!Player.tipsSeen.includes("chatBanner")) {
-				Player.tipsSeen.push("chatBanner");
-				Dom.alert.page("Press the enter key to progress.", 0);
+			Dom.chat.npcBannerParams.timeout = setTimeout(Dom.chat.npcBannerIterate, timeoutTime, i+1);
+		}
+		else if (!Dom.chat.npcBannerParams.autoProgress) {
+			// done
+
+			// check if there are options to be made by the player
+			if (typeof Dom.chat.npcBannerParams.options !== "undefined") {
+				// player must make choice
+				Dom.elements.npcChatNext.src = "assets/icons/dialogueChoice.png";
+
+				Dom.elements.npcChatOptionList.innerHTML = "";
+				Dom.elements.npcChatOptions.hidden = false;
+				for (let i = 0; i < Dom.chat.npcBannerParams.options.length; i++) {
+					Dom.elements.npcChatOptionList.innerHTML += "<li class='chatBannerOption' onclick='Dom.chat.chooseOption("+i+")'>"+Dom.chat.npcBannerParams.options[i].text+"</li>";
+				}
+
+				Dom.chat.npcBannerReadyToProgress = false;
+			}
+			else {
+				Dom.elements.npcChatNext.src = "assets/icons/dialogueNext.png";
+				Dom.chat.npcBannerReadyToProgress = true;
+
+				// if the player hasn't had to do this before, tell them to press enter
+				if (!Player.tipsSeen.includes("chatBanner")) {
+					Player.tipsSeen.push("chatBanner");
+					Dom.alert.page("Press the enter key to progress.", 0);
+				}
 			}
 		}
 	}
