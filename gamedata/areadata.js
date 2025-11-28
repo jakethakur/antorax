@@ -3919,7 +3919,7 @@ eaglecrest: {
 			destinationX: 3000,
 			destinationY: 300,
 			teleportCondition: function () {
-				return Player.tutorialProgress >=2;
+				return Player.tutorialProgress >=2 || Player.skipTutorial;
 			}
 		},
 		{

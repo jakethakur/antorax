@@ -890,7 +890,11 @@ left: 55px;
 /*	START & FINISH	*/
 /*					*/
 
-#questStartItems, #questStartStartItems, #questFinishItems, .notifItems {
+#questStartItems, #questStartStartItems, #questFinishItems {
+	display: inline-block;
+}
+
+.notifItems {
 	display: inline-block;
 }
 
@@ -1123,8 +1127,10 @@ left: 55px;
 }
 
 .mailDelete, .mailFlag, .notifClose{
-	height: 30px;
-	width: 30px;
+	padding-top: 2px;
+	padding-left: 7px;
+	height: 28px;
+	width: 23px;
 	position: absolute;
 	top: 10px;
 	right: 10px;
@@ -1339,7 +1345,6 @@ left: 55px;
 	border: 5px solid var(--border);
 	padding: 20px;
 	padding-bottom: 10px;
-	text-align: center;
 	opacity: var(--opacity);
 }
 
@@ -1350,12 +1355,17 @@ left: 55px;
 
 .notifTitle {
 	font-size: 22px;
-	line-height: 8px;
+	margin-top: 4px;
+	margin-bottom: 10px;
+	display: inline-block;
+	line-height: 26px;
 }
 
-.notifSubtitle {
+.notifBody {
 	font-size: 18px;
-	line-height: 6px;
+	margin-top: 3px;
+	display: inline-block;
+	line-height: 21px;
 }
 
 .notifClose{

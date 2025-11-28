@@ -5600,15 +5600,18 @@ class Hero extends Attacker {
 							if (this.channelling.giveItem !== false) {
 								// give fish
 								// must be after quest progress and fishing skill
-								let inventoryPosition = Dom.inventory.give(this.channelling);
+								let inventoryPositions = Dom.inventory.give(this.channelling);
 								// inventory position saved for if onCatch needs it
 
-								if (inventoryPosition === false) {
+								if (inventoryPositions === false) {
 									Dom.chat.insert("<i>You don't have any space to hold that item!</i>")
 								}
 								// onCatch function (only called if the player has space to hold the item)
 								else if (this.channelling.onCatch !== undefined) {
-									this.channelling.onCatch(inventoryPosition);
+									for (let ii = 0; ii < inventoryPositions.length; ii++) {
+										let inventoryPosition = inventoryPositions[ii]
+										this.channelling.onCatch(inventoryPosition);
+									}
 								}
 							}
 
@@ -8079,7 +8082,7 @@ class DigNode extends Thing {
 
 	excavate () {
 		let itemToGive = this.generatedItemTable[Random(0, this.generatedItemTable.length-1)];
-		if (Dom.inventory.give(itemToGive)) {
+		if (Dom.inventory.give(itemToGive) !== false) {
 			// there was sufficient inventory space
 
 			//tbd message to notify them what they got (probably same as quest progress popup)

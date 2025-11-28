@@ -1509,8 +1509,9 @@ unidentifiedArea: ["caves"],
 			},
 			intervalEffect: {
 				function: function () {
-					let position = Dom.inventory.give(Items.consumable[32]);
-					if (position !== false) {
+					let positions = Dom.inventory.give(Items.consumable[32]);
+					if (positions !== false) {
+						let position = positions[0]
 						Player.inventory.items[position].healAmount = Player.inventory.greaves.functionStats.heal;
 						Player.inventory.items[position].functionText = "Restores " + Player.inventory.greaves.functionStats.heal + " health";
 					}
@@ -4486,7 +4487,7 @@ unidentifiedArea: ["caves"],
 						// fill with mud
 						// replace it with a mud-filled version
 						Dom.inventory.remove(inventoryPosition);
-						Dom.inventory.give(Items.item[13], 1, inventoryPosition); // replaces at the same slot
+						Dom.inventory.give(Items.item[13], 1, {position: inventoryPosition}); // replaces at the same slot
 					}
 				}
 			}
@@ -6007,7 +6008,7 @@ unidentifiedArea: ["caves"],
             cooldown: 20, // 20 seconds
 			onOpen: function (inventoryPosition) {
 				Dom.inventory.remove(inventoryPosition);
-				Dom.inventory.give(Items.item[27], 1, inventoryPosition);
+				Dom.inventory.give(Items.item[27], 1, {position: inventoryPosition});
 			},
 			onClickFunction: function (inventoryPosition) {
                 // remove the item
@@ -6212,7 +6213,7 @@ unidentifiedArea: ["caves"],
 							break;
 					}
 				}
-				Dom.inventory.give(item, itemQuantity, inventoryPosition);
+				Dom.inventory.give(item, itemQuantity, {position: inventoryPosition});
 				Player.quests.questProgress.slingshotPresentsOpened = Increment(Player.quests.questProgress.slingshotPresentsOpened);
 				User.progress.presentsOpened = Increment(User.progress.presentsOpened);
 			}
@@ -7426,7 +7427,7 @@ unidentifiedArea: ["caves"],
 					// remove item
 					Dom.inventory.remove(inventoryPosition);
 					// replace at the same slot
-					Dom.inventory.give(Items.rod[4], 1, inventoryPosition);
+					Dom.inventory.give(Items.rod[4], 1, {position: inventoryPosition});
 					Player.quests.questProgress.christmasFishingRod = true; // now obtained
 					// achievement progress
 					User.progress.presentsOpened = Increment(User.progress.presentsOpened);

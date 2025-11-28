@@ -3800,6 +3800,12 @@ var Quests = {
 					},{
 						text: `I don't want you on me land a second longer! Get one of 'em sacks of flour by the waterwheel, then get off with ye!`
 					},],
+					rewards: {
+						xp: 100,
+						items: [
+							{item: Items.currency[2], quantity: 5,},
+						],
+					},
 				},
 				{
 					stepNum: 2,

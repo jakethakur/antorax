@@ -940,7 +940,7 @@ var Villagers = [
 					],
 					onFinish: function () {
 						// give player the gold for today
-						Dom.inventory.give(Items.currency[2], 3);
+						Dom.inventory.give(Items.currency[2], 3, {notification: true, notificationGivenFrom: "Othmar"});
 						// set progress variable
 						let today = GetFullDate();
 						Player.quests.questProgress.othmarGold = today;

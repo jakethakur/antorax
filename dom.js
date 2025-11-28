@@ -1574,60 +1574,103 @@ Dom.chat.npcChatFinished = function() {
 
 // the elements parameter should be an array of objects, each specifying an element that appears in the notification (in sequence). these should be one of the following:
 // {type: "title", text: String} (large text)
-// {type: "subtitle", text: String} (smaller text)
-// {type: "items", arr: Array, services: Array, xp: Integer} (shows items that can be hovered over; arr should be an array of objects as specified in questdata step.rewards.items) (xp and services are optional and display alongside items)
+// {type: "body", text: String} (smaller text)
+// {type: "items", items: Array, services: Array, xp: Integer} (shows items that can be hovered over; arr should be an array of objects as specified in questdata step.rewards.items) (xp and services are optional and display alongside items)
 // the disappearIn parameter is optional, and is in milliseconds. after this time, the notif will fade away over 3 seconds
 Dom.notifications.create = function (elements, disappearIn) {
-	let id = Dom.notifications.nextId;
-	let htmlConstruct = '<div class="notif" id="notif'+id+'" onmousemove="Dom.notifications.mouseMove('+id+')" onmouseout="Dom.notifications.mouseOff('+id+')">';
-	Dom.notifications.nextId++;
+	const id = Dom.notifications.nextId++;
+	const notif = document.createElement("div");
+	notif.className = "notif";
+	notif.id = "notif" + id;
+
+	notif.addEventListener("mousemove", () => Dom.notifications.mouseMove(id));
+	notif.addEventListener("mouseout", () => Dom.notifications.mouseOff(id));
 
 	// add close button
-	htmlConstruct += '<div class="notifClose" onclick="Dom.notifications.close('+id+')">X</div>';
+	const closeButton = document.createElement("div");
+	closeButton.className = "notifClose";
+	closeButton.textContent = "X";
+	closeButton.addEventListener("click", () => Dom.notifications.close(id));
+	notif.appendChild(closeButton);
 
-	for (let i = 0; i < elements.length; i++) {
-		let el = elements[i];
+	// insert at top of notification list
+	const wrapper = Dom.elements.notifWrapper;
+	if (wrapper.firstChild) {
+		wrapper.insertBefore(notif, wrapper.firstChild);
+	} else {
+		wrapper.appendChild(notif);
+	}
+
+	// build notification content
+	for (const el of elements) {
 		switch (el.type) {
-			case "title":
-				htmlConstruct += '<b class="notifTitle">'+el.text+'</b>';
+			case "title": {
+				const title = document.createElement("b");
+				title.className = "notifTitle";
+				title.innerHTML = el.text;
+				notif.appendChild(title);
 				break;
-			case "subtitle":
-				htmlConstruct += '<p class="notifSubtitle">'+el.text+'</p>';
+			}
+			case "subtitle": {
+				const title = document.createElement("b");
+				title.className = "notifBody";
+				title.innerHTML = el.text;
+				notif.appendChild(title);
 				break;
-			case "items":
+			}
+			case "body": {
+				const body = document.createElement("p");
+				body.className = "notifBody";
+				body.innerHTML = el.text;
+				notif.appendChild(body);
+				break;
+			}
+			case "items": {
 				if (typeof el.xp !== "undefined") {
-					htmlConstruct += '<div class="notifXP">'+el.xp+'</div><span class="xpClass">&nbsp;&nbsp;</span>';
+					const xpDiv = document.createElement("div");
+					xpDiv.className = "notifXP";
+					xpDiv.textContent = el.xp;
+					notif.appendChild(xpDiv);
+
+					const spacer = document.createElement("span");
+					spacer.className = "xpClass";
+					spacer.innerHTML = "&nbsp;&nbsp;";
+					notif.appendChild(spacer);
 				}
 
-				htmlConstruct += '<div class="notifItems" id="notifItems'+id+'"></div>';
+				const itemsContainer = document.createElement("div");
+				itemsContainer.className = "notifItems";
+				itemsContainer.id = "notifItems" + id;
+				notif.appendChild(itemsContainer);
 
-				if (typeof el.services !== "undefined") {
-					for (let i = 0; i < el.services.length; i++) {
-						Dom.addServiceDisplay(el.services[i], "notifItems"+id, "notif"+id);
+				if (Array.isArray(el.services)) {
+					for (const service of el.services) {
+						Dom.addServiceDisplay(service, itemsContainer.id, notif.id);
 					}
 				}
-				for (let i = 0; i < el.items.length; i++) {
-					if (el.items[i].item.type !== "item" || el.items[i].item.id !== 1) {
-						Dom.addItemDisplay(el.items[i], "notifItems"+id, "notif"+id);
+
+				if (Array.isArray(el.items)) {
+					for (const itemObj of el.items) {
+						if (itemObj.item.type !== "item" || itemObj.item.id !== 1) {
+							Dom.addItemDisplay(itemObj, itemsContainer.id, notif.id);
+						}
 					}
 				}
-
 				break;
+			}
 			default:
 				console.error("Unexpected notification element", el);
 		}
+		const br = document.createElement("br");
+		notif.appendChild(br);
 	}
-
-	htmlConstruct += '</div>';
-
-	Dom.elements.notifWrapper.innerHTML = htmlConstruct + Dom.elements.notifWrapper.innerHTML; // make notification appear at top
 
 	// add to notification list
 	let i = Dom.notifications.list.push({id: id, disappearIn: disappearIn});
 	let obj = Dom.notifications.list[i-1];
 
 	// start timeout if disappearIn is defined
-	if (typeof disappearIn !== "undefined") {
+	if (disappearIn) {
 		obj.disappearTimeout = setTimeout(Dom.notifications.startFade, disappearIn, id);
 	}
 }
@@ -2959,98 +3002,54 @@ Dom.addServiceDisplay = function (service, container, page) {
 }
 
 // called after quest NPC's dialogue for everything other than starting quest (where quest.start is instead called)
-// variable incrementing, removing items, showing page, etc
-// this function itself handles everything with the page; acceptRewards (which this calls) handles everything that's not to do with page
+// variable incrementing, removing items, showing notification, etc
+// this function itself handles everything with the DOM notification; acceptRewards (which this calls) handles everything that's not to do with notification
 Dom.quest.progress = function (quest, npc, step, finish) {
-	if (Dom.changeBook("questFinish", npc)) {//, true/*false*/, true)) {
-		if (finish) {
-			Dom.elements.questFinishQuest.innerHTML = "Quest finish: " + quest.quest;
-		}
-		else {
-			Dom.elements.questFinishQuest.innerHTML = "Quest progress: " + quest.quest;
-		}
+	// increment variables etc
+	Dom.quest.acceptRewards(quest, npc, step, finish);
 
-		// increment variables etc
-		Dom.quest.acceptRewards(quest, npc, step, finish);
+	let notificationContents = [];
 
-		// display any new objectives
-		// note that this doesn't display any objectives that were previously hidden via a isHidden function - maybe do this in the future.
-		let newObjectives = [];
-		for (let i = 0; i < quest.objectivesList.length; i++) {
-			if (quest.objectivesList[i].revealStep === step && (typeof quest.objectivesList[i].isHidden === "undefined" || !quest.objectivesList[i].isHidden()) && typeof quest.objectivesList[i].reattempt === "undefined") {
-				newObjectives.push(i);
-			}
-		}
-		if (newObjectives.length > 0) {
-			// there have been new objectives "unlocked"
-			Dom.elements.questFinishObjectivesHeading.hidden = false;
-			Dom.elements.questFinishObjectives.hidden = false;
+	let titleText;
+	if (finish) {
+		titleText = "Quest finish: " + quest.quest;
+	}
+	else {
+		titleText = "Quest progress: " + quest.quest;
+	}
+	notificationContents.push({type: "title", text: titleText});
 
-			Dom.elements.questFinishObjectives.innerHTML = "";
-			for (let i = 0; i < newObjectives.length; i++) {
-				Dom.elements.questFinishObjectives.innerHTML += "<br>" + quest.objectivesList[newObjectives[i]].text;
-			}
-		}
-		else {
-			// no objective information to be displayed
-			Dom.elements.questFinishObjectivesHeading.hidden = true;
-			Dom.elements.questFinishObjectives.hidden = true;
-		}
-
-		// display rewards
-		Dom.elements.questFinishItems.innerHTML = "";
-		Dom.elements.questFinishXP.hidden = true;
-		let rewards = quest.steps[step].rewards;
-		if (rewards !== undefined) {
-			// xp rewards
-			if (rewards.xp > 0) {
-				Dom.elements.questFinishXP.hidden = false;
-				Dom.elements.questFinishXP.innerHTML = rewards.xp;
-			}
-			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
-
-			// service rewards
-			if (rewards.services !== undefined) {
-				for (let i = 0; i < rewards.services.length; i++) {
-					Dom.addServiceDisplay(startRewards.services[i], "questFinishItems", "questFinish");
-				}
-			}
-
-			// item rewards display
-			Dom.elements.questFinishRewardsTitle.innerHTML = "<br><br><b>Quest Rewards</b><br>";
-			if (rewards.items !== undefined) {
-				for (let i = 0; i < rewards.items.length; i++) {
-					if (rewards.items[i].item.type !== "item" || rewards.items[i].item.id !== 1) {
-						Dom.addItemDisplay(rewards.items[i], "questFinishItems", "questFinish");
-					}
-					else {
-						rewards.items.splice(i, 1);
-						i--;
-					}
-				}
-
-				// display warning if there is not enough space to hold all possible rewards
-				// (only applies to items given by chance, which is not currently used)
-				if (Dom.inventory.requiredSpace(rewards.items, true)) {
-					Dom.elements.chanceImage.hidden = true;
-					Dom.elements.chance.hidden = true;
-				}
-				else {
-					Dom.elements.chanceImage.hidden = false;
-					Dom.elements.chance.hidden = false;
-				}
-
-			}
-			else {
-				Dom.elements.chanceImage.hidden = true;
-				Dom.elements.chance.hidden = true;
-			}
-		}
-		else {
-			Dom.elements.questFinishRewardsTitle.innerHTML = "";
-			//Dom.elements.questFinishStartItems.innerHTML = "";
+	// display any new objectives
+	// note that this doesn't display any objectives that were previously hidden via a isHidden function - maybe do this in the future.
+	let newObjectives = [];
+	let objectiveText = "";
+	for (let i = 0; i < quest.objectivesList.length; i++) {
+		if (quest.objectivesList[i].revealStep === step && (typeof quest.objectivesList[i].isHidden === "undefined" || !quest.objectivesList[i].isHidden()) && typeof quest.objectivesList[i].reattempt === "undefined") {
+			newObjectives.push(i);
 		}
 	}
+	if (newObjectives.length > 0) {
+		// there have been new objectives "unlocked"
+		notificationContents.push({type: "subtitle", text: "New objectives:"});
+		for (let i = 0; i < newObjectives.length; i++) {
+			objectiveText +=  quest.objectivesList[newObjectives[i]].text + "<br>";
+		}
+	}
+	notificationContents.push({type: "body", text: objectiveText});
+
+	if (typeof quest.steps[step].rewards !== "undefined") {
+		let rewards = quest.steps[step].rewards;
+		notificationContents.push({type: "subtitle", text: "Rewards received:"});
+		let rewardsElement = {type: "items"};
+		if (rewards.xp > 0) {
+			rewardsElement.xp = rewards.xp;
+		}
+		rewardsElement.services = rewards.services;
+		rewardsElement.items = rewards.items;
+		notificationContents.push(rewardsElement);
+	}
+
+	Dom.notifications.create(notificationContents);
 }
 
 // they've just completed step number "step".
@@ -3371,6 +3370,10 @@ Dom.quests.active = function (quest) {
 
 					if (completed === 0) {
 						completed = false; // no point displaying it as the player has no progress yet
+					}
+
+					if (completed === 1 && typeof objectives[i].outOf === "undefined") {
+						completed = true; // assume it's out of 1
 					}
 
 					// if the progress is a number, and there's an outOf value, display it as "x/y"
@@ -4475,15 +4478,23 @@ Dom.inventory.spaceAvailable = function (item, num, position) {
 }
 
 // this is the only way that items should be added to the player's inventory.
-// returns the position of the item, or false if it couldn't be added (inventory full)
+// returns an array of inventory positions that items were added to, or false if it couldn't be added (inventory full)
 // item is the item that should be given, num is the quantity to be given
 // position is an optional parameter, giving the position in Player.inventory.items that the item should be given at
 // if this position is not empty, then the item is not given and false is returned
 // noSave is true if the game should not be saved upon this function being called (i.e. if there is further processing required after the item is added)
 // noArchaeology is true if this should not count towards archaeology progress
-Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
+Dom.inventory.give = function (item, num, options) {
 	if (num === undefined) {
 		num = 1;
+	}
+	let position, noSave, noArchaeology, notification, notificationGivenFrom;
+	if (typeof options !== "undefined") {
+		position = options.position;
+		noSave = options.noSave;
+		noArchaeology = options.noArchaeology;
+		notification = options.notification;
+		notificationGivenFrom = options.notificationGivenFrom; // string name of the NPC that gave the player this item
 	}
 
 	let spaceAvailable = this.spaceAvailable(item, num, position);
@@ -4658,8 +4669,32 @@ Dom.inventory.give = function (item, num, position, noSave, noArchaeology) {
 
 	Game.inventoryUpdate();
 
-	if (positionsAddedTo.length === 1) {
-		positionsAddedTo = positionsAddedTo[0];
+	// return value
+	if (positionsAddedTo.length === 0) {
+		positionsAddedTo = false;
+	}
+
+	// DOM notification
+	if (notification) {
+		if (positionsAddedTo !== false) {
+			let notifTitle = "";
+			if (notificationGivenFrom !== "undefined") {
+				notifTitle = notificationGivenFrom + " gave you the following item:";
+			}
+			else {
+				notifTitle = "You received the following item:";
+			}
+
+			Dom.notifications.create([
+				{type: "subtitle", text: notifTitle},
+				{type: "items", items: [{item: item, quantity: num}]}
+			]);
+		}
+		else {
+			Dom.notifications.create([
+				{type: "body", text: "There are items you were not able to receive due to your inventory being too full."}
+			]);
+		}
 	}
 
 	return positionsAddedTo;
@@ -6331,12 +6366,17 @@ Dom.loot.page = function (npc, items) {
 // function to be called by Dom.loot.page and its onclicks
 // itemObj is an object of the form {item: Items.helm[9], quantity: 1}
 // autoloot is set to true if the item is being looted due to its autoloot property (i.e. it gets given to the player as soon as the looting screen opens)
-Dom.loot.lootItem = function (itemObj, lootedIndex, autoloot) {
+Dom.loot.lootItem = function (itemObj, autoloot) {
 	if (Dom.inventory.requiredSpace([itemObj])) {
 		if ((itemObj.item.autoloot && autoloot) || !itemObj.item.autoloot) { // don't give autoloot items if they're being clicked on, as they will have already been given when the looting screen was opened
-			let inventoryPosition = Dom.inventory.give(itemObj.item, itemObj.quantity);
-			if (typeof itemObj.item !== "undefined" && typeof itemObj.item.onLoot !== "undefined") {
-				itemObj.item.onLoot(inventoryPosition);
+			let inventoryPositions = Dom.inventory.give(itemObj.item, itemObj.quantity);
+			if (inventoryPositions !== false) {
+				for (let i = 0; i < inventoryPositions.length; i++) {
+					let inventoryPosition = inventoryPositions[i];
+					if (typeof itemObj.item !== "undefined" && typeof itemObj.item.onLoot !== "undefined") {
+						itemObj.item.onLoot(inventoryPosition);
+					}
+				}
 			}
 		}
 		if ((itemObj.item.autoloot && !autoloot) || !itemObj.item.autoloot) { // only remove object from display if it's being clicked on (not if it's been autolooted)
@@ -7525,7 +7565,7 @@ Dom.inventory.prepare = function (array, i, element) {
 
 				// unequip the item
 				if (!chooseStats && !onClick) {
-					if (Dom.inventory.give(Player.inventory[i], 1, undefined, true) !== false) { // don't save while you have one equipped AND on in inventory
+					if (Dom.inventory.give(Player.inventory[i], 1, {noSave: true}) !== false) { // don't save while you have one equipped AND one in inventory
 						Dom.inventory.deEquip = true;
 						Dom.inventory.removeEquipment(i); // handles changing of stats, bag slots, etc., as well as actually removing the item
 						Game.inventoryUpdate();
@@ -8108,7 +8148,7 @@ Dom.trade.confirmOther = function () {
 Dom.trade.complete = function () {
 	for (let i = 0; i < 24; i++) {
 		if (Dom.trade.other[i].image !== undefined) {
-			Dom.inventory.give(Dom.trade.other[i], undefined, undefined, undefined, true);
+			Dom.inventory.give(Dom.trade.other[i], undefined, {noArchaeology: true});
 		}
 	}
 	Dom.trade.items = [{},{},{},{},{},{},{},{},
