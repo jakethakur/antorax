@@ -19,369 +19,77 @@ const ChatText = {
 var Areas = {
 
 
-	tutorial: {
-		id: 0,
+	fishersValley: {
+	id: 0,
 
-		// data displayed on moving to area
-		data: {
-			name: "Fishers' Valley",
-			level: "Level 1 - 5",
-			territory: "Neutral",
-			displayOnEnter: true,
+	// data displayed on moving to area
+	data: {
+		name: "???",
+		level: "Level 1",
+		territory: "Neutral",
+		displayOnEnter: true,
+	},
+
+	indoors: false,
+
+	tagGameAllowed: true,
+
+	song_day: "assets/music/Eaglecrest.mp3",
+	song_night: "assets/music/Eaglecrest.mp3",
+	darkness: 0.3,
+
+	checkpoint: false,
+
+	lootArea: "caveEntrance",
+
+	mapData: {
+		origin: {x: 0, y: 0},
+		cols: 32,
+		rows: 18,
+		tsize: 60,
+		tilesPerRow: 8,
+		solidTiles: [],
+		pathTiles: [],
+		waterTiles: [],
+		lightEmitTiles: [],
+		animateTiles: [
+			{
+			
+			tiles: [51, 52, 59],
+			animateTime: 180,
 		},
 
-		indoors: false,
 
-		tagGameAllowed: true, // tag game allowed?
-
-		song_day: "assets/music/Pippin-the-Hunchback.mp3",
-		song_night: "assets/music/Pippin-the-Hunchback-night.mp3",
-
-		checkpoint: false,
-		player: {
-			// spawn location at start of game
-			x: 3838,
-			y: 318,
-		},
-
-		lootArea: "loggingCamp",
-		lootTier: 1,
-
-		mapData: {
-			cols: 65,
-			rows: 18,
-			tsize: 60,
-			tilesPerRow: 8,
-			solidTiles: [67, 75, 83, 91, 99, 107, 6, 14, 22, 8, 16, 24, 32, 7, 15, 23, 31, 39, 47, 55, 63, 71, 79, 87, 95, 103, 111],
-			waterTiles: [27, 35, 43],
-			iceTiles: [27, 35],
-			mudTiles: [2, 10, 18, 26, 34, 42, 50, 58, 66, 74, 82, 90, 98, 106],
-			pathTiles: [1, 9, 17, 25, 33, 41, 49, 57, 65, 3, 11, 19],
-			dayTiles: [24],
-			nightTiles: [32],
-			scrollY: false, // only scrolls x
-			layers: [
-				[105, 105, 105, 105, 1, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 89, 105, 105, 100, 101, 102, 105, 105, 105, 105, 89, 105, 105, 105, 89, 105, 105, 105, 105, 105, 105, 105, 105, 89, 105, 105, 105, 105, 89, 105, 105, 105, 105, 105, 105, 89, 105, 105, 105, 105, 1, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 93, 94, 44, 27, 27, 27, 43, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 108, 109, 110, 105, 97, 105, 105, 105, 105, 89, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 89, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 97, 105, 105, 1, 105, 105, 93, 94, 93, 94, 105, 105, 105, 105, 93, 94, 44, 27, 27, 27, 27, 4, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 89, 105, 105, 105, 105, 105, 105, 105, 97, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 93, 94, 105, 105, 41, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 11, 3, 3, 3, 3, 19, 1, 1, 1, 9, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 68, 105, 93, 94, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 44, 27, 27, 27, 27, 4, 93, 94, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 97, 105, 4, 105, 105, 105, 105, 105, 105, 105, 93, 94, 105, 105, 105, 105, 105, 97, 105, 44, 35, 27, 27, 27, 92, 36, 68, 105, 105, 105, 105, 105, 97, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 92, 68, 105, 105, 105, 105, 105, 93, 94, 105, 105, 105, 105, 93, 94, 60, 36, 28, 27, 27, 27, 43, 27, 27, 92, 68, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 27, 92, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 28, 27, 27, 27, 27, 27, 27, 27, 27, 27, 92, 36, 68, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 100, 101, 102, 105, 105, 105, 105, 89, 105, 105, 105, 105, 105, 105, 97, 105, 105, 105, 105, 105, 105, 105, 105, 89, 60, 27, 27, 27, 27, 27, 27, 27, 43, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 59, 51, 43, 27, 27, 27, 92, 36, 36, 68, 105, 105, 105, 105, 105, 105, 105, 105, 105, 108, 109, 110, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 60, 36, 36, 36, 36, 36, 36, 36, 36, 36, 28, 35, 43, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 59, 51, 59, 51, 51, 27, 35, 27, 27, 27, 27, 92, 36, 36, 36, 36, 36, 68, 105, 105, 105, 105, 105, 105, 105, 89, 105, 105, 105, 105, 89, 60, 36, 36, 36, 28, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 27, 92, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 28, 27, 27, 27, 27, 27, 27, 27, 59, 27, 27, 27, 27, 43, 27, 27, 27, 27, 27, 43, 27, 27, 27, 27, 27, 27, 51, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 51, 59, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 43, 27, 35, 35, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 59, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 51, 27, 27, 27, 43, 27, 27, 27, 27, 27, 27, 43, 35, 27, 27, 27, 27, 43, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 59, 51, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 59, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 27, 59, 59, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 43, 35, 27, 27, 27, 27, 27, 27, 35, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 51, 43, 27, 27, 27, 27, 27, 27],
-			],
-			interactWithTile: function(tileNum, x, y) {
-				// pick up snowball from rock
-				let replaceTiles = map.setTilesAtLocation([
-					{tileNum: 101, replaceTo: 56, relativePosition: {x: 0, y: 0}},
-					{tileNum: 102, replaceTo: 72, relativePosition: {x: 1, y: 0}},
-					{tileNum: 109, replaceTo: 64, relativePosition: {x: 0, y: 1}},
-				], {x:x, y:y});
-				if (replaceTiles !== false) {
-					// touching a snowy rock
-					Game.hero.channel(function () {
-						// give snowball to player
-						if (Dom.inventory.give(Items.bow[8], 1) !== false) { // check if player has enough inventory space
-							Player.quests.questProgress.snowCollected = Increment(Player.quests.questProgress.snowCollected);
-							Dom.checkProgress();
-							// remove snowy rock's snow from tilemap
-							replaceTiles();
-						}
-						// add snow back after 1 minute
-						let addSnowBack = map.setTilesAtLocation([
-							{tileNum: 56, replaceTo: 101, relativePosition: {x: 0, y: 0}},
-							{tileNum: 72, replaceTo: 102, relativePosition: {x: 1, y: 0}},
-							{tileNum: 64, replaceTo: 109, relativePosition: {x: 0, y: 1}},
-						], {x:x, y:y}, "tutorial");
-						Game.setTimeout(function (x, y) { if (Weather.weatherType === "snow") {addSnowBack(x, y)}}, 60000, [x, y]);
-					}, [], 1000, "Making a Snowball");
-				}
-			},
-		},
-
-		isIcy: function() {
-			return Event.event === "Christmas";
-		},
-
-		images: {
-			tiles: {normal: "assets/tilemap/loggingCamp.png", christmas: "assets/tilemap/loggingCampChristmas.png"},
-			driver: {normal: "assets/npcs/driver.png"},
-			weaponsmith: {normal: "assets/npcs/weaponsmith.png"},
-			cart: {normal: "assets/objects/cartEaglecrest.png", christmas: "assets/objects/cartEaglecrestChristmas.png"},
-			fisherman: {normal: "assets/npcs/tobenam.png"},
-			weaponsmithSign: {normal: "assets/objects/weaponsmithSign.png", christmas: "assets/objects/weaponsmithSignChristmas.png"},
-			eaglecrestBanner: {normal: "assets/objects/eaglecrestBanner.png", christmas: "assets/objects/eaglecrestBannerChristmas.png"},
-			torianTintop: {normal: "assets/npcs/torianTintop.png"},
-			nessyTintop: {normal: "assets/npcs/nessyTintop.png"},
-			present: {normal: "assets/objects/present.png"},
-		},
-
-		areaTeleports: [
-			{
-				// teleport to logging camp (path - north)
-				x: 270,
-				y: -49,
-				width: 210,
-				height: 2,
-				teleportTo: "eaglecrestLoggingCamp",
-				destinationX: 1350,
-				destinationY: 1300,
-			},
-		],
-
-		tripwires: [
-			{
-				// make sure player starts the first quest!
-				x: 3000,
-				y: 300,
-				width: 1,
-				height: 600,
-				onPlayerTouch: function () {
-					// check that the "to the logging camp" quest has been started, and the instructions haven't been shown before
-					let questStarted = Player.quests.activeQuestArray.includes("To the Logging Camp");
-
-					if (questStarted && Player.tutorialProgress === 2) { // tutorialProgress defaults to undefined anyway
-						Dom.instructions.page(3); // open instructions
-					}
-					// otherwise if the player hasn't started the quest, displace them back to make them!
-					else if (!questStarted && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-						Game.hero.displace(0, 150, 1, 0);
-						Dom.alert.closeAll(); // close all other open tutorial messages
-						Dom.alert.page("You need to start your first quest! Speak to the <b>Cart Driver</b> by pressing <b>Space</b>.", 0, undefined, "game");
-					}
-				}
-			},
-			{
-				// instructions pop up when bridge is moved to
-				x: 1490,
-				y: 300,
-				width: 1,
-				height: 600,
-				onPlayerTouch: function () {
-					// check that the weapon has been bought, and the instructions haven't been shown before
-					let weaponBought = Dom.inventory.check(2, "sword", 1) || Dom.inventory.check(2, "staff", 1) || Dom.inventory.check(2, "bow", 1);
-
-					// if the player hasn't bought the weapon, displcae them back to make them!
-					if (!weaponBought && !Player.quests.completedQuestArray.includes("To the Logging Camp")) {
-						Game.hero.displace(0, 150, 1, 0);
-						Dom.alert.closeAll(); // close all other open tutorial messages
-						Dom.alert.page("You need to buy a weapon to progress in your quest. Buy one from the nearby <b>Weaponsmith</b> by pressing <b>Space</b>.", 0, undefined, "game");
-					}
-				}
-			},
-		],
-
-		characters: [
-			{
-				x: 3470,
-				y: 320,
-				image: "driver",
-				name: "Cart Driver",
-				hostility: "friendly",
-				level: 10,
-				stats: {
-					maxHealth: 100,
-					defence: 1,
-					healthRegen: 0.3,
-				},
-				roles: [
-					{
-						quest: Quests.eaglecrestLoggingCamp[0],
-						role: "questStart",
-					},
-				],
-				chat: {
-					notUnlockedRoles: "Hope the journey wasn't too bumpy!",
-					questProgress: "Good luck with your adventures!",
-					questComplete: "I hope your quests are going well!",
-					inventoryFull: "Empty your bag a bit! You can't hold that.",
-				},
-			},
-			{
-				x: 2087,
-				y: 150,
-				image: "weaponsmith",
-				name: "Weaponsmith",
-				hostility: "friendly",
-				level: 10,
-				stats: {
-					maxHealth: 100,
-					defence: 2,
-				},
-				roles: [
-					{
-						sold: Player.class === "k" ? [{item: Items.sword[2], cost: 3},]
-						: Player.class === "m" ? [{item: Items.staff[2], cost: 3},]
-						: Player.class === "a" ? [{item: Items.bow[2], cost: 3,},]
-						: [],
-						role: "merchant",
-						shopGreeting: "Would you like to buy anything?",
-					},
-				],
-				chat: {
-					shopLeave: "Come back some time.",
-					inventoryFull: "Looks like your bag's too full! Empty it a bit and come back.",
-					tooPoor: "You can't afford that item. Kill some enemies and come back.",
-				},
-			},
-			{
-				x: 343,
-				y: 380,
-				image: "fisherman",
-				name: "Fisherman Tobenam",
-				hostility: "friendly",
-				level: 15,
-				stats: {
-					maxHealth: 125,
-					defence: 3,
-				},
-				roles: [
-					{
-						quest: Quests.eaglecrestLoggingCamp[7],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.fishing[0],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.fishing[1],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.fishing[2],
-						role: "questStartFinish",
-					},
-					{
-						quest: Quests.eaglecrestLoggingCamp[19],
-						role: "questStart",
-					},
-					{
-						role: "questProgress",
-						quest: Quests.eaglecrest[12],
-						step: [5],
-					},
-					{
-						quest: [Quests.fishing[3], Quests.fishing[4], Quests.fishing[5], Quests.fishing[6], Quests.fishing[7], Quests.fishing[8], Quests.fishing[9], Quests.fishing[10], Quests.fishing[11], Quests.fishing[12]],
-						role: "questStartFinish",
-						newQuestFrequency: "daily",
-						questVariable: "fishingDaily",
-					},
-					{
-						sold: [
-							{item: Items.rod[3], cost: 3}, // basic fishing rod
-							{item: Items.consumable[8], cost: 3}, // can of worms
-							{item: Items.consumable[12], cost: 3, condition: function () { // magnetised lure
-						        return Player.stats.fishingSkill >= 10;
-						    }},
-						],
-						role: "merchant",
-						chooseText: "I'd like to browse your fishing items.",
-						roleRequirement: function () {
-							return Player.quests.completedQuestArray.includes("Learning to Fish II") || Player.quests.activeQuestArray.includes("Learning to Fish II");
-						},
-						shopGreeting: "You can always buy a lure to fish up more. Heheh, that rhymed!",
-					},
-					{
-						sold: [
-							{item: Items.currency[2], cost: 1, costCurrency: 3}, // 1 gold
-							{item: Items.bag[4], cost: 10, costCurrency: 3}, // fishing pouch
-							{item: Items.rod[6], cost: 15, costCurrency: 3}, // rod of steel
-						],
-						role: "merchant",
-						chooseText: "I'd like to see what I can buy with fishing seals.",
-						roleRequirement: function () {
-							return Player.quests.completedQuestArray.includes("Learning to Fish III");
-						},
-						shopGreeting: "If ya do enough fishing, you can get some rare items. Heheh.",
-					},
-				],
-				chat: {
-					notUnlockedRoles: "It's a great day to fish, heheh.",
-					chooseChat: "Caught a big one?",
-					shopLeave: "Heheh, see you soon!",
-					inventoryFull: "You've lots of fish in your bags, but you've not any space for your rewards!",
-					tooPoor: "You can't afford that, but don't let that stop ya from fishing!",
-					questProgress: "It's a great day to fish, heheh.",
-					// "&#9835; I'm fiiiiiiiishing in the rain! &#9835;"
-					christmasGreeting: "Heheh, what better to do on Christmas Day than to fish!",
-				},
-				canBeShown: function () {
-					return Player.quests.completedQuestArray.includes("To the Logging Camp");
-				},
-			},
-
-			{
-				template: NPCTemplates.torianTintop,
-				x: 3210,
-				y: 395,
-				z: -1,
-				canBeShown: function () {
-					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 2;
-				}
-			},
-			{
-				template: NPCTemplates.nessyTintop,
-				x: 3630,
-				y: 266,
-				orderOffsetY: -10,
-				canBeShown: function () {
-					return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 9;
-				}
-			},
-		],
-
-		things: [
-			{
-				x: 3660,
-				y: 250,
-				orderOffsetY: -20,
-				image: "cart",
-				name: "Cart",
-			},
-			{
-				x: 3208,
-				y: 388,
-				image: "weaponsmithSign",
-				name: "Weaponsmith Sign",
-			},
-			{
-				x: 150,
-				y: 90,
-				image: "eaglecrestBanner",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 390,
-				y: 90,
-				image: "eaglecrestBanner",
-				name: "Eaglecrest Banner",
-			},
-			{
-				x: 1470,
-				y: 90,
-				image: "eaglecrestBanner",
-				name: "Eaglecrest Banner",
-			},
-		],
-
-		chests: [
-			{
-                x: 1476,
-                y: 140,
-                image: "present",
-                name: "Tightly Packed Present", // from tintops
-                loot: [{item: Items.helm[20]}, {item: Items.currency[2], quantity: 2}, {item: Items.food[0]}, {item: new UnId("loggingCamp", 1)}, {item: Items.consumable[22]}],
-                inventorySpace: 8,
-                disappearAfterOpened: true,
-                canBeShown: function () {
-                    return Player.quests.activeQuestArray.includes("A Tale of Two Twintops") &&
-					Player.quests.prog.eaglecrestLoggingCamp[25].timesCompleted === 10;
-                },
-				onClose: function () {
-					Quests.eaglecrestLoggingCamp[25].autofinish = true;
-					User.progress.presentsOpened = Increment(User.progress.presentsOpened); // achievement progress
-					Dom.checkProgress();
-				}
-            },
 		],
 
 	},
+	images: {
+		tiles: {normal: "assets/tilemap/loggingCamp.png"},
+		windTurbine: {normal: "assets/objects/windTurbine.png"},
+	},
+
+	things: [
+
+		{
+				x: [815, 238], y: [220, 350],
+				image: "windTurbine",
+				name: "windTurbine",
+				crop: {
+					x: 0,
+					y: 0,
+					width: 144,
+					height: 320,
+				},
+				animation: {
+					type: "spritesheet",
+					frameTime: 250,
+					imagesPerRow: 2,
+					totalImages: 2,
+				},
+			},
+	],
+	
+},
 
 	eaglecrestLoggingCamp: {
 		id: 1,
