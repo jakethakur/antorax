@@ -5331,137 +5331,68 @@ class Hero extends Attacker {
 				        this.removeChannelling("fishingBobberRemoved"); // also removes bobber and clears timeout
 					}
 					else if (FishingGame.currentGame === "timing" && FishingGame.status === 1)
+						
 					{
+						
 						// clicks are redirected to fishingGame as player is doing timing game
 						FishingGame.clicked();
 
 						// now check if the game has been finished + won or not!
 						// not won is checked w update
+						
 						if (FishingGame.status === 2) {
-							// reaction time game has been won, stop bobbing and start clicking game
-							FishingGame.status = 0;
+							if (typeof FishingGame._generatorCallback === "function") {
+								FishingGame.status = 0;
+								let cb = FishingGame._generatorCallback;
+								FishingGame._generatorCallback = undefined;
+								FishingGame.gameEnd();
+								cb(true);
+							}
+							else {
+								// reaction time game has been won, stop bobbing and start clicking game
+								FishingGame.status = 0;
 
-							// calculate time to catch fish and clicks needed for fish
-							// see fish spreadsheet for how this is figured out
-							// should be moved to its own (recursive?) function
-							let clicks = 0;
-							let time = 0; // in ms
-							if (Player.stats.fishingSkill === 0) {
-								// tutorial
-								clicks = 5;
-								time = 7000;
-
-								// close prev alert if it's still open
-								let index = Dom.alert.array.findIndex(index => index.text === "A fish is at your bobber - pull it out of the water by clicking when the white line reaches the green section.");
-								if (index !== -1)
-								{
-									Dom.alert.close(index);
+								// calculate time to catch fish and clicks needed for fish
+								let clicks = 0;
+								let time = 0;
+								if (Player.stats.fishingSkill === 0) {
+									clicks = 5;
+									time = 7000;
+									let index = Dom.alert.array.findIndex(index => index.text === "A fish is at your bobber - pull it out of the water by clicking when the white line reaches the green section.");
+									if (index !== -1) { Dom.alert.close(index); }
+									Dom.alert.page("Now click as fast as you can to reel in the fish!", 0);
 								}
-
-								Dom.alert.page("Now click as fast as you can to reel in the fish!", 0);
-							}
-							else if (this.channelling.fishingType === "waterjunk") { // junk fishing item (uses different algorithm for clicks and time)
-								clicks = 3;
-								time = 1000;
-							}
-							else if (this.channelling.fishingType === "watermisc") { // misc fishing item (no length, so clicks and time specified in itemdata)
-								clicks = this.channelling.clicksToCatch;
-								time = this.channelling.timeToCatch;
-							}
-							else { // this.channelling
-								// calculate fish length
-								// between min and max; biased towards average
-								let fishLength = Round(BiasedRandom(this.channelling.length.min, this.channelling.length.max, this.channelling.length.avg, 1)); // if you ever change this, please also change it in frog looting!
-								this.channelling.length = fishLength; // replace length object with an integer saying the this.channelling's length
-
-								// clicks
-								if (fishLength / 25 >= 2) {
-									clicks += 4;
-									//fishLength -= 100;
-
-									if (fishLength / 50 >= 2) {
-										clicks += 4;
-										//fishLength -= 200;
-
-										if (fishLength / 75 >= 2) {
-											clicks += 4;
-											//fishLength -= 300;
-
-											if (fishLength / 100 >= 2) {
-												clicks += 4;
-												//fishLength -= 400;
-
-												if (fishLength / 200 >= 2) {
-													clicks += 4;
-													console.error("this.channelling length " + this.channelling.length + " is not accounted for being so large!");
-												}
-												else {
-													clicks += Math.floor(fishLength / 200);
-												}
-
-											}
-
-											else {
-												clicks += Math.floor(fishLength / 100);
-											}
-
-										}
-										else {
-											clicks += Math.floor(fishLength / 75);
-										}
-
-									}
-									else {
-										clicks += Math.floor(fishLength / 50);
-									}
-
-								}
+								else if (this.channelling.fishingType === "waterjunk") { clicks = 3; time = 1000; }
+								else if (this.channelling.fishingType === "watermisc") { clicks = this.channelling.clicksToCatch; time = this.channelling.timeToCatch; }
 								else {
-									clicks += Math.floor(fishLength / 25);
-									if (clicks < 3) {
-										clicks = 3; // clicks needed defaults to 3
-									}
+									let fishLength = Round(BiasedRandom(this.channelling.length.min, this.channelling.length.max, this.channelling.length.avg, 1));
+									this.channelling.length = fishLength;
+									if (fishLength / 25 >= 2) { clicks += 4; if (fishLength / 50 >= 2) { clicks += 4; if (fishLength / 75 >= 2) { clicks += 4; if (fishLength / 100 >= 2) { clicks += 4; if (fishLength / 200 >= 2) { clicks += 4; console.error("this.channelling length " + this.channelling.length + " is not accounted for being so large!"); } else { clicks += Math.floor(fishLength / 200); } } else { clicks += Math.floor(fishLength / 100); } } else { clicks += Math.floor(fishLength / 75); } } else { clicks += Math.floor(fishLength / 50); } } else { clicks += Math.floor(fishLength / 25); if (clicks < 3) { clicks = 3; } }
+									if (this.channelling.rarity === "common") { time += 300 * clicks; }
+									if (this.channelling.rarity === "unique") { time += 225 * clicks; }
+									if (this.channelling.rarity === "mythic") { time += 200 * clicks; }
 								}
-								// time
-								if (this.channelling.rarity === "common") {
-									time += 300 * clicks;
-								}
-								if (this.channelling.rarity === "unique") {
-									time += 225 * clicks;
-								}
-								if (this.channelling.rarity === "mythic") {
-									time += 200 * clicks;
-								}
+								this.channelling.clicksToCatch = clicks;
+								FishingGame.startClickerGame(time, clicks);
+								let projectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
+								projectile.bobberState = 2;
+								projectile.setImageDimensions({ x: 54, y: 0, width: 27, height: 23 });
 							}
-							//Dom.chat.insert(clicks); //for testing
-							//Dom.chat.insert(time);
-							this.channelling.clicksToCatch = clicks;
-							// start the gameeee
-							FishingGame.startClickerGame(time, clicks);
-
-							// fish finished! time for player to fish it up...
-							//this.channelling = this.channelling;???
-
-							// submerged image for projectile
-							let projectile = Game.projectiles[Game.searchFor(this.channellingProjectileId, Game.projectiles)];
-							projectile.bobberState = 2;
-							projectile.setImageDimensions({
-								x: 54,
-								y: 0,
-								width: 27,
-								height: 23
-							});
 						}
 						else if (FishingGame.status === 3) {
-							// game failed
-							FishingGame.gameEnd();
-
-							// remove fishing bobber
-							//Game.removeObject(this.channellingProjectileId, "projectiles"); // now done in removeChannelling
-							this.removeChannelling("fishingBobberRemoved");
-							//Game.clearTimeout(Game.fishTimeout); // now done in removeChannelling
-
-							Dom.chat.insert("<i>The fish swam away!</i>");
+							if (typeof FishingGame._generatorCallback === "function") {
+								FishingGame.status = 0;
+								let cb = FishingGame._generatorCallback;
+								FishingGame._generatorCallback = undefined;
+								FishingGame.gameEnd();
+								cb(false);
+							}
+							else {
+								// game failed
+								FishingGame.gameEnd();
+								this.removeChannelling("fishingBobberRemoved");
+								Dom.chat.insert("<i>The fish swam away!</i>");
+							}
 						}
 					}
 					else if (FishingGame.currentGame === "clicker" && FishingGame.status === 1) { // channelling.type is only defined when it is set to an item (i.e. a fishing item)
@@ -13615,16 +13546,23 @@ Game.update = function (delta) {
 
 	// fishing game - function returns true if game has been FAILED
 	if (FishingGame.update(delta) === true) {
-		// game failed
+	if (typeof FishingGame._generatorCallback === "function") {
+		// generator minigame failed
+		let cb = FishingGame._generatorCallback;
+		FishingGame._generatorCallback = undefined;
 		FishingGame.gameEnd();
-
-		// remove fishing bobber
+		cb(false);
+	}
+	else {
+		// game failed - fishing
+		FishingGame.gameEnd();
 		this.removeObject(this.hero.channellingProjectileId, "projectiles");
 		this.hero.removeChannelling("fishingBobberRemoved");
 		this.hero.channellingProjectileId = null;
 		this.clearTimeout(this.fishTimeout);
 		Dom.chat.insert("<i>The fish swam away!</i>");
 	}
+}
 
 
 	// tag minigame - tagged player speedboost (increases over time the longer they are tagged)
@@ -16010,7 +15948,10 @@ Game.renderDayNight = function () {
 		this.ctxDayNight.globalCompositeOperation = "source-out";
 		this.ctxDayNight.fillRect(0, 0, Dom.canvas.width, Dom.canvas.height);
 		this.ctxDayNight.globalCompositeOperation = "source-over"; // back to default
-
+// generator red glow for blackout quest
+if (typeof Areas[this.areaName].renderBlackout === "function") {
+    Areas[this.areaName].renderBlackout();
+}
 		// fog
 		if (document.getElementById("weatherOn").checked) {
 			this.ctxDayNight.fillStyle = "#999999";

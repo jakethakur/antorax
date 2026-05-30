@@ -6266,6 +6266,7 @@ var Quests = {
 	],
 
 	caves: [
+		
 		{
 			id: 0,
 			quest: "Dig Base Alfa",
@@ -6616,6 +6617,101 @@ var Quests = {
 			levelRequirement: 10,
 			questRequirements: ["Dig Base Alfa"],
 		},
+{
+	id: 4,
+	quest: "Lights Out",
+	questArea: "caves",
+	questType: "storyline",
+ 
+	steps: [
+		{
+			stepNum: 0,
+			name: "Alys Loreworth",
+			chat: [
+				{
+					text: `<em>The cave lights flicker</em>`,
+				},
+				{
+					text: `Don't panic! It's happened before. The generators on this level are about to cut out.`,
+				},
+				{
+					text: `There are three of them scattered across the caves. You'll need to manually restart each one.`,
+				},
+				{
+					text: `Here, take this Toolbox, it'll help you!`,
+				},
+				{
+					text: `The generators have a manual restart panel. It'll resist, but you'll need to force the switch at exactly the right moment. Good luck.`,
+					long: true,
+				},
+			],
+			//rewards: {
+				//items: [
+					//{item: Items.rod[7]},
+				//],
+			//},
+			autofinish: true,
+		},
+		{
+			stepNum: 1,
+			name: "Alys Loreworth",
+			chat: [
+				{
+					text: `Remarkable. All three, and in one piece. Most people turn back after the first.`,
+				},
+				{
+					text: `Take this as a token of our gratitude!`,
+				},
+			],
+			rewards: {
+				xp: 200,
+				items: [
+					{item: Items.currency[2], quantity: 15},
+				],
+				removeItems: [
+				{ item: Items.rod[7],},
+			],
+			},
+		},
+	],
+ 
+	objectivesList: [
+		{
+			id: 0,
+			text: "Fix the generators scattered across the caves!",
+			revealStep: 0,
+			isCompleted: function () {
+				let prog = Player.quests.prog.caves[4];
+				if (typeof prog === "undefined") return false;
+				let done = (prog.vars.generatorsFixed || 0);
+				if (done >= 3) return true;
+				if (done > 0) return "(" + done + "/3)";
+				return false;
+			},
+		},
+		{
+			id: 1,
+			text: "Report back to Alys Loreworth in the Caves!",
+		},
+		
+	],
+ 
+	howToStart: "Speak to <b>Alys Loreworth</b> in <b>The Caves</b>.",
+	levelRequirement: 1,
+	repeatable: true,
+	numberOfRepeats: 99,
+	//questRequirements: ["Dig Base Alfa"],
+ 
+	onQuestStart: function () {
+		Areas.caves.startBlackout();
+	},
+ 
+	onQuestAbandon: function () {
+    if (Game.areaName === "caves") {
+        Areas.caves.endBlackout();
+    }
+},
+},
 	],
 };
 

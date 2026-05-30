@@ -246,3 +246,13 @@ FishingGame.gameEnd = function ()
 	this.status = 0;
 	this.render();
 }
+
+FishingGame.startGeneratorGame = function (difficulty, callback) {
+	this._generatorCallback = callback;
+	const settings = {
+		easy:   "common",
+		medium: "unique",
+		hard:   "mythic",
+	};
+	this.startTimingGame(settings[difficulty] || "common");
+};

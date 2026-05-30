@@ -3936,6 +3936,18 @@ unidentifiedArea: ["caves"],
 			stats: {defence: 15},
 			tier: 1, // tbd...
 		},
+		{
+		id: 7, // use next available rod id
+		name: "Toolbox",
+		type: "rod",
+		rarity: "unique",
+		stats: {},
+		image: "assets/items/rod/7.png",
+		quest: function () {
+			return Player.quests.activeQuestArray.includes("Lights Out");
+		},
+		lore: "A battered toolbox. Hopefully everything you need is in here.",
+		},
 	],
 	set: [
 		{

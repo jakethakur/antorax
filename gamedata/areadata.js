@@ -11828,6 +11828,207 @@ caves: {
 	checkpoint: false,
 	lootArea: "caves",
 
+startBlackout: function () {
+    Areas.caves.darkness = Event.darkness || 0.3; // anchor current darkness so weather doesn't reset it
+    Game.areaVariables.blackoutActive = true;
+	Game.areaVariables.fadeTarget = 0.97;
+
+    // snuff out torches
+    let map = Game.hero.map;
+    for (let layer = 0; layer < map.layers.length; layer++) {
+        for (let i = 0; i < map.layers[layer].length; i++) {
+            if (map.layers[layer][i] === 391 || map.layers[layer][i] === 392) {
+                map.layers[layer][i] = 413;
+            }
+        }
+    }
+
+    // strip lightEmit from all entities
+    for (let i = 0; i < Game.allEntities.length; i++) {
+        let e = Game.allEntities[i];
+        if (typeof e.lightEmit !== "undefined") {
+            e._savedLightEmit = e.lightEmit;
+            e.lightEmit = undefined;
+        }
+    }
+
+    // give hero a glowing light source
+    Game.hero.lightEmit = {radius: 250, brightness: 0.30};
+    Areas.caves._startTorchFlicker();
+},
+
+
+renderBlackout: function () {
+    if (!Game.areaVariables.blackoutActive) return;
+
+    let generators = [
+        {name: "Generator A", fixed: "generator1Fixed"},
+        {name: "Generator B", fixed: "generator2Fixed"},
+        {name: "Generator C", fixed: "generator3Fixed"},
+    ];
+
+    let vars = Player.quests.prog.caves[4] && Player.quests.prog.caves[4].vars;
+
+    for (let i = 0; i < generators.length; i++) {
+        let g = Game.things.find(t => t.name === generators[i].name);
+        if (!g) continue;
+
+        let isFixed = vars && vars[generators[i].fixed];
+
+        let pulse = Math.abs(Math.sin(Game.gameTime * 3));
+        let pulseAlpha = isFixed ? 0.25 : 0.05 + pulse * 0.45;
+        let radius = isFixed ? 80 : 40 + pulse * 60;
+
+        let x = g.screenX;
+        let y = g.screenY;
+
+        let grd = Game.ctxLight.createRadialGradient(x, y, 0, x, y, radius);
+        grd.addColorStop(0, `rgba(255, 0, 0, ${pulseAlpha})`);
+        grd.addColorStop(0.5, `rgba(255, 0, 0, ${pulseAlpha * 0.5})`);
+        grd.addColorStop(1, "rgba(255, 0, 0, 0)");
+        Game.ctxLight.fillStyle = grd;
+        Game.ctxLight.fillRect(x - radius, y - radius, radius * 2, radius * 2);
+    }
+},
+ 
+endBlackout: function () {
+    Game.areaVariables.blackoutActive = false;
+
+    // relight all remaining torches
+    let map = Game.hero.map;
+    for (let layer = 0; layer < map.layers.length; layer++) {
+        for (let i = 0; i < map.layers[layer].length; i++) {
+            if (map.layers[layer][i] === 413) {
+                map.layers[layer][i] = 391;
+            }
+        }
+    }
+
+    if (typeof Game.areaVariables.torchFlickerTimeout !== "undefined") {
+        Game.clearTimeout(Game.areaVariables.torchFlickerTimeout);
+        Game.areaVariables.torchFlickerTimeout = undefined;
+    }
+
+    Game.hero.updateFunction = undefined;
+    Game.hero.lightEmit = undefined;
+
+    // restore all saved light emit entities
+    for (let i = 0; i < Game.allEntities.length; i++) {
+        let e = Game.allEntities[i];
+        if (typeof e._savedLightEmit !== "undefined") {
+            e.lightEmit = e._savedLightEmit;
+            e._savedLightEmit = undefined;
+        }
+    }
+
+    Game.areaVariables.fadeInterval = Game.setInterval(function () {
+    Areas.caves.darkness = undefined; // let us control Event.darkness directly
+    Event.darkness = Event.darkness + (0.3 - Event.darkness) * 0.08;
+    if (Math.abs(Event.darkness - 0.3) < 0.01) {
+        Event.darkness = 0;
+        Areas.caves.darkness = 0.3; // restore normal cave darkness
+        Game.clearInterval(Game.areaVariables.fadeInterval);
+    }
+}, 16);
+},
+ 
+restoreLightZone: function (generatorNumber) {
+    // relight torches in this zone first
+    let zoneX = {1: [0, 2500], 2: [2500, 4500], 3: [4500, 9999]};
+    let range = zoneX[generatorNumber];
+    let map = Game.hero.map;
+    for (let layer = 0; layer < map.layers.length; layer++) {
+        for (let i = 0; i < map.layers[layer].length; i++) {
+            if (map.layers[layer][i] === 413) {
+                let col = i % map.cols;
+                let tileX = col * map.tsize + map.origin.x;
+                if (tileX >= range[0] && tileX <= range[1]) {
+                    map.layers[layer][i] = 391;
+                    if (!Game.areaVariables.isRejoining) {
+                        let row = Math.floor(i / map.cols);
+                        let x = Math.round(col * map.tsize) + 30 - map.origin.x;
+                        let y = Math.round(row * map.tsize) + 30 - map.origin.y;
+                        Game.allEntities.push(new Entity({
+                            x: x,
+                            y: y,
+                            width: 1,
+                            height: 1,
+                            type: "entities",
+                            lightEmit: {tile: 391, brightness: 0.3, radius: 150},
+                        }));
+                    }
+                }
+            }
+        }
+    }
+
+    // fade darkness down
+    let target = Math.max(0.3, (Event.darkness || 0.97) - 0.22);
+    if (typeof Game.areaVariables.fadeInterval !== "undefined") {
+        Game.clearInterval(Game.areaVariables.fadeInterval);
+    }
+    Game.areaVariables.fadeInterval = Game.setInterval(function () {
+        Event.darkness = Event.darkness + (target - Event.darkness) * 0.05;
+        if (Math.abs(Event.darkness - target) < 0.01) {
+            Event.darkness = target;
+            Areas.caves.darkness = target;
+            Game.clearInterval(Game.areaVariables.fadeInterval);
+        }
+    }, 16);
+
+    let vars = Player.quests.prog.caves[4].vars;
+    if ((vars.generatorsFixed || 0) >= 3) {
+        Areas.caves.endBlackout();
+        Game.displayOnCanvas("Power Restored", "The caves are lit once more.", 5, true);
+    }
+},
+ 
+_startTorchFlicker: function () {
+    if (!Game.areaVariables.blackoutActive) return;
+    Game.hero.lightEmit = {radius: 250, brightness: 0.30};
+    Game.hero._torchTime = 0;
+    Game.hero.updateFunction = function (delta) {
+        if (!Game.areaVariables.blackoutActive) return;
+        // fade in darkness
+        if (typeof Game.areaVariables.fadeTarget !== "undefined") {
+            let target = Game.areaVariables.fadeTarget;
+            Event.darkness = Event.darkness + (target - Event.darkness) * delta * 0.8;
+            Areas.caves.darkness = Event.darkness; // keep in sync so weather doesn't override
+            if (Math.abs(Event.darkness - target) < 0.01) {
+                Event.darkness = target;
+                Areas.caves.darkness = target;
+                Game.areaVariables.fadeTarget = undefined;
+            }
+        }
+        // torch pulse
+        this._torchTime += delta * 1.5;
+        this.lightEmit.radius = 300 + Math.sin(this._torchTime) * 25;
+        this.lightEmit.brightness = 0.4 + Math.sin(this._torchTime) * 0.15;
+    };
+},
+ 
+onAreaJoin: function () {
+    // quest will have been abandoned on leave, so nothing to restore
+},
+ 
+callAreaLeaveOnLogout: true,
+ 
+onAreaLeave: function () {
+    if (Game.areaVariables.blackoutActive) {
+        if (typeof Game.areaVariables.torchFlickerTimeout !== "undefined") {
+            Game.clearTimeout(Game.areaVariables.torchFlickerTimeout);
+        }
+        Game.hero.updateFunction = undefined;
+        Game.hero.lightEmit = undefined;
+    }
+    // always reset quest progress on leave so it restarts fresh
+    if (Player.quests.activeQuestArray.includes("Lights Out")) {
+        Player.quests.activeQuestArray = Player.quests.activeQuestArray.filter(q => q !== "Lights Out");
+        Player.quests.prog.caves[4].vars = {};
+        Player.quests.prog.caves[4].stepProgress = [];
+        Player.quests.prog.caves[4].objectiveProgress = [];
+    }
+},
 	mapData: {
 		origin: {x: 0, y: 900},
 		cols: 125,
@@ -11838,6 +12039,8 @@ caves: {
 		objectTiles: [386],
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
+		dayTiles: [391, 392],   // lit torch tiles
+		nightTiles: [413, 413], // snuffed torch tile (create a dark torch tile at id 393, or use an existing dark tile)
 		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150},
 			{tile: 541, brightness: 0.9, radius: 100}, {tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}, {tile: 517, brightness: 0.8, radius: 120}, {tile: 115, brightness: 0.8, radius: 120}, {tile: 116, brightness: 0.8, radius: 120}, {tile: 117, brightness: 0.8, radius: 120}, {tile: 118, brightness: 0.8, radius: 120}, {tile: 125, brightness: 0.8, radius: 120}, {tile: 126, brightness: 0.8, radius: 120}, {tile: 127, brightness: 0.8, radius: 120}, {tile: 128, brightness: 0.8, radius: 120}, {tile: 135, brightness: 0.8, radius: 120}, {tile: 136, brightness: 0.8, radius: 120}, {tile: 137, brightness: 0.8, radius: 120}, {tile: 138, brightness: 0.8, radius: 120},
 		],
@@ -11941,13 +12144,202 @@ caves: {
 		crystalAntGreenQueen: {normal: "assets/enemies/crystalAntGreenQueen.png"},
 		coyoteCorpse: {normal: "assets/corpses/coyote.png"},
 		jaws: {normal: "assets/projectiles/jaws.png",},
+		generator1:   {normal: "assets/objects/generator.png"},
+		generator2:   {normal: "assets/objects/generator.png"},
+		generator3:   {normal: "assets/objects/generator.png"},
 	},
 
 	soundData: {
 		defaultFootstepSound: "cave",
 	},
 
+characters: [
+	{
+		x: 3245,
+		y: 68,
+		image: "alysLoreworth",
+		name: "Alys Loreworth",
+		hostility: "friendly",
+		level: 10,
+		canBeShown: function () {
+    return true;
+},
+		stats: {
+			maxHealth: 100,
+			defence: 1,
+			healthRegen: 0.3,
+		},
+		roles: [
+    {
+        quest: Quests.caves[4],
+        role: "questProgress",
+        step: 0,
+    },
+	{
+        quest: Quests.caves[4],
+        role: "questProgress",
+        step: 1,
+    },
+],
+		
+	},
+	],
+
 	things: [
+		// Generator A
+{
+	x: 1630,
+	y: 882,
+	image: "generator1",
+	name: "Generator A",
+	width: 150,
+	height: 102,
+	sparkleNearPlayer: {},
+	interactCooldown: 2,
+	lightEmit: {
+		radius: 120,
+		brightness: 0.05,
+	},
+ 
+	_pulseTime: Math.random() * Math.PI * 2,
+ 
+	updateFunction: function (delta) {
+    if (this.lightEmit && !Player.quests.prog.caves[4].vars?.generator1Fixed) {
+        this._pulseTime += delta * 2.2;
+        this.lightEmit.brightness = 0.3 + Math.sin(this._pulseTime) * 0.25;
+    }
+},
+ 
+	onInteract: function () {
+    if (FishingGame.status === 1) return;
+    if (!Player.quests.prog.caves[4].vars) Player.quests.prog.caves[4].vars = {};
+    let vars = Player.quests.prog.caves[4].vars;
+    if (vars.generator1Fixed) { Dom.chat.insert("This generator is already running."); return; }
+    let prevWeapon = Player.inventory.weapon;
+    Player.inventory.weapon = Items.rod[7];
+    Game.hero.channel(function () {
+        FishingGame.startGeneratorGame("easy", function (success) {
+            Player.inventory.weapon = prevWeapon;
+            if (success) {
+                vars.generator1Fixed = true;
+                vars.generatorsFixed = (vars.generatorsFixed || 0) + 1;
+                let g = Game.things.find(t => t.name === "Generator A");
+                if (g) { g.updateFunction = undefined; g.lightEmit = {radius: 140, brightness: 0.45}; }
+                Areas.caves.restoreLightZone(1);
+                Dom.chat.insert("Generator A is back online.");
+                Dom.checkProgress();
+                Dom.quests.active();
+            } else {
+                Dom.chat.insert("The switch slipped — try again.");
+            }
+        });
+    }, [], 1500, "Restarting generator...", {cancelChannelOnMove: true, cancelChannelOnDamage: true});
+},
+},
+ 
+// Generator B
+{
+	x: 3226,
+	y: 1125,
+	width: 150,
+	height: 102,
+	image: "generator2",
+	name: "Generator B",
+	sparkleNearPlayer: {},
+	interactCooldown: 2,
+	lightEmit: {
+		radius: 120,
+		brightness: 0.05,
+	},
+ 
+	_pulseTime: Math.random() * Math.PI * 2,
+ 
+	updateFunction: function (delta) {
+    if (this.lightEmit && !Player.quests.prog.caves[4].vars?.generator2Fixed) {
+        this._pulseTime += delta * 2.2;
+        this.lightEmit.brightness = 0.3 + Math.sin(this._pulseTime) * 0.25;
+    }
+},
+ 
+	onInteract: function () {
+    if (FishingGame.status === 1) return;
+    if (!Player.quests.prog.caves[4].vars) Player.quests.prog.caves[4].vars = {};
+    let vars = Player.quests.prog.caves[4].vars;
+    if (vars.generator2Fixed) { Dom.chat.insert("This generator is already running."); return; }
+    let prevWeapon = Player.inventory.weapon;
+    Player.inventory.weapon = Items.rod[7];
+    Game.hero.channel(function () {
+        FishingGame.startGeneratorGame("medium", function (success) {
+            Player.inventory.weapon = prevWeapon;
+            if (success) {
+                vars.generator2Fixed = true;
+                vars.generatorsFixed = (vars.generatorsFixed || 0) + 1;
+                let g = Game.things.find(t => t.name === "Generator B");
+                if (g) { g.updateFunction = undefined; g.lightEmit = {radius: 140, brightness: 0.45}; }
+                Areas.caves.restoreLightZone(2);
+                Dom.chat.insert("Generator B is back online.");
+                Dom.checkProgress();
+                Dom.quests.active();
+            } else {
+                Dom.chat.insert("The switch slipped — try again.");
+            }
+        });
+    }, [], 1500, "Restarting generator...", {cancelChannelOnMove: true, cancelChannelOnDamage: true});
+},
+
+},
+ 
+// Generator C
+{
+	x: 4189,
+	y: 2794,
+	width: 150,
+	height: 102,
+	image: "generator3",
+	name: "Generator C",
+	sparkleNearPlayer: {},
+	interactCooldown: 2,
+	lightEmit: {
+		radius: 120,
+		brightness: 0.05,
+	},
+ 
+	_pulseTime: Math.random() * Math.PI * 2,
+ 
+	updateFunction: function (delta) {
+    if (this.lightEmit && !Player.quests.prog.caves[4].vars?.generator3Fixed) {
+        this._pulseTime += delta * 2.2;
+        this.lightEmit.brightness = 0.3 + Math.sin(this._pulseTime) * 0.25;
+    }
+},
+ 
+	onInteract: function () {
+    if (FishingGame.status === 1) return;
+    if (!Player.quests.prog.caves[4].vars) Player.quests.prog.caves[4].vars = {};
+    let vars = Player.quests.prog.caves[4].vars;
+    if (vars.generator3Fixed) { Dom.chat.insert("This generator is already running."); return; }
+    let prevWeapon = Player.inventory.weapon;
+    Player.inventory.weapon = Items.rod[7];
+    Game.hero.channel(function () {
+        FishingGame.startGeneratorGame("hard", function (success) {
+            Player.inventory.weapon = prevWeapon;
+            if (success) {
+                vars.generator3Fixed = true;
+                vars.generatorsFixed = (vars.generatorsFixed || 0) + 1;
+                let g = Game.things.find(t => t.name === "Generator C");
+                if (g) { g.updateFunction = undefined; g.lightEmit = {radius: 140, brightness: 0.45}; }
+                Areas.caves.restoreLightZone(3);
+                Dom.chat.insert("Generator C is back online.");
+                Dom.checkProgress();
+                Dom.quests.active();
+            } else {
+                Dom.chat.insert("The switch slipped — try again.");
+            }
+        });
+    }, [], 1500, "Restarting generator...", {cancelChannelOnMove: true, cancelChannelOnDamage: true});
+},
+
+},
 
 	],
 	areaTeleports: [

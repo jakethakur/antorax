@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="60" tileheight="60" infinite="0" nextlayerid="9" nextobjectid="2496">
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="32" height="18" tilewidth="60" tileheight="60" infinite="0" nextlayerid="9" nextobjectid="2562">
  <tileset firstgid="1" name="loggingCamp" tilewidth="60" tileheight="60" tilecount="112" columns="8">
   <image source="../../assets/tilemap/loggingCamp.png" width="480" height="840"/>
  </tileset>
@@ -1499,8 +1499,8 @@
   <object id="1902" gid="323" x="1844" y="874.667" width="64" height="64"/>
   <object id="1903" gid="323" x="1857.33" y="908" width="64" height="64"/>
   <object id="1904" gid="323" x="1798.67" y="898.667" width="64" height="64"/>
-  <object id="1905" gid="323" x="1866.67" y="932" width="64" height="64"/>
-  <object id="1906" gid="323" x="1882.67" y="877.333" width="64" height="64"/>
+  <object id="1905" gid="323" x="1856" y="926.667" width="64" height="64"/>
+  <object id="1906" gid="323" x="1856" y="873.333" width="64" height="64"/>
   <object id="1908" gid="321" x="741.333" y="865.333" width="64" height="64"/>
   <object id="1909" gid="321" x="732" y="880" width="64" height="64"/>
   <object id="1910" gid="321" x="710.667" y="898.667" width="64" height="64"/>

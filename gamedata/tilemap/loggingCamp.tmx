@@ -975,13 +975,13 @@
    <image source="../../assets/objects/treeStump1.png" width="60" height="60"/>
   </tile>
   <tile id="323">
-   <image source="../../assets/objects/treeStump2.png" width="61" height="87"/>
+   <image source="../../assets/objects/treeStump2.png" width="62" height="88"/>
   </tile>
   <tile id="324">
    <image source="../../assets/objects/treeStump3.png" width="60" height="60"/>
   </tile>
   <tile id="325">
-   <image source="../../assets/objects/treeStump4.png" width="61" height="87"/>
+   <image source="../../assets/objects/treeStump4.png" width="62" height="88"/>
   </tile>
   <tile id="326">
    <image source="../../assets/objects/treestump5.png" width="60" height="120"/>

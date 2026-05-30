@@ -2331,7 +2331,6 @@
   <object id="2095" gid="1053" x="4447" y="1989.33" width="50" height="42"/>
   <object id="2096" gid="1053" x="4013.67" y="1816.33" width="50" height="42"/>
   <object id="2098" gid="1047" x="6364.33" y="1474.67" width="51" height="128"/>
-  <object id="2099" gid="1047" x="3215" y="1026.67" width="51" height="128"/>
   <object id="2100" gid="1047" x="6436.33" y="3164" width="51" height="128"/>
   <object id="2101" gid="1047" x="1393" y="3378" width="51" height="128"/>
   <object id="2103" gid="972" x="4248" y="1616" width="150" height="150"/>
@@ -3031,8 +3030,5 @@
   <object id="4527" gid="1044" x="704" y="4506" width="180" height="180"/>
   <object id="4528" gid="1044" x="1620" y="4514" width="180" height="180"/>
   <object id="4529" gid="1048" x="2104" y="4456" width="180" height="180"/>
-  <object id="4558" gid="1076" x="4099" y="3738" width="150" height="102"/>
-  <object id="4559" gid="1076" x="3139" y="2069" width="150" height="102"/>
-  <object id="4560" gid="1076" x="1540.84" y="1824.33" width="150" height="102"/>
  </objectgroup>
 </map>

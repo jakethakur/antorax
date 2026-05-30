@@ -3186,7 +3186,9 @@ Dom.quest.accept = function () {
 	// reset objectiveProgress and stepProgress
 	Player.quests.prog[quest.questArea][quest.id].objectiveProgress = [];
 	Player.quests.prog[quest.questArea][quest.id].stepProgress = []; // stepProgress[0] is set to true by acceptRewards, called below
-
+if (typeof quest.onQuestStart === "function") {
+    quest.onQuestStart();
+}
 	// find npc that started the quest if possible, for the onFinish function for the first step
 	// note that this may not always be possible, meaning this function won't reliably have an NPC passed in
 	let npc;
@@ -3493,7 +3495,7 @@ Dom.quests.possible = function () {
 					questCanBeStarted = false;
 				//}
 			}
-			else if (Player.quests.prog[quest.questArea][quest.id].timesCompleted >= quest.numberOfRepeats) {
+			else if (Player.quests.prog[quest.questArea][quest.id] && Player.quests.prog[quest.questArea][quest.id].timesCompleted >= quest.numberOfRepeats) {
 				questCanBeStarted = false;
 			}
 			// check if it is daily or one time
