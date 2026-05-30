@@ -6629,7 +6629,7 @@ var Quests = {
 			name: "Alys Loreworth",
 			chat: [
 				{
-					text: `<em>The cave lights flicker</em>`,
+					text: `<em>The cave lights flicker...</em>`,
 				},
 				{
 					text: `Don't panic! It's happened before. The generators on this level are about to cut out.`,
@@ -6637,12 +6637,14 @@ var Quests = {
 				{
 					text: `There are three of them scattered across the caves. You'll need to manually restart each one.`,
 				},
+				//{
+					//text: `Here, take this Toolbox, it'll help you!`,
+				//},
 				{
-					text: `Here, take this Toolbox, it'll help you!`,
+					text: `The generators have a manual restart panel. It'll resist, but you'll need to force the switch at exactly the right moment.`,
 				},
 				{
-					text: `The generators have a manual restart panel. It'll resist, but you'll need to force the switch at exactly the right moment. Good luck.`,
-					long: true,
+					text: `The lights are about to completely switch off any second now. Good luck.`,
 				},
 			],
 			//rewards: {
@@ -6668,9 +6670,9 @@ var Quests = {
 				items: [
 					{item: Items.currency[2], quantity: 15},
 				],
-				removeItems: [
-				{ item: Items.rod[7],},
-			],
+				//removeItems: [
+				//{ item: Items.rod[7],},
+			//],
 			},
 		},
 	],
@@ -6678,7 +6680,7 @@ var Quests = {
 	objectivesList: [
 		{
 			id: 0,
-			text: "Fix the generators scattered across the caves!",
+			text: "Fix <b>The Generators</b> scattered across <b>The Caves</b>.",
 			revealStep: 0,
 			isCompleted: function () {
 				let prog = Player.quests.prog.caves[4];
@@ -6691,7 +6693,7 @@ var Quests = {
 		},
 		{
 			id: 1,
-			text: "Report back to Alys Loreworth in the Caves!",
+			text: "Report back to <b>Alys Loreworth</b> in <b>The Caves</b>.",
 		},
 		
 	],

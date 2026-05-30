@@ -12039,8 +12039,6 @@ onAreaLeave: function () {
 		objectTiles: [386],
 		pathTiles: [],
 		waterTiles: [28, 10, 20],
-		dayTiles: [391, 392],   // lit torch tiles
-		nightTiles: [413, 413], // snuffed torch tile (create a dark torch tile at id 393, or use an existing dark tile)
 		lightEmitTiles: [{tile: 391, brightness: 0.8, radius: 150},
 			{tile: 541, brightness: 0.9, radius: 100}, {tile: 406, brightness: 0.9, radius: 500}, {tile: 405, brightness: 0.5, radius: 100}, {tile: 517, brightness: 0.8, radius: 120}, {tile: 115, brightness: 0.8, radius: 120}, {tile: 116, brightness: 0.8, radius: 120}, {tile: 117, brightness: 0.8, radius: 120}, {tile: 118, brightness: 0.8, radius: 120}, {tile: 125, brightness: 0.8, radius: 120}, {tile: 126, brightness: 0.8, radius: 120}, {tile: 127, brightness: 0.8, radius: 120}, {tile: 128, brightness: 0.8, radius: 120}, {tile: 135, brightness: 0.8, radius: 120}, {tile: 136, brightness: 0.8, radius: 120}, {tile: 137, brightness: 0.8, radius: 120}, {tile: 138, brightness: 0.8, radius: 120},
 		],
@@ -12215,6 +12213,11 @@ characters: [
     if (!Player.quests.prog.caves[4].vars) Player.quests.prog.caves[4].vars = {};
     let vars = Player.quests.prog.caves[4].vars;
     if (vars.generator1Fixed) { Dom.chat.insert("This generator is already running."); return; }
+    if (!Player.quests.activeQuestArray.includes("Lights Out")) {
+        Dom.chat.insert("This generator is running.");
+        return;
+    }
+    // ... rest unchanged
     let prevWeapon = Player.inventory.weapon;
     Player.inventory.weapon = Items.rod[7];
     Game.hero.channel(function () {
@@ -12266,6 +12269,11 @@ characters: [
     if (!Player.quests.prog.caves[4].vars) Player.quests.prog.caves[4].vars = {};
     let vars = Player.quests.prog.caves[4].vars;
     if (vars.generator2Fixed) { Dom.chat.insert("This generator is already running."); return; }
+    if (!Player.quests.activeQuestArray.includes("Lights Out")) {
+        Dom.chat.insert("This generator is running.");
+        return;
+    }
+    // ... rest unchanged
     let prevWeapon = Player.inventory.weapon;
     Player.inventory.weapon = Items.rod[7];
     Game.hero.channel(function () {
@@ -12318,6 +12326,11 @@ characters: [
     if (!Player.quests.prog.caves[4].vars) Player.quests.prog.caves[4].vars = {};
     let vars = Player.quests.prog.caves[4].vars;
     if (vars.generator3Fixed) { Dom.chat.insert("This generator is already running."); return; }
+    if (!Player.quests.activeQuestArray.includes("Lights Out")) {
+        Dom.chat.insert("This generator is running.");
+        return;
+    }
+    // ... rest unchanged
     let prevWeapon = Player.inventory.weapon;
     Player.inventory.weapon = Items.rod[7];
     Game.hero.channel(function () {
