@@ -12219,11 +12219,13 @@ characters: [
     }
     // ... rest unchanged
 	
-    let prevWeapon = Object.assign({}, Player.inventory.weapon);
+    let prevWeapon = DeepCloneObject(Player.inventory.weapon);
 Player.inventory.weapon = Items.rod[7];
+Game.equipmentUpdate(); // show toolbox
 Game.hero.channel(function () {
     FishingGame.startGeneratorGame("easy", function (success) {
         Player.inventory.weapon = prevWeapon;
+        Game.equipmentUpdate(); // show original weapon
             if (success) {
                 vars.generator1Fixed = true;
                 vars.generatorsFixed = (vars.generatorsFixed || 0) + 1;
@@ -12275,11 +12277,13 @@ Game.hero.channel(function () {
         return;
     }
     // ... rest unchanged
-   let prevWeapon = Object.assign({}, Player.inventory.weapon);
+   let prevWeapon = DeepCloneObject(Player.inventory.weapon);
 Player.inventory.weapon = Items.rod[7];
+Game.equipmentUpdate(); // show toolbox
 Game.hero.channel(function () {
     FishingGame.startGeneratorGame("medium", function (success) {
         Player.inventory.weapon = prevWeapon;
+        Game.equipmentUpdate(); // show original weapon
             if (success) {
                 vars.generator2Fixed = true;
                 vars.generatorsFixed = (vars.generatorsFixed || 0) + 1;
@@ -12332,11 +12336,13 @@ Game.hero.channel(function () {
         return;
     }
     // ... rest unchanged
-    let prevWeapon = Object.assign({}, Player.inventory.weapon);
+    let prevWeapon = DeepCloneObject(Player.inventory.weapon);
 Player.inventory.weapon = Items.rod[7];
+Game.equipmentUpdate(); // show toolbox
 Game.hero.channel(function () {
     FishingGame.startGeneratorGame("hard", function (success) {
         Player.inventory.weapon = prevWeapon;
+        Game.equipmentUpdate(); // show original weapon
             if (success) {
                 vars.generator3Fixed = true;
                 vars.generatorsFixed = (vars.generatorsFixed || 0) + 1;
