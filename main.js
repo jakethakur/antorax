@@ -12382,11 +12382,14 @@ Game.update = function (delta) {
 	// check collision with npcs - includes quest givers, quest finishers, merchants, soul healers, etc.
 	let choosePageInformation = []; // parameter for Dom.choose.page, called with the information of any NPCs being touched
 
-	for (let i = 0; i < this.allCharacters.length; i++) { // iterate though npcs
+	let showInteractPrompt = false;
+	for (let i = 0; i < this.allCharacters.length; i++) {
+    let npc = this.allCharacters[i];
+	let canSpeak = true;
 
-		let npc = this.allCharacters[i];
-
-		let canSpeak = true; // set to false if they can't speak to npc
+		if (this.hero.isTouching(npc) && !npc.respawning && !npc.isCorpse && Dom.currentNPC.name !== npc.name && npc !== this.hero) {
+    showInteractPrompt = true;
+}
 
 		if (!this.hero.isTouching(npc)) {
 			// hero not touching npc
@@ -13079,11 +13082,16 @@ Game.update = function (delta) {
 	}
 
 	// check collision with any entities (if they have an interact function to be called)
-	for (let i = 0; i < this.allEntities.length; i++) {
-		let thing = this.allEntities[i];
+	
 
-		let canInteract = true; // set to false if it cannot be interacted with
-
+for (let i = 0; i < this.allEntities.length; i++) {
+    let thing = this.allEntities[i];
+    // DELETE the "let showInteractPrompt = false;" line that was here
+    let canInteract = true;
+    if (thing.onInteract !== undefined && this.hero.isTouching(thing) && !thing.interactOnCooldown) {
+        showInteractPrompt = true;
+    }
+    // ... rest unchanged
 		if (thing.onInteract === undefined) {
 			// doesn't have oninteract
 			canInteract = false;
@@ -13122,7 +13130,8 @@ Game.update = function (delta) {
 			}
 		}
 	}
-
+document.getElementById("interactPrompt").style.display = "block";
+document.getElementById("interactPrompt").style.opacity = showInteractPrompt ? "0.7" : "0";
 	// check collision with points of interest (things that insert something to chat when you touch them)
 	for (let i = 0; i < this.infoPoints.length; i++) {
 		let thing = this.infoPoints[i];

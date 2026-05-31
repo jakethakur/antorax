@@ -20,13 +20,15 @@
 		<p id="achievementPoints"></p>
 	</div>
 	<div id="infoBar"></div>
-	<div id="click" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)"></div>
+	   <div id="interactPrompt">Press Space to interact</div>
+	<div id="click" ondrop="Dom.inventory.dispose(event)" ondragover="Dom.inventory.allowDrop(event)">
+	</div>
 	<canvas id="secondary"></canvas>
 	<canvas id="minimap" width="200px" height="200px"></canvas>
 	<canvas id="minigame" width="600px" height="800px"></canvas>
     <canvas id="light"></canvas>
     <canvas id="dayNight"></canvas>
-	<canvas id="game"></canvas>
+<canvas id="game"></canvas>
 
 	<div id="information" hidden> <!--remember to update archaeology-->
 		<div id='outTriangle' class='triangleLeft'></div>
@@ -123,7 +125,6 @@
 			
 			<div id="bag" onclick="Dom.inventory.reEquip(event)" onmouseover="Dom.inventory.displayInformation(Player.inventory.bag, undefined, 'inventoryPage', 'equip', undefined, undefined, 'Bag slot empty')"onmouseleave="Dom.expand('information')"ondrop="Dom.inventory.drop(event, Player.inventory, 'bag');Game.inventoryUpdate()" ondragover="Dom.inventory.allowDrop(event)" ondrag="Dom.expand('information')"></div>
 		</table>
-
 		<span id="itemInventoryWrapper">
 			<table id="itemInventory">
 				<tr>
@@ -472,6 +473,8 @@ Licensed under Creative Commons: By Attribution 3.0<br>
 	<script src="./gamedata/maildata.js"></script>
 
 	<script src="./dom.js"></script>
+	<script src="./main.js"></script>
+
 	<script src="./main.js"></script>
 </body>
 </html>

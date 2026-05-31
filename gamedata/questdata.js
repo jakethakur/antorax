@@ -6652,11 +6652,11 @@ var Quests = {
 					//{item: Items.rod[7]},
 				//],
 			//},
-			autofinish: true,
 		},
 		{
 			stepNum: 1,
 			name: "Alys Loreworth",
+			objectiveRequirement: [0],
 			chat: [
 				{
 					text: `Remarkable. All three, and in one piece. Most people turn back after the first.`,
@@ -6694,6 +6694,7 @@ var Quests = {
 		{
 			id: 1,
 			text: "Report back to <b>Alys Loreworth</b> in <b>The Caves</b>.",
+			revealStep: 0,
 		},
 		
 	],

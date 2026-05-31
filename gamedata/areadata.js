@@ -12167,6 +12167,8 @@ characters: [
 			defence: 1,
 			healthRegen: 0.3,
 		},
+		 chat: {
+    },
 		roles: [
     {
         quest: Quests.caves[4],
@@ -12192,7 +12194,7 @@ characters: [
 	name: "Generator A",
 	width: 150,
 	height: 102,
-	sparkleNearPlayer: {},
+	sparkleNearPlayer: false,
 	interactCooldown: 2,
 	lightEmit: {
 		radius: 120,
@@ -12251,7 +12253,7 @@ Game.hero.channel(function () {
 	height: 102,
 	image: "generator2",
 	name: "Generator B",
-	sparkleNearPlayer: {},
+	sparkleNearPlayer: false,
 	interactCooldown: 2,
 	lightEmit: {
 		radius: 120,
@@ -12310,7 +12312,7 @@ Game.hero.channel(function () {
 	height: 102,
 	image: "generator3",
 	name: "Generator C",
-	sparkleNearPlayer: {},
+	sparkleNearPlayer: false,
 	interactCooldown: 2,
 	lightEmit: {
 		radius: 120,
