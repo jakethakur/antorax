@@ -15504,7 +15504,18 @@ Game.render = function (delta) {
 	// render day night canvas
 	Game.renderDayNight();
 
-	
+	if (Game.areaName === "undergrove") {
+    for (let i = 0; i < Game.allEntities.length; i++) {
+        let e = Game.allEntities[i];
+        if (e._isFirefly && !isNaN(e.screenX) && !isNaN(e.screenY) && e.lightEmit && !isNaN(e.lightEmit.radius)) {
+            let glow = e.lightEmit.brightness;
+            Game.ctxDayNight.fillStyle = `rgba(255, 255, 100, ${glow * 1.5})`;
+            this.ctx.beginPath();
+this.ctx.arc(e.screenX, e.screenY, 3, 0, Math.PI * 2);
+this.ctx.fill();
+        }
+    }
+}
 	// draw minimap
 	this.ctxMinimap.clearRect(0, 0, this.camera.minimap.width, this.camera.minimap.height);
 	if (!this.keysDown.SHIFT && !this.takePhoto) {
@@ -15940,7 +15951,9 @@ Game.renderDayNight = function () {
 						entity.lightEmit.brightness = 0.5; // brightness defaults to 0.5
 					}
 					this.ctxDayNight.globalAlpha = entity.lightEmit.brightness;
-					this.drawGlow(this.ctxDayNight, entity.screenX, entity.screenY, entity.lightEmit.radius); 
+					if (!isNaN(entity.screenX) && !isNaN(entity.screenY) && entity.screenX !== undefined && entity.screenY !== undefined) {
+    this.drawGlow(this.ctxDayNight, entity.screenX, entity.screenY, entity.lightEmit.radius);
+}
 				}
 			} 
 		}
@@ -15960,6 +15973,19 @@ Game.renderDayNight = function () {
 // generator red glow for blackout quest
 if (typeof Areas[this.areaName].renderBlackout === "function") {
     Areas[this.areaName].renderBlackout();
+}
+// draw firefly dots
+if (Game.areaName === "undergrove") {
+    for (let i = 0; i < Game.allEntities.length; i++) {
+        let e = Game.allEntities[i];
+        if (e._isFirefly) {
+            let glow = e.lightEmit.brightness;
+            Game.ctxDayNight.fillStyle = `rgba(255, 255, 100, ${glow * 1.5})`;
+            Game.ctxDayNight.beginPath();
+            Game.ctxDayNight.arc(e.screenX, e.screenY, 3, 0, Math.PI * 2);
+            Game.ctxDayNight.fill();
+        }
+    }
 }
 		// fog
 		if (document.getElementById("weatherOn").checked) {

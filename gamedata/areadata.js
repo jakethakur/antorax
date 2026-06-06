@@ -12559,7 +12559,8 @@ undergrove: {
 		displayOnEnter: true,
 	},
 
-	darkness: 0.9,
+	darkness: 0.4,
+	callAreaJoinOnInit: true,
 	noRain: true,
 	noLightning: true,
 
@@ -12569,6 +12570,58 @@ undergrove: {
 	song_night: "assets/music/Eaglecrest.mp3",
 	checkpoint: false,
 	lootArea: "caves",
+
+	onAreaJoin: function () {
+    Areas.undergrove.spawnFireflies();
+},
+
+onAreaLeave: function () {
+    // fireflies are automatically removed when area unloads
+},
+
+spawnFireflies: function () {
+    for (let i = 0; i < 60; i++) {
+        let firefly = {
+            x: Game.hero.x + Random(-200, 200),
+            y: Game.hero.y + Random(-200, 200),
+            width: 8,
+            height: 8,
+            _isFirefly: true,
+            _glowTime: Math.random() * Math.PI * 2,
+            _glowSpeed: 0.6 + Math.random() * 0.8,
+            _vx: (Math.random() - 0.5) * 40,
+            _vy: (Math.random() - 0.5) * 40,
+            _changeTimer: Random(2, 5),
+            lightEmit: {radius: 60, brightness: 0.1},
+            updateFunction: function (delta) {
+                this.x += this._vx * delta;
+                this.y += this._vy * delta;
+                Game.updateScreenPosition(this);
+                if (this.screenX < -50 || this.screenX > Dom.canvas.width || 
+    this.screenY < -50 || this.screenY > Dom.canvas.height) {
+    this.x = Game.hero.x + Random(-200, 200);
+    this.y = Game.hero.y + Random(-200, 200);
+    Game.updateScreenPosition(this);
+    this.lightEmit.brightness = 0;
+    this._glowTime = 0;
+}
+                this._glowTime += delta * this._glowSpeed;
+                if (this._glowTime > Math.PI * 2) this._glowTime -= Math.PI * 2;
+                let glow = 0.05 + Math.abs(Math.sin(this._glowTime)) * 0.55;
+                let radius = 40 + Math.abs(Math.sin(this._glowTime)) * 50;
+                this.lightEmit.brightness = glow;
+                this.lightEmit.radius = radius;
+                this._changeTimer -= delta;
+                if (this._changeTimer <= 0) {
+                    this._vx = (Math.random() - 0.5) * 40;
+                    this._vy = (Math.random() - 0.5) * 40;
+                    this._changeTimer = Random(2, 6);
+                }
+            },
+        };
+        Game.allEntities.push(firefly);
+    }
+},
 
 	mapData: {
 		origin: {x: 0, y: 0},

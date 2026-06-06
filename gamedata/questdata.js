@@ -6701,9 +6701,7 @@ var Quests = {
  
 	howToStart: "Speak to <b>Alys Loreworth</b> in <b>The Caves</b>.",
 	levelRequirement: 1,
-	repeatable: true,
-	numberOfRepeats: 999,
-	daily: true,
+	repeatTime: "daily",
 	//questRequirements: ["Dig Base Alfa"],
  
 	onQuestStart: function () {
