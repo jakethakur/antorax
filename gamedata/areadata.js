@@ -12580,10 +12580,10 @@ onAreaLeave: function () {
 },
 
 spawnFireflies: function () {
-    for (let i = 0; i < 60; i++) {
+    for (let i = 0; i < 75; i++) {
         let firefly = {
-            x: Game.hero.x + Random(-200, 200),
-            y: Game.hero.y + Random(-200, 200),
+            x: Game.hero.x + Random(-300, 300),
+            y: Game.hero.y + Random(-300, 300),
             width: 8,
             height: 8,
             _isFirefly: true,
@@ -12599,8 +12599,8 @@ spawnFireflies: function () {
                 Game.updateScreenPosition(this);
                 if (this.screenX < -50 || this.screenX > Dom.canvas.width || 
     this.screenY < -50 || this.screenY > Dom.canvas.height) {
-    this.x = Game.hero.x + Random(-200, 200);
-    this.y = Game.hero.y + Random(-200, 200);
+    this.x = Game.hero.x + Random(-300, 300);
+    this.y = Game.hero.y + Random(-300, 300);
     Game.updateScreenPosition(this);
     this.lightEmit.brightness = 0;
     this._glowTime = 0;
