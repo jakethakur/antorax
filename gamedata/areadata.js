@@ -12656,9 +12656,53 @@ spawnFireflies: function () {
 			barrel: {normal: "assets/objects/barrel.png"},
 			mailbox: {normal: "assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
+			groveFruitPickup: {normal: "assets/items/consumable/43.png"},
 		},
-		
-	},
+
+	things: [
+{
+    x: [3483, 3631, 3751],
+    y: [1415, 1475, 1450],
+    image: "groveFruitPickup",
+    name: "Grove Fruit",
+    width: 30,
+    height: 30,
+    sparkleNearPlayer: {},
+    onLoad: function () {
+        this._respawnTimer = 0;
+        this._visible = true;
+        this._spawnPoints = [
+            {x: 3483, y: 1415},
+            {x: 3631, y: 1475},
+            {x: 3751, y: 1450},
+        ];
+    },
+    updateFunction: function (delta) {
+        if (typeof this._visible === "undefined") return;
+        if (!this._visible) {
+            this._respawnTimer -= delta;
+            if (this._respawnTimer <= 0) {
+    let point = this._spawnPoints[Random(0, this._spawnPoints.length - 1)];
+    this.x = point.x;
+    this.y = point.y;
+    this._visible = true;
+    this.hidden = false;
+    this.sparkleNearPlayer = {};
+}
+        }
+    },
+    onInteract: function () {
+    if (!this._visible) return;
+    Dom.inventory.give(Items.consumable[43], 1);
+    Dom.chat.insert("<em>You pick a pale fruit from near the Grove Tree.</em>");
+    this._visible = false;
+    this.hidden = true;
+    this.removeTrail("&sparkleNearPlayer");
+    this._respawnTimer = Random(5, 10);
+},
+},
+],
+},
 
 	tinkerersWorkshop: {
 		id: 29,

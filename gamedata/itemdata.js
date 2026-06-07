@@ -837,6 +837,22 @@ unidentifiedArea: ["caves"],
 				amount: 0.3,
 			},
 		},
+		{
+			id: 46,
+			name: "Festival Mask",
+			type: "helm",
+			image: "assets/items/helm/46.png",
+			tier: 1,
+			obtain: ["quest"],
+			area: ["undergrove"],
+			rarity: "unique",
+			quest: true,
+			lore: "All hail Chlorella, protector of the Undergrove!",
+			obtainText: "???",
+			stats: {
+				walkSpeed: 10,
+			},
+		},
 	],
 	chest: [
 		{
@@ -6418,6 +6434,14 @@ unidentifiedArea: ["caves"],
 				// explosion is already loaded in by default
 			},
 		},
+		{
+    id: 43,
+    name: "Grove Fruit",
+    type: "consumable",
+    image: "assets/items/consumable/43.png",
+    functionText: "Eat",
+    lore: "A pale fruit from the Grove Tree of Chloroville. The locals eat these constantly.",
+},
 	],
 	food: [
 		{
