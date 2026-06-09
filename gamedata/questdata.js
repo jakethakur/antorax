@@ -6715,6 +6715,145 @@ var Quests = {
 },
 },
 	],
+chloroville: [
+    {
+        id: 0,
+        quest: "Rumble in the Undergrove!",
+        questArea: "chloroville",
+        questType: "storyline",
+        important: true,
+
+        steps: [
+            {
+                stepNum: 0,
+                name: "Hora Nelafont",
+                chat: [
+                    {
+                        text: `How unexpected! Another one drops in? I'm Hora, lead archaeologist from the 72nd division. Over there is my colleague Ancholm.`,
+                    },
+                    {
+                        text: `Don't ask me how we got here. Don't ask me where we are. We're working on it.`,
+                    },
+                    {
+                        text: `What I can tell you is that the locals are... friendly. But I can't understand a word they're saying. Ancholm thinks it's a language barrier.`,
+                        long: true,
+                    },
+                    {
+                        text: `We noticed some monuments scattered around the vicinity: have a look at them and report back when you're done. There's one right here to get you started!`,
+                        long: true,
+                    },
+                ],
+                autofinish: true,
+                rewards: {},
+            },
+			{
+				stepNum: 1,
+				name: "Pilut",
+				chat: [
+					{
+						text: `<em>The local stares at you blankly. You sense they are trying to tell you something.</em>`,
+					},
+				],
+				rewards: {},
+				objectiveRequirement: [0],
+			},
+            {
+			stepNum: 2,
+			name: "Hora Nelafont",
+			objectiveRequirement: [0],
+                chat: [
+                    {
+                        text: `You've had a look around then.`,
+                    },
+                    {
+                        text: `Strange place. The monuments are carved in something I don't recognise. Ancholm tried speaking to three different locals and got the same response each time... totally blank stares!`,
+                        long: true,
+                    },
+                    {
+                        text: `<em>Your stomach growls loudly.</em>`,
+                    },
+                    {
+                        text: `...Right. There's a tree near the centre of the settlement. The locals seem to eat from it constantly. Might be worth trying.`,
+                    },
+                ],
+                autofinish: true,
+                rewards: {},
+                objectiveRequirement: [0, 1],
+            },
+            {
+                stepNum: 3,
+                name: "Hora Nelafont",
+                chat: [
+                    {
+                        text: `You ate it?!`,
+                    },
+                    {
+                        text: `<em>You hear whispers. Your attention is lost for a second.</em>`,
+                    },
+                    {
+                        text: `Hey? Is something off? How about you check those monuments out again.`,
+                    },
+                    {
+                        text: `In the meantime, Ancholm! Fetch me some of those fruits!`,
+                    },
+                ],
+                autofinish: true,
+                rewards: {},
+                objectiveRequirement: [0, 1, 2, 3],
+            },
+        ],
+
+			objectivesList: [
+		{
+			id: 0,
+			text: "Examine <b>three of the monuments</b> around Chloroville.",
+			revealStep: 0,
+			isCompleted: function () {
+				let prog = Player.quests.prog.chloroville[0];
+				if (!prog || !prog.vars) return false;
+				let visited = prog.vars.monumentsVisited || 0;
+				if (visited >= 3) return true;
+				if (visited > 0) return "(" + visited + "/3)";
+				return false;
+			},
+		},
+		{
+			id: 1,
+			text: "Speak to a <b>local</b>.",
+			revealStep: 0,
+			completeStep: 1,
+		},
+		{
+			id: 2,
+			text: "Report back to <b>Hora</b>.",
+			revealStep: 1,
+			completeStep: 2,
+		},
+		{
+			id: 3,
+			text: "Find the <b>Grove Tree</b> and eat its fruit.",
+			revealStep: 2,
+			isCompleted: function () {
+				let prog = Player.quests.prog.chloroville[0];
+				if (!prog || !prog.vars) return false;
+				return prog.vars.fruitEaten === true;
+			},
+		},
+		{
+			id: 4,
+			text: "Return to <b>Hora</b>.",
+			revealStep: 2,
+			completeStep: 3,
+		},
+	],
+
+        howToStart: "Speak to <b>Hora Nelafont</b> in <b>Chloroville</b>.",
+        levelRequirement: 1,
+    },
+],
+
+
+
 };
 
 // check if all of the contents of the array are true

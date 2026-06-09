@@ -852,6 +852,7 @@ unidentifiedArea: ["caves"],
 			stats: {
 				walkSpeed: 10,
 			},
+			
 		},
 	],
 	chest: [
@@ -6434,14 +6435,6 @@ unidentifiedArea: ["caves"],
 				// explosion is already loaded in by default
 			},
 		},
-		{
-    id: 43,
-    name: "Grove Fruit",
-    type: "consumable",
-    image: "assets/items/consumable/43.png",
-    functionText: "Eat",
-    lore: "A pale fruit from the Grove Tree of Chloroville. The locals eat these constantly.",
-},
 	],
 	food: [
 		{
@@ -6604,6 +6597,35 @@ unidentifiedArea: ["caves"],
 			healthRestore: 40,
 			healthRestoreTime: 6,
 			lore: "This thing's basically a part of the geology now",
+		},
+		{
+		id: 14,
+		name: "Grove Fruit",
+		type: "food",
+		rarity: "unique",
+		sellPrice: 1,
+		image: "assets/items/food/14.png",
+		stack: 3,
+		lore: "A mysterious fruit from the Grove Tree.",
+		onClickFunction: function (inventoryPosition) {
+    let prog = Player.quests.prog.chloroville && Player.quests.prog.chloroville[0];
+    let atFruitStep = prog && prog.stepProgress && prog.stepProgress[2] === true && prog.stepProgress[3] !== true;
+    
+    if (!atFruitStep) {
+        Dom.chat.insert("<em>You're not sure you should eat this yet.</em>");
+        return;
+    }
+    if (!prog.vars) prog.vars = {};
+    if (!prog.vars.fruitEaten) {
+        prog.vars.fruitEaten = true;
+        Dom.chat.insert("<em>The eerie sounds of Chloroville rearrange themselves into words.</em>");
+        Dom.checkProgress();
+        Dom.quests.active();
+    } else {
+        Dom.chat.insert("<em>You've already eaten one. The effect still lingers.</em>");
+    }
+    Dom.inventory.remove(inventoryPosition);
+},
 		},
 	],
 	teleport: [

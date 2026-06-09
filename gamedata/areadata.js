@@ -12559,7 +12559,7 @@ undergrove: {
 		displayOnEnter: true,
 	},
 
-	darkness: 0.4,
+	darkness: 0.5,
 	callAreaJoinOnInit: true,
 	noRain: true,
 	noLightning: true,
@@ -12656,10 +12656,163 @@ spawnFireflies: function () {
 			barrel: {normal: "assets/objects/barrel.png"},
 			mailbox: {normal: "assets/objects/mailbox.png"},
 			mailboxUnread: {normal: "assets/objects/mailboxUnread.png"},
-			groveFruitPickup: {normal: "assets/items/consumable/43.png"},
+			groveFruitPickup: {normal: "assets/items/food/14.png"},
+			monument: {normal: "assets/objects/monument.png"},
+			horaNelafont: {normal: "assets/npcs/horaNelafont.png"},
+			pilut: {normal: "assets/npcs/pilut.png"},
+			monumentPortrait: {normal: "assets/objects/monumentPortrait.png"},
 		},
 
 	things: [
+//monument 1
+{
+    x: 3659,
+    y: 3134,
+    image: "monument",
+    name: "Ancient Monument",
+    width: 60,
+    height: 130,
+    sparkleNearPlayer: false,
+    interactCooldown: 2,
+	updateFunction: function (delta) {
+    let vars = Player.quests.prog.chloroville &&
+               Player.quests.prog.chloroville[0] &&
+               Player.quests.prog.chloroville[0].vars;
+    if (vars && vars.fruitEaten) {
+        this.crop = {x: 60, y: 0, width: 60, height: 130}; // lit version (right side)
+    } else {
+        this.crop = {x: 0, y: 0, width: 60, height: 130}; // unlit version (left side)
+    }
+},
+    onInteract: function () {
+        let vars = Player.quests.prog.chloroville &&
+                   Player.quests.prog.chloroville[0] &&
+                   Player.quests.prog.chloroville[0].vars;
+
+        let text;
+        if (vars && vars.fruitEaten) {
+            text = [{text: "<em>The script looks different now. Fragments rise out of the noise, 'those who came before'... 'the deep'... One symbol repeats over and over.</em>"}];
+        } else {
+            text = [{text: "<em>The monument is carved with dense, flowing script. You can't make any sense of it.</em>"}];
+        }
+
+        Dom.chat.npcBanner({
+    name: "Ancient Monument", 
+    imageSrc: "assets/objects/monumentPortrait.png"
+}, text);
+
+        if (vars && Player.quests.activeQuestArray.includes("Rumble in the Undergrove!")) {
+            if (!vars.monument1Visited) {
+                vars.monument1Visited = true;
+                vars.monumentsVisited = (vars.monumentsVisited || 0) + 1;
+                Dom.checkProgress();
+                Dom.quests.active();
+            }
+        }
+    },
+},
+// monument 2
+{
+    x: 3508,
+    y: 3216,
+    image: "monument",
+    name: "Ancient Monument",
+    width: 60,
+    height: 130,
+    sparkleNearPlayer: false,
+    interactCooldown: 2,
+	updateFunction: function (delta) {
+    let vars = Player.quests.prog.chloroville &&
+               Player.quests.prog.chloroville[0] &&
+               Player.quests.prog.chloroville[0].vars;
+    if (vars && vars.fruitEaten) {
+        this.crop = {x: 60, y: 0, width: 60, height: 130}; // lit version (right side)
+    } else {
+        this.crop = {x: 0, y: 0, width: 60, height: 130}; // unlit version (left side)
+    }
+},
+    onInteract: function () {
+        let vars = Player.quests.prog.chloroville &&
+                   Player.quests.prog.chloroville[0] &&
+                   Player.quests.prog.chloroville[0].vars;
+
+        let text;
+        if (vars && vars.fruitEaten) {
+            text = [{text: "<em>You can almost read this now but the fruit's effect isn't strong enough yet. You catch fragments: words like 'below' and 'before' and something that might be a name.</em>",
+					long:true,}
+				];
+        } else {
+            text = [{text: "<em>The writing is inintelligeble. It's all just squiggles and lines.</em>"}];
+        }
+
+        Dom.chat.npcBanner({
+    name: "Ancient Monument", 
+    imageSrc: "assets/objects/monumentPortrait.png"
+}, text);
+
+        if (vars && Player.quests.activeQuestArray.includes("Rumble in the Undergrove!")) {
+            if (!vars.monument2Visited) {
+                vars.monument2Visited = true;
+                vars.monumentsVisited = (vars.monumentsVisited || 0) + 1;
+                Dom.checkProgress();
+                Dom.quests.active();
+            }
+        }
+    },
+},
+
+// monument 3
+{
+    x: 3810,
+    y: 3216,
+    image: "monument",
+    name: "Ancient Monument",
+    width: 60,
+    height: 130,
+    sparkleNearPlayer: false,
+    interactCooldown: 2,
+	updateFunction: function (delta) {
+    let vars = Player.quests.prog.chloroville &&
+               Player.quests.prog.chloroville[0] &&
+               Player.quests.prog.chloroville[0].vars;
+    if (vars && vars.fruitEaten) {
+        this.crop = {x: 60, y: 0, width: 60, height: 130}; // lit version (right side)
+    } else {
+        this.crop = {x: 0, y: 0, width: 60, height: 130}; // unlit version (left side)
+    }
+},
+    onInteract: function () {
+        let vars = Player.quests.prog.chloroville &&
+                   Player.quests.prog.chloroville[0] &&
+                   Player.quests.prog.chloroville[0].vars;
+
+        let text;
+        if (vars && vars.fruitEaten) {
+            text = [{text: "<em>A few words are legible now. Something about 'the deep' and 'those who came before'. One symbol repeats over and over. You don't know what it means yet.</em>",
+				long:true,
+			}
+					
+				];
+        } else {
+            text = [{text: "<em>More of the same script. It seems important, the carvings are deep and deliberate but you can't read a word of it.</em>"}];
+        }
+
+        Dom.chat.npcBanner({
+    name: "Ancient Monument", 
+    imageSrc: "assets/objects/monumentPortrait.png"
+	}, text);
+
+        if (vars && Player.quests.activeQuestArray.includes("Rumble in the Undergrove!")) {
+            if (!vars.monument3Visited) {
+                vars.monument3Visited = true;
+                vars.monumentsVisited = (vars.monumentsVisited || 0) + 1;
+                Dom.checkProgress();
+                Dom.quests.active();
+            }
+        }
+    },
+},
+		//fruits
 {
     x: [3483, 3631, 3751],
     y: [1415, 1475, 1450],
@@ -12693,15 +12846,79 @@ spawnFireflies: function () {
     },
     onInteract: function () {
     if (!this._visible) return;
-    Dom.inventory.give(Items.consumable[43], 1);
-    Dom.chat.insert("<em>You pick a pale fruit from near the Grove Tree.</em>");
+    Dom.inventory.give(Items.food[14], 1);
     this._visible = false;
     this.hidden = true;
+    this.sparkleNearPlayer = false;
     this.removeTrail("&sparkleNearPlayer");
-    this._respawnTimer = Random(5, 10);
-},
+    this._respawnTimer = Random(10, 15);
+	},
+	},
+],
+
+characters: [
+    {
+        x: 2486,
+        y: 2348,
+        image: "horaNelafont",
+        name: "Hora Nelafont",
+        hostility: "friendly",
+        level: 10,
+        canBeShown: function () {
+            return true;
+        },
+        stats: {
+            maxHealth: 100,
+            defence: 1,
+            healthRegen: 0.3,
+        },
+        chat: {},
+        roles: [
+            {
+                quest: Quests.chloroville[0],
+                role: "questProgress",
+                step: 0,
+            },
+            {
+                quest: Quests.chloroville[0],
+                role: "questProgress",
+                step: 2,
+            },
+			{
+                quest: Quests.chloroville[0],
+                role: "questProgress",
+                step: 3,
+            },
+       			],
+    },
+	{
+    x: 4515,   // replace with actual coords
+    y: 2656,
+    image: "pilut",
+    name: "Pilut",
+    hostility: "friendly",
+    level: 1,
+    stats: {
+        maxHealth: 60,
+        defence: 0,
+        healthRegen: 0.2,
+    },
+    roles: [
+    {
+        quest: Quests.chloroville[0],
+        role: "questProgress",
+        step: 1,
+    },
+],
+chat: {
+    notUnlockedRoles: "<em>The local smiles warmly and speaks, but you can't understand a word.</em>",
+    questProgress: "<em>The local smiles warmly and speaks, but you can't understand a word.</em>",
+    questComplete: "Welcome, surface-friend! The grove's blessing is upon you!",
+	},
 },
 ],
+
+
 },
 
 	tinkerersWorkshop: {
