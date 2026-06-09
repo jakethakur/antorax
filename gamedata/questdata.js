@@ -6739,7 +6739,7 @@ chloroville: [
                         long: true,
                     },
                     {
-                        text: `We noticed some monuments scattered around the vicinity: have a look at them and report back when you're done. There's one right here to get you started!`,
+                        text: `We noticed some monuments at the heart of this settlement. See if you can read them.`,
                         long: true,
                     },
                 ],
@@ -6791,7 +6791,7 @@ chloroville: [
                         text: `<em>You hear whispers. Your attention is lost for a second.</em>`,
                     },
                     {
-                        text: `Hey? Is something off? How about you check those monuments out again.`,
+                        text: `Hey? Is something off? You can understand the locals now?! How about you check those monuments out again.`,
                     },
                     {
                         text: `In the meantime, Ancholm! Fetch me some of those fruits!`,
